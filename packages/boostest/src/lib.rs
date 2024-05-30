@@ -1,9 +1,3 @@
-use oxc::{
-  ast::{
-
-  }
-}
-
 #![deny(clippy::all)]
 
 #[macro_use]

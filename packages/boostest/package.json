@@ -1,10 +1,13 @@
 {
-  "name": "omoshiroku",
+  "name": "boostest",
   "version": "0.0.0",
   "main": "index.js",
   "types": "index.d.ts",
+  "bin": {
+    "omoshiroku": "index.js"
+  },
   "napi": {
-    "name": "omoshiroku",
+    "name": "boostest",
     "triples": {}
   },
   "license": "MIT",
