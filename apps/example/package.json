@@ -11,6 +11,6 @@
   "keywords": [],
   "author": "",
   "dependencies": {
-    "omoshiroku": "workspace:*"
+    "boostest": "workspace:*"
   }
 }

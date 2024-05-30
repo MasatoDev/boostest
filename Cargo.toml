@@ -2,18 +2,22 @@
 members  = [
   "crates/boostest",
   "crates/boostest_oxc_utils",
-  "./packages/*"
   ]
 
+exclude = ["packages/boostest"]
 resolver = "2"
 
-[workspace.lints.rust]
+[workspace.package]
+edition    = "2021"
+homepage   = "https://hoge.rs/"
+license    = "MIT"
+repository = "https://github.com/hoge"
 
+[workspace.lints.rust]
 [workspace.lints.clippy]
 
+
 [workspace.dependencies]
-oxc_utils               = { version = "0.1.0", path = "./crates/boostest_oxc_utils" }
-boostest                = { version = "0.0.1", path = "./crates/boostest" }
 
 oxc                = { version = "0.13.0", features = ["sourcemap_concurrent"] }
 oxc_index          = { version = "0.13.0" }
@@ -22,3 +26,6 @@ oxc_resolver       = { version = "1.7.0", features = ["package_json_raw_json_api
 self_cell          = "1.0.4"
 smallvec           = "1.13.2"
 
+
+boostest_oxc_utils      = { version = "0.1.0", path = "./crates/boostest_oxc_utils" }
+boostest                = { version = "0.0.1", path = "./crates/boostest" }
