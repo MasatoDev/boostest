@@ -1,4 +1,8 @@
-interface User {
+const boostestMock = <T>(arg?: any): T => {
+  return arg;
+};
+
+export interface User {
   name: string;
   age: number;
 }
@@ -17,7 +21,7 @@ class Customer implements User {
   }
 }
 
-const user: User = {
+export const user: User = {
   name: 'John Doe',
   age: 30,
 };

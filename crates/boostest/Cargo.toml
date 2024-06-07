@@ -15,3 +15,7 @@ workspace = true
 boostest_oxc_utils = { workspace = true }
 oxc = { workspace = true, features = ["semantic", "codegen"] }
 
+serde  = { workspace = true }
+serde_json  = { workspace = true }
+
+

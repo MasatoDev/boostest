@@ -42,6 +42,8 @@ version = "0.1.0"
 dependencies = [
  "boostest_oxc_utils",
  "oxc",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
