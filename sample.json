@@ -1,0 +1,174 @@
+VariableDeclaration {
+  span: Span { start: 220, end: 255 },
+  kind: Const,
+  declarations: Vec([
+    VariableDeclarator {
+      span: Span { start: 226, end: 254 },
+      kind: Const,
+      id: BindingPattern {
+        kind: BindingIdentifier(
+          BindingIdentifier {
+            span: Span { start: 226, end: 231 },
+            name: "mock1",
+            symbol_id: Cell { value: None }
+          }
+        ),
+        type_annotation: None,
+        optional: false
+      },
+      init: Some(
+        CallExpression(
+          CallExpression {
+            span: Span { start: 234, end: 254 },
+            callee: Identifier(
+              IdentifierReference {
+                span: Span { start: 234, end: 246 },
+                name: "boostestMock",
+                reference_id: Cell { value: None },
+                reference_flag: ReferenceFlag(0x0)
+              }
+            ),
+            arguments: Vec([]),
+            optional: false,
+            type_parameters: Some(
+              TSTypeParameterInstantiation {
+                span: Span { start: 246, end: 252 },
+                params: Vec([
+                  TSTypeReference(
+                    TSTypeReference {
+                      span: Span { start: 247, end: 251 },
+                      type_name: IdentifierReference(
+                        IdentifierReference {
+                          span: Span { start: 247, end: 251 },
+                          name: "User",
+                          reference_id: Cell { value: None },
+                          reference_flag: ReferenceFlag(0x0)
+                        }
+                      ),
+                      type_parameters: None
+                    }
+                  )
+                ])
+              }
+            )
+          }
+        )
+      ),
+      definite: false
+    })
+  ]),
+  modifiers: Modifiers(None)
+}
+
+VariableDeclaration {
+  span: Span { start: 256, end: 290 },
+  kind: Const,
+  declarations: Vec([
+    VariableDeclarator {
+      span: Span { start: 262, end: 289 },
+      kind: Const,
+      id: BindingPattern {
+        kind: BindingIdentifier(
+          BindingIdentifier {
+            span: Span { start: 262, end: 267 },
+            name: "mock2",
+            symbol_id: Cell { value: None }
+          }
+        ),
+        type_annotation: None,
+        optional: false
+      },
+      init: Some(
+        CallExpression(
+          CallExpression {
+            span: Span { start: 270, end: 289 },
+            callee: Identifier(
+              IdentifierReference {
+                span: Span { start: 270, end: 282 },
+                name: "boostestMock",
+                reference_id: Cell { value: None },
+                reference_flag: ReferenceFlag(0x0)
+              }
+            ),
+            arguments: Vec([]),
+            optional: false,
+            type_parameters: Some(
+              TSTypeParameterInstantiation {
+                span: Span { start: 282, end: 287 },
+                params: Vec([
+                  TSTypeReference(
+                    TSTypeReference {
+                      span: Span { start: 283, end: 286 },
+                      type_name: IdentifierReference(
+                        IdentifierReference {
+                          span: Span { start: 283, end: 286 },
+                          name: "JOB",
+                          reference_id: Cell { value: None },
+                          reference_flag: ReferenceFlag(0x0)
+                        }
+                      ),
+                      type_parameters: None
+                    }
+                  )
+                ])
+              }
+            )
+          }
+        )
+      ),
+      definite: false
+    })
+  ]),
+  modifiers: Modifiers(None)
+}
+
+VariableDeclaration {
+  span: Span { start: 291, end: 328 },
+  kind: Const,
+  declarations: Vec([
+    VariableDeclarator {
+      span: Span { start: 297, end: 327 },
+      kind: Const,
+      id: BindingPattern {
+        kind: BindingIdentifier(
+          BindingIdentifier {
+            span: Span { start: 297, end: 302 },
+            name: "mock3",
+            symbol_id: Cell { value: None }
+          }
+        ),
+        type_annotation: None,
+        optional: false
+      },
+      init: Some(
+        CallExpression(
+          CallExpression {
+            span: Span { start: 305, end: 327 },
+            callee: Identifier(
+              IdentifierReference {
+                span: Span { start: 305, end: 317 },
+                name: "boostestMock",
+                reference_id: Cell { value: None },
+                reference_flag: ReferenceFlag(0x0)
+              }
+            ),
+            arguments: Vec([
+              Identifier(
+                IdentifierReference {
+                  span: Span { start: 318, end: 326 },
+                  name: "Customer",
+                  reference_id: Cell { value: None },
+                  reference_flag: ReferenceFlag(0x0)
+                }
+              )
+            ]),
+            optional: false,
+            type_parameters: None
+          }
+        )
+      ),
+      definite: false
+    })
+  ]),
+  modifiers: Modifiers(None)
+}
