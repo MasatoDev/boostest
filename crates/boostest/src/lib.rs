@@ -1,9 +1,11 @@
-use boostest_oxc_utils::{ExpressionExt, OxcAst, OxcCompiler};
+use boostest_oxc_utils::{ExpressionExt, IntoIn, OxcAst, OxcCompiler};
 
 use oxc::{
     ast::ast::{
         Declaration::VariableDeclaration,
         Expression::{CallExpression, Identifier},
+        TSType::TSTypeReference,
+        TSTypeName::IdentifierReference,
     },
     syntax::identifier,
 };
@@ -75,6 +77,17 @@ pub fn callBoostest(path: &Path) {
                             if let Some(identifier) = call_expr.callee.as_identifier() {
                                 if identifier.name.contains("boostestMock") {
                                     println!("identifier: {:?}", identifier.name);
+                                    call_expr.type_parameters.iter().for_each(|type_params| {
+                                        for param in &type_params.params {
+                                            if let TSTypeReference(ty_ref) = param {
+                                                if let IdentifierReference(identifier) =
+                                                    &ty_ref.type_name
+                                                {
+                                                    println!("type_name: {:?}", identifier.name);
+                                                }
+                                            }
+                                        }
+                                    });
                                 }
                             }
                         }
