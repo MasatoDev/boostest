@@ -6,7 +6,7 @@ cargo build --workspace
 ```
 
 ```bash
-pnpm --filter boostest build
+pnpm --filter boostest build:debug
 pnpm --filter example dev
 ```
 

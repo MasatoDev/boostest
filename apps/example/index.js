@@ -1,3 +1,3 @@
-import { sum } from 'boostest';
+import { createMock } from 'boostest';
 
-console.log(sum(1, 2));
+console.log(createMock('./src/example.ts'));
