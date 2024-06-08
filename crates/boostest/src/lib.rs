@@ -76,6 +76,24 @@ impl<'a> Mock<'a> {
         };
     }
 
+    fn get_unresolved_target_name(&self) -> Option<&str> {
+        match &self.target {
+            MockTarget::Type { name, declaration } => {
+                if declaration.is_none() {
+                    return Some(name);
+                }
+                return None;
+            }
+            MockTarget::Class { name, declaration } => {
+                if declaration.is_none() {
+                    return Some(name);
+                }
+                return None;
+            }
+            _ => return None,
+        }
+    }
+
     fn add_declaration(&mut self, declaration: &'a Declaration<'a>) {
         match &mut self.target {
             MockTarget::Type {
@@ -124,6 +142,54 @@ impl<'a> MockBuilder<'a> {
             println!("-------------------------------------");
             mock.debug();
             println!("-------------------------------------");
+        }
+    }
+
+    fn get_unresolved_target_names(&self) -> Vec<&str> {
+        let mut unresolved_target_names: Vec<&str> = Vec::new();
+
+        for mock in &self.mocks {
+            if let Some(name) = mock.get_unresolved_target_name() {
+                println!("Unresolved target name: {:?}", name);
+                unresolved_target_names.push(name);
+            }
+        }
+        unresolved_target_names
+    }
+
+    fn attach_declaration_only_root(&mut self) {
+        for mock in &mut self.mocks {
+            for decl in &self.root_file_declarations {
+                match decl {
+                    ClassDeclaration(class_decl) => {
+                        if let Some(identifier) = &class_decl.id {
+                            if let MockTarget::Class { name, .. } = &mock.target {
+                                if identifier.name == *name {
+                                    println!("ClassDeclaration");
+                                    mock.add_declaration(decl);
+                                }
+                            }
+                        }
+                    }
+                    TSInterfaceDeclaration(ts_interface_decl) => {
+                        if let MockTarget::Type { name, .. } = &mock.target {
+                            if ts_interface_decl.id.name == *name {
+                                println!("TSInterfaceDeclaration");
+                                mock.add_declaration(decl);
+                            }
+                        }
+                    }
+                    TSTypeAliasDeclaration(ts_type_alias_decl) => {
+                        if let MockTarget::Type { name, .. } = &mock.target {
+                            if ts_type_alias_decl.id.name == *name {
+                                println!("TSTypeAliasDeclaration");
+                                mock.add_declaration(decl);
+                            }
+                        }
+                    }
+                    _ => {}
+                }
+            }
         }
     }
 
@@ -255,14 +321,10 @@ pub fn callBoostest(path: &Path) {
         }
 
         // mock_builder.debug();
-        mock_builder.attach_declaration();
+        mock_builder.attach_declaration_only_root();
         mock_builder.debug();
 
-        let mut local_vec: Vec<&str> = ts_type_vec.clone();
-        local_vec.extend(&class_vec);
-
-        println!("local_vec{:?}", local_vec);
-
+        let unresolved_targets = mock_builder.get_unresolved_target_names();
         let mut sources: Vec<&StringLiteral> = Vec::new();
 
         for import in imports {
@@ -270,17 +332,17 @@ pub fn callBoostest(path: &Path) {
                 for specifier in specifiers {
                     match specifier {
                         ImportDeclarationSpecifier::ImportNamespaceSpecifier(namespace) => {
-                            if local_vec.contains(&namespace.local.name.as_str()) {
+                            if unresolved_targets.contains(&namespace.local.name.as_str()) {
                                 sources.push(&import.source);
                             }
                         }
                         ImportDeclarationSpecifier::ImportSpecifier(normal) => {
-                            if local_vec.contains(&normal.local.name.as_str()) {
+                            if unresolved_targets.contains(&normal.local.name.as_str()) {
                                 sources.push(&import.source);
                             }
                         }
                         ImportDeclarationSpecifier::ImportDefaultSpecifier(default) => {
-                            if local_vec.contains(&default.local.name.as_str()) {
+                            if unresolved_targets.contains(&default.local.name.as_str()) {
                                 sources.push(&import.source);
                             }
                         }
@@ -288,6 +350,8 @@ pub fn callBoostest(path: &Path) {
                 }
             }
         }
+
+        println!("sources{:?}", sources);
 
         let module_path = path.canonicalize().unwrap();
         let module_path = module_path.parent().unwrap();
