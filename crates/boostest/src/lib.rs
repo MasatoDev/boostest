@@ -1,13 +1,16 @@
 use boostest_oxc_utils::{ExpressionExt, IntoIn, OxcAst, OxcCompiler, StatementExt};
 
-use oxc::ast::ast::Argument;
+use oxc::ast::ast::{Declaration, Program};
 use oxc::ast::Visit;
+use oxc::ast::{ast::Argument, AstKind};
 use oxc_resolver::{AliasValue, ResolveOptions, Resolver};
 
 use oxc::{
     ast::ast::{
         Argument::{ObjectExpression, SpreadElement},
-        Declaration::VariableDeclaration,
+        Declaration::{
+            ClassDeclaration, TSInterfaceDeclaration, TSTypeAliasDeclaration, VariableDeclaration,
+        },
         Expression::{CallExpression, Identifier},
         ImportDeclaration, ImportDeclarationSpecifier, Statement, StringLiteral,
         TSPropertySignature,
@@ -35,11 +38,11 @@ struct Property<'a> {
 enum MockTarget<'a> {
     Type {
         name: &'a str,
-        stmt: Option<&'a Statement<'a>>,
+        declaration: Option<&'a Declaration<'a>>,
     },
     Class {
         name: &'a str,
-        stmt: Option<&'a Statement<'a>>,
+        declaration: Option<&'a Declaration<'a>>,
     },
     None,
 }
@@ -62,15 +65,31 @@ impl<'a> Mock<'a> {
     fn add_ts_type(&mut self, ts_type: &'a str) {
         self.target = MockTarget::Type {
             name: ts_type,
-            stmt: None,
+            declaration: None,
         };
     }
 
     fn add_class(&mut self, class: &'a str) {
         self.target = MockTarget::Class {
             name: class,
-            stmt: None,
+            declaration: None,
         };
+    }
+
+    fn add_declaration(&mut self, declaration: &'a Declaration<'a>) {
+        match &mut self.target {
+            MockTarget::Type {
+                declaration: decl, ..
+            } => {
+                *decl = Some(declaration);
+            }
+            MockTarget::Class {
+                declaration: decl, ..
+            } => {
+                *decl = Some(declaration);
+            }
+            _ => {}
+        }
     }
 
     fn debug(&self) {
@@ -85,11 +104,15 @@ impl<'a> Mock<'a> {
 
 struct MockBuilder<'a> {
     mocks: Vec<Mock<'a>>,
+    root_file_declarations: Vec<&'a Declaration<'a>>,
 }
 
 impl<'a> MockBuilder<'a> {
     fn new() -> Self {
-        MockBuilder { mocks: Vec::new() }
+        MockBuilder {
+            mocks: Vec::new(),
+            root_file_declarations: Vec::new(),
+        }
     }
 
     fn add_mock(&mut self, mock: Mock<'a>) {
@@ -98,7 +121,45 @@ impl<'a> MockBuilder<'a> {
 
     fn debug(&self) {
         for mock in &self.mocks {
+            println!("-------------------------------------");
             mock.debug();
+            println!("-------------------------------------");
+        }
+    }
+
+    fn attach_declaration(&mut self) {
+        for mock in &mut self.mocks {
+            for decl in &self.root_file_declarations {
+                match decl {
+                    ClassDeclaration(class_decl) => {
+                        if let Some(identifier) = &class_decl.id {
+                            if let MockTarget::Class { name, .. } = &mock.target {
+                                if identifier.name == *name {
+                                    println!("ClassDeclaration");
+                                    mock.add_declaration(decl);
+                                }
+                            }
+                        }
+                    }
+                    TSInterfaceDeclaration(ts_interface_decl) => {
+                        if let MockTarget::Type { name, .. } = &mock.target {
+                            if ts_interface_decl.id.name == *name {
+                                println!("TSInterfaceDeclaration");
+                                mock.add_declaration(decl);
+                            }
+                        }
+                    }
+                    TSTypeAliasDeclaration(ts_type_alias_decl) => {
+                        if let MockTarget::Type { name, .. } = &mock.target {
+                            if ts_type_alias_decl.id.name == *name {
+                                println!("TSTypeAliasDeclaration");
+                                mock.add_declaration(decl);
+                            }
+                        }
+                    }
+                    _ => {}
+                }
+            }
         }
     }
 }
@@ -109,7 +170,7 @@ fn boostest_mock<'a>(stmt: &'a Statement<'a>) -> io::Result<Mock<'a>> {
             for decl in &decl.declarations {
                 if let Some(CallExpression(call_expr)) = &decl.init {
                     if let Some(identifier) = call_expr.callee.as_identifier() {
-                        if identifier.name.contains("boostestMock") {
+                        if identifier.name.contains("boostest") {
                             let mut mock = Mock::new(identifier.name.clone().into_string());
 
                             call_expr.type_parameters.iter().for_each(|type_params| {
@@ -180,6 +241,10 @@ pub fn callBoostest(path: &Path) {
         let mut class_vec: Vec<&str> = Vec::new();
 
         for stmt in program.body.iter() {
+            if let Some(decl) = stmt.as_declaration() {
+                mock_builder.root_file_declarations.push(decl);
+            }
+
             if let Some(stmt) = stmt.as_import_declaration() {
                 imports.push(stmt);
             }
@@ -189,10 +254,9 @@ pub fn callBoostest(path: &Path) {
             }
         }
 
+        // mock_builder.debug();
+        mock_builder.attach_declaration();
         mock_builder.debug();
-
-        println!("ts_type_vec{:?}", ts_type_vec);
-        println!("class_vec{:?}", class_vec);
 
         let mut local_vec: Vec<&str> = ts_type_vec.clone();
         local_vec.extend(&class_vec);
@@ -254,3 +318,14 @@ fn resolve_specifier(path: &Path, specifier: &str) {
         }
     }
 }
+
+// ------------------------------------------------------------
+
+// fn check_bus_definition_in_declaration(declaration: &Declaration) -> bool {
+//     match &declaration.kind() {
+//         AstKind::TSTypeAliasDeclaration(TSTypeAliasDeclaration { id, .. }) => id.name == "Bus",
+//         AstKind::ClassDeclaration(ClassDeclaration { id: Some(id), .. }) => id.name == "Bus",
+//         AstKind::TSInterfaceDeclaration(TSInterfaceDeclaration { id, .. }) => id.name == "Bus",
+//         _ => false,
+//     }
+// }
