@@ -3,7 +3,7 @@ use boostest_oxc_utils::{ExpressionExt, IntoIn, OxcAst, OxcCompiler, StatementEx
 use oxc::ast::ast::{Declaration, Program};
 use oxc::ast::Visit;
 use oxc::ast::{ast::Argument, AstKind};
-use oxc_resolver::{AliasValue, ResolveOptions, Resolver};
+use oxc_resolver::{AliasValue, Resolution, ResolveOptions, Resolver};
 
 use oxc::{
     ast::ast::{
@@ -27,7 +27,10 @@ use std::fs::File;
 use std::io;
 use std::io::prelude::*;
 use std::path::Path;
-use std::{fs, io::ErrorKind};
+use std::{
+    fs,
+    io::{Error, ErrorKind},
+};
 
 struct Property<'a> {
     signature: &'a TSPropertySignature<'a>,
@@ -325,7 +328,7 @@ pub fn callBoostest(path: &Path) {
         mock_builder.debug();
 
         let unresolved_targets = mock_builder.get_unresolved_target_names();
-        let mut sources: Vec<&StringLiteral> = Vec::new();
+        let mut needs_resolve_imports: Vec<&ImportDeclaration> = Vec::new();
 
         for import in imports {
             if let Some(specifiers) = &import.specifiers {
@@ -333,17 +336,17 @@ pub fn callBoostest(path: &Path) {
                     match specifier {
                         ImportDeclarationSpecifier::ImportNamespaceSpecifier(namespace) => {
                             if unresolved_targets.contains(&namespace.local.name.as_str()) {
-                                sources.push(&import.source);
+                                needs_resolve_imports.push(&import);
                             }
                         }
                         ImportDeclarationSpecifier::ImportSpecifier(normal) => {
                             if unresolved_targets.contains(&normal.local.name.as_str()) {
-                                sources.push(&import.source);
+                                needs_resolve_imports.push(&import);
                             }
                         }
                         ImportDeclarationSpecifier::ImportDefaultSpecifier(default) => {
                             if unresolved_targets.contains(&default.local.name.as_str()) {
-                                sources.push(&import.source);
+                                needs_resolve_imports.push(&import);
                             }
                         }
                     }
@@ -351,14 +354,11 @@ pub fn callBoostest(path: &Path) {
             }
         }
 
-        println!("sources{:?}", sources);
-
         let module_path = path.canonicalize().unwrap();
         let module_path = module_path.parent().unwrap();
 
-        for source in sources {
-            resolve_specifier(module_path, &source.value);
-        }
+        // println!("needs_resolve_imports: {:?}", needs_resolve_imports);
+        resolve_all(module_path, needs_resolve_imports);
 
         let code = OxcCompiler::print(&ast, "", false).source_text;
         println!("-------------------------------------");
@@ -367,7 +367,84 @@ pub fn callBoostest(path: &Path) {
     }
 }
 
-fn resolve_specifier(path: &Path, specifier: &str) {
+fn resolve_all(base_path: &Path, imports: Vec<&ImportDeclaration>) {
+    let source_type = SourceType::default()
+        .with_always_strict(true)
+        .with_module(true)
+        .with_typescript(true);
+    // .with_jsx(true)
+
+    for import in imports {
+        let result = resolve_specifier(base_path, &import.source.value)
+            .expect("Failed to resolve specifier");
+
+        let path = result.full_path();
+
+        if let Ok(file) = read(&path) {
+            let ast = OxcCompiler::parse(file, source_type);
+            let program = ast.program();
+
+            for stmt in &program.body {
+                if let Some(decl) = stmt.as_declaration() {
+                    println!("decl: {:?}", decl);
+                    match decl {
+                        ClassDeclaration(class_decl) => {
+                            if let Some(identifier) = &class_decl.id {
+                                if let Some(specifiers) = &import.specifiers {
+                                    for specifier in specifiers {
+                                        // TODO: ここから入れる。宣言内とunresolvedのname(一部importedへ置き換え)と一致したらターゲットへ追加
+
+                                        match specifier {
+                                        ImportDeclarationSpecifier::ImportNamespaceSpecifier(
+                                            namespace,
+                                        ) => {
+                                            if identifier.name == namespace.local.name {
+                                                println!("ClassDeclaration: {:?}", import);
+
+                                            }
+                                        }
+                                        ImportDeclarationSpecifier::ImportSpecifier(normal) => {
+                                            if identifier.name == normal.imported.name() {
+                                                println!("TSInterfaceDeclaration: {:?}", import);
+                                            }
+                                        }
+                                        ImportDeclarationSpecifier::ImportDefaultSpecifier(
+                                            default,
+                                        ) => {
+                                            if identifier.name == default.local.name {
+                                                println!("TSTypeAliasDeclaration: {:?}", import);
+                                            }
+                                        }
+                                        _ => {}
+                                    }
+                                    }
+                                }
+                            }
+                        }
+
+                        TSInterfaceDeclaration(ts_interface_decl) => {
+                            println!("TSInterfaceDeclaration: {:?}", import);
+                            if ts_interface_decl.id.name == import.source.value {}
+                        }
+                        TSTypeAliasDeclaration(ts_type_alias_decl) => {}
+                        _ => {}
+                    }
+                }
+            }
+        }
+    }
+
+    // ast取得
+    // 定義名をチェック(localではなくimported name)
+    // 定義をチェック
+    // 未解決の定義を取得
+    // importの取得
+    // basepathを調整
+    // file resolve
+    // 以降ループ
+}
+
+fn resolve_specifier(path: &Path, specifier: &str) -> Result<Resolution, Error> {
     let options = ResolveOptions {
         // alias_fields: vec![vec!["browser".into()]],
         // alias: vec![("asdf".into(), vec![AliasValue::from("./test.js")])],
@@ -376,9 +453,12 @@ fn resolve_specifier(path: &Path, specifier: &str) {
     };
 
     match Resolver::new(options).resolve(path, &specifier) {
-        Err(error) => println!("Error: {error}"),
+        Err(error) => {
+            println!("Error: {error}");
+            return Err(Error::new(ErrorKind::Other, "Failed to resolve specifier"));
+        }
         Ok(resolution) => {
-            println!("Resolved: {:?}", resolution.full_path())
+            return Ok(resolution);
         }
     }
 }
