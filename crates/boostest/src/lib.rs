@@ -1,3 +1,112 @@
+/*
+[TODO]
+
+- 定義元を入れる場所を作る
+
+- astからtype, interface, classの定義元を探す関数
+- astのimport stmtからtarget_astのimportedを追加する関数
+- 定義元を見つけたら下記のtarget_astに追加する関数
+- 定義元のastからpropertyをチェックし、target_astを更新する関数
+- importからsourceを探しresolveし、astを取得する関数
+- target_astからASTのないtargetをチェックする関数
+
+[target_ast]
+name: "Bus"
+local: "Bus"
+imported: None
+AST: "....."
+ref_properties: [
+    {
+        name: "Hello"
+        local: "Hello"
+
+        // 複数importeを跨いで名前変更されている場合はimportedを追加していく。
+        // 一番最後のものを利用する
+        imported: ["hoge", "huga", "HelloOrigin"]
+        AST: "....."
+        ref_properties: []
+    },
+    {
+        name: "Member"
+        local: "Member"
+        imported: None
+        AST: "....."
+        ref_properties: [
+            {
+                name: "Character",
+                local: "Character",
+                imported: None,
+                AST: "....."
+                ref_properties: []
+            }
+        ]
+    }
+]
+
+
+```
+type Character = 'good' | 'bad' | 'neutral';
+
+interface Member {
+    name: string;
+    age: number;
+    charactor: Character;
+}
+
+class Hello {
+  name: string;
+  constructor(name: string) {
+    this.name = name;
+  }
+}
+
+type Bus = {
+    name: string;
+    limit: {
+        age: number;
+        member: number;
+    };
+    hello: Hello;
+    Members: Member[];
+};
+```
+
+
+*/
+
+/**
+ * [定義元を探す]
+ *
+ * 1. 定義元を探したい名前を列挙(unresolved names)
+ * 2. importを探す
+ * 3. importにnamespaceで名前変換されていれば、探す名前はimportedになるため、チェックする
+ *   - 構造作る(探す名前、定義されているであろう名前)
+ * 4. importのsourceをresolveしast化
+ * 5. ast内に定義があるかチェック
+ * 6. まだ探せていない定義があれば3に戻りループさせる
+ */
+
+/**
+ * [定義内容をクリアにする]
+ * ！！！！[定義元を探す]中に行う必要あり？？？
+ *
+ * 定義内容の中(property)にObjectなど存在する場合
+ * 1. Object定義がast内に存在するかチェック
+ * 2. importからsourceをresolve(namespaceで名前が変わっていることを考慮)
+ */
+
+/**
+ * [定義元からモック作成]
+ *
+ * - オブジェクトのモック
+ * - インスタンスのモック
+ *
+ * 定義元から一通り作成する
+ * 組み合わせる？
+ *
+ * TODO: オーバーライドする値を入れ込む
+ *
+ */
 use boostest_oxc_utils::{ExpressionExt, IntoIn, OxcAst, OxcCompiler, StatementExt};
 
 use oxc::ast::ast::{Declaration, Program};
@@ -358,7 +467,7 @@ pub fn callBoostest(path: &Path) {
         let module_path = module_path.parent().unwrap();
 
         // println!("needs_resolve_imports: {:?}", needs_resolve_imports);
-        resolve_all(module_path, needs_resolve_imports);
+        resolve_all(module_path, needs_resolve_imports, mock_builder);
 
         let code = OxcCompiler::print(&ast, "", false).source_text;
         println!("-------------------------------------");
@@ -367,7 +476,39 @@ pub fn callBoostest(path: &Path) {
     }
 }
 
-fn resolve_all(base_path: &Path, imports: Vec<&ImportDeclaration>) {
+struct UnresolvedTarget {
+    // name
+    local: String,
+
+    // namespace name
+    imported: Option<String>,
+}
+
+impl UnresolvedTarget {
+    fn new(name: &str) -> Self {
+        UnresolvedTarget {
+            local: name.to_string(),
+            imported: None,
+        }
+    }
+
+    fn set_targets(names: Vec<&str>) -> Vec<UnresolvedTarget> {
+        names
+            .into_iter()
+            .map(|name| UnresolvedTarget::new(name))
+            .collect()
+    }
+
+    fn set_imported(&mut self, imported: String) {
+        self.imported = Some(imported);
+    }
+
+    fn contains(&self, name: &str) -> bool {
+        self.local == name
+    }
+}
+
+fn resolve_all(base_path: &Path, imports: Vec<&ImportDeclaration>, mock_builder: MockBuilder) {
     let source_type = SourceType::default()
         .with_always_strict(true)
         .with_module(true)
@@ -384,12 +525,22 @@ fn resolve_all(base_path: &Path, imports: Vec<&ImportDeclaration>) {
             let ast = OxcCompiler::parse(file, source_type);
             let program = ast.program();
 
+            let unresolved_targets = mock_builder.get_unresolved_target_names().clone();
+            let unresolved_targets = UnresolvedTarget::set_targets(unresolved_targets);
+
             for stmt in &program.body {
                 if let Some(decl) = stmt.as_declaration() {
                     println!("decl: {:?}", decl);
                     match decl {
                         ClassDeclaration(class_decl) => {
                             if let Some(identifier) = &class_decl.id {
+                                unresolved_targets.iter().for_each(|target| {
+                                    if target.contains(&identifier.name) {
+                                        println!("ClassDeclaration: {:?}", decl);
+                                        // TODO: 見つけたのでdeclarationをセットし終了する
+                                    }
+                                });
+
                                 if let Some(specifiers) = &import.specifiers {
                                     for specifier in specifiers {
                                         // TODO: ここから入れる。宣言内とunresolvedのname(一部importedへ置き換え)と一致したらターゲットへ追加
@@ -398,6 +549,7 @@ fn resolve_all(base_path: &Path, imports: Vec<&ImportDeclaration>) {
                                         ImportDeclarationSpecifier::ImportNamespaceSpecifier(
                                             namespace,
                                         ) => {
+
                                             if identifier.name == namespace.local.name {
                                                 println!("ClassDeclaration: {:?}", import);
 
