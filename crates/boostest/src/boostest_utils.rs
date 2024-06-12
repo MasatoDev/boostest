@@ -1,7 +1,5 @@
 use anyhow::{anyhow, Result};
 
-use boostest_oxc_utils::ExpressionExt;
-
 use oxc::ast::{ast::Argument, AstKind};
 use oxc::{
     ast::ast::{
@@ -9,6 +7,7 @@ use oxc::{
         Declaration::{
             ClassDeclaration, TSInterfaceDeclaration, TSTypeAliasDeclaration, VariableDeclaration,
         },
+        Expression,
         Expression::{CallExpression, Identifier},
         ImportDeclaration, ImportDeclarationSpecifier, Statement, StringLiteral,
         TSPropertySignature,
@@ -23,13 +22,13 @@ use crate::boostest_mock::mock;
 use crate::boostest_mock::mock_builder::MockBuilder;
 
 pub fn create_mock_target<'a>(mock_builder: &mut MockBuilder, stmt: Statement<'a>) -> Result<()> {
-    let pattern = "boostestMock";
+    let pattern = "boostest";
 
     if let Some(stmt) = stmt.as_declaration() {
         if let VariableDeclaration(decl) = stmt {
             for decl in &decl.declarations {
                 if let Some(CallExpression(call_expr)) = &decl.init {
-                    if let Some(identifier) = call_expr.callee.as_identifier() {
+                    if let Expression::Identifier(identifier) = &call_expr.callee {
                         if identifier.name.contains(pattern) {
                             let target_mock_name = identifier.name.clone().into_string();
                             let mock = mock::BoostestMock::new(target_mock_name.clone());

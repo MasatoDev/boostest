@@ -37,17 +37,20 @@ ref_properties: [
 
 use std::sync::Arc;
 
+#[derive(Debug)]
 pub enum MockRefType {
     Class,
     Type,
 }
 
+#[derive(Debug)]
 pub struct Import {
     local: String,
     imported: Option<String>,
     fullPath: String,
 }
 
+#[derive(Debug)]
 pub struct MockTargetAST {
     name: String,
     mock_type: MockRefType,

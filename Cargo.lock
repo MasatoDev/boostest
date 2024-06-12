@@ -47,7 +47,6 @@ name = "boostest"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "boostest_oxc_utils",
  "oxc",
  "oxc_resolver",
  "serde",

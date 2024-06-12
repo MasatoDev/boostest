@@ -1,5 +1,6 @@
 use crate::boostest_mock::mock_target::{Import, MockRefType, MockTargetAST};
 
+#[derive(Debug)]
 pub struct BoostestMock {
     pub name: String,
     target_ast: Option<MockTargetAST>,

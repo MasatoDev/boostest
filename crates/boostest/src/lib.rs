@@ -1,12 +1,17 @@
 pub mod boostest_mock;
 mod boostest_utils;
-
-use boostest_oxc_utils::{ExpressionExt, IntoIn, OxcAst, OxcCompiler, StatementExt};
+use boostest_mock::mock_builder::MockBuilder;
 
 use oxc::ast::ast::{Declaration, Program};
 use oxc::ast::Visit;
 use oxc::ast::{ast::Argument, AstKind};
 use oxc_resolver::{AliasValue, Resolution, ResolveOptions, Resolver};
+
+use oxc::{
+    codegen::{Codegen, CodegenOptions, CodegenReturn},
+    parser::Parser,
+    span::SourceType,
+};
 
 use oxc::{
     ast::ast::{
@@ -23,8 +28,6 @@ use oxc::{
     },
     syntax::identifier,
 };
-
-use oxc::span::SourceType;
 
 use std::fs::File;
 use std::io;
@@ -126,161 +129,161 @@ impl<'a> Mock<'a> {
     // }
 }
 
-struct MockBuilder<'a> {
-    mocks: Vec<Mock<'a>>,
-    root_file_declarations: Vec<&'a Declaration<'a>>,
-}
+// struct MockBuilder<'a> {
+//     mocks: Vec<Mock<'a>>,
+//     root_file_declarations: Vec<&'a Declaration<'a>>,
+// }
 
-impl<'a> MockBuilder<'a> {
-    fn new() -> Self {
-        MockBuilder {
-            mocks: Vec::new(),
-            root_file_declarations: Vec::new(),
-        }
-    }
+// impl<'a> MockBuilder<'a> {
+//     fn new() -> Self {
+//         MockBuilder {
+//             mocks: Vec::new(),
+//             root_file_declarations: Vec::new(),
+//         }
+//     }
 
-    fn add_mock(&mut self, mock: Mock<'a>) {
-        self.mocks.push(mock);
-    }
+//     fn add_mock(&mut self, mock: Mock<'a>) {
+//         self.mocks.push(mock);
+//     }
 
-    fn debug(&self) {
-        for mock in &self.mocks {
-            println!("-------------------------------------");
-            mock.debug();
-            println!("-------------------------------------");
-        }
-    }
+//     fn debug(&self) {
+//         for mock in &self.mocks {
+//             println!("-------------------------------------");
+//             mock.debug();
+//             println!("-------------------------------------");
+//         }
+//     }
 
-    fn get_unresolved_target_names(&self) -> Vec<&str> {
-        let mut unresolved_target_names: Vec<&str> = Vec::new();
+//     fn get_unresolved_target_names(&self) -> Vec<&str> {
+//         let mut unresolved_target_names: Vec<&str> = Vec::new();
 
-        for mock in &self.mocks {
-            if let Some(name) = mock.get_unresolved_target_name() {
-                println!("Unresolved target name: {:?}", name);
-                unresolved_target_names.push(name);
-            }
-        }
-        unresolved_target_names
-    }
+//         for mock in &self.mocks {
+//             if let Some(name) = mock.get_unresolved_target_name() {
+//                 println!("Unresolved target name: {:?}", name);
+//                 unresolved_target_names.push(name);
+//             }
+//         }
+//         unresolved_target_names
+//     }
 
-    fn attach_declaration_only_root(&mut self) {
-        for mock in &mut self.mocks {
-            for decl in &self.root_file_declarations {
-                match decl {
-                    ClassDeclaration(class_decl) => {
-                        if let Some(identifier) = &class_decl.id {
-                            if let MockTarget::Class { name, .. } = &mock.target {
-                                if identifier.name == *name {
-                                    println!("ClassDeclaration");
-                                    mock.add_declaration(decl);
-                                }
-                            }
-                        }
-                    }
-                    TSInterfaceDeclaration(ts_interface_decl) => {
-                        if let MockTarget::Type { name, .. } = &mock.target {
-                            if ts_interface_decl.id.name == *name {
-                                println!("TSInterfaceDeclaration");
-                                mock.add_declaration(decl);
-                            }
-                        }
-                    }
-                    TSTypeAliasDeclaration(ts_type_alias_decl) => {
-                        if let MockTarget::Type { name, .. } = &mock.target {
-                            if ts_type_alias_decl.id.name == *name {
-                                println!("TSTypeAliasDeclaration");
-                                mock.add_declaration(decl);
-                            }
-                        }
-                    }
-                    _ => {}
-                }
-            }
-        }
-    }
+//     fn attach_declaration_only_root(&mut self) {
+//         for mock in &mut self.mocks {
+//             for decl in &self.root_file_declarations {
+//                 match decl {
+//                     ClassDeclaration(class_decl) => {
+//                         if let Some(identifier) = &class_decl.id {
+//                             if let MockTarget::Class { name, .. } = &mock.target {
+//                                 if identifier.name == *name {
+//                                     println!("ClassDeclaration");
+//                                     mock.add_declaration(decl);
+//                                 }
+//                             }
+//                         }
+//                     }
+//                     TSInterfaceDeclaration(ts_interface_decl) => {
+//                         if let MockTarget::Type { name, .. } = &mock.target {
+//                             if ts_interface_decl.id.name == *name {
+//                                 println!("TSInterfaceDeclaration");
+//                                 mock.add_declaration(decl);
+//                             }
+//                         }
+//                     }
+//                     TSTypeAliasDeclaration(ts_type_alias_decl) => {
+//                         if let MockTarget::Type { name, .. } = &mock.target {
+//                             if ts_type_alias_decl.id.name == *name {
+//                                 println!("TSTypeAliasDeclaration");
+//                                 mock.add_declaration(decl);
+//                             }
+//                         }
+//                     }
+//                     _ => {}
+//                 }
+//             }
+//         }
+//     }
 
-    fn attach_declaration(&mut self) {
-        for mock in &mut self.mocks {
-            for decl in &self.root_file_declarations {
-                match decl {
-                    ClassDeclaration(class_decl) => {
-                        if let Some(identifier) = &class_decl.id {
-                            if let MockTarget::Class { name, .. } = &mock.target {
-                                if identifier.name == *name {
-                                    println!("ClassDeclaration");
-                                    mock.add_declaration(decl);
-                                }
-                            }
-                        }
-                    }
-                    TSInterfaceDeclaration(ts_interface_decl) => {
-                        if let MockTarget::Type { name, .. } = &mock.target {
-                            if ts_interface_decl.id.name == *name {
-                                println!("TSInterfaceDeclaration");
-                                mock.add_declaration(decl);
-                            }
-                        }
-                    }
-                    TSTypeAliasDeclaration(ts_type_alias_decl) => {
-                        if let MockTarget::Type { name, .. } = &mock.target {
-                            if ts_type_alias_decl.id.name == *name {
-                                println!("TSTypeAliasDeclaration");
-                                mock.add_declaration(decl);
-                            }
-                        }
-                    }
-                    _ => {}
-                }
-            }
-        }
-    }
-}
+//     fn attach_declaration(&mut self) {
+//         for mock in &mut self.mocks {
+//             for decl in &self.root_file_declarations {
+//                 match decl {
+//                     ClassDeclaration(class_decl) => {
+//                         if let Some(identifier) = &class_decl.id {
+//                             if let MockTarget::Class { name, .. } = &mock.target {
+//                                 if identifier.name == *name {
+//                                     println!("ClassDeclaration");
+//                                     mock.add_declaration(decl);
+//                                 }
+//                             }
+//                         }
+//                     }
+//                     TSInterfaceDeclaration(ts_interface_decl) => {
+//                         if let MockTarget::Type { name, .. } = &mock.target {
+//                             if ts_interface_decl.id.name == *name {
+//                                 println!("TSInterfaceDeclaration");
+//                                 mock.add_declaration(decl);
+//                             }
+//                         }
+//                     }
+//                     TSTypeAliasDeclaration(ts_type_alias_decl) => {
+//                         if let MockTarget::Type { name, .. } = &mock.target {
+//                             if ts_type_alias_decl.id.name == *name {
+//                                 println!("TSTypeAliasDeclaration");
+//                                 mock.add_declaration(decl);
+//                             }
+//                         }
+//                     }
+//                     _ => {}
+//                 }
+//             }
+//         }
+//     }
+// }
 
-fn boostest_mock<'a>(stmt: &'a Statement<'a>) -> io::Result<Mock<'a>> {
-    if let Some(stmt) = stmt.as_declaration() {
-        if let VariableDeclaration(decl) = stmt {
-            for decl in &decl.declarations {
-                if let Some(CallExpression(call_expr)) = &decl.init {
-                    if let Some(identifier) = call_expr.callee.as_identifier() {
-                        if identifier.name.contains("boostest") {
-                            let mut mock = Mock::new(identifier.name.clone().into_string());
+// fn boostest_mock<'a>(stmt: &'a Statement<'a>) -> io::Result<Mock<'a>> {
+//     if let Some(stmt) = stmt.as_declaration() {
+//         if let VariableDeclaration(decl) = stmt {
+//             for decl in &decl.declarations {
+//                 if let Some(CallExpression(call_expr)) = &decl.init {
+//                     if let Some(identifier) = call_expr.callee.as_identifier() {
+//                         if identifier.name.contains("boostest") {
+//                             let mut mock = Mock::new(identifier.name.clone().into_string());
 
-                            call_expr.type_parameters.iter().for_each(|type_params| {
-                                for param in &type_params.params {
-                                    if let TSTypeReference(ty_ref) = param {
-                                        if let IdentifierReference(identifier) = &ty_ref.type_name {
-                                            mock.add_ts_type(&identifier.name);
-                                        }
-                                    }
-                                }
-                            });
-                            for arg in &call_expr.arguments {
-                                match arg {
-                                    Argument::Identifier(ident) => {
-                                        mock.add_class(&ident.name);
-                                    }
-                                    ObjectExpression(ident) => {
-                                        println!("arg: {:?}", ident);
-                                    }
-                                    SpreadElement(ident) => {
-                                        println!("arg: {:?}", ident);
-                                    }
-                                    _ => {
-                                        println!("other arg: {:?}", arg);
-                                    }
-                                }
-                            }
+//                             call_expr.type_parameters.iter().for_each(|type_params| {
+//                                 for param in &type_params.params {
+//                                     if let TSTypeReference(ty_ref) = param {
+//                                         if let IdentifierReference(identifier) = &ty_ref.type_name {
+//                                             mock.add_ts_type(&identifier.name);
+//                                         }
+//                                     }
+//                                 }
+//                             });
+//                             for arg in &call_expr.arguments {
+//                                 match arg {
+//                                     Argument::Identifier(ident) => {
+//                                         mock.add_class(&ident.name);
+//                                     }
+//                                     ObjectExpression(ident) => {
+//                                         println!("arg: {:?}", ident);
+//                                     }
+//                                     SpreadElement(ident) => {
+//                                         println!("arg: {:?}", ident);
+//                                     }
+//                                     _ => {
+//                                         println!("other arg: {:?}", arg);
+//                                     }
+//                                 }
+//                             }
 
-                            return Ok(mock);
-                        }
-                    }
-                }
-            }
-        }
-    }
+//                             return Ok(mock);
+//                         }
+//                     }
+//                 }
+//             }
+//         }
+//     }
 
-    Err(io::Error::new(ErrorKind::Other, "Noone boostestMock"))
-}
+//     Err(io::Error::new(ErrorKind::Other, "Noone boostestMock"))
+// }
 
 fn read(path: &Path) -> io::Result<String> {
     let mut f = File::open(path)?;
@@ -301,8 +304,10 @@ pub fn callBoostest(path: &Path) {
             .with_typescript(true);
         // .with_jsx(true)
 
-        let ast = OxcCompiler::parse(file, source_type);
-        let program = ast.program();
+        let allocator = oxc::allocator::Allocator::default();
+        let parser = Parser::new(&allocator, &file, source_type);
+
+        let program = parser.parse().program;
 
         // println!("-------------------------------------");
         // println!("ast:{:?}", program);
@@ -312,61 +317,59 @@ pub fn callBoostest(path: &Path) {
         let mut ts_type_vec: Vec<&str> = Vec::new();
         let mut class_vec: Vec<&str> = Vec::new();
 
-        for stmt in program.body.iter() {
-            if let Some(decl) = stmt.as_declaration() {
-                mock_builder.root_file_declarations.push(decl);
-            }
+        for stmt in program.body.into_iter() {
+            // if let Some(decl) = stmt.as_declaration() {
+            //     mock_builder.root_file_declarations.push(decl);
+            // }
 
-            if let Some(stmt) = stmt.as_import_declaration() {
-                imports.push(stmt);
-            }
+            // if let Some(stmt) = stmt.as_import_declaration() {
+            //     imports.push(stmt);
+            // }
 
-            if let Ok(mock) = boostest_mock(stmt) {
-                mock_builder.add_mock(mock);
-            }
+            boostest_utils::create_mock_target(&mut mock_builder, stmt);
         }
 
-        // mock_builder.debug();
-        mock_builder.attach_declaration_only_root();
         mock_builder.debug();
 
-        let unresolved_targets = mock_builder.get_unresolved_target_names();
-        let mut needs_resolve_imports: Vec<&ImportDeclaration> = Vec::new();
+        // mock_builder.attach_declaration_only_root();
 
-        for import in imports {
-            if let Some(specifiers) = &import.specifiers {
-                for specifier in specifiers {
-                    match specifier {
-                        ImportDeclarationSpecifier::ImportNamespaceSpecifier(namespace) => {
-                            if unresolved_targets.contains(&namespace.local.name.as_str()) {
-                                needs_resolve_imports.push(&import);
-                            }
-                        }
-                        ImportDeclarationSpecifier::ImportSpecifier(normal) => {
-                            if unresolved_targets.contains(&normal.local.name.as_str()) {
-                                needs_resolve_imports.push(&import);
-                            }
-                        }
-                        ImportDeclarationSpecifier::ImportDefaultSpecifier(default) => {
-                            if unresolved_targets.contains(&default.local.name.as_str()) {
-                                needs_resolve_imports.push(&import);
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        // let unresolved_targets = mock_builder.get_unresolved_target_names();
+        // let mut needs_resolve_imports: Vec<&ImportDeclaration> = Vec::new();
 
-        let module_path = path.canonicalize().unwrap();
-        let module_path = module_path.parent().unwrap();
+        // for import in imports {
+        //     if let Some(specifiers) = &import.specifiers {
+        //         for specifier in specifiers {
+        //             match specifier {
+        //                 ImportDeclarationSpecifier::ImportNamespaceSpecifier(namespace) => {
+        //                     if unresolved_targets.contains(&namespace.local.name.as_str()) {
+        //                         needs_resolve_imports.push(&import);
+        //                     }
+        //                 }
+        //                 ImportDeclarationSpecifier::ImportSpecifier(normal) => {
+        //                     if unresolved_targets.contains(&normal.local.name.as_str()) {
+        //                         needs_resolve_imports.push(&import);
+        //                     }
+        //                 }
+        //                 ImportDeclarationSpecifier::ImportDefaultSpecifier(default) => {
+        //                     if unresolved_targets.contains(&default.local.name.as_str()) {
+        //                         needs_resolve_imports.push(&import);
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }
 
-        // println!("needs_resolve_imports: {:?}", needs_resolve_imports);
-        resolve_all(module_path, needs_resolve_imports, mock_builder);
+        // let module_path = path.canonicalize().unwrap();
+        // let module_path = module_path.parent().unwrap();
 
-        let code = OxcCompiler::print(&ast, "", false).source_text;
-        println!("-------------------------------------");
-        println!("result:");
-        println!("{:?}", code);
+        // // println!("needs_resolve_imports: {:?}", needs_resolve_imports);
+        // resolve_all(module_path, needs_resolve_imports, mock_builder);
+
+        // let code = OxcCompiler::print(&ast, "", false).source_text;
+        // println!("-------------------------------------");
+        // println!("result:");
+        // println!("{:?}", code);
     }
 }
 
@@ -402,93 +405,93 @@ impl UnresolvedTarget {
     }
 }
 
-fn resolve_all(base_path: &Path, imports: Vec<&ImportDeclaration>, mock_builder: MockBuilder) {
-    let source_type = SourceType::default()
-        .with_always_strict(true)
-        .with_module(true)
-        .with_typescript(true);
-    // .with_jsx(true)
+// fn resolve_all(base_path: &Path, imports: Vec<&ImportDeclaration>, mock_builder: MockBuilder) {
+//     let source_type = SourceType::default()
+//         .with_always_strict(true)
+//         .with_module(true)
+//         .with_typescript(true);
+//     // .with_jsx(true)
 
-    for import in imports {
-        let result = resolve_specifier(base_path, &import.source.value)
-            .expect("Failed to resolve specifier");
+//     for import in imports {
+//         let result = resolve_specifier(base_path, &import.source.value)
+//             .expect("Failed to resolve specifier");
 
-        let path = result.full_path();
+//         let path = result.full_path();
 
-        if let Ok(file) = read(&path) {
-            let ast = OxcCompiler::parse(file, source_type);
-            let program = ast.program();
+//         if let Ok(file) = read(&path) {
+//             let ast = OxcCompiler::parse(file, source_type);
+//             let program = ast.program();
 
-            let unresolved_targets = mock_builder.get_unresolved_target_names().clone();
-            let unresolved_targets = UnresolvedTarget::set_targets(unresolved_targets);
+//             let unresolved_targets = mock_builder.get_unresolved_target_names().clone();
+//             let unresolved_targets = UnresolvedTarget::set_targets(unresolved_targets);
 
-            for stmt in &program.body {
-                if let Some(decl) = stmt.as_declaration() {
-                    println!("decl: {:?}", decl);
-                    match decl {
-                        ClassDeclaration(class_decl) => {
-                            if let Some(identifier) = &class_decl.id {
-                                unresolved_targets.iter().for_each(|target| {
-                                    if target.contains(&identifier.name) {
-                                        println!("ClassDeclaration: {:?}", decl);
-                                        // TODO: 見つけたのでdeclarationをセットし終了する
-                                    }
-                                });
+//             for stmt in &program.body {
+//                 if let Some(decl) = stmt.as_declaration() {
+//                     println!("decl: {:?}", decl);
+//                     match decl {
+//                         ClassDeclaration(class_decl) => {
+//                             if let Some(identifier) = &class_decl.id {
+//                                 unresolved_targets.iter().for_each(|target| {
+//                                     if target.contains(&identifier.name) {
+//                                         println!("ClassDeclaration: {:?}", decl);
+//                                         // TODO: 見つけたのでdeclarationをセットし終了する
+//                                     }
+//                                 });
 
-                                if let Some(specifiers) = &import.specifiers {
-                                    for specifier in specifiers {
-                                        // TODO: ここから入れる。宣言内とunresolvedのname(一部importedへ置き換え)と一致したらターゲットへ追加
+//                                 if let Some(specifiers) = &import.specifiers {
+//                                     for specifier in specifiers {
+//                                         // TODO: ここから入れる。宣言内とunresolvedのname(一部importedへ置き換え)と一致したらターゲットへ追加
 
-                                        match specifier {
-                                        ImportDeclarationSpecifier::ImportNamespaceSpecifier(
-                                            namespace,
-                                        ) => {
+//                                         match specifier {
+//                                         ImportDeclarationSpecifier::ImportNamespaceSpecifier(
+//                                             namespace,
+//                                         ) => {
 
-                                            if identifier.name == namespace.local.name {
-                                                println!("ClassDeclaration: {:?}", import);
+//                                             if identifier.name == namespace.local.name {
+//                                                 println!("ClassDeclaration: {:?}", import);
 
-                                            }
-                                        }
-                                        ImportDeclarationSpecifier::ImportSpecifier(normal) => {
-                                            if identifier.name == normal.imported.name() {
-                                                println!("TSInterfaceDeclaration: {:?}", import);
-                                            }
-                                        }
-                                        ImportDeclarationSpecifier::ImportDefaultSpecifier(
-                                            default,
-                                        ) => {
-                                            if identifier.name == default.local.name {
-                                                println!("TSTypeAliasDeclaration: {:?}", import);
-                                            }
-                                        }
-                                        _ => {}
-                                    }
-                                    }
-                                }
-                            }
-                        }
+//                                             }
+//                                         }
+//                                         ImportDeclarationSpecifier::ImportSpecifier(normal) => {
+//                                             if identifier.name == normal.imported.name() {
+//                                                 println!("TSInterfaceDeclaration: {:?}", import);
+//                                             }
+//                                         }
+//                                         ImportDeclarationSpecifier::ImportDefaultSpecifier(
+//                                             default,
+//                                         ) => {
+//                                             if identifier.name == default.local.name {
+//                                                 println!("TSTypeAliasDeclaration: {:?}", import);
+//                                             }
+//                                         }
+//                                         _ => {}
+//                                     }
+//                                     }
+//                                 }
+//                             }
+//                         }
 
-                        TSInterfaceDeclaration(ts_interface_decl) => {
-                            println!("TSInterfaceDeclaration: {:?}", import);
-                            if ts_interface_decl.id.name == import.source.value {}
-                        }
-                        TSTypeAliasDeclaration(ts_type_alias_decl) => {}
-                        _ => {}
-                    }
-                }
-            }
-        }
-    }
+//                         TSInterfaceDeclaration(ts_interface_decl) => {
+//                             println!("TSInterfaceDeclaration: {:?}", import);
+//                             if ts_interface_decl.id.name == import.source.value {}
+//                         }
+//                         TSTypeAliasDeclaration(ts_type_alias_decl) => {}
+//                         _ => {}
+//                     }
+//                 }
+//             }
+//         }
+//     }
 
-    // ast取得
-    // 定義名をチェック(localではなくimported name)
-    // 定義をチェック
-    // 未解決の定義を取得
-    // importの取得
-    // basepathを調整
-    // file resolve
-    // 以降ループ
-}
+//     // ast取得
+//     // 定義名をチェック(localではなくimported name)
+//     // 定義をチェック
+//     // 未解決の定義を取得
+//     // importの取得
+//     // basepathを調整
+//     // file resolve
+//     // 以降ループ
+// }
 
 fn resolve_specifier(path: &Path, specifier: &str) -> Result<Resolution, Error> {
     let options = ResolveOptions {
