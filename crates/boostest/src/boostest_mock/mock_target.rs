@@ -57,7 +57,7 @@ pub struct Import {
 pub struct MockTargetAST {
     name: String,
     mock_type: MockRefType,
-    import: Vec<Import>,
+    pub import: Vec<Import>,
     #[serde(skip_serializing)]
     ref_properties: Vec<Arc<MockTargetAST>>,
     ast: Option<String>,
@@ -92,6 +92,14 @@ impl MockTargetAST {
             return &last.local;
         }
         &self.name
+    }
+
+    pub fn get_next_path(&self) -> Option<&String> {
+        if let Some(last) = self.import.last() {
+            return Some(&last.full_path);
+        }
+
+        None
     }
 
     pub fn add_import(&mut self, local: String, full_path: String, imported: Option<String>) {

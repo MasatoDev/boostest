@@ -1,3 +1,5 @@
+use std::path::Path;
+
 use anyhow::{anyhow, Result};
 
 use oxc::ast::ast::{
@@ -10,6 +12,7 @@ use oxc::ast::ast::{
     VariableDeclaration,
 };
 use oxc::ast::{ast::Argument, AstKind};
+use oxc_resolver::{Resolution, ResolveOptions, Resolver};
 
 use crate::boostest_mock::mock_builder::MockBuilder;
 use crate::boostest_mock::{
@@ -17,7 +20,7 @@ use crate::boostest_mock::{
     mock_target::MockTargetAST,
 };
 
-pub fn resolve_mock_target_ast(mock_target_ast: &mut MockTargetAST, program: Program) {
+pub fn resolve_mock_target_ast(mock_target_ast: &mut MockTargetAST, program: Program, path: &Path) {
     if mock_target_ast.has_ast() {
         return;
     };
@@ -64,7 +67,32 @@ pub fn resolve_mock_target_ast(mock_target_ast: &mut MockTargetAST, program: Pro
             });
         }
 
+        let module_path = path.canonicalize().unwrap();
+        let parent_path = module_path.parent().unwrap();
+
         //TODO: importを利用して次のASTをresolveしてloopさせる
+
+        let specifier = mock_target_ast.get_next_path().unwrap();
+        resolve_specifier(parent_path, &specifier);
+    }
+}
+
+fn resolve_specifier(path: &Path, specifier: &str) -> Result<Resolution> {
+    let options = ResolveOptions {
+        // alias_fields: vec![vec!["browser".into()]],
+        // alias: vec![("asdf".into(), vec![AliasValue::from("./test.js")])],
+        extensions: vec![".ts".into(), ".tsx".into()],
+        ..ResolveOptions::default()
+    };
+
+    match Resolver::new(options).resolve(path, &specifier) {
+        Err(error) => {
+            println!("Error: {error}");
+            return Err(anyhow!("ファイル読み込みでエラー"));
+        }
+        Ok(resolution) => {
+            return Ok(resolution);
+        }
     }
 }
 
