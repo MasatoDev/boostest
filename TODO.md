@@ -1,15 +1,21 @@
 /*
 [TODO]
 
-- [-]astからboostestを含む関数を探し、type, interface, classを取得しtarget_astを作成
+- 該当ファイルのASTを取得
+- [-]astからboostestを含む関数を探し、渡されるtype, interface, classを取得しtarget_astを作成
 
-- 定義元を入れる場所を作る
+[warn]MockTargetAST単位でやらないと、MockTargetASTがMockTargetASTを持つ場合もあるためループできない
+
+- loop here
 - astからtype, interface, classの定義元を探す関数
-- astのimport stmtからtarget_astのimportedを追加する関数
 - 定義元を見つけたら下記のtarget_astに追加する関数
-- 定義元のastからpropertyをチェックし、target_astを更新する関数
+- 定義元のastからpropertyをチェックし、新たなtarget_astとして追加する関数
+  - 追加したらloopを別でスタートさせる
+- astのimport stmtからtarget_astのimportedを追加する関数
 - importからsourceを探しresolveし、astを取得する関数
-- target_astからASTのないtargetをチェックする関数
+- loop here
+
+targetがそれぞれ意思を持って自分のastを探しに行かなければいけない
 
 [target_ast]
 name: "Bus"

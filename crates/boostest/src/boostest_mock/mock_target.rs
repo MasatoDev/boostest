@@ -37,6 +37,7 @@ ref_properties: [
 
 use std::sync::Arc;
 
+use oxc::ast::ast::Declaration;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -77,6 +78,20 @@ impl MockTargetAST {
             ref_properties,
             ast,
         }
+    }
+
+    pub fn set_decl(&mut self, decl: String) {
+        self.ast = Some(decl);
+    }
+
+    pub fn get_decl_name_for_resolve(&self) -> &String {
+        if let Some(last) = self.import.last() {
+            if let Some(imported) = &last.imported {
+                return &imported;
+            }
+            return &last.local;
+        }
+        &self.name
     }
 
     pub fn add_import(&mut self, local: String, full_path: String, imported: Option<String>) {

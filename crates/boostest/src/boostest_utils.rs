@@ -11,8 +11,62 @@ use oxc::ast::ast::{
 };
 use oxc::ast::{ast::Argument, AstKind};
 
-use crate::boostest_mock::mock::{self, BoostestMock};
 use crate::boostest_mock::mock_builder::MockBuilder;
+use crate::boostest_mock::{
+    mock::{self, BoostestMock},
+    mock_target::MockTargetAST,
+};
+
+pub fn resolve_mock_target_ast(mock_target_ast: &mut MockTargetAST, program: Program) {
+    if mock_target_ast.has_ast() {
+        return;
+    };
+
+    let target_name = mock_target_ast.get_decl_name_for_resolve().clone();
+    let mut import_declarations: Vec<ImportDeclaration> = Vec::new();
+
+    for stmt in program.body.into_iter() {
+        match stmt {
+            Statement::ImportDeclaration(import) => {
+                import_declarations.push(import.unbox());
+            }
+
+            Statement::ClassDeclaration(class_decl) => {
+                if let Some(identifier) = &class_decl.id {
+                    if identifier.name.to_string() == target_name {
+                        println!("ClassDeclaration");
+                        mock_target_ast.set_decl(String::from("class"));
+                    }
+                }
+            }
+            Statement::TSTypeAliasDeclaration(ts_type_alias_decl) => {
+                if ts_type_alias_decl.id.name.to_string() == target_name {
+                    println!("TSTypeAliasDeclaration");
+                    mock_target_ast.set_decl(String::from("type alias"));
+                }
+            }
+            Statement::TSInterfaceDeclaration(ts_interface_decl) => {
+                if ts_interface_decl.id.name.to_string() == target_name {
+                    println!("TSInterfaceDeclaration");
+                    mock_target_ast.set_decl(String::from("type interface"));
+                }
+            }
+            _ => {}
+        }
+    }
+
+    if !mock_target_ast.has_ast() {
+        for import_decl in import_declarations {
+            add_import(import_decl, |local, full_path, imported| {
+                if local == target_name {
+                    mock_target_ast.add_import(local, full_path, imported);
+                };
+            });
+        }
+
+        //TODO: importを利用して次のASTをresolveしてloopさせる
+    }
+}
 
 pub fn init_mock_builder<'a>(mock_builder: &mut MockBuilder, program: Program) {
     let mut var_decl: Vec<VariableDeclaration> = Vec::new();
@@ -121,6 +175,39 @@ fn add_imports(mock_builder: &mut MockBuilder, stmt: ImportDeclaration) {
                     let local = default.local.name.clone().into_string();
                     let imported = None;
                     mock_builder.add_import_mock(&name, local, full_path, imported);
+                }
+            }
+        }
+    }
+}
+
+fn add_import<F>(stmt: ImportDeclaration, mut set_callback: F)
+where
+    F: FnMut(String, String, Option<String>),
+{
+    if let Some(specifiers) = &stmt.specifiers {
+        for specifier in specifiers {
+            match specifier {
+                ImportDeclarationSpecifier::ImportNamespaceSpecifier(namespace) => {
+                    println!("namespace: {:?}", namespace.local.name);
+                    let full_path = stmt.source.value.clone().into_string();
+                    let local = namespace.local.name.clone().into_string();
+                    let imported = None;
+                    set_callback(local, full_path, imported);
+                }
+                ImportDeclarationSpecifier::ImportSpecifier(normal) => {
+                    println!("normal: {:?}", normal.local.name);
+                    let full_path = stmt.source.value.clone().into_string();
+                    let local = normal.local.name.clone().into_string();
+                    let imported = Some(normal.imported.to_string());
+                    set_callback(local, full_path, imported);
+                }
+                ImportDeclarationSpecifier::ImportDefaultSpecifier(default) => {
+                    println!("default: {:?}", default.local.name);
+                    let full_path = stmt.source.value.clone().into_string();
+                    let local = default.local.name.clone().into_string();
+                    let imported = None;
+                    set_callback(local, full_path, imported);
                 }
             }
         }
