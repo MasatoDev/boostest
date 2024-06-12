@@ -37,24 +37,27 @@ ref_properties: [
 
 use std::sync::Arc;
 
-#[derive(Debug)]
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Serialize, Deserialize)]
 pub enum MockRefType {
     Class,
     Type,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Import {
     local: String,
     imported: Option<String>,
-    fullPath: String,
+    full_path: String,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct MockTargetAST {
     name: String,
     mock_type: MockRefType,
     import: Vec<Import>,
+    #[serde(skip_serializing)]
     ref_properties: Vec<Arc<MockTargetAST>>,
     ast: Option<String>,
 }
@@ -74,5 +77,18 @@ impl MockTargetAST {
             ref_properties,
             ast,
         }
+    }
+
+    pub fn add_import(&mut self, local: String, full_path: String, imported: Option<String>) {
+        let import = Import {
+            local,
+            imported,
+            full_path,
+        };
+        self.import.push(import);
+    }
+
+    pub fn has_ast(&self) -> bool {
+        self.ast.is_some()
     }
 }

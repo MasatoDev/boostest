@@ -317,18 +317,7 @@ pub fn callBoostest(path: &Path) {
         let mut ts_type_vec: Vec<&str> = Vec::new();
         let mut class_vec: Vec<&str> = Vec::new();
 
-        for stmt in program.body.into_iter() {
-            // if let Some(decl) = stmt.as_declaration() {
-            //     mock_builder.root_file_declarations.push(decl);
-            // }
-
-            // if let Some(stmt) = stmt.as_import_declaration() {
-            //     imports.push(stmt);
-            // }
-
-            boostest_utils::create_mock_target(&mut mock_builder, stmt);
-        }
-
+        boostest_utils::init_mock_builder(&mut mock_builder, program);
         mock_builder.debug();
 
         // mock_builder.attach_declaration_only_root();

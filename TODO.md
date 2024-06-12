@@ -1,7 +1,7 @@
 /*
 [TODO]
 
-- astからboostestを含む関数を探し、type, interface, classを取得しtarget_astを作成
+- [-]astからboostestを含む関数を探し、type, interface, classを取得しtarget_astを作成
 
 - 定義元を入れる場所を作る
 - astからtype, interface, classの定義元を探す関数
