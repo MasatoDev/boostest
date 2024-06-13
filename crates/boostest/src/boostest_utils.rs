@@ -5,6 +5,7 @@ use std::path::Path;
 use anyhow::{anyhow, Result};
 
 use oxc::ast::{ast::Argument, AstKind};
+use oxc::syntax::identifier;
 use oxc::{
     ast::ast::{
         Argument::{ObjectExpression, SpreadElement},
@@ -220,7 +221,7 @@ fn create_mock_target<'a>(
                     });
                     for arg in &call_expr.arguments {
                         match arg {
-                            Argument::Identifier(ident) => {
+                            Argument::Identifier(identifier) => {
                                 mock_builder.add_class_ref_mock(
                                     &target_mock_name,
                                     identifier.name.clone().into_string(),
