@@ -1,17 +1,23 @@
+use std::fs::File;
+use std::io::{self, Read};
 use std::path::Path;
 
 use anyhow::{anyhow, Result};
 
-use oxc::ast::ast::{
-    Argument::{ObjectExpression, SpreadElement},
-    Declaration, Expression,
-    Expression::CallExpression,
-    ImportDeclaration, ImportDeclarationSpecifier, Program, Statement,
-    TSType::TSTypeReference,
-    TSTypeName::IdentifierReference,
-    VariableDeclaration,
-};
 use oxc::ast::{ast::Argument, AstKind};
+use oxc::{
+    ast::ast::{
+        Argument::{ObjectExpression, SpreadElement},
+        Declaration,
+        Expression::{self, CallExpression},
+        ImportDeclaration, ImportDeclarationSpecifier, Program, Statement,
+        TSType::TSTypeReference,
+        TSTypeName::IdentifierReference,
+        VariableDeclaration,
+    },
+    parser::Parser,
+    span::SourceType,
+};
 use oxc_resolver::{Resolution, ResolveOptions, Resolver};
 
 use crate::boostest_mock::mock_builder::MockBuilder;
@@ -20,64 +26,19 @@ use crate::boostest_mock::{
     mock_target::MockTargetAST,
 };
 
-pub fn resolve_mock_target_ast(mock_target_ast: &mut MockTargetAST, program: Program, path: &Path) {
-    if mock_target_ast.has_ast() {
-        return;
-    };
-
-    let target_name = mock_target_ast.get_decl_name_for_resolve().clone();
-    let mut import_declarations: Vec<ImportDeclaration> = Vec::new();
-
-    for stmt in program.body.into_iter() {
-        match stmt {
-            Statement::ImportDeclaration(import) => {
-                import_declarations.push(import.unbox());
-            }
-
-            Statement::ClassDeclaration(class_decl) => {
-                if let Some(identifier) = &class_decl.id {
-                    if identifier.name.to_string() == target_name {
-                        println!("ClassDeclaration");
-                        mock_target_ast.set_decl(String::from("class"));
-                    }
-                }
-            }
-            Statement::TSTypeAliasDeclaration(ts_type_alias_decl) => {
-                if ts_type_alias_decl.id.name.to_string() == target_name {
-                    println!("TSTypeAliasDeclaration");
-                    mock_target_ast.set_decl(String::from("type alias"));
-                }
-            }
-            Statement::TSInterfaceDeclaration(ts_interface_decl) => {
-                if ts_interface_decl.id.name.to_string() == target_name {
-                    println!("TSInterfaceDeclaration");
-                    mock_target_ast.set_decl(String::from("type interface"));
-                }
-            }
-            _ => {}
-        }
-    }
-
-    if !mock_target_ast.has_ast() {
-        for import_decl in import_declarations {
-            add_import(import_decl, |local, full_path, imported| {
-                if local == target_name {
-                    mock_target_ast.add_import(local, full_path, imported);
-                };
-            });
-        }
-
-        let module_path = path.canonicalize().unwrap();
-        let parent_path = module_path.parent().unwrap();
-
-        //TODO: importを利用して次のASTをresolveしてloopさせる
-
-        let specifier = mock_target_ast.get_next_path().unwrap();
-        resolve_specifier(parent_path, &specifier);
+fn read(path: &Path) -> io::Result<String> {
+    let mut f = File::open(path)?;
+    let mut s = String::new();
+    match f.read_to_string(&mut s) {
+        Ok(_) => Ok(s),
+        Err(e) => Err(e),
     }
 }
 
 fn resolve_specifier(path: &Path, specifier: &str) -> Result<Resolution> {
+    // println!("parent_path: {:?}", path);
+    // println!("specifier: {:?}", specifier);
+
     let options = ResolveOptions {
         // alias_fields: vec![vec!["browser".into()]],
         // alias: vec![("asdf".into(), vec![AliasValue::from("./test.js")])],
@@ -96,7 +57,96 @@ fn resolve_specifier(path: &Path, specifier: &str) -> Result<Resolution> {
     }
 }
 
-pub fn init_mock_builder<'a>(mock_builder: &mut MockBuilder, program: Program) {
+pub fn resolve_mock_target_ast(mock_target_ast: &mut MockTargetAST, program: Program, path: &Path) {
+    if mock_target_ast.has_ast() {
+        return;
+    };
+
+    let target_name = mock_target_ast.get_decl_name_for_resolve().clone();
+    let mut import_declarations: Vec<ImportDeclaration> = Vec::new();
+
+    for stmt in program.body.into_iter() {
+        // println!("Statement {:?}", stmt);
+
+        match stmt {
+            Statement::ImportDeclaration(import) => {
+                import_declarations.push(import.unbox());
+            }
+
+            Statement::ExportNamedDeclaration(export_named_decl) => {
+                if let Some(export_named_decl) = export_named_decl.unbox().declaration {
+                    match export_named_decl {
+                        Declaration::ClassDeclaration(class_decl) => {
+                            if let Some(identifier) = &class_decl.id {
+                                if identifier.name.to_string() == target_name {
+                                    println!("ClassDeclaration");
+                                    mock_target_ast.set_decl(String::from("class"));
+                                }
+                            }
+                        }
+                        Declaration::TSTypeAliasDeclaration(ts_type_alias_decl) => {
+                            if ts_type_alias_decl.id.name.to_string() == target_name {
+                                println!("TSTypeAliasDeclaration");
+                                mock_target_ast.set_decl(String::from("type alias"));
+                            }
+                        }
+                        Declaration::TSInterfaceDeclaration(ts_interface_decl) => {
+                            if ts_interface_decl.id.name.to_string() == target_name {
+                                println!("TSInterfaceDeclaration");
+                                mock_target_ast.set_decl(String::from("type interface"));
+                            }
+                        }
+                        _ => {
+                            // println!("Another Statement {:?}", export_named_decl);
+                        }
+                    }
+                }
+            }
+            _ => {
+                // println!("Another Statement {:?}", stmt);
+            }
+        }
+    }
+
+    if !mock_target_ast.has_ast() {
+        for import_decl in import_declarations {
+            add_import(import_decl, |local, full_path, imported| {
+                if local == target_name {
+                    mock_target_ast.add_import(local, full_path, imported);
+                };
+            });
+        }
+
+        if let Ok(module_path) = path.canonicalize() {
+            if let Some(parent_path) = module_path.parent() {
+                if let Some(specifier) = mock_target_ast.get_next_path() {
+                    println!("import {:?}", mock_target_ast.import);
+                    let resolution_result = resolve_specifier(parent_path, &specifier);
+                    if let Ok(resolution) = resolution_result {
+                        if let Ok(file) = read(&resolution.full_path()) {
+                            let source_type = SourceType::default()
+                                .with_always_strict(true)
+                                .with_module(true)
+                                .with_typescript(true);
+
+                            let allocator = oxc::allocator::Allocator::default();
+                            let parser = Parser::new(&allocator, &file, source_type);
+                            let program = parser.parse().program;
+                            let new_path = resolution.full_path();
+                            // println!("new_path: {:?}", new_path);
+
+                            resolve_mock_target_ast(mock_target_ast, program, new_path.as_path());
+                        }
+                    }
+                }
+            }
+        }
+
+        //TODO: importを利用して次のASTをresolveしてloopさせる
+    }
+}
+
+pub fn init_mock_builder<'a>(mock_builder: &mut MockBuilder, program: Program, path: &Path) {
     let mut var_decl: Vec<VariableDeclaration> = Vec::new();
     let mut import_decl: Vec<ImportDeclaration> = Vec::new();
 
@@ -119,6 +169,27 @@ pub fn init_mock_builder<'a>(mock_builder: &mut MockBuilder, program: Program) {
     for import_decl_item in import_decl {
         add_imports(mock_builder, import_decl_item);
     }
+
+    for (_, val) in mock_builder.mocks.iter_mut() {
+        let allocator = oxc::allocator::Allocator::default();
+        if let Ok(file) = read(path) {
+            let source_type = SourceType::default()
+                .with_always_strict(true)
+                .with_module(true)
+                .with_typescript(true);
+
+            let parser = Parser::new(&allocator, &file, source_type);
+            let program = parser.parse().program;
+
+            if let Some(mock_target_ast) = val.target_ast.as_mut() {
+                resolve_mock_target_ast(mock_target_ast, program, path)
+            }
+        }
+    }
+
+    println!("--------INIT---------");
+    mock_builder.debug();
+    println!("-----------------");
 }
 
 fn create_mock_target<'a>(
@@ -181,7 +252,6 @@ fn add_imports(mock_builder: &mut MockBuilder, stmt: ImportDeclaration) {
         for specifier in specifiers {
             match specifier {
                 ImportDeclarationSpecifier::ImportNamespaceSpecifier(namespace) => {
-                    println!("namespace: {:?}", namespace.local.name);
                     let name = namespace.local.name.to_string();
                     let full_path = stmt.source.value.clone().into_string();
                     let local = namespace.local.name.clone().into_string();
@@ -189,7 +259,6 @@ fn add_imports(mock_builder: &mut MockBuilder, stmt: ImportDeclaration) {
                     mock_builder.add_import_mock(&name, local, full_path, imported);
                 }
                 ImportDeclarationSpecifier::ImportSpecifier(normal) => {
-                    println!("normal: {:?}", normal.local.name);
                     let name = normal.local.name.to_string();
                     let full_path = stmt.source.value.clone().into_string();
                     let local = normal.local.name.clone().into_string();
@@ -197,7 +266,6 @@ fn add_imports(mock_builder: &mut MockBuilder, stmt: ImportDeclaration) {
                     mock_builder.add_import_mock(&name, local, full_path, imported);
                 }
                 ImportDeclarationSpecifier::ImportDefaultSpecifier(default) => {
-                    println!("default: {:?}", default.local.name);
                     let name = default.local.name.to_string();
                     let full_path = stmt.source.value.clone().into_string();
                     let local = default.local.name.clone().into_string();
@@ -217,21 +285,19 @@ where
         for specifier in specifiers {
             match specifier {
                 ImportDeclarationSpecifier::ImportNamespaceSpecifier(namespace) => {
-                    println!("namespace: {:?}", namespace.local.name);
                     let full_path = stmt.source.value.clone().into_string();
                     let local = namespace.local.name.clone().into_string();
                     let imported = None;
                     set_callback(local, full_path, imported);
                 }
                 ImportDeclarationSpecifier::ImportSpecifier(normal) => {
-                    println!("normal: {:?}", normal.local.name);
+                    // println!("normal: {:?}", normal);
                     let full_path = stmt.source.value.clone().into_string();
                     let local = normal.local.name.clone().into_string();
                     let imported = Some(normal.imported.to_string());
                     set_callback(local, full_path, imported);
                 }
                 ImportDeclarationSpecifier::ImportDefaultSpecifier(default) => {
-                    println!("default: {:?}", default.local.name);
                     let full_path = stmt.source.value.clone().into_string();
                     let local = default.local.name.clone().into_string();
                     let imported = None;

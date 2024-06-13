@@ -55,12 +55,12 @@ pub struct Import {
 
 #[derive(Debug, Serialize)]
 pub struct MockTargetAST {
-    name: String,
+    pub name: String,
     mock_type: MockRefType,
     pub import: Vec<Import>,
     #[serde(skip_serializing)]
     ref_properties: Vec<Arc<MockTargetAST>>,
-    ast: Option<String>,
+    pub ast: Option<String>,
 }
 
 impl MockTargetAST {

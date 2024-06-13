@@ -3,7 +3,7 @@ use std::{collections::HashMap, sync::Arc};
 use crate::boostest_mock::mock::BoostestMock;
 
 pub struct MockBuilder {
-    mocks: HashMap<String, BoostestMock>,
+    pub mocks: HashMap<String, BoostestMock>,
 }
 
 impl MockBuilder {
@@ -48,8 +48,8 @@ impl MockBuilder {
 
     #[cfg(debug_assertions)]
     pub fn debug(&self) {
-        println!("--------MOCK---------");
-        println!("mocks: {:?}", self.mocks);
-        println!("---------------------");
+        for mock in self.mocks.values() {
+            mock.debug();
+        }
     }
 }

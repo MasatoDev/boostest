@@ -306,7 +306,6 @@ pub fn callBoostest(path: &Path) {
 
         let allocator = oxc::allocator::Allocator::default();
         let parser = Parser::new(&allocator, &file, source_type);
-
         let program = parser.parse().program;
 
         // println!("-------------------------------------");
@@ -317,8 +316,8 @@ pub fn callBoostest(path: &Path) {
         let mut ts_type_vec: Vec<&str> = Vec::new();
         let mut class_vec: Vec<&str> = Vec::new();
 
-        boostest_utils::init_mock_builder(&mut mock_builder, program);
-        mock_builder.debug();
+        boostest_utils::init_mock_builder(&mut mock_builder, program, path);
+        // mock_builder.debug();
 
         // mock_builder.attach_declaration_only_root();
 
