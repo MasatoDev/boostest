@@ -32,6 +32,7 @@ class Hello {
 const mock1 = boostestUserMock<User>();
 // const mock2 = boostestJOBMock<JOB>();
 const mock3 = boostestClassNamedWorkerMock(NamedWorker);
+// TODO: export {} from './hoge' の形のカバー
 // const mock4 = boostestLegendManMock<LegendMan>();
 const mock5 = boostestClassHelloMock(Hello);
 const mock6 = boostestBusMock<Bus>();

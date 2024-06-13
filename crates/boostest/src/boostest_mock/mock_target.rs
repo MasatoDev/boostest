@@ -103,6 +103,7 @@ impl MockTargetAST {
     }
 
     pub fn add_import(&mut self, local: String, full_path: String, imported: Option<String>) {
+        println!("add_import: {} {} {}", self.name, local, full_path);
         let import = Import {
             local,
             imported,
