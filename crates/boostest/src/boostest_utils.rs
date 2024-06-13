@@ -4,6 +4,7 @@ use std::path::Path;
 
 use anyhow::{anyhow, Result};
 
+use oxc::ast::ast::{ExportNamedDeclaration, ExportSpecifier, StringLiteral};
 use oxc::ast::{ast::Argument, AstKind};
 use oxc::syntax::identifier;
 use oxc::{
@@ -58,6 +59,11 @@ fn resolve_specifier(path: &Path, specifier: &str) -> Result<Resolution> {
     }
 }
 
+struct ExportNamedSpecifier<'a> {
+    inner: ExportSpecifier<'a>,
+    source: Option<StringLiteral<'a>>,
+}
+
 pub fn resolve_mock_target_ast(mock_target_ast: &mut MockTargetAST, program: Program, path: &Path) {
     if mock_target_ast.has_ast() {
         return;
@@ -65,17 +71,32 @@ pub fn resolve_mock_target_ast(mock_target_ast: &mut MockTargetAST, program: Pro
 
     let target_name = mock_target_ast.get_decl_name_for_resolve().clone();
     let mut import_declarations: Vec<ImportDeclaration> = Vec::new();
+    let mut export_specifiers: Vec<ExportNamedSpecifier> = Vec::new();
 
     for stmt in program.body.into_iter() {
-        // println!("Statement {:?}", stmt);
-
         match stmt {
             Statement::ImportDeclaration(import) => {
                 import_declarations.push(import.unbox());
             }
 
-            Statement::ExportNamedDeclaration(export_named_decl) => {
-                if let Some(export_named_decl) = export_named_decl.unbox().declaration {
+            Statement::ExportNamedDeclaration(box_export_named_decl) => {
+                let export_named_decl = box_export_named_decl.unbox();
+
+                let ExportNamedDeclaration {
+                    declaration,
+                    specifiers,
+                    source,
+                    ..
+                } = export_named_decl;
+
+                for specifier in specifiers.into_iter() {
+                    export_specifiers.push(ExportNamedSpecifier {
+                        inner: specifier,
+                        source: source.clone(),
+                    });
+                }
+
+                if let Some(export_named_decl) = declaration {
                     match export_named_decl {
                         Declaration::ClassDeclaration(class_decl) => {
                             if let Some(identifier) = &class_decl.id {
@@ -138,6 +159,29 @@ pub fn resolve_mock_target_ast(mock_target_ast: &mut MockTargetAST, program: Pro
                     mock_target_ast.add_import(local, full_path, imported);
                 };
             });
+        }
+
+        for export_specifier in export_specifiers {
+            println!(
+                "export_specifier: {:?}",
+                export_specifier.inner.exported.name()
+            );
+
+            let name = export_specifier.inner.exported.name().to_string();
+            let imported = export_specifier.inner.local.name().to_string();
+            let source = export_specifier.source;
+
+            if name == target_name {
+                if let Some(source) = source {
+                    mock_target_ast.add_import(name, source.value.to_string(), Some(imported));
+                } else {
+                    println!("failed source value{}", target_name);
+                }
+                // mock_target_ast.add_import(name, full_path, Some(imported));
+            }
+            // if export_specifier.exported.name.to_string() == target_name {
+            //     mock_target_ast.add_export(export_specifier.local.name.to_string());
+            // }
         }
 
         if let Ok(module_path) = path.canonicalize() {
