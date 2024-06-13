@@ -34,4 +34,4 @@ const mock1 = boostestUserMock<User>();
 const mock3 = boostestClassNamedWorkerMock(NamedWorker);
 // const mock4 = boostestLegendManMock<LegendMan>();
 const mock5 = boostestClassHelloMock(Hello);
-// const mock6 = boostestBusMock<Bus>();
+const mock6 = boostestBusMock<Bus>();

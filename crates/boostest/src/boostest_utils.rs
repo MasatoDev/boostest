@@ -103,6 +103,28 @@ pub fn resolve_mock_target_ast(mock_target_ast: &mut MockTargetAST, program: Pro
                     }
                 }
             }
+
+            Statement::ClassDeclaration(class_decl) => {
+                if let Some(identifier) = &class_decl.id {
+                    if identifier.name.to_string() == target_name {
+                        println!("ClassDeclaration");
+                        mock_target_ast.set_decl(String::from("class"));
+                    }
+                }
+            }
+            Statement::TSTypeAliasDeclaration(ts_type_alias_decl) => {
+                if ts_type_alias_decl.id.name.to_string() == target_name {
+                    println!("TSTypeAliasDeclaration");
+                    mock_target_ast.set_decl(String::from("type alias"));
+                }
+            }
+            Statement::TSInterfaceDeclaration(ts_interface_decl) => {
+                if ts_interface_decl.id.name.to_string() == target_name {
+                    println!("TSInterfaceDeclaration");
+                    mock_target_ast.set_decl(String::from("type interface"));
+                }
+            }
+
             _ => {
                 // println!("Another Statement {:?}", stmt);
             }
@@ -179,6 +201,7 @@ pub fn init_mock_builder<'a>(mock_builder: &mut MockBuilder, program: Program, p
                 .with_module(true)
                 .with_typescript(true);
 
+            //TODO: 毎回生成しないようにする(visit, walkを使う)
             let parser = Parser::new(&allocator, &file, source_type);
             let program = parser.parse().program;
 
