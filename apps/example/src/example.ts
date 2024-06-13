@@ -3,36 +3,37 @@ import type JOB from './anotherTypeFile2.ts';
 import { LegendMan } from './bet.ts';
 import { Customer as NamedWorker } from './anotherClassFile';
 
-// const boostestMock = <T>(arg?: any): T => {
-//   return arg;
-// };
+const boostestMock = <T>(arg?: any): T => {
+  return arg;
+};
 
-// export const user: User = {
-//   name: 'John Doe',
-//   age: 30,
-// };
+export const user: User = {
+  name: 'John Doe',
+  age: 30,
+};
 
-// type Bus = {
-//   name: string;
-//   maxSpeed: number;
-// };
+type Bus = {
+  name: string;
+  maxSpeed: number;
+};
 
-// interface Agree {
-//   name: string;
-//   age: number;
-// }
+interface Agree {
+  name: string;
+  age: number;
+}
 
-// class Hello {
-//   name: string;
-//   constructor(name: string) {
-//     this.name = name;
-//   }
-// }
+class Hello {
+  name: string;
+  constructor(name: string) {
+    this.name = name;
+  }
+}
 
-// const mock1 = boostestUserMock<User>();
-// const mock3 = boostestClassNamedWorkerMock(NamedWorker);
-// const mock5 = boostestClassHelloMock(Hello);
-// const mock6 = boostestBusMock<Bus>();
-// TODO: export {} from './hoge' の形のカバー
-// const mock4 = boostestLegendManMock<LegendMan>();
-const mock2 = boostestJOBMock<JOB>();
+const mock1 = boostestUserMock<User>();
+const mock3 = boostestClassNamedWorkerMock(NamedWorker);
+const mock5 = boostestClassHelloMock(Hello);
+const mock6 = boostestBusMock<Bus>();
+const mock4 = boostestLegendManMock<LegendMan>();
+
+// TODO: export defaultへの対応
+// const mock2 = boostestJOBMock<JOB>();

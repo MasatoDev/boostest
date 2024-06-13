@@ -101,20 +101,17 @@ pub fn resolve_mock_target_ast(mock_target_ast: &mut MockTargetAST, program: Pro
                         Declaration::ClassDeclaration(class_decl) => {
                             if let Some(identifier) = &class_decl.id {
                                 if identifier.name.to_string() == target_name {
-                                    println!("ClassDeclaration");
                                     mock_target_ast.set_decl(String::from("class"));
                                 }
                             }
                         }
                         Declaration::TSTypeAliasDeclaration(ts_type_alias_decl) => {
                             if ts_type_alias_decl.id.name.to_string() == target_name {
-                                println!("TSTypeAliasDeclaration");
                                 mock_target_ast.set_decl(String::from("type alias"));
                             }
                         }
                         Declaration::TSInterfaceDeclaration(ts_interface_decl) => {
                             if ts_interface_decl.id.name.to_string() == target_name {
-                                println!("TSInterfaceDeclaration");
                                 mock_target_ast.set_decl(String::from("type interface"));
                             }
                         }
@@ -128,20 +125,17 @@ pub fn resolve_mock_target_ast(mock_target_ast: &mut MockTargetAST, program: Pro
             Statement::ClassDeclaration(class_decl) => {
                 if let Some(identifier) = &class_decl.id {
                     if identifier.name.to_string() == target_name {
-                        println!("ClassDeclaration");
                         mock_target_ast.set_decl(String::from("class"));
                     }
                 }
             }
             Statement::TSTypeAliasDeclaration(ts_type_alias_decl) => {
                 if ts_type_alias_decl.id.name.to_string() == target_name {
-                    println!("TSTypeAliasDeclaration");
                     mock_target_ast.set_decl(String::from("type alias"));
                 }
             }
             Statement::TSInterfaceDeclaration(ts_interface_decl) => {
                 if ts_interface_decl.id.name.to_string() == target_name {
-                    println!("TSInterfaceDeclaration");
                     mock_target_ast.set_decl(String::from("type interface"));
                 }
             }
@@ -162,11 +156,6 @@ pub fn resolve_mock_target_ast(mock_target_ast: &mut MockTargetAST, program: Pro
         }
 
         for export_specifier in export_specifiers {
-            println!(
-                "export_specifier: {:?}",
-                export_specifier.inner.exported.name()
-            );
-
             let name = export_specifier.inner.exported.name().to_string();
             let imported = export_specifier.inner.local.name().to_string();
             let source = export_specifier.source;
@@ -187,7 +176,6 @@ pub fn resolve_mock_target_ast(mock_target_ast: &mut MockTargetAST, program: Pro
         if let Ok(module_path) = path.canonicalize() {
             if let Some(parent_path) = module_path.parent() {
                 if let Some(specifier) = mock_target_ast.get_next_path() {
-                    println!("import {:?}", mock_target_ast.import);
                     let resolution_result = resolve_specifier(parent_path, &specifier);
                     if let Ok(resolution) = resolution_result {
                         if let Ok(file) = read(&resolution.full_path()) {
