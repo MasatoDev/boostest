@@ -13,6 +13,10 @@ impl MockBuilder {
         }
     }
 
+    pub fn get_mock(&mut self, name: &String) -> Option<&mut BoostestMock> {
+        self.mocks.get_mut(name)
+    }
+
     pub fn add_mock(&mut self, mock: BoostestMock) {
         self.mocks.insert(mock.name.clone(), mock);
     }

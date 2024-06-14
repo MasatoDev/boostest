@@ -5,6 +5,7 @@ use std::path::Path;
 use anyhow::{anyhow, Result};
 
 use oxc::ast::ast::{ExportNamedDeclaration, ExportSpecifier, StringLiteral};
+use oxc::ast::Visit;
 use oxc::ast::{ast::Argument, AstKind};
 use oxc::syntax::identifier;
 use oxc::{
@@ -218,12 +219,14 @@ pub fn init_mock_builder<'a>(mock_builder: &mut MockBuilder, program: Program, p
     }
 
     for var_decl_item in var_decl {
-        create_mock_target(mock_builder, var_decl_item);
+        mock_builder.visit_variable_declaration(&var_decl_item);
     }
 
     for import_decl_item in import_decl {
-        add_imports(mock_builder, import_decl_item);
+        mock_builder.visit_import_declaration(&import_decl_item);
     }
+
+    mock_builder.debug();
 
     for (_, val) in mock_builder.mocks.iter_mut() {
         let allocator = oxc::allocator::Allocator::default();
@@ -246,91 +249,6 @@ pub fn init_mock_builder<'a>(mock_builder: &mut MockBuilder, program: Program, p
     println!("--------INIT---------");
     mock_builder.debug();
     println!("-----------------");
-}
-
-fn create_mock_target<'a>(
-    mock_builder: &mut MockBuilder,
-    var_decl: VariableDeclaration,
-) -> Result<String> {
-    let pattern = "boostest";
-
-    for decl in &var_decl.declarations {
-        if let Some(CallExpression(call_expr)) = &decl.init {
-            if let Expression::Identifier(identifier) = &call_expr.callee {
-                if identifier.name.contains(pattern) {
-                    let target_mock_name = identifier.name.clone().into_string();
-                    let mock = mock::BoostestMock::new(target_mock_name.clone());
-                    mock_builder.add_mock(mock);
-
-                    call_expr.type_parameters.iter().for_each(|type_params| {
-                        for param in &type_params.params {
-                            if let TSTypeReference(ty_ref) = param {
-                                if let IdentifierReference(identifier) = &ty_ref.type_name {
-                                    mock_builder.add_ts_type_ref_mock(
-                                        &target_mock_name,
-                                        identifier.name.clone().into_string(),
-                                    );
-                                }
-                            }
-                        }
-                    });
-                    for arg in &call_expr.arguments {
-                        match arg {
-                            Argument::Identifier(identifier) => {
-                                mock_builder.add_class_ref_mock(
-                                    &target_mock_name,
-                                    identifier.name.clone().into_string(),
-                                );
-                            }
-                            ObjectExpression(ident) => {
-                                println!("arg: {:?}", ident);
-                            }
-                            SpreadElement(ident) => {
-                                println!("arg: {:?}", ident);
-                            }
-                            _ => {
-                                println!("other arg: {:?}", arg);
-                            }
-                        }
-                    }
-
-                    return Ok(target_mock_name);
-                }
-            }
-        }
-    }
-
-    return Err(anyhow!("何か問題が発生しました"));
-}
-
-fn add_imports(mock_builder: &mut MockBuilder, stmt: ImportDeclaration) {
-    if let Some(specifiers) = &stmt.specifiers {
-        for specifier in specifiers {
-            match specifier {
-                ImportDeclarationSpecifier::ImportNamespaceSpecifier(namespace) => {
-                    let name = namespace.local.name.to_string();
-                    let full_path = stmt.source.value.clone().into_string();
-                    let local = namespace.local.name.clone().into_string();
-                    let imported = None;
-                    mock_builder.add_import_mock(&name, local, full_path, imported);
-                }
-                ImportDeclarationSpecifier::ImportSpecifier(normal) => {
-                    let name = normal.local.name.to_string();
-                    let full_path = stmt.source.value.clone().into_string();
-                    let local = normal.local.name.clone().into_string();
-                    let imported = Some(normal.imported.to_string());
-                    mock_builder.add_import_mock(&name, local, full_path, imported);
-                }
-                ImportDeclarationSpecifier::ImportDefaultSpecifier(default) => {
-                    let name = default.local.name.to_string();
-                    let full_path = stmt.source.value.clone().into_string();
-                    let local = default.local.name.clone().into_string();
-                    let imported = None;
-                    mock_builder.add_import_mock(&name, local, full_path, imported);
-                }
-            }
-        }
-    }
 }
 
 fn add_import<F>(stmt: ImportDeclaration, mut set_callback: F)
