@@ -15,6 +15,17 @@ use crate::boostest_mock::{mock::BoostestMock, mock_target::MockTargetAST};
 
 // *********************************** MockBuilder ***********************************
 impl<'a> Visit<'a> for MockBuilder {
+    fn visit_statements(&mut self, stmts: &Vec<'a, Statement<'a>>) {
+        for stmt in stmts {
+            match stmt {
+                Statement::VariableDeclaration(decl) => {
+                    self.visit_variable_declaration(decl);
+                }
+                _ => {}
+            }
+        }
+    }
+
     // --------------ADD BASE MOCK--------------
     fn visit_variable_declaration(&mut self, decl: &VariableDeclaration<'a>) {
         for declarator in decl.declarations.iter() {
@@ -38,56 +49,6 @@ impl<'a> Visit<'a> for MockBuilder {
                 self.add_mock(mock);
                 if let Some(target_mock) = self.get_mock(&target_mock_name) {
                     target_mock.visit_call_expression(expr);
-                }
-            }
-        }
-    }
-
-    // -------------- ADD BASE IMPORT TO MOCK --------------
-
-    fn visit_import_declaration(&mut self, decl: &ImportDeclaration<'a>) {
-        if let Some(specifiers) = &decl.specifiers {
-            for specifier in specifiers {
-                match specifier {
-                    ImportDeclarationSpecifier::ImportNamespaceSpecifier(namespace) => {
-                        let name = namespace.local.name.to_string();
-
-                        if let Some(mock) = self.get_mock(&name) {
-                            let full_path = decl.source.value.clone().into_string();
-                            let local = namespace.local.name.clone().into_string();
-                            let imported = None;
-
-                            if let Some(target) = &mut mock.target_ast {
-                                target.add_import(local, full_path, imported)
-                            }
-                        }
-                    }
-                    ImportDeclarationSpecifier::ImportSpecifier(normal) => {
-                        let name = normal.local.name.to_string();
-
-                        if let Some(mock) = self.get_mock(&name) {
-                            let full_path = decl.source.value.clone().into_string();
-                            let local = normal.local.name.clone().into_string();
-                            let imported = Some(normal.imported.to_string());
-
-                            if let Some(target) = &mut mock.target_ast {
-                                target.add_import(local, full_path, imported)
-                            }
-                        }
-                    }
-                    ImportDeclarationSpecifier::ImportDefaultSpecifier(default) => {
-                        let name = default.local.name.to_string();
-
-                        if let Some(mock) = self.get_mock(&name) {
-                            let full_path = decl.source.value.clone().into_string();
-                            let local = default.local.name.clone().into_string();
-                            let imported = None;
-
-                            if let Some(target) = &mut mock.target_ast {
-                                target.add_import(local, full_path, imported)
-                            }
-                        }
-                    }
                 }
             }
         }

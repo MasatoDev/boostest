@@ -1,11 +1,6 @@
 use anyhow::{anyhow, Result};
-use oxc::ast::ast::ImportDeclaration;
 use oxc::ast::Visit;
-use oxc::{
-    ast::ast::{Program, Statement, VariableDeclaration},
-    parser::Parser,
-    span::SourceType,
-};
+use oxc::{ast::ast::Program, parser::Parser, span::SourceType};
 use oxc_resolver::{Resolution, ResolveOptions, Resolver};
 use std::fs::File;
 use std::io::{self, Read};
@@ -40,7 +35,11 @@ fn resolve_specifier(path: &Path, specifier: &str) -> Result<Resolution> {
     }
 }
 
-pub fn resolve_mock_target_ast(mock_target_ast: &mut MockTargetAST, program: Program, path: &Path) {
+pub fn resolve_mock_target_ast(
+    mock_target_ast: &mut MockTargetAST,
+    program: &Program,
+    path: &Path,
+) {
     if mock_target_ast.has_ast() {
         return;
     };
@@ -65,9 +64,8 @@ pub fn resolve_mock_target_ast(mock_target_ast: &mut MockTargetAST, program: Pro
                             let parser = Parser::new(&allocator, &file, source_type);
                             let program = parser.parse().program;
                             let new_path = resolution.full_path();
-                            // println!("new_path: {:?}", new_path);
 
-                            resolve_mock_target_ast(mock_target_ast, program, new_path.as_path());
+                            resolve_mock_target_ast(mock_target_ast, &program, new_path.as_path());
                         }
                     }
                 }
@@ -78,45 +76,12 @@ pub fn resolve_mock_target_ast(mock_target_ast: &mut MockTargetAST, program: Pro
     }
 }
 
-pub fn init_mock_builder<'a>(mock_builder: &mut MockBuilder, program: Program, path: &Path) {
-    let mut var_decl: Vec<VariableDeclaration> = Vec::new();
-    let mut import_decl: Vec<ImportDeclaration> = Vec::new();
-
-    for stmt in program.body.into_iter() {
-        match stmt {
-            Statement::VariableDeclaration(decl) => {
-                var_decl.push(decl.unbox());
-            }
-            Statement::ImportDeclaration(decl) => {
-                import_decl.push(decl.unbox());
-            }
-            _ => {}
-        }
-    }
-
-    for var_decl_item in var_decl {
-        mock_builder.visit_variable_declaration(&var_decl_item);
-    }
-
-    for import_decl_item in import_decl {
-        mock_builder.visit_import_declaration(&import_decl_item);
-    }
+pub fn init_mock_builder<'a>(mock_builder: &mut MockBuilder, program: &Program, path: &Path) {
+    mock_builder.visit_statements(&program.body);
 
     for (_, val) in mock_builder.mocks.iter_mut() {
-        let allocator = oxc::allocator::Allocator::default();
-        if let Ok(file) = read(path) {
-            let source_type = SourceType::default()
-                .with_always_strict(true)
-                .with_module(true)
-                .with_typescript(true);
-
-            //TODO: 毎回生成しないようにする(visit, walkを使う)
-            let parser = Parser::new(&allocator, &file, source_type);
-            let program = parser.parse().program;
-
-            if let Some(mock_target_ast) = val.target_ast.as_mut() {
-                resolve_mock_target_ast(mock_target_ast, program, path)
-            }
+        if let Some(mock_target_ast) = val.target_ast.as_mut() {
+            resolve_mock_target_ast(mock_target_ast, &program, path)
         }
     }
 

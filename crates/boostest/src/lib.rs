@@ -32,6 +32,6 @@ pub fn call_boostest(path: &Path) {
         let parser = Parser::new(&allocator, &file, source_type);
         let program = parser.parse().program;
 
-        boostest_utils::init_mock_builder(&mut mock_builder, program, path);
+        boostest_utils::init_mock_builder(&mut mock_builder, &program, path);
     }
 }
