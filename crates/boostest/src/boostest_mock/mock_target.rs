@@ -37,28 +37,29 @@ ref_properties: [
 
 use std::sync::Arc;
 
+use oxc::allocator::Allocator;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
 pub enum MockRefType {
     Class,
     Type,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub struct Import {
     local: String,
     imported: Option<String>,
     full_path: String,
 }
 
-#[derive(Debug)]
 pub struct MockTargetAST {
     pub name: String,
     pub import: Vec<Import>,
     pub ast: Option<String>,
     pub temp_import_source_vec: Option<Vec<Import>>,
     pub ref_properties: Vec<MockTargetAST>,
+    allocator_arc: Arc<Allocator>,
     analysis_started: bool,
     mock_type: MockRefType,
 }
@@ -68,6 +69,7 @@ impl MockTargetAST {
         name: String,
         mock_type: MockRefType,
         import: Vec<Import>,
+        allocator: Arc<Allocator>,
         ast: Option<String>,
         ref_properties: Vec<MockTargetAST>,
     ) -> Self {
@@ -75,6 +77,7 @@ impl MockTargetAST {
             name,
             mock_type,
             import,
+            allocator_arc: allocator,
             ast,
             ref_properties,
             analysis_started: false,
@@ -162,6 +165,7 @@ impl MockTargetAST {
             name,
             MockRefType::Type,
             vec![],
+            Arc::clone(&self.allocator_arc),
             None,
             Vec::new(),
         ));
@@ -172,6 +176,7 @@ impl MockTargetAST {
             name,
             MockRefType::Class,
             vec![],
+            Arc::clone(&self.allocator_arc),
             None,
             Vec::new(),
         ));
