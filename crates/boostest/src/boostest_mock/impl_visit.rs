@@ -5,8 +5,8 @@ use oxc::ast::ast::{
     Statement, TSType::TSTypeReference, TSTypeName, VariableDeclaration,
 };
 use oxc::ast::ast::{
-    Class, ExportNamedDeclaration, TSInterfaceDeclaration, TSTypeAliasDeclaration,
-    TSTypeParameterInstantiation, VariableDeclarator,
+    Class, ExportNamedDeclaration, TSInterfaceDeclaration, TSSignature, TSType,
+    TSTypeAliasDeclaration, TSTypeParameterInstantiation, VariableDeclarator,
 };
 use oxc::ast::{ast::Argument, Visit};
 
@@ -124,21 +124,80 @@ impl<'a> Visit<'a> for MockTargetAST {
             }
         }
     }
+
+    // handle mock target is class
     fn visit_class(&mut self, class: &Class<'a>) {
         if let Some(identifier) = &class.id {
             let target_name = self.get_decl_name_for_resolve().clone();
 
             if identifier.name.to_string() == target_name {
                 self.set_decl(String::from("class"));
+
+                self.visit_class_body(&class.body);
             }
         }
     }
 
+    fn visit_class_body(&mut self, body: &oxc::ast::ast::ClassBody<'a>) {
+        body.body.iter().for_each(|element| match element {
+            // TODO: cover method definition
+
+            // oxc::ast::ast::ClassElement::MethodDefinition(method) => {
+            //     self.visit_method_definition(method);
+            // }
+            oxc::ast::ast::ClassElement::PropertyDefinition(property) => {
+                self.visit_property_definition(property);
+            }
+            _ => {}
+        });
+    }
+
+    fn visit_property_definition(&mut self, def: &oxc::ast::ast::PropertyDefinition<'a>) {
+        for annotation in def.type_annotation.iter() {
+            self.visit_ts_type_annotation(annotation);
+        }
+    }
+
+    fn visit_ts_type_annotation(&mut self, annotation: &oxc::ast::ast::TSTypeAnnotation<'a>) {
+        match &annotation.type_annotation {
+            TSType::TSTypeReference(ty_ref) => {
+                if let TSTypeName::IdentifierReference(identifier) = &ty_ref.type_name {
+                    self.add_property_ts_type(identifier.name.clone().into_string());
+                }
+            }
+            _ => {}
+        }
+    }
+
+    fn visit_method_definition(&mut self, def: &oxc::ast::ast::MethodDefinition<'a>) {}
+
+    fn visit_ts_signature(&mut self, signature: &TSSignature<'a>) {
+        match signature {
+            TSSignature::TSPropertySignature(ts_prop_signature) => {
+                for annotation in ts_prop_signature.type_annotation.iter() {
+                    self.visit_ts_type_annotation(annotation);
+                }
+            }
+            _ => {}
+        }
+    }
+
+    // handle mock target is type alias
     fn visit_ts_type_alias_declaration(&mut self, decl: &TSTypeAliasDeclaration<'a>) {
         let target_name = self.get_decl_name_for_resolve().clone();
 
         if decl.id.name.to_string() == target_name {
             self.set_decl(String::from("type alias"));
+
+            // NOTE: handle mock target property
+            match &decl.type_annotation {
+                TSType::TSTypeLiteral(ts_type_literal) => {
+                    for ts_signature in ts_type_literal.members.iter() {
+                        self.visit_ts_signature(ts_signature);
+                    }
+                }
+                _ => {}
+            }
         }
     }
 
@@ -147,6 +206,10 @@ impl<'a> Visit<'a> for MockTargetAST {
 
         if decl.id.name.to_string() == target_name {
             self.set_decl(String::from("type interface"));
+
+            for ts_signature in &decl.body.body {
+                self.visit_ts_signature(ts_signature);
+            }
         }
     }
 

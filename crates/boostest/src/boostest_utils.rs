@@ -44,7 +44,17 @@ pub fn resolve_mock_target_ast(
         return;
     };
 
+    mock_target_ast.analysis_start();
     mock_target_ast.visit_statements(&program.body);
+
+    /*
+     * NOTE:
+     * start analysis for ref_properties after original mock_target_ast analysis is started
+     */
+    for prop in mock_target_ast.get_needs_start_analysis_properties() {
+        prop.analysis_start();
+        resolve_mock_target_ast(prop, program, path);
+    }
 
     if !mock_target_ast.has_ast() {
         mock_target_ast.set_import_source();

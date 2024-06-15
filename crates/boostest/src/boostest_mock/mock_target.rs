@@ -45,20 +45,22 @@ pub enum MockRefType {
     Type,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Import {
     local: String,
     imported: Option<String>,
     full_path: String,
 }
 
+#[derive(Debug)]
 pub struct MockTargetAST {
     pub name: String,
     pub import: Vec<Import>,
     pub ast: Option<String>,
     pub temp_import_source_vec: Option<Vec<Import>>,
+    pub ref_properties: Vec<MockTargetAST>,
+    analysis_started: bool,
     mock_type: MockRefType,
-    ref_properties: Vec<Arc<MockTargetAST>>,
 }
 
 impl MockTargetAST {
@@ -67,7 +69,7 @@ impl MockTargetAST {
         mock_type: MockRefType,
         import: Vec<Import>,
         ast: Option<String>,
-        ref_properties: Vec<Arc<MockTargetAST>>,
+        ref_properties: Vec<MockTargetAST>,
     ) -> Self {
         Self {
             name,
@@ -75,8 +77,13 @@ impl MockTargetAST {
             import,
             ast,
             ref_properties,
+            analysis_started: false,
             temp_import_source_vec: None,
         }
+    }
+
+    pub fn analysis_start(&mut self) {
+        self.analysis_started = true;
     }
 
     pub fn set_decl(&mut self, decl: String) {
@@ -148,5 +155,36 @@ impl MockTargetAST {
         }
 
         self.reset_temp_import_source();
+    }
+
+    pub fn add_property_ts_type(&mut self, name: String) {
+        self.ref_properties.push(MockTargetAST::new(
+            name,
+            MockRefType::Type,
+            vec![],
+            None,
+            Vec::new(),
+        ));
+    }
+
+    pub fn add_property_class(&mut self, name: String) {
+        self.ref_properties.push(MockTargetAST::new(
+            name,
+            MockRefType::Class,
+            vec![],
+            None,
+            Vec::new(),
+        ));
+    }
+
+    pub fn get_needs_start_analysis_properties(&mut self) -> Vec<&mut MockTargetAST> {
+        let mut result = Vec::new();
+
+        for prop in &mut self.ref_properties {
+            if !prop.has_ast() && !prop.analysis_started {
+                result.push(prop);
+            }
+        }
+        result
     }
 }

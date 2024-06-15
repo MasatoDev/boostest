@@ -36,7 +36,7 @@ impl BoostestMock {
     pub fn debug(&self) {
         if let Some(target_ast) = &self.target_ast {
             println!("--------MOCK TARGET: {:?}---------", target_ast.name);
-            println!("AST: {:?}", target_ast.ast);
+            println!("AST: {:?}", target_ast);
             println!("---------------------");
         }
     }
