@@ -3,10 +3,12 @@ use std::io::{self, Read};
 use std::path::Path;
 
 use anyhow::{anyhow, Result};
+use oxc::allocator::Vec;
 
 use oxc::ast::ast::{
-    ExportNamedDeclaration, ExportSpecifier, ImportSpecifier, StringLiteral,
-    TSTypeParameterInstantiation, VariableDeclarator,
+    Class, ExportNamedDeclaration, ExportSpecifier, ImportSpecifier, StringLiteral,
+    TSInterfaceDeclaration, TSTypeAliasDeclaration, TSTypeParameterInstantiation,
+    VariableDeclarator,
 };
 use oxc::ast::{ast::Argument, AstKind, Visit};
 use oxc::syntax::identifier;
@@ -61,7 +63,7 @@ impl<'a> Visit<'a> for MockBuilder {
 
     fn visit_identifier_reference(&mut self, ident: &IdentifierReference<'a>) {}
 
-    // --------------ADD BASE IMPORT TO MOCK--------------
+    // -------------- ADD BASE IMPORT TO MOCK --------------
 
     fn visit_import_declaration(&mut self, decl: &ImportDeclaration<'a>) {
         if let Some(specifiers) = &decl.specifiers {
@@ -150,6 +152,136 @@ impl<'a> Visit<'a> for BoostestMock {
             }
             _ => {
                 println!("other arg: {:?}", arg);
+            }
+        }
+    }
+}
+
+impl<'a> Visit<'a> for MockTargetAST {
+    // -------------- ADD DECL TO MOCK --------------
+
+    fn visit_statements(&mut self, stmts: &Vec<'a, Statement<'a>>) {
+        for stmt in stmts {
+            match stmt {
+                Statement::ImportDeclaration(import) => {
+                    self.visit_import_declaration(import);
+                }
+
+                Statement::ExportNamedDeclaration(export_named_decl) => {
+                    self.visit_export_named_declaration(export_named_decl);
+                }
+
+                Statement::ClassDeclaration(ref class) => self.visit_class(class),
+                Statement::TSTypeAliasDeclaration(ref decl) => {
+                    self.visit_ts_type_alias_declaration(decl);
+                }
+                Statement::TSInterfaceDeclaration(ref decl) => {
+                    self.visit_ts_interface_declaration(decl);
+                }
+
+                _ => {
+                    // println!("Another Statement {:?}", stmt);
+                }
+            }
+        }
+    }
+    fn visit_class(&mut self, class: &Class<'a>) {
+        if let Some(identifier) = &class.id {
+            let target_name = self.get_decl_name_for_resolve().clone();
+
+            if identifier.name.to_string() == target_name {
+                self.set_decl(String::from("class"));
+            }
+        }
+    }
+
+    fn visit_ts_type_alias_declaration(&mut self, decl: &TSTypeAliasDeclaration<'a>) {
+        let target_name = self.get_decl_name_for_resolve().clone();
+
+        if decl.id.name.to_string() == target_name {
+            self.set_decl(String::from("type alias"));
+        }
+    }
+
+    fn visit_ts_interface_declaration(&mut self, decl: &TSInterfaceDeclaration<'a>) {
+        let target_name = self.get_decl_name_for_resolve().clone();
+
+        if decl.id.name.to_string() == target_name {
+            self.set_decl(String::from("type interface"));
+        }
+    }
+
+    fn visit_import_declaration(&mut self, decl: &ImportDeclaration<'a>) {
+        let target_name = self.get_decl_name_for_resolve().clone();
+
+        if let Some(specifiers) = &decl.specifiers {
+            for specifier in specifiers {
+                let full_path = decl.source.value.clone().into_string();
+                let mut imported: Option<String> = None;
+
+                match specifier {
+                    ImportDeclarationSpecifier::ImportNamespaceSpecifier(namespace) => {
+                        let local = namespace.local.name.clone().into_string();
+
+                        if local == target_name {
+                            self.set_temp_import_source(local, full_path, imported)
+                        }
+                    }
+                    ImportDeclarationSpecifier::ImportSpecifier(normal) => {
+                        let local = normal.local.name.clone().into_string();
+                        imported = Some(normal.imported.to_string());
+
+                        if local == target_name {
+                            self.set_temp_import_source(local, full_path, imported)
+                        }
+                    }
+                    ImportDeclarationSpecifier::ImportDefaultSpecifier(default) => {
+                        let local = default.local.name.clone().into_string();
+                        if local == target_name {
+                            self.set_temp_import_source(local, full_path, imported)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fn visit_export_named_declaration(&mut self, decl: &ExportNamedDeclaration<'a>) {
+        let target_name = self.get_decl_name_for_resolve().clone();
+
+        let ExportNamedDeclaration {
+            declaration,
+            specifiers,
+            source,
+            ..
+        } = decl;
+
+        for specifier in specifiers.into_iter() {
+            if let Some(source) = source {
+                let full_path = source.value.clone().into_string();
+                let imported = specifier.local.name().to_string();
+                let name = specifier.exported.name().to_string();
+
+                if name == target_name {
+                    self.set_temp_import_source(name, full_path, Some(imported))
+                }
+            }
+        }
+
+        if let Some(export_named_decl) = declaration {
+            match export_named_decl {
+                Declaration::ClassDeclaration(ref class) => {
+                    self.visit_class(class);
+                }
+                Declaration::TSTypeAliasDeclaration(ref decl) => {
+                    self.visit_ts_type_alias_declaration(decl);
+                }
+                Declaration::TSInterfaceDeclaration(ref decl) => {
+                    self.visit_ts_interface_declaration(decl)
+                }
+                _ => {
+                    // println!("Another Statement {:?}", export_named_decl);
+                }
             }
         }
     }

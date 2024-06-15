@@ -2,7 +2,6 @@ use serde::{Deserialize, Serialize};
 
 use crate::boostest_mock::mock_target::{Import, MockRefType, MockTargetAST};
 
-#[derive(Debug, Serialize)]
 pub struct BoostestMock {
     pub name: String,
     pub target_ast: Option<MockTargetAST>,
@@ -21,8 +20,8 @@ impl BoostestMock {
             name,
             MockRefType::Type,
             vec![],
-            vec![],
             None,
+            Vec::new(),
         ));
     }
 
@@ -31,8 +30,8 @@ impl BoostestMock {
             name,
             MockRefType::Class,
             vec![],
-            vec![],
             None,
+            Vec::new(),
         ));
     }
 

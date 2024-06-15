@@ -37,8 +37,10 @@ ref_properties: [
 
 use std::sync::Arc;
 
-use oxc::ast::ast::Declaration;
+use oxc::ast::ast::{ImportDeclaration, StringLiteral};
 use serde::{Deserialize, Serialize};
+
+use super::mock;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub enum MockRefType {
@@ -46,21 +48,20 @@ pub enum MockRefType {
     Type,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Clone)]
 pub struct Import {
     local: String,
     imported: Option<String>,
     full_path: String,
 }
 
-#[derive(Debug, Serialize)]
 pub struct MockTargetAST {
     pub name: String,
-    mock_type: MockRefType,
     pub import: Vec<Import>,
-    #[serde(skip_serializing)]
-    ref_properties: Vec<Arc<MockTargetAST>>,
     pub ast: Option<String>,
+    pub temp_import_source_vec: Option<Vec<Import>>,
+    mock_type: MockRefType,
+    ref_properties: Vec<Arc<MockTargetAST>>,
 }
 
 impl MockTargetAST {
@@ -68,15 +69,16 @@ impl MockTargetAST {
         name: String,
         mock_type: MockRefType,
         import: Vec<Import>,
-        ref_properties: Vec<Arc<MockTargetAST>>,
         ast: Option<String>,
+        ref_properties: Vec<Arc<MockTargetAST>>,
     ) -> Self {
         Self {
             name,
             mock_type,
             import,
-            ref_properties,
             ast,
+            ref_properties,
+            temp_import_source_vec: None,
         }
     }
 
@@ -114,5 +116,40 @@ impl MockTargetAST {
 
     pub fn has_ast(&self) -> bool {
         self.ast.is_some()
+    }
+
+    pub fn reset_temp_import_source(&mut self) {
+        self.temp_import_source_vec = None;
+    }
+
+    pub fn set_temp_import_source(
+        &mut self,
+        local: String,
+        full_path: String,
+        imported: Option<String>,
+    ) {
+        let import = Import {
+            local,
+            imported,
+            full_path,
+        };
+
+        if let Some(vec) = &mut self.temp_import_source_vec {
+            vec.push(import);
+        } else {
+            self.temp_import_source_vec = Some(vec![import]);
+        }
+    }
+
+    pub fn set_import_source(&mut self) {
+        if self.has_ast() {
+            return;
+        }
+
+        if let Some(vec) = &self.temp_import_source_vec {
+            self.import = vec.clone();
+        }
+
+        self.reset_temp_import_source();
     }
 }
