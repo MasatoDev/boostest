@@ -101,6 +101,7 @@ impl MockTargetAST {
         let ast_builder = AstBuilder::new(&self.allocator_arc.as_ref());
 
         // TODO: create instanse of class
+        // TODO: 元となるastを用意してvisit_mutとかで変更しつつ最終的にcodegenで出力する
 
         println!("addclass{:?}", class);
     }
