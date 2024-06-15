@@ -37,7 +37,10 @@ ref_properties: [
 
 use std::sync::Arc;
 
-use oxc::allocator::Allocator;
+use oxc::{
+    allocator::Allocator,
+    ast::{ast::Class, AstBuilder},
+};
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize)]
@@ -90,7 +93,16 @@ impl MockTargetAST {
     }
 
     pub fn set_decl(&mut self, decl: String) {
+        // TODO: ast追加しないとループしちゃう
         self.ast = Some(decl);
+    }
+
+    pub fn add_class(&mut self, class: &Class) {
+        let ast_builder = AstBuilder::new(&self.allocator_arc.as_ref());
+
+        // TODO: create instanse of class
+
+        println!("addclass{:?}", class);
     }
 
     pub fn get_decl_name_for_resolve(&self) -> &String {

@@ -137,6 +137,7 @@ impl<'a> Visit<'a> for MockTargetAST {
 
             if identifier.name.to_string() == target_name {
                 self.set_decl(String::from("class"));
+                self.add_class(class);
 
                 self.visit_class_body(&class.body);
             }
