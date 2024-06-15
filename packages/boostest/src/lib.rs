@@ -1,11 +1,11 @@
-use boostest::callBoostest;
+use boostest::call_boostest;
 use std::path::Path;
 
 #[macro_use]
 extern crate napi_derive;
 
 #[napi]
-pub fn createMock(path: String) {
+pub fn create_mock(path: String) {
   let path = Path::new(&path);
-  callBoostest(path);
+  call_boostest(path);
 }

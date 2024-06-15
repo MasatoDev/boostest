@@ -37,10 +37,7 @@ ref_properties: [
 
 use std::sync::Arc;
 
-use oxc::ast::ast::{ImportDeclaration, StringLiteral};
 use serde::{Deserialize, Serialize};
-
-use super::mock;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub enum MockRefType {

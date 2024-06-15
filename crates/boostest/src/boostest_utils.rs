@@ -1,33 +1,18 @@
-use std::fs::File;
-use std::io::{self, Read};
-use std::path::Path;
-
 use anyhow::{anyhow, Result};
-
-use oxc::ast::ast::{ExportNamedDeclaration, ExportSpecifier, StringLiteral};
+use oxc::ast::ast::ImportDeclaration;
 use oxc::ast::Visit;
-use oxc::ast::{ast::Argument, AstKind};
-use oxc::syntax::identifier;
 use oxc::{
-    ast::ast::{
-        Argument::{ObjectExpression, SpreadElement},
-        Declaration,
-        Expression::{self, CallExpression},
-        ImportDeclaration, ImportDeclarationSpecifier, Program, Statement,
-        TSType::TSTypeReference,
-        TSTypeName::IdentifierReference,
-        VariableDeclaration,
-    },
+    ast::ast::{Program, Statement, VariableDeclaration},
     parser::Parser,
     span::SourceType,
 };
 use oxc_resolver::{Resolution, ResolveOptions, Resolver};
+use std::fs::File;
+use std::io::{self, Read};
+use std::path::Path;
 
 use crate::boostest_mock::mock_builder::MockBuilder;
-use crate::boostest_mock::{
-    mock::{self, BoostestMock},
-    mock_target::MockTargetAST,
-};
+use crate::boostest_mock::mock_target::MockTargetAST;
 
 fn read(path: &Path) -> io::Result<String> {
     let mut f = File::open(path)?;
@@ -39,12 +24,7 @@ fn read(path: &Path) -> io::Result<String> {
 }
 
 fn resolve_specifier(path: &Path, specifier: &str) -> Result<Resolution> {
-    // println!("parent_path: {:?}", path);
-    // println!("specifier: {:?}", specifier);
-
     let options = ResolveOptions {
-        // alias_fields: vec![vec!["browser".into()]],
-        // alias: vec![("asdf".into(), vec![AliasValue::from("./test.js")])],
         extensions: vec![".ts".into(), ".tsx".into()],
         ..ResolveOptions::default()
     };

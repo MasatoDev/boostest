@@ -1,35 +1,17 @@
-use std::fs::File;
-use std::io::{self, Read};
-use std::path::Path;
-
-use anyhow::{anyhow, Result};
 use oxc::allocator::Vec;
 
 use oxc::ast::ast::{
-    Class, ExportNamedDeclaration, ExportSpecifier, ImportSpecifier, StringLiteral,
-    TSInterfaceDeclaration, TSTypeAliasDeclaration, TSTypeParameterInstantiation,
-    VariableDeclarator,
+    CallExpression, Declaration, Expression, ImportDeclaration, ImportDeclarationSpecifier,
+    Statement, TSType::TSTypeReference, TSTypeName, VariableDeclaration,
 };
-use oxc::ast::{ast::Argument, AstKind, Visit};
-use oxc::syntax::identifier;
-use oxc::{
-    ast::ast::{
-        Argument::{ObjectExpression, SpreadElement},
-        CallExpression, Declaration, Expression, IdentifierReference, ImportDeclaration,
-        ImportDeclarationSpecifier, Program, Statement,
-        TSType::TSTypeReference,
-        TSTypeName, VariableDeclaration,
-    },
-    parser::Parser,
-    span::SourceType,
+use oxc::ast::ast::{
+    Class, ExportNamedDeclaration, TSInterfaceDeclaration, TSTypeAliasDeclaration,
+    TSTypeParameterInstantiation, VariableDeclarator,
 };
-use oxc_resolver::{Resolution, ResolveOptions, Resolver};
+use oxc::ast::{ast::Argument, Visit};
 
 use crate::boostest_mock::mock_builder::MockBuilder;
-use crate::boostest_mock::{
-    mock::{self, BoostestMock},
-    mock_target::MockTargetAST,
-};
+use crate::boostest_mock::{mock::BoostestMock, mock_target::MockTargetAST};
 
 // *********************************** MockBuilder ***********************************
 impl<'a> Visit<'a> for MockBuilder {
@@ -60,8 +42,6 @@ impl<'a> Visit<'a> for MockBuilder {
             }
         }
     }
-
-    fn visit_identifier_reference(&mut self, ident: &IdentifierReference<'a>) {}
 
     // -------------- ADD BASE IMPORT TO MOCK --------------
 
@@ -132,8 +112,6 @@ impl<'a> Visit<'a> for BoostestMock {
             self.visit_argument(argument);
         }
     }
-
-    fn visit_identifier_reference(&mut self, ident: &IdentifierReference<'a>) {}
 
     fn visit_ts_type_parameter_instantiation(&mut self, ty: &TSTypeParameterInstantiation<'a>) {
         for param in &ty.params {

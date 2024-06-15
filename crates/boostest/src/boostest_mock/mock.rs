@@ -1,6 +1,4 @@
-use serde::{Deserialize, Serialize};
-
-use crate::boostest_mock::mock_target::{Import, MockRefType, MockTargetAST};
+use crate::boostest_mock::mock_target::{MockRefType, MockTargetAST};
 
 pub struct BoostestMock {
     pub name: String,
