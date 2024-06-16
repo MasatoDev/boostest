@@ -37,9 +37,15 @@ ref_properties: [
 
 use std::sync::Arc;
 
+use crate::boostest_mock::mock_ast_builder::ClassASTBuilder;
 use oxc::{
     allocator::Allocator,
-    ast::{ast::Class, AstBuilder},
+    ast::{
+        ast::{Class, Program},
+        AstBuilder,
+    },
+    parser::Parser,
+    span::SourceType,
 };
 use serde::{Deserialize, Serialize};
 
@@ -65,6 +71,8 @@ pub struct MockTargetAST {
     allocator_arc: Arc<Allocator>,
     analysis_started: bool,
     mock_type: MockRefType,
+    source_type: SourceType,
+    code: Option<String>,
 }
 
 impl MockTargetAST {
@@ -85,6 +93,11 @@ impl MockTargetAST {
             ref_properties,
             analysis_started: false,
             temp_import_source_vec: None,
+            source_type: SourceType::default()
+                .with_always_strict(true)
+                .with_module(true)
+                .with_typescript(true),
+            code: None,
         }
     }
 
@@ -98,12 +111,21 @@ impl MockTargetAST {
     }
 
     pub fn add_class(&mut self, class: &Class) {
-        let ast_builder = AstBuilder::new(&self.allocator_arc.as_ref());
+        let bytes = include_bytes!("../template/class.ts");
+        let source_code = std::str::from_utf8(bytes).unwrap();
+        let allocator = self.allocator_arc.as_ref();
+        let parser = Parser::new(allocator, source_code, self.source_type);
+
+        let program = parser.parse().program;
+        let mut class_ast_builder = ClassASTBuilder::new();
+        class_ast_builder.generate_code(&program.body);
+
+        // println!("add_class{:?}", program)
 
         // TODO: create instanse of class
         // TODO: 元となるastを用意してvisit_mutとかで変更しつつ最終的にcodegenで出力する
 
-        println!("addclass{:?}", class);
+        // println!("addclass{:?}", class);
     }
 
     pub fn get_decl_name_for_resolve(&self) -> &String {

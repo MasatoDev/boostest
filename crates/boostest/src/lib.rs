@@ -10,6 +10,7 @@ use std::io::prelude::*;
 use std::path::Path;
 
 fn read(path: &Path) -> io::Result<String> {
+    println!("read{:?}", path);
     let mut f = File::open(path)?;
     let mut s = String::new();
     match f.read_to_string(&mut s) {
