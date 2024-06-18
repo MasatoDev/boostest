@@ -2,14 +2,14 @@ use std::{collections::HashMap, sync::Arc};
 
 use oxc::{allocator::Allocator, ast::AstBuilder};
 
-use crate::boostest_mock::mock::BoostestMock;
+use crate::boostest_mock_loader::mock::BoostestMock;
 
-pub struct MockBuilder {
+pub struct MockLoader {
     pub mocks: HashMap<String, BoostestMock>,
     pub output_ast_allocator: Arc<Allocator>,
 }
 
-impl MockBuilder {
+impl MockLoader {
     pub fn new() -> Self {
         let allocator = Allocator::default();
 

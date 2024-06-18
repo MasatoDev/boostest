@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use oxc::allocator::{self, Allocator};
 
-use crate::boostest_mock::mock_target::{MockRefType, MockTargetAST};
+use crate::boostest_mock_loader::mock_target_ast::{MockRefType, MockTargetAST};
 
 pub struct BoostestMock {
     pub name: String,
@@ -24,7 +24,7 @@ impl BoostestMock {
             name,
             MockRefType::Type,
             vec![],
-            Arc::clone(&self.allocator_arc),
+            // Arc::clone(&self.allocator_arc),
             None,
             Vec::new(),
         ));
@@ -35,7 +35,7 @@ impl BoostestMock {
             name,
             MockRefType::Class,
             vec![],
-            Arc::clone(&self.allocator_arc),
+            // Arc::clone(&self.allocator_arc),
             None,
             Vec::new(),
         ));
@@ -44,8 +44,8 @@ impl BoostestMock {
     pub fn debug(&self) {
         if let Some(target_ast) = &self.target_ast {
             println!("--------MOCK TARGET: {:?}---------", target_ast.name);
-            // println!("AST: {:?}", target_ast);
-            // println!("---------------------");
+            println!("AST: {:?}", target_ast);
+            println!("---------------------");
         }
     }
 }

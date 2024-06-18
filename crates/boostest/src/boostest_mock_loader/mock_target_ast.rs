@@ -37,11 +37,18 @@ ref_properties: [
 
 use std::{borrow::BorrowMut, sync::Arc};
 
-use crate::boostest_mock::mock_ast_builder::ClassASTBuilder;
+use crate::boostest_mock_builder::{
+    class_builder::{ClassArg, ClassMockData},
+    init_value::get_test_value,
+    mock_builder::MockBuilder,
+};
 use oxc::{
     allocator::Allocator,
     ast::{
-        ast::{Class, Program},
+        ast::{
+            BindingPattern, BindingPatternKind, Class, ClassElement, FormalParameter,
+            MethodDefinition, Program,
+        },
         AstBuilder, VisitMut,
     },
     parser::Parser,
@@ -49,29 +56,31 @@ use oxc::{
 };
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize)]
+use super::mock;
+
+#[derive(Serialize, Deserialize, Debug)]
 pub enum MockRefType {
     Class,
     Type,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Import {
     local: String,
     imported: Option<String>,
     full_path: String,
 }
 
+#[derive(Debug)]
 pub struct MockTargetAST {
     pub name: String,
     pub import: Vec<Import>,
     pub ast: Option<String>,
     pub temp_import_source_vec: Option<Vec<Import>>,
     pub ref_properties: Vec<MockTargetAST>,
-    allocator_arc: Arc<Allocator>,
+    // allocator_arc: Arc<Allocator>,
     analysis_started: bool,
     mock_type: MockRefType,
-    source_type: SourceType,
     code: Option<String>,
 }
 
@@ -80,7 +89,7 @@ impl MockTargetAST {
         name: String,
         mock_type: MockRefType,
         import: Vec<Import>,
-        allocator: Arc<Allocator>,
+        // allocator: Arc<Allocator>,
         ast: Option<String>,
         ref_properties: Vec<MockTargetAST>,
     ) -> Self {
@@ -88,15 +97,11 @@ impl MockTargetAST {
             name,
             mock_type,
             import,
-            allocator_arc: allocator,
+            // allocator_arc: allocator,
             ast,
             ref_properties,
             analysis_started: false,
             temp_import_source_vec: None,
-            source_type: SourceType::default()
-                .with_always_strict(true)
-                .with_module(true)
-                .with_typescript(true),
             code: None,
         }
     }
@@ -111,23 +116,37 @@ impl MockTargetAST {
     }
 
     pub fn add_class(&mut self, class: &Class) {
-        let bytes = include_bytes!("../template/class.ts");
-        let source_code = std::str::from_utf8(bytes).unwrap();
-        let allocator = self.allocator_arc.as_ref();
-        let parser = Parser::new(allocator, source_code, self.source_type);
+        let mut mock_builder = MockBuilder::new();
+        let mut class_data = ClassMockData::default();
 
-        let program = &mut parser.parse().program;
+        for stmt in &class.body.body {
+            match stmt {
+                ClassElement::MethodDefinition(method) => {
+                    for formal_parameter in &method.value.params.items {
+                        match &formal_parameter.pattern.kind {
+                            BindingPatternKind::BindingIdentifier(ident) => {
+                                if let Some(item) = &formal_parameter.pattern.type_annotation {
+                                    let key = ident.name.to_string();
+                                    let val = get_test_value(&item.type_annotation);
+                                    class_data.constructor_args.push(ClassArg { key, val });
+                                }
+                            }
+                            _ => {}
+                        }
+                    }
+                }
+                _ => {}
+            }
+        }
 
-        let mut class_ast_builder = ClassASTBuilder::new();
-        class_ast_builder.visit_program(program);
-        class_ast_builder.generate_code(program);
+        if let Some(ident) = &class.id {
+            let name = ident.name.to_string();
+            class_data.class_name = name;
 
-        // println!("add_class{:?}", program)
-
-        // TODO: create instanse of class
-        // TODO: 元となるastを用意してvisit_mutとかで変更しつつ最終的にcodegenで出力する
-
-        // println!("addclass{:?}", class);
+            let code = mock_builder.generate_class_code(class_data);
+            println!("code: {}", code);
+            self.code = Some(code);
+        }
     }
 
     pub fn get_decl_name_for_resolve(&self) -> &String {
@@ -202,7 +221,7 @@ impl MockTargetAST {
             name,
             MockRefType::Type,
             vec![],
-            Arc::clone(&self.allocator_arc),
+            // Arc::clone(&self.allocator_arc),
             None,
             Vec::new(),
         ));
@@ -213,7 +232,7 @@ impl MockTargetAST {
             name,
             MockRefType::Class,
             vec![],
-            Arc::clone(&self.allocator_arc),
+            // Arc::clone(&self.allocator_arc),
             None,
             Vec::new(),
         ));
