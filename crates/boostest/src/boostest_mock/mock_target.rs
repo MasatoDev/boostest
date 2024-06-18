@@ -35,14 +35,14 @@ ref_properties: [
 ]
 */
 
-use std::sync::Arc;
+use std::{borrow::BorrowMut, sync::Arc};
 
 use crate::boostest_mock::mock_ast_builder::ClassASTBuilder;
 use oxc::{
     allocator::Allocator,
     ast::{
         ast::{Class, Program},
-        AstBuilder,
+        AstBuilder, VisitMut,
     },
     parser::Parser,
     span::SourceType,
@@ -116,9 +116,11 @@ impl MockTargetAST {
         let allocator = self.allocator_arc.as_ref();
         let parser = Parser::new(allocator, source_code, self.source_type);
 
-        let program = parser.parse().program;
+        let program = &mut parser.parse().program;
+
         let mut class_ast_builder = ClassASTBuilder::new();
-        class_ast_builder.generate_code(&program.body);
+        class_ast_builder.visit_program(program);
+        class_ast_builder.generate_code(program);
 
         // println!("add_class{:?}", program)
 
