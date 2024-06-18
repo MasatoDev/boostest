@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use oxc::allocator::Vec;
 
 use oxc::ast::ast::{
@@ -10,11 +12,11 @@ use oxc::ast::ast::{
 };
 use oxc::ast::{ast::Argument, Visit};
 
-use crate::boostest_mock::mock_builder::MockBuilder;
-use crate::boostest_mock::{mock::BoostestMock, mock_target::MockTargetAST};
+use crate::boostest_mock_loader::mock_loader::MockLoader;
+use crate::boostest_mock_loader::{mock::BoostestMock, mock_target_ast::MockTargetAST};
 
 // *********************************** MockBuilder ***********************************
-impl<'a> Visit<'a> for MockBuilder {
+impl<'a> Visit<'a> for MockLoader {
     fn visit_statements(&mut self, stmts: &Vec<'a, Statement<'a>>) {
         for stmt in stmts {
             match stmt {
@@ -45,7 +47,10 @@ impl<'a> Visit<'a> for MockBuilder {
 
             if ident.name.contains(pattern) {
                 let target_mock_name = ident.name.clone().into_string();
-                let mock = BoostestMock::new(target_mock_name.clone());
+                let mock = BoostestMock::new(
+                    target_mock_name.clone(),
+                    Arc::clone(&self.output_ast_allocator),
+                );
                 self.add_mock(mock);
                 if let Some(target_mock) = self.get_mock(&target_mock_name) {
                     target_mock.visit_call_expression(expr);
@@ -131,7 +136,7 @@ impl<'a> Visit<'a> for MockTargetAST {
             let target_name = self.get_decl_name_for_resolve().clone();
 
             if identifier.name.to_string() == target_name {
-                self.set_decl(String::from("class"));
+                self.add_class(class);
 
                 self.visit_class_body(&class.body);
             }

@@ -33,7 +33,7 @@ class Hello {
   constructor(name: string, additional: GoodMorning) {
     this.name = name;
     this.age = 30;
-    this.additional;
+    this.additional = additional;
   }
 
   sayHello() {
@@ -41,12 +41,12 @@ class Hello {
   }
 }
 
-const mock1 = boostestUserMock<User>();
-const mock2 = boostestClassNamedWorkerMock(NamedWorker);
+// const mock1 = boostestUserMock<User>();
+// const mock2 = boostestClassNamedWorkerMock(NamedWorker);
 const mock3 = boostestClassHelloMock(Hello);
-const mock4 = boostestBusMock<Bus>();
-const mock5 = boostestLegendManMock<LegendMan>();
-const mock6 = boostestLegendManMock<Agree>();
+// const mock4 = boostestBusMock<Bus>();
+// const mock5 = boostestLegendManMock<LegendMan>();
+// const mock6 = boostestLegendManMock<Agree>();
 
 // TODO: export defaultへの対応
 // const mock2 = boostestJOBMock<JOB>();

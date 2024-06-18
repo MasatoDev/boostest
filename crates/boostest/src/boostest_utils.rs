@@ -6,8 +6,8 @@ use std::fs::File;
 use std::io::{self, Read};
 use std::path::Path;
 
-use crate::boostest_mock::mock_builder::MockBuilder;
-use crate::boostest_mock::mock_target::MockTargetAST;
+use crate::boostest_mock_loader::mock_loader::MockLoader;
+use crate::boostest_mock_loader::mock_target_ast::MockTargetAST;
 
 fn read(path: &Path) -> io::Result<String> {
     let mut f = File::open(path)?;
@@ -86,16 +86,16 @@ pub fn resolve_mock_target_ast(
     }
 }
 
-pub fn init_mock_builder<'a>(mock_builder: &mut MockBuilder, program: &Program, path: &Path) {
-    mock_builder.visit_statements(&program.body);
+pub fn load_mock<'a>(mock_loader: &mut MockLoader, program: &Program, path: &Path) {
+    mock_loader.visit_statements(&program.body);
 
-    for (_, val) in mock_builder.mocks.iter_mut() {
+    for (_, val) in mock_loader.mocks.iter_mut() {
         if let Some(mock_target_ast) = val.target_ast.as_mut() {
             resolve_mock_target_ast(mock_target_ast, &program, path)
         }
     }
 
     println!("--------INIT---------");
-    mock_builder.debug();
+    mock_loader.debug();
     println!("-----------------");
 }

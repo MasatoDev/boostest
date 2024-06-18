@@ -35,11 +35,30 @@ ref_properties: [
 ]
 */
 
-use std::sync::Arc;
+use std::{borrow::BorrowMut, sync::Arc};
 
+use crate::boostest_mock_builder::{
+    class_builder::{ClassArg, ClassMockData},
+    init_value::get_test_value,
+    mock_builder::MockBuilder,
+};
+use oxc::{
+    allocator::Allocator,
+    ast::{
+        ast::{
+            BindingPattern, BindingPatternKind, Class, ClassElement, FormalParameter,
+            MethodDefinition, Program,
+        },
+        AstBuilder, VisitMut,
+    },
+    parser::Parser,
+    span::SourceType,
+};
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+use super::mock;
+
+#[derive(Serialize, Deserialize, Debug)]
 pub enum MockRefType {
     Class,
     Type,
@@ -59,8 +78,10 @@ pub struct MockTargetAST {
     pub ast: Option<String>,
     pub temp_import_source_vec: Option<Vec<Import>>,
     pub ref_properties: Vec<MockTargetAST>,
+    // allocator_arc: Arc<Allocator>,
     analysis_started: bool,
     mock_type: MockRefType,
+    code: Option<String>,
 }
 
 impl MockTargetAST {
@@ -68,6 +89,7 @@ impl MockTargetAST {
         name: String,
         mock_type: MockRefType,
         import: Vec<Import>,
+        // allocator: Arc<Allocator>,
         ast: Option<String>,
         ref_properties: Vec<MockTargetAST>,
     ) -> Self {
@@ -75,10 +97,12 @@ impl MockTargetAST {
             name,
             mock_type,
             import,
+            // allocator_arc: allocator,
             ast,
             ref_properties,
             analysis_started: false,
             temp_import_source_vec: None,
+            code: None,
         }
     }
 
@@ -87,7 +111,42 @@ impl MockTargetAST {
     }
 
     pub fn set_decl(&mut self, decl: String) {
+        // TODO: ast追加しないとループしちゃう
         self.ast = Some(decl);
+    }
+
+    pub fn add_class(&mut self, class: &Class) {
+        let mut mock_builder = MockBuilder::new();
+        let mut class_data = ClassMockData::default();
+
+        for stmt in &class.body.body {
+            match stmt {
+                ClassElement::MethodDefinition(method) => {
+                    for formal_parameter in &method.value.params.items {
+                        match &formal_parameter.pattern.kind {
+                            BindingPatternKind::BindingIdentifier(ident) => {
+                                if let Some(item) = &formal_parameter.pattern.type_annotation {
+                                    let key = ident.name.to_string();
+                                    let val = get_test_value(&item.type_annotation);
+                                    class_data.constructor_args.push(ClassArg { key, val });
+                                }
+                            }
+                            _ => {}
+                        }
+                    }
+                }
+                _ => {}
+            }
+        }
+
+        if let Some(ident) = &class.id {
+            let name = ident.name.to_string();
+            class_data.class_name = name;
+
+            let code = mock_builder.generate_class_code(class_data);
+            println!("code: {}", code);
+            self.code = Some(code);
+        }
     }
 
     pub fn get_decl_name_for_resolve(&self) -> &String {
@@ -162,6 +221,7 @@ impl MockTargetAST {
             name,
             MockRefType::Type,
             vec![],
+            // Arc::clone(&self.allocator_arc),
             None,
             Vec::new(),
         ));
@@ -172,6 +232,7 @@ impl MockTargetAST {
             name,
             MockRefType::Class,
             vec![],
+            // Arc::clone(&self.allocator_arc),
             None,
             Vec::new(),
         ));
