@@ -78,10 +78,10 @@ pub struct MockTargetAST {
     pub ast: Option<String>,
     pub temp_import_source_vec: Option<Vec<Import>>,
     pub ref_properties: Vec<MockTargetAST>,
+    pub code: Option<String>,
     // allocator_arc: Arc<Allocator>,
     analysis_started: bool,
     mock_type: MockRefType,
-    code: Option<String>,
 }
 
 impl MockTargetAST {
@@ -117,36 +117,8 @@ impl MockTargetAST {
 
     pub fn add_class(&mut self, class: &Class) {
         let mut mock_builder = MockBuilder::new();
-        let mut class_data = ClassMockData::default();
-
-        for stmt in &class.body.body {
-            match stmt {
-                ClassElement::MethodDefinition(method) => {
-                    for formal_parameter in &method.value.params.items {
-                        match &formal_parameter.pattern.kind {
-                            BindingPatternKind::BindingIdentifier(ident) => {
-                                if let Some(item) = &formal_parameter.pattern.type_annotation {
-                                    let key = ident.name.to_string();
-                                    let val = get_test_value(&item.type_annotation);
-                                    class_data.constructor_args.push(ClassArg { key, val });
-                                }
-                            }
-                            _ => {}
-                        }
-                    }
-                }
-                _ => {}
-            }
-        }
-
-        if let Some(ident) = &class.id {
-            let name = ident.name.to_string();
-            class_data.class_name = name;
-
-            let code = mock_builder.generate_class_code(class_data);
-            println!("code: {}", code);
-            self.code = Some(code);
-        }
+        let code = mock_builder.generate_class_code(class);
+        self.code = Some(code);
     }
 
     pub fn get_decl_name_for_resolve(&self) -> &String {
@@ -178,7 +150,7 @@ impl MockTargetAST {
     }
 
     pub fn has_ast(&self) -> bool {
-        self.ast.is_some()
+        self.ast.is_some() || self.code.is_some()
     }
 
     pub fn reset_temp_import_source(&mut self) {

@@ -42,7 +42,7 @@ class Hello {
 }
 
 // const mock1 = boostestUserMock<User>();
-// const mock2 = boostestClassNamedWorkerMock(NamedWorker);
+const mock2 = boostestClassNamedWorkerMock(NamedWorker);
 const mock3 = boostestClassHelloMock(Hello);
 // const mock4 = boostestBusMock<Bus>();
 // const mock5 = boostestLegendManMock<LegendMan>();

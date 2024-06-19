@@ -1,4 +1,8 @@
-use oxc::{allocator::Allocator, ast::AstBuilder, span::SourceType};
+use oxc::{
+    allocator::Allocator,
+    ast::{ast::Class, AstBuilder},
+    span::SourceType,
+};
 
 use super::class_builder::{ClassASTBuilder, ClassMockData};
 
@@ -16,10 +20,10 @@ impl MockBuilder {
         }
     }
 
-    pub fn generate_class_code(&mut self, mock_data: ClassMockData) -> String {
+    pub fn generate_class_code(&mut self, class: &Class) -> String {
         let allocator = Allocator::default();
-        let mut class_ast_builder = ClassASTBuilder::new(mock_data, &allocator);
+        let mut class_ast_builder = ClassASTBuilder::new(&allocator);
 
-        class_ast_builder.generate_code(&allocator, self.source_type)
+        class_ast_builder.generate_code(&allocator, self.source_type, class)
     }
 }

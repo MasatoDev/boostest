@@ -1,17 +1,19 @@
-use std::borrow::Borrow;
+use std::{borrow::Borrow, ops::Deref};
 
 use oxc::{
     allocator::Allocator,
     ast::{
         ast::{
-            Argument, Declaration, Expression, FunctionBody, IdentifierName, ObjectExpression,
-            Program, Statement,
+            Argument, BindingPatternKind, Class, ClassElement, Declaration, Expression,
+            FunctionBody, IdentifierName, NewExpression, NullLiteral, ObjectExpression, Program,
+            Statement, TSType,
         },
         AstBuilder, Visit, VisitMut,
     },
     codegen::{self, Codegen, CodegenOptions},
     parser::Parser,
     span::{Atom, SourceType, Span},
+    syntax,
 };
 
 use oxc::allocator;
@@ -23,51 +25,192 @@ pub struct ClassArg {
     pub val: String,
 }
 
-pub struct ClassMockData {
+pub struct ClassMockData<'a> {
     pub class_name: String,
-    pub constructor_args: Vec<ClassArg>,
-}
-
-impl ClassMockData {
-    pub fn default() -> Self {
-        Self {
-            class_name: "boostestClassName".to_string(),
-            constructor_args: vec![],
-        }
-    }
+    pub constructor_args: std::vec::Vec<&'a TSType<'a>>,
 }
 
 pub struct ClassASTBuilder<'a> {
-    mock_data: ClassMockData,
+    mock_data: ClassMockData<'a>,
     ast_builder: AstBuilder<'a>,
 }
 
 impl<'a> ClassASTBuilder<'a> {
-    pub fn new(mock_data: ClassMockData, allocator: &'a Allocator) -> Self {
+    pub fn new(allocator: &'a Allocator) -> Self {
         let ast_builder = AstBuilder::new(allocator);
+        let mock_data = ClassMockData {
+            class_name: "".to_string(),
+            constructor_args: Vec::new(),
+        };
 
         Self {
-            mock_data,
             ast_builder,
+            mock_data,
         }
     }
 
-    pub fn get_class_name(&self) -> &str {
-        self.mock_data.class_name.as_str()
-    }
-
-    pub fn generate_code(&mut self, allocator: &'a Allocator, source_type: SourceType) -> String {
+    pub fn generate_code(
+        &mut self,
+        allocator: &'a Allocator,
+        source_type: SourceType,
+        class: &'a Class<'a>,
+    ) -> String {
         let bytes = include_bytes!("./template/class.ts");
         let source_code = std::str::from_utf8(bytes).unwrap();
         let parser = Parser::new(allocator, source_code, source_type);
         let program = &mut parser.parse().program;
 
+        self.get_new_class_expression(class);
         self.visit_program(program);
 
         let codegen_options = CodegenOptions::default();
         Codegen::<false>::new("", "", codegen_options)
             .build(program)
             .source_text
+    }
+
+    pub fn get_new_class_expression(&mut self, class: &'a Class<'a>) {
+        if let Some(ident) = &class.id {
+            let name = ident.name.to_string();
+            self.mock_data.class_name = name;
+
+            for stmt in &class.body.body {
+                match stmt {
+                    ClassElement::MethodDefinition(method) => {
+                        for formal_parameter in &method.value.params.items {
+                            match &formal_parameter.pattern.kind {
+                                BindingPatternKind::BindingIdentifier(_) => {
+                                    if let Some(item) = &formal_parameter.pattern.type_annotation {
+                                        self.mock_data.constructor_args.push(&item.type_annotation);
+                                    }
+                                }
+                                _ => {}
+                            }
+                        }
+                    }
+                    _ => {}
+                }
+            }
+        }
+    }
+
+    pub fn get_new_expression_argument(&mut self) -> allocator::Vec<'a, Argument<'a>> {
+        let mut args = self.ast_builder.new_vec();
+
+        for ts_type in &mut self.mock_data.constructor_args {
+            let argument = match ts_type {
+                TSType::TSAnyKeyword(_) => {
+                    let expression = self.ast_builder.string_literal(SPAN, "any");
+                    let argument_item = self.ast_builder.alloc(expression);
+                    Argument::StringLiteral(argument_item)
+                }
+                TSType::TSBigIntKeyword(_) => {
+                    let expression = self.ast_builder.number_literal(
+                        SPAN,
+                        1234.0,
+                        "1234",
+                        syntax::number::NumberBase::Decimal,
+                    );
+                    let argument_item = self.ast_builder.alloc(expression);
+                    Argument::NumericLiteral(argument_item)
+                }
+                TSType::TSBooleanKeyword(_) => {
+                    let expression = self.ast_builder.boolean_literal(SPAN, true);
+                    let argument_item = self.ast_builder.alloc(expression);
+                    Argument::BooleanLiteral(argument_item)
+                }
+                TSType::TSNullKeyword(_) => {
+                    let null_literal = NullLiteral::new(SPAN);
+                    let argument_item = self.ast_builder.alloc(null_literal);
+                    Argument::NullLiteral(argument_item)
+                }
+                TSType::TSNumberKeyword(_) => {
+                    let expression = self.ast_builder.number_literal(
+                        SPAN,
+                        42.0,
+                        "42",
+                        syntax::number::NumberBase::Decimal,
+                    );
+                    let argument_item = self.ast_builder.alloc(expression);
+                    Argument::NumericLiteral(argument_item)
+                }
+                TSType::TSStringKeyword(_) => {
+                    let expression = self.ast_builder.string_literal(SPAN, "sample string");
+                    let argument_item = self.ast_builder.alloc(expression);
+                    Argument::StringLiteral(argument_item)
+                }
+                // TSType::TSNeverKeyword(_) => "/* never */".to_string(), // never を表現
+                // TSType::TSObjectKeyword(_) => "{}".to_string(),
+                // TSType::TSSymbolKeyword(_) => "Symbol('foo')".to_string(),
+                // TSType::TSThisType(_) => "this".to_string(),
+                // TSType::TSUndefinedKeyword(_) => "undefined".to_string(),
+                // TSType::TSUnknownKeyword(_) => "'unknown'".to_string(), // unknown を表現
+                // TSType::TSVoidKeyword(_) => "/* void */".to_string(),   // void を表現
+                // TSType::TSArrayType(arr_type) => {
+                //     let element_type: String = get_test_value(&arr_type.element_type);
+                //     format!("[{}]", element_type)
+                // }
+                // TSType::TSFunctionType(_) => "() => {}".to_string(),
+                // TSType::TSTypeLiteral(type_literal) => {
+                //     let members = type_literal
+                //         .members
+                //         .iter()
+                //         .filter_map(|ts_signature| {
+                //             match ts_signature {
+                //                 TSSignature::TSPropertySignature(ts_prop_signature) => {
+                //                     if let Some(name) = ts_prop_signature.key.name() {
+                //                         let value = get_test_value(
+                //                             &ts_prop_signature
+                //                                 .type_annotation
+                //                                 .as_ref()
+                //                                 .unwrap()
+                //                                 .type_annotation,
+                //                         );
+                //                         return Some(format!("{}: {}", name, value));
+                //                     }
+                //                 }
+                //                 _ => {
+                //                     return None;
+                //                 }
+                //             }
+                //             None
+                //         })
+                //         .collect::<Vec<String>>()
+                //         .join(", ");
+
+                //     format!("{{ {} }}", members)
+                // }
+
+                // TSType::JSDocNullableType(_) => todo!(),
+                // TSType::TSUnionType(_) => todo!(),
+                // TSType::TSIntersectionType(_) => todo!(),
+                // TSType::TSTypeOperatorType(_) => todo!(),
+                // TSType::TSTypePredicate(_) => todo!(),
+                // TSType::TSTypeQuery(_) => todo!(),
+                // TSType::TSTypeReference(_) => todo!(),
+                // TSType::TSIndexedAccessType(_) => todo!(),
+                // TSType::TSConstructorType(_) => todo!(),
+                // TSType::TSConditionalType(_) => todo!(),
+                // TSType::TSInferType(_) => todo!(),
+                // TSType::JSDocUnknownType(_) => todo!(),
+                // TSType::TSTemplateLiteralType(_) => todo!(),
+                // TSType::TSMappedType(_) => todo!(),
+                // TSType::TSTupleType(_) => todo!(),
+                // TSType::TSNamedTupleMember(_) => todo!(),
+                // TSType::TSImportType(_) => todo!(),
+                // TSType::TSQualifiedName(_) => todo!(),
+                // TSType::TSLiteralType(_) => todo!(),
+                _ => {
+                    let expression = self.ast_builder.string_literal(SPAN, "sample string");
+                    let argument_item = self.ast_builder.alloc(expression);
+                    Argument::StringLiteral(argument_item)
+                }
+            };
+
+            args.push(argument);
+        }
+
+        args
     }
 }
 
@@ -127,13 +270,8 @@ impl<'a> VisitMut<'a> for ClassASTBuilder<'a> {
                     self.visit_identifier_reference(ident);
                 }
 
-                let expression = self.ast_builder.string_literal(SPAN, "testarg");
-                let argument_item = self.ast_builder.alloc(expression);
                 let callee = self.ast_builder.move_expression(&mut new_expr.callee);
-
-                let mut args = self.ast_builder.new_vec();
-                args.push(Argument::StringLiteral(argument_item));
-
+                let args = self.get_new_expression_argument();
                 let new_expression = self.ast_builder.new_expression(SPAN, callee, args, None);
 
                 // TODO: replaceでいいのか？
