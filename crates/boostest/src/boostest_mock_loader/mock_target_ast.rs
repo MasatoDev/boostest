@@ -73,6 +73,7 @@ pub struct Import {
 
 #[derive(Debug)]
 pub struct MockTargetAST {
+    pub mock_func_name: String,
     pub name: String,
     pub import: Vec<Import>,
     pub ast: Option<String>,
@@ -86,6 +87,7 @@ pub struct MockTargetAST {
 
 impl MockTargetAST {
     pub fn new(
+        mock_func_name: String,
         name: String,
         mock_type: MockRefType,
         import: Vec<Import>,
@@ -94,6 +96,7 @@ impl MockTargetAST {
         ref_properties: Vec<MockTargetAST>,
     ) -> Self {
         Self {
+            mock_func_name,
             name,
             mock_type,
             import,
@@ -117,7 +120,7 @@ impl MockTargetAST {
 
     pub fn add_class(&mut self, class: &Class) {
         let mut mock_builder = MockBuilder::new();
-        let code = mock_builder.generate_class_code(class);
+        let code = mock_builder.generate_class_code(self.mock_func_name.clone(), class);
         self.code = Some(code);
     }
 
@@ -190,6 +193,7 @@ impl MockTargetAST {
 
     pub fn add_property_ts_type(&mut self, name: String) {
         self.ref_properties.push(MockTargetAST::new(
+            self.mock_func_name.clone(),
             name,
             MockRefType::Type,
             vec![],
@@ -201,6 +205,7 @@ impl MockTargetAST {
 
     pub fn add_property_class(&mut self, name: String) {
         self.ref_properties.push(MockTargetAST::new(
+            self.mock_func_name.clone(),
             name,
             MockRefType::Class,
             vec![],

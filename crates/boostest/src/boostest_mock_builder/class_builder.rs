@@ -1,12 +1,15 @@
-use std::{borrow::Borrow, ops::Deref};
+use std::{
+    borrow::{Borrow, BorrowMut},
+    ops::Deref,
+};
 
 use oxc::{
     allocator::Allocator,
     ast::{
         ast::{
-            Argument, BindingPatternKind, Class, ClassElement, Declaration, Expression,
-            FunctionBody, IdentifierName, NewExpression, NullLiteral, ObjectExpression, Program,
-            Statement, TSType,
+            Argument, BindingIdentifier, BindingPattern, BindingPatternKind, Class, ClassElement,
+            Declaration, Expression, FunctionBody, IdentifierName, NewExpression, NullLiteral,
+            ObjectExpression, Program, Statement, TSType,
         },
         AstBuilder, Visit, VisitMut,
     },
@@ -26,6 +29,7 @@ pub struct ClassArg {
 }
 
 pub struct ClassMockData<'a> {
+    pub mock_func_name: String,
     pub class_name: String,
     pub constructor_args: std::vec::Vec<&'a TSType<'a>>,
 }
@@ -36,9 +40,10 @@ pub struct ClassASTBuilder<'a> {
 }
 
 impl<'a> ClassASTBuilder<'a> {
-    pub fn new(allocator: &'a Allocator) -> Self {
+    pub fn new(allocator: &'a Allocator, mock_func_name: String) -> Self {
         let ast_builder = AstBuilder::new(allocator);
         let mock_data = ClassMockData {
+            mock_func_name,
             class_name: "".to_string(),
             constructor_args: Vec::new(),
         };
@@ -63,7 +68,9 @@ impl<'a> ClassASTBuilder<'a> {
         self.get_new_class_expression(class);
         self.visit_program(program);
 
-        let codegen_options = CodegenOptions::default();
+        let mut codegen_options = CodegenOptions::default();
+        codegen_options.enable_typescript = true;
+
         Codegen::<false>::new("", "", codegen_options)
             .build(program)
             .source_text
@@ -232,13 +239,35 @@ impl<'a> VisitMut<'a> for ClassASTBuilder<'a> {
         }
     }
 
+    fn visit_binding_identifier(&mut self, ident: &mut BindingIdentifier<'a>) {
+        if ident.name.to_string() == "boostestClassName" {
+            let name = self.ast_builder.new_atom(&self.mock_data.class_name);
+            let new_binding = BindingIdentifier::new(SPAN, name);
+
+            std::mem::replace(ident, new_binding);
+        }
+    }
+    fn visit_binding_pattern(&mut self, pat: &mut BindingPattern<'a>) {
+        if let BindingPatternKind::BindingIdentifier(ident) = &mut pat.kind {
+            self.visit_binding_identifier(ident);
+        }
+    }
+
     fn visit_declaration(&mut self, decl: &mut Declaration<'a>) {
         match decl {
             Declaration::FunctionDeclaration(func) => {
-                if let Some(id) = &func.id {
+                if let Some(id) = &mut func.id {
                     if id.name.to_string() == "boostestClassTemplate" {
+                        let name = self.ast_builder.new_atom(&self.mock_data.mock_func_name);
+                        let new_binding = BindingIdentifier::new(SPAN, name);
+
+                        std::mem::replace(id, new_binding);
                         println!("boostestClassTemplate");
                     }
+                }
+
+                for param in &mut func.params.items.iter_mut() {
+                    self.visit_binding_pattern(&mut param.pattern);
                 }
 
                 if let Some(body) = &mut func.body {
@@ -281,8 +310,6 @@ impl<'a> VisitMut<'a> for ClassASTBuilder<'a> {
             _ => {}
         }
     }
-
-    fn visit_new_expression(&mut self, expr: &mut oxc::ast::ast::NewExpression<'a>) {}
 
     fn visit_identifier_reference(&mut self, ident: &mut oxc::ast::ast::IdentifierReference<'a>) {
         if ident.name.to_string() == "boostestClassName" {

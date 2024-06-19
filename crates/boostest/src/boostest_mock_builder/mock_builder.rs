@@ -16,13 +16,14 @@ impl MockBuilder {
             source_type: SourceType::default()
                 .with_always_strict(true)
                 .with_module(true)
-                .with_typescript(true),
+                .with_typescript(true)
+                .with_typescript_definition(true),
         }
     }
 
-    pub fn generate_class_code(&mut self, class: &Class) -> String {
+    pub fn generate_class_code(&mut self, mock_func_name: String, class: &Class) -> String {
         let allocator = Allocator::default();
-        let mut class_ast_builder = ClassASTBuilder::new(&allocator);
+        let mut class_ast_builder = ClassASTBuilder::new(&allocator, mock_func_name);
 
         class_ast_builder.generate_code(&allocator, self.source_type, class)
     }

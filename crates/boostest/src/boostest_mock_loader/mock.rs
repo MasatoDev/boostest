@@ -21,6 +21,7 @@ impl BoostestMock {
 
     pub fn add_ts_type_ref_target(&mut self, name: String) {
         self.target_ast = Some(MockTargetAST::new(
+            self.name.clone(),
             name,
             MockRefType::Type,
             vec![],
@@ -32,6 +33,7 @@ impl BoostestMock {
 
     pub fn add_class_ref_target(&mut self, name: String) {
         self.target_ast = Some(MockTargetAST::new(
+            self.name.clone(),
             name,
             MockRefType::Class,
             vec![],
@@ -48,6 +50,8 @@ impl BoostestMock {
             println!("AST: {:?}", target_ast.ast);
             println!("---------------------");
             println!("Code: {:?}", target_ast.code);
+            println!("---------------------");
+            println!("name: {:?}", self.name);
             println!("---------------------");
             println!("---------------------");
         }
