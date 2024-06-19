@@ -36,5 +36,21 @@ pub fn call_boostest(path: &Path) {
         let program = parser.parse().program;
 
         boostest_utils::load_mock(&mut mock_loader, &program, path);
+
+        if let Ok(canonical_path) = path.canonicalize() {
+            if let Some(parent_path) = canonical_path.parent() {
+                let path = parent_path.join("boostest.ts"); // srcディレクトリ内のgreeting.ts
+                if let Ok(file) = File::create(path) {
+                    let mut f = file;
+                    for mock in mock_loader.mocks.values() {
+                        if let Some(target_ast) = &mock.target_ast {
+                            if let Some(code) = &target_ast.code {
+                                f.write_all(code.as_bytes()).unwrap();
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
