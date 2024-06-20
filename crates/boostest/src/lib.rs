@@ -46,6 +46,7 @@ pub fn call_boostest(path: &Path) {
                         if let Some(target_ast) = &mock.target_ast {
                             if let Some(code) = &target_ast.code {
                                 f.write_all(code.as_bytes()).unwrap();
+                                f.write_all(b"\n").unwrap();
                             }
                         }
                     }

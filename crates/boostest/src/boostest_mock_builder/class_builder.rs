@@ -1,21 +1,15 @@
-use std::{
-    borrow::{Borrow, BorrowMut},
-    ops::Deref,
-};
-
 use oxc::{
     allocator::Allocator,
     ast::{
         ast::{
             Argument, BindingIdentifier, BindingPattern, BindingPatternKind, Class, ClassElement,
-            Declaration, Expression, FunctionBody, IdentifierName, NewExpression, NullLiteral,
-            ObjectExpression, Program, Statement, TSType,
+            Declaration, Expression, FunctionBody, NullLiteral, Program, Statement, TSType,
         },
-        AstBuilder, Visit, VisitMut,
+        AstBuilder, VisitMut,
     },
-    codegen::{self, Codegen, CodegenOptions},
+    codegen::{Codegen, CodegenOptions},
     parser::Parser,
-    span::{Atom, SourceType, Span},
+    span::{SourceType, Span},
     syntax,
 };
 
@@ -142,7 +136,7 @@ impl<'a> ClassBuilder<'a> {
                     Argument::NumericLiteral(argument_item)
                 }
                 TSType::TSStringKeyword(_) => {
-                    let expression = self.ast_builder.string_literal(SPAN, "sample string");
+                    let expression = self.ast_builder.string_literal(SPAN, "string_val");
                     let argument_item = self.ast_builder.alloc(expression);
                     Argument::StringLiteral(argument_item)
                 }
@@ -208,7 +202,9 @@ impl<'a> ClassBuilder<'a> {
                 // TSType::TSQualifiedName(_) => todo!(),
                 // TSType::TSLiteralType(_) => todo!(),
                 _ => {
-                    let expression = self.ast_builder.string_literal(SPAN, "sample string");
+                    let expression = self
+                        .ast_builder
+                        .string_literal(SPAN, "default value(unimplemented)");
                     let argument_item = self.ast_builder.alloc(expression);
                     Argument::StringLiteral(argument_item)
                 }
@@ -244,7 +240,7 @@ impl<'a> VisitMut<'a> for ClassBuilder<'a> {
             let name = self.ast_builder.new_atom(&self.mock_data.class_name);
             let new_binding = BindingIdentifier::new(SPAN, name);
 
-            std::mem::replace(ident, new_binding);
+            let _ = std::mem::replace(ident, new_binding);
         }
     }
     fn visit_binding_pattern(&mut self, pat: &mut BindingPattern<'a>) {
@@ -261,8 +257,7 @@ impl<'a> VisitMut<'a> for ClassBuilder<'a> {
                         let name = self.ast_builder.new_atom(&self.mock_data.mock_func_name);
                         let new_binding = BindingIdentifier::new(SPAN, name);
 
-                        std::mem::replace(id, new_binding);
-                        println!("boostestClassTemplate");
+                        let _ = std::mem::replace(id, new_binding);
                     }
                 }
 
@@ -304,7 +299,7 @@ impl<'a> VisitMut<'a> for ClassBuilder<'a> {
                 let new_expression = self.ast_builder.new_expression(SPAN, callee, args, None);
 
                 // TODO: replaceでいいのか？
-                std::mem::replace(expr, new_expression);
+                let _ = std::mem::replace(expr, new_expression);
             }
 
             _ => {}
@@ -317,9 +312,7 @@ impl<'a> VisitMut<'a> for ClassBuilder<'a> {
                 .ast_builder
                 .identifier_reference(SPAN, &self.mock_data.class_name);
 
-            std::mem::replace(ident, i);
-
-            println!("boostestClassTemplate");
+            let _ = std::mem::replace(ident, i);
         }
     }
 }

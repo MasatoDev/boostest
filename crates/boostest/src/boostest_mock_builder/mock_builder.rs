@@ -1,14 +1,11 @@
 use oxc::{
     allocator::Allocator,
-    ast::{
-        ast::{Class, TSTypeAliasDeclaration},
-        AstBuilder,
-    },
+    ast::ast::{Class, TSInterfaceDeclaration, TSTypeAliasDeclaration},
     span::SourceType,
 };
 
 use super::{
-    class_builder::{ClassBuilder, ClassMockData},
+    class_builder::ClassBuilder, ts_interface_builder::TSInterfaceBuilder,
     ts_type_alias_builder::TSTypeAliasBuilder,
 };
 
@@ -43,5 +40,16 @@ impl MockBuilder {
         let mut ts_type_alias_builder = TSTypeAliasBuilder::new(&allocator, mock_func_name);
 
         ts_type_alias_builder.generate_code(&allocator, self.source_type, ts_type_alias)
+    }
+
+    pub fn generate_ts_interface_code(
+        &mut self,
+        mock_func_name: String,
+        ts_interface: &TSInterfaceDeclaration,
+    ) -> String {
+        let allocator = Allocator::default();
+        let mut ts_interface_builder = TSInterfaceBuilder::new(&allocator, mock_func_name);
+
+        ts_interface_builder.generate_code(&allocator, self.source_type, ts_interface)
     }
 }

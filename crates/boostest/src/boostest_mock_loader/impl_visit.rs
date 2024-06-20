@@ -1,5 +1,3 @@
-use std::sync::Arc;
-
 use oxc::allocator::Vec;
 
 use oxc::ast::ast::{
@@ -47,10 +45,7 @@ impl<'a> Visit<'a> for MockLoader {
 
             if ident.name.contains(pattern) {
                 let target_mock_name = ident.name.clone().into_string();
-                let mock = BoostestMock::new(
-                    target_mock_name.clone(),
-                    Arc::clone(&self.output_ast_allocator),
-                );
+                let mock = BoostestMock::new(target_mock_name.clone());
                 self.add_mock(mock);
                 if let Some(target_mock) = self.get_mock(&target_mock_name) {
                     target_mock.visit_call_expression(expr);
@@ -174,7 +169,7 @@ impl<'a> Visit<'a> for MockTargetAST {
         }
     }
 
-    fn visit_method_definition(&mut self, def: &oxc::ast::ast::MethodDefinition<'a>) {}
+    fn visit_method_definition(&mut self, _def: &oxc::ast::ast::MethodDefinition<'a>) {}
 
     fn visit_ts_signature(&mut self, signature: &TSSignature<'a>) {
         match signature {

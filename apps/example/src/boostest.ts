@@ -1,14 +1,30 @@
-export function boostestClassNamedWorkerMock<T extends abstract new (...args: any) => any>(Customer, args?: ConstructorParameters<T>): T {
-  return new Customer('sample string', 42);
+export function boostestUser<T>(args?: T): T {
+	return ({
+		'name':'string_val',
+		'age':42,
+		'sex':42,
+		...args
+	} as T);
 }
-export function boostestClassHelloMock<T extends abstract new (...args: any) => any>(Hello, args?: ConstructorParameters<T>): T {
-  return new Hello('sample string', 'sample string');
+
+export function boostestJOB<T>(args?: T): T {
+	return ({
+		'name':'string_val',
+		'salary':42,
+		...args
+	} as T);
 }
-export function boostestBusMock<T>(args?: T): T {
-  return {
-    name: 'mock_val',
-    maxSpeed: 'default_new_val',
-    additional: 'default_new_val',
-    ...args,
-  };
+
+export function boostestOS<T>(args?: T): T {
+	return ({
+		'name':'string_val',
+		'version':42,
+		'license':'default_val(unimplemented)',
+		...args
+	} as T);
 }
+
+export function boostestCustomer<T extends abstract new (...args: any) => any>(Customer, args?: ConstructorParameters<T>): T {
+	return new Customer('string_val', 42);
+}
+

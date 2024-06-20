@@ -12,7 +12,6 @@ repository.workspace = true
 workspace = true
 
 [dependencies]
-# boostest_oxc_utils = { workspace = true }
 oxc = { workspace = true, features = ["semantic", "codegen"] }
 oxc_resolver = {workspace = true}
 anyhow = {workspace = true}

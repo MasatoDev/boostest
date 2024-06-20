@@ -1,23 +1,14 @@
-use std::{
-    borrow::{Borrow, BorrowMut},
-    ops::Deref,
-};
-
 use oxc::{
     allocator::Allocator,
     ast::{
         ast::{
-            Argument, BindingIdentifier, BindingPattern, BindingPatternKind, Class, ClassElement,
-            Declaration, Expression, FunctionBody, IdentifierName, NewExpression, NullLiteral,
-            ObjectExpression, ObjectProperty, ObjectPropertyKind, Program, PropertyKind, Statement,
-            TSPropertySignature, TSSignature, TSType, TSTypeAliasDeclaration, TSTypeAnnotation,
+            BindingIdentifier, Declaration, Expression, FunctionBody, NullLiteral, ObjectPropertyKind, Program, PropertyKind, Statement, TSAnyKeyword, TSPropertySignature, TSSignature, TSType, TSTypeAliasDeclaration
         },
-        AstBuilder, Visit, VisitMut,
+        AstBuilder, VisitMut,
     },
-    codegen::{self, Codegen, CodegenOptions},
+    codegen::{Codegen, CodegenOptions},
     parser::Parser,
-    span::{Atom, SourceType, Span},
-    syntax,
+    span::{SourceType, Span}, syntax::number::NumberBase,
 };
 
 use oxc::allocator;
@@ -95,8 +86,6 @@ impl<'a> TSTypeAliasBuilder<'a> {
         let mut temp_properties = Vec::new();
 
         for property in &self.mock_data.properties {
-            println!("property: {:?}", property.type_annotation);
-
             if let Some(key) = property.key.name() {
                 let new_key = self.ast_builder.string_literal(SPAN, key.as_str());
                 let new_key_expr = self.ast_builder.literal_string_expression(new_key);
@@ -105,11 +94,34 @@ impl<'a> TSTypeAliasBuilder<'a> {
                 if let Some(val_type_annotation) = &property.type_annotation {
                     let val = match val_type_annotation.type_annotation {
                         TSType::TSStringKeyword(_) => {
-                            let new_val = self.ast_builder.string_literal(SPAN, "mock_val");
-                            self.ast_builder.literal_string_expression(new_val)
+                            let str_literal = self.ast_builder.string_literal(SPAN, "string_val");
+                            self.ast_builder.literal_string_expression(str_literal)
+                        }
+                        TSType::TSAnyKeyword(_) => {
+                            let any_literal = self.ast_builder.string_literal(SPAN, "any");
+                            self.ast_builder.literal_string_expression(any_literal)
+                        }
+                        TSType::TSBooleanKeyword(_) => {
+                            let bool_literal = self.ast_builder.boolean_literal(SPAN, true);
+                            self.ast_builder.literal_boolean_expression(bool_literal)
+                        }
+                        TSType::TSNullKeyword(_) => {
+                            let null_literal = NullLiteral::new(SPAN);
+                            self.ast_builder.literal_null_expression(null_literal)
+                        }
+                        TSType::TSNumberKeyword(_) => {
+                            let num_literal = self.ast_builder.number_literal(
+                                SPAN,
+                                42.0,
+                                "42",
+                                NumberBase::Decimal,
+                            );
+                            self.ast_builder.literal_number_expression(num_literal)
                         }
                         _ => {
-                            let new_val = self.ast_builder.string_literal(SPAN, "default_new_val");
+                            let new_val = self
+                                .ast_builder
+                                .string_literal(SPAN, "default_val(unimplemented)");
                             self.ast_builder.literal_string_expression(new_val)
                         }
                     };
@@ -160,13 +172,9 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
                         let name = self.ast_builder.new_atom(&self.mock_data.mock_func_name);
                         let new_binding = BindingIdentifier::new(SPAN, name);
 
-                        std::mem::replace(id, new_binding);
+                        let _ = std::mem::replace(id, new_binding);
                     }
                 }
-
-                // for param in &mut func.params.items.iter_mut() {
-                //     self.visit_binding_pattern(&mut param.pattern);
-                // }
 
                 if let Some(body) = &mut func.body {
                     self.visit_function_body(body);
@@ -192,9 +200,9 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
 
     fn visit_expression(&mut self, expr: &mut Expression<'a>) {
         let mut temp_obj_expr = self.ast_builder.move_expression(expr);
-        println!("temp_obj_expr: {:?}", temp_obj_expr);
 
         match &mut temp_obj_expr {
+            // It isn't used when use with TSAsExpression `as T`
             Expression::ObjectExpression(obj_expr) => {
                 let mock_properties = self.get_object_property_kind();
 
@@ -208,30 +216,43 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
 
                     let new_obj_expr = self.ast_builder.object_expression(SPAN, properties, None);
 
-                    std::mem::replace(expr, new_obj_expr);
+                    let _ = std::mem::replace(expr, new_obj_expr);
                 }
             }
-            Expression::TSAsExpression(ts_as_expr) => match &mut ts_as_expr.expression {
-                // TODO: as T が反映されないためカバーする
-                Expression::ObjectExpression(obj_expr) => {
-                    let mock_properties = self.get_object_property_kind();
+            Expression::TSAsExpression(ts_as_expr) => {
+                match &mut ts_as_expr.expression {
+                    // TODO: as T が反映されないためカバーする
+                    Expression::ObjectExpression(obj_expr) => {
+                        let mock_properties = self.get_object_property_kind();
 
-                    if let Some(last) = obj_expr.properties.pop() {
-                        let mut properties = self.ast_builder.new_vec();
+                        if let Some(last) = obj_expr.properties.pop() {
+                            let mut properties = self.ast_builder.new_vec();
 
-                        for mock_prop in mock_properties {
-                            properties.push(mock_prop);
+                            for mock_prop in mock_properties {
+                                properties.push(mock_prop);
+                            }
+                            properties.push(last);
+
+                            let new_obj_expr =
+                                self.ast_builder.object_expression(SPAN, properties, None);
+
+                            // move_ts_annotation
+                            let ts_any_keyword = TSAnyKeyword { span: SPAN };
+                            let allocated = self.ast_builder.alloc(ts_any_keyword);
+                            let ts_any_ts_type = TSType::TSAnyKeyword(allocated);
+                            let new_ts_type =
+                                std::mem::replace(&mut ts_as_expr.type_annotation, ts_any_ts_type);
+
+                            let new_ts_as_expr =
+                                self.ast_builder
+                                    .ts_as_expression(SPAN, new_obj_expr, new_ts_type);
+
+                            let _ = std::mem::replace(expr, new_ts_as_expr);
                         }
-                        properties.push(last);
-
-                        let new_obj_expr =
-                            self.ast_builder.object_expression(SPAN, properties, None);
-
-                        std::mem::replace(expr, new_obj_expr);
                     }
+                    _ => {}
                 }
-                _ => {}
-            },
+            }
             _ => {}
         }
     }

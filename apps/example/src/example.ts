@@ -1,53 +1,26 @@
-import { User } from './anotherTypeFile';
-import type JOB from './anotherTypeFile2.ts';
-import { LegendMan } from './bet.ts';
-import { Customer as NamedWorker } from './anotherClassFile';
-import { GoodMorning } from './good';
-import { boostestBusMock, boostestClassHelloMock, boostestClassNamedWorkerMock } from './boostest.ts';
+// TODO: auto add import statement
+import { boostestUser, boostestJOB, boostestOS, boostestCustomer } from './boostest';
 
-const boostestMock = <T>(arg?: any): T => {
-  return arg;
-};
+import { User } from './types/user';
+import type Job from './types/job';
+import { Windows } from './types/windows';
+import { Customer } from './types/customer';
 
-export const user: User = {
-  name: 'John Doe',
-  age: 30,
-};
+const userInterfaceMock = boostestUser<User>();
+const JobTypeMock = boostestJOB<Job>();
+const deepFileMock = boostestOS<Windows>();
+const customerClassMock = boostestCustomer<typeof Customer>(Customer);
 
-type Bus = {
-  name: string;
-  maxSpeed: number;
-  additional: GoodMorning;
-};
+console.log('\n\n------------------------');
+console.log('userInterfaceMock', userInterfaceMock);
+console.log('------------------------');
+console.log('JobTypeMock', JobTypeMock);
+console.log('------------------------');
+console.log('deepFileMock', deepFileMock);
+console.log('------------------------');
+console.log('customerClassMock', customerClassMock);
 
-interface Agree {
-  name: string;
-  age: number;
-  user: User;
-}
-
-class Hello {
-  name: string;
-  age: number;
-  additional: GoodMorning;
-
-  constructor(name: string, additional: GoodMorning) {
-    this.name = name;
-    this.age = 30;
-    this.additional = additional;
-  }
-
-  sayHello() {
-    return `Hello, ${this.name}`;
-  }
-}
-
-// const mock1 = boostestUserMock<User>();
-const mock2 = boostestClassNamedWorkerMock<typeof NamedWorker>(NamedWorker);
-const mock3 = boostestClassHelloMock<typeof Hello>(Hello);
-const mock4 = boostestBusMock<Bus>();
-// const mock5 = boostestLegendManMock<LegendMan>();
-// const mock6 = boostestLegendManMock<Agree>();
-
-// TODO: export defaultへの対応
-// const mock2 = boostestJOBMock<JOB>();
+/**
+ * TODO:
+ * - export defaultへの対応
+ */
