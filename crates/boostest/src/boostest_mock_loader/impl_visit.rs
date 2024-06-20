@@ -193,6 +193,7 @@ impl<'a> Visit<'a> for MockTargetAST {
 
         if decl.id.name.to_string() == target_name {
             self.set_decl(String::from("type alias"));
+            self.add_ts_alias(decl);
 
             // NOTE: handle mock target property
             match &decl.type_annotation {
@@ -211,6 +212,7 @@ impl<'a> Visit<'a> for MockTargetAST {
 
         if decl.id.name.to_string() == target_name {
             self.set_decl(String::from("type interface"));
+            self.add_ts_interface(decl);
 
             for ts_signature in &decl.body.body {
                 self.visit_ts_signature(ts_signature);

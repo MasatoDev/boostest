@@ -47,7 +47,7 @@ use oxc::{
     ast::{
         ast::{
             BindingPattern, BindingPatternKind, Class, ClassElement, FormalParameter,
-            MethodDefinition, Program,
+            MethodDefinition, Program, TSInterfaceDeclaration, TSTypeAliasDeclaration,
         },
         AstBuilder, VisitMut,
     },
@@ -122,6 +122,28 @@ impl MockTargetAST {
         let mut mock_builder = MockBuilder::new();
         let code = mock_builder.generate_class_code(self.mock_func_name.clone(), class);
         self.code = Some(code);
+    }
+
+    pub fn add_ts_interface(&mut self, ts_interface: &TSInterfaceDeclaration) {
+        // println!("\nadd_ts_interface:\n {:?}\n", ts_interface);
+
+        // let mut mock_builder = MockBuilder::new();
+        // let code = mock_builder.generate_class_code(self.mock_func_name.clone(), class);
+        // self.code = Some(code);
+    }
+
+    pub fn add_ts_alias(&mut self, ts_type_alias: &TSTypeAliasDeclaration) {
+        // println!("\nadd_ts_Alias:\n {:?}\n", ts_type_alias);
+        let mut mock_builder = MockBuilder::new();
+        let code =
+            mock_builder.generate_ts_type_alias_code(self.mock_func_name.clone(), ts_type_alias);
+
+        println!("code: {}", code);
+        self.code = Some(code);
+
+        // let mut mock_builder = MockBuilder::new();
+        // let code = mock_builder.generate_class_code(self.mock_func_name.clone(), class);
+        // self.code = Some(code);
     }
 
     pub fn get_decl_name_for_resolve(&self) -> &String {

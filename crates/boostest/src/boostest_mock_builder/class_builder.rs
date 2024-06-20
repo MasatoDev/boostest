@@ -34,12 +34,12 @@ pub struct ClassMockData<'a> {
     pub constructor_args: std::vec::Vec<&'a TSType<'a>>,
 }
 
-pub struct ClassASTBuilder<'a> {
+pub struct ClassBuilder<'a> {
     mock_data: ClassMockData<'a>,
     ast_builder: AstBuilder<'a>,
 }
 
-impl<'a> ClassASTBuilder<'a> {
+impl<'a> ClassBuilder<'a> {
     pub fn new(allocator: &'a Allocator, mock_func_name: String) -> Self {
         let ast_builder = AstBuilder::new(allocator);
         let mock_data = ClassMockData {
@@ -221,7 +221,7 @@ impl<'a> ClassASTBuilder<'a> {
     }
 }
 
-impl<'a> VisitMut<'a> for ClassASTBuilder<'a> {
+impl<'a> VisitMut<'a> for ClassBuilder<'a> {
     fn visit_program(&mut self, program: &mut Program<'a>) {
         self.visit_statements(&mut program.body);
     }
