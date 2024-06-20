@@ -121,6 +121,7 @@ impl MockTargetAST {
     pub fn add_class(&mut self, class: &Class) {
         let mut mock_builder = MockBuilder::new();
         let code = mock_builder.generate_class_code(self.mock_func_name.clone(), class);
+        println!("code: {}", code);
         self.code = Some(code);
     }
 
@@ -135,9 +136,9 @@ impl MockTargetAST {
     pub fn add_ts_alias(&mut self, ts_type_alias: &TSTypeAliasDeclaration) {
         // println!("\nadd_ts_Alias:\n {:?}\n", ts_type_alias);
         let mut mock_builder = MockBuilder::new();
+
         let code =
             mock_builder.generate_ts_type_alias_code(self.mock_func_name.clone(), ts_type_alias);
-
         println!("code: {}", code);
         self.code = Some(code);
 

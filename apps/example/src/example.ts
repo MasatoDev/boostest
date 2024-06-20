@@ -3,7 +3,7 @@ import type JOB from './anotherTypeFile2.ts';
 import { LegendMan } from './bet.ts';
 import { Customer as NamedWorker } from './anotherClassFile';
 import { GoodMorning } from './good';
-import { boostestClassHelloMock, boostestClassNamedWorkerMock } from './boostest.ts';
+import { boostestBusMock, boostestClassHelloMock, boostestClassNamedWorkerMock } from './boostest.ts';
 
 const boostestMock = <T>(arg?: any): T => {
   return arg;
@@ -43,8 +43,8 @@ class Hello {
 }
 
 // const mock1 = boostestUserMock<User>();
-// const mock2 = boostestClassNamedWorkerMock<typeof NamedWorker>(NamedWorker);
-// const mock3 = boostestClassHelloMock<typeof Hello>(Hello);
+const mock2 = boostestClassNamedWorkerMock<typeof NamedWorker>(NamedWorker);
+const mock3 = boostestClassHelloMock<typeof Hello>(Hello);
 const mock4 = boostestBusMock<Bus>();
 // const mock5 = boostestLegendManMock<LegendMan>();
 // const mock6 = boostestLegendManMock<Agree>();

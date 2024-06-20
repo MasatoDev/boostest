@@ -10,7 +10,7 @@ use oxc::{
             Argument, BindingIdentifier, BindingPattern, BindingPatternKind, Class, ClassElement,
             Declaration, Expression, FunctionBody, IdentifierName, NewExpression, NullLiteral,
             ObjectExpression, ObjectProperty, ObjectPropertyKind, Program, PropertyKind, Statement,
-            TSSignature, TSType, TSTypeAliasDeclaration,
+            TSPropertySignature, TSSignature, TSType, TSTypeAliasDeclaration, TSTypeAnnotation,
         },
         AstBuilder, Visit, VisitMut,
     },
@@ -29,24 +29,22 @@ pub struct ClassArg {
     pub val: String,
 }
 
-pub struct ClassMockData<'a> {
+pub struct TypeAliasMockData<'a> {
     pub mock_func_name: String,
-    pub class_name: String,
-    pub constructor_args: std::vec::Vec<&'a TSType<'a>>,
+    pub properties: std::vec::Vec<&'a TSPropertySignature<'a>>,
 }
 
 pub struct TSTypeAliasBuilder<'a> {
-    mock_data: ClassMockData<'a>,
+    mock_data: TypeAliasMockData<'a>,
     ast_builder: AstBuilder<'a>,
 }
 
 impl<'a> TSTypeAliasBuilder<'a> {
     pub fn new(allocator: &'a Allocator, mock_func_name: String) -> Self {
         let ast_builder = AstBuilder::new(allocator);
-        let mock_data = ClassMockData {
+        let mock_data = TypeAliasMockData {
             mock_func_name,
-            class_name: "".to_string(),
-            constructor_args: Vec::new(),
+            properties: Vec::new(),
         };
 
         Self {
@@ -59,14 +57,14 @@ impl<'a> TSTypeAliasBuilder<'a> {
         &mut self,
         allocator: &'a Allocator,
         source_type: SourceType,
-        ts_type_alias: &TSTypeAliasDeclaration<'a>,
+        ts_type_alias: &'a TSTypeAliasDeclaration<'a>,
     ) -> String {
         let bytes = include_bytes!("./template/tsTypeAlias.ts");
         let source_code = std::str::from_utf8(bytes).unwrap();
         let parser = Parser::new(allocator, source_code, source_type);
         let program = &mut parser.parse().program;
 
-        // self.get_ts_type_alias_declaration(&mut ts_type_alias);
+        self.set_ts_alias_properties(&ts_type_alias);
         self.visit_program(program);
 
         let mut codegen_options = CodegenOptions::default();
@@ -77,26 +75,62 @@ impl<'a> TSTypeAliasBuilder<'a> {
             .source_text
     }
 
-    pub fn get_object_property_kind(&mut self) -> ObjectPropertyKind<'a> {
-        let new_key = self.ast_builder.string_literal(SPAN, "new_key");
-        let new_key_expr = self.ast_builder.literal_string_expression(new_key);
-        let key = self.ast_builder.property_key_expression(new_key_expr);
+    pub fn set_ts_alias_properties(&mut self, ts_type_alias_decl: &'a TSTypeAliasDeclaration<'a>) {
+        match &ts_type_alias_decl.type_annotation {
+            TSType::TSTypeLiteral(ts_type_literal) => {
+                for ts_signature in ts_type_literal.members.iter() {
+                    match ts_signature {
+                        TSSignature::TSPropertySignature(ts_prop_signature) => {
+                            self.mock_data.properties.push(ts_prop_signature);
+                        }
+                        _ => {}
+                    }
+                }
+            }
+            _ => {}
+        }
+    }
 
-        let new_val = self.ast_builder.string_literal(SPAN, "new_val");
-        let new_val_expr = self.ast_builder.literal_string_expression(new_val);
+    pub fn get_object_property_kind(&mut self) -> Vec<ObjectPropertyKind<'a>> {
+        let mut temp_properties = Vec::new();
 
-        let object_expr = self.ast_builder.object_property(
-            SPAN,
-            PropertyKind::Init,
-            key,
-            new_val_expr,
-            None,
-            false,
-            false,
-            false,
-        );
+        for property in &self.mock_data.properties {
+            println!("property: {:?}", property.type_annotation);
 
-        ObjectPropertyKind::ObjectProperty(object_expr)
+            if let Some(key) = property.key.name() {
+                let new_key = self.ast_builder.string_literal(SPAN, key.as_str());
+                let new_key_expr = self.ast_builder.literal_string_expression(new_key);
+                let key = self.ast_builder.property_key_expression(new_key_expr);
+
+                if let Some(val_type_annotation) = &property.type_annotation {
+                    let val = match val_type_annotation.type_annotation {
+                        TSType::TSStringKeyword(_) => {
+                            let new_val = self.ast_builder.string_literal(SPAN, "mock_val");
+                            self.ast_builder.literal_string_expression(new_val)
+                        }
+                        _ => {
+                            let new_val = self.ast_builder.string_literal(SPAN, "default_new_val");
+                            self.ast_builder.literal_string_expression(new_val)
+                        }
+                    };
+
+                    let object_expr = self.ast_builder.object_property(
+                        SPAN,
+                        PropertyKind::Init,
+                        key,
+                        val,
+                        None,
+                        false,
+                        false,
+                        false,
+                    );
+
+                    temp_properties.push(ObjectPropertyKind::ObjectProperty(object_expr));
+                }
+            }
+        }
+
+        temp_properties
     }
 }
 
@@ -122,12 +156,11 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
         match decl {
             Declaration::FunctionDeclaration(func) => {
                 if let Some(id) = &mut func.id {
-                    if id.name.to_string() == "boostestClassTemplate" {
+                    if id.name.to_string() == "boostestTSTypeAliasTemplate" {
                         let name = self.ast_builder.new_atom(&self.mock_data.mock_func_name);
                         let new_binding = BindingIdentifier::new(SPAN, name);
 
                         std::mem::replace(id, new_binding);
-                        println!("boostestClassTemplate");
                     }
                 }
 
@@ -159,75 +192,47 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
 
     fn visit_expression(&mut self, expr: &mut Expression<'a>) {
         let mut temp_obj_expr = self.ast_builder.move_expression(expr);
+        println!("temp_obj_expr: {:?}", temp_obj_expr);
 
         match &mut temp_obj_expr {
             Expression::ObjectExpression(obj_expr) => {
-                let property = self.get_object_property_kind();
+                let mock_properties = self.get_object_property_kind();
 
                 if let Some(last) = obj_expr.properties.pop() {
                     let mut properties = self.ast_builder.new_vec();
-                    properties.push(property);
+
+                    for mock_prop in mock_properties {
+                        properties.push(mock_prop);
+                    }
                     properties.push(last);
 
                     let new_obj_expr = self.ast_builder.object_expression(SPAN, properties, None);
 
                     std::mem::replace(expr, new_obj_expr);
                 }
-
-                // for prop in obj_expr.properties.iter_mut() {
-                //     if let ObjectExpression::Property(prop) = prop {
-                //         if let Expression::Identifier(ident) = &mut prop.key {
-                //             self.visit_identifier_reference(ident);
-                //         }
-
-                //         if let Expression::Identifier(ident) = &mut prop.value {
-                //             self.visit_identifier_reference(ident);
-                //         }
-                //     }
-                // }
             }
+            Expression::TSAsExpression(ts_as_expr) => match &mut ts_as_expr.expression {
+                // TODO: as T が反映されないためカバーする
+                Expression::ObjectExpression(obj_expr) => {
+                    let mock_properties = self.get_object_property_kind();
 
-            // Expression::NewExpression(new_expr) => {
-            //     if let Expression::Identifier(ident) = &mut new_expr.callee {
-            //         self.visit_identifier_reference(ident);
-            //     }
+                    if let Some(last) = obj_expr.properties.pop() {
+                        let mut properties = self.ast_builder.new_vec();
 
-            //     let callee = self.ast_builder.move_expression(&mut new_expr.callee);
-            //     let args = self.get_new_expression_argument();
-            //     let new_expression = self.ast_builder.new_expression(SPAN, callee, args, None);
+                        for mock_prop in mock_properties {
+                            properties.push(mock_prop);
+                        }
+                        properties.push(last);
 
-            //     // TODO: replaceでいいのか？
-            //     std::mem::replace(expr, new_expression);
-            // }
-            _ => {}
-        }
-    }
+                        let new_obj_expr =
+                            self.ast_builder.object_expression(SPAN, properties, None);
 
-    fn visit_ts_type_alias_declaration(&mut self, decl: &mut TSTypeAliasDeclaration<'a>) {
-        match &mut decl.type_annotation {
-            TSType::TSTypeLiteral(ts_type_literal) => {
-                for ts_signature in ts_type_literal.members.iter_mut() {
-                    self.visit_ts_signature(ts_signature);
+                        std::mem::replace(expr, new_obj_expr);
+                    }
                 }
-            }
+                _ => {}
+            },
             _ => {}
         }
-    }
-
-    fn visit_ts_signature(&mut self, signature: &mut oxc::ast::ast::TSSignature<'a>) {
-        println!("signature: {:?}", signature);
-
-        match signature {
-            TSSignature::TSPropertySignature(ts_prop_signature) => {
-                for annotation in &mut ts_prop_signature.type_annotation.iter_mut() {
-                    self.visit_ts_type_annotation(annotation);
-                }
-            }
-            _ => {}
-        }
-    }
-
-    fn visit_ts_type_annotation(&mut self, annotation: &mut oxc::ast::ast::TSTypeAnnotation<'a>) {
-        println!("annotation: {:?}", annotation);
     }
 }
