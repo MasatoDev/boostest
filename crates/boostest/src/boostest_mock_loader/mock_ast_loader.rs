@@ -49,8 +49,8 @@ pub struct Import {
 pub struct MockAstLoader {
     pub mock_func_name: String,
     pub mock_target_name: Option<String>,
+    pub resolved: bool,
     pub import: Vec<Import>,
-    pub ast: Option<String>,
     pub temp_import_source_vec: Option<Vec<Import>>,
     pub ref_properties: Vec<MockAstLoader>,
     pub code: Option<String>,
@@ -62,8 +62,8 @@ impl MockAstLoader {
         Self {
             mock_func_name,
             mock_target_name,
+            resolved: false,
             import: Vec::new(),
-            ast: None,
             ref_properties: Vec::new(),
             analysis_started: false,
             temp_import_source_vec: None,
@@ -79,12 +79,13 @@ impl MockAstLoader {
         self.analysis_started = true;
     }
 
-    pub fn set_decl(&mut self, decl: String) {
-        // TODO: ast追加しないとループしちゃう
-        self.ast = Some(decl);
+    pub fn resolve(&mut self) {
+        self.resolved = true;
     }
 
     pub fn add_class(&mut self, class: &Class) {
+        self.resolve();
+
         let mut mock_builder = MockBuilder::new();
         let code = mock_builder.generate_class_code(self.mock_func_name.clone(), class);
         println!("code:{:?} ", code);
@@ -92,6 +93,8 @@ impl MockAstLoader {
     }
 
     pub fn add_ts_interface(&mut self, ts_interface: &TSInterfaceDeclaration) {
+        self.resolve();
+
         let mut mock_builder = MockBuilder::new();
         let code =
             mock_builder.generate_ts_interface_code(self.mock_func_name.clone(), ts_interface);
@@ -99,6 +102,8 @@ impl MockAstLoader {
     }
 
     pub fn add_ts_alias(&mut self, ts_type_alias: &TSTypeAliasDeclaration) {
+        self.resolve();
+
         let mut mock_builder = MockBuilder::new();
 
         let code =
@@ -134,10 +139,6 @@ impl MockAstLoader {
         self.import.push(import);
     }
 
-    pub fn has_ast(&self) -> bool {
-        self.ast.is_some() || self.code.is_some()
-    }
-
     pub fn reset_temp_import_source(&mut self) {
         self.temp_import_source_vec = None;
     }
@@ -168,7 +169,7 @@ impl MockAstLoader {
     }
 
     pub fn set_import_source(&mut self) {
-        if self.has_ast() {
+        if self.resolved {
             return;
         }
 
@@ -193,7 +194,7 @@ impl MockAstLoader {
         let mut result = Vec::new();
 
         for prop in &mut self.ref_properties {
-            if !prop.has_ast() && !prop.analysis_started {
+            if !prop.resolved && !prop.analysis_started {
                 result.push(prop);
             }
         }

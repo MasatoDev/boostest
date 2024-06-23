@@ -40,7 +40,7 @@ pub fn resolve_mock_target_ast(
     program: &Program,
     path: &Path,
 ) {
-    if mock_ast_loader.has_ast() {
+    if mock_ast_loader.resolved {
         return;
     };
 
@@ -56,7 +56,7 @@ pub fn resolve_mock_target_ast(
         resolve_mock_target_ast(prop, program, path);
     }
 
-    if !mock_ast_loader.has_ast() {
+    if !mock_ast_loader.resolved {
         mock_ast_loader.set_import_source();
 
         if let Ok(module_path) = path.canonicalize() {

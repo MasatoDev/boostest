@@ -185,7 +185,6 @@ impl<'a> Visit<'a> for MockAstLoader {
     fn visit_ts_type_alias_declaration(&mut self, decl: &TSTypeAliasDeclaration<'a>) {
         if let Some(target_name) = self.get_decl_name_for_resolve() {
             if decl.id.name.to_string() == *target_name {
-                self.set_decl(String::from("type alias"));
                 self.add_ts_alias(decl);
 
                 // NOTE: handle mock target property
@@ -204,7 +203,6 @@ impl<'a> Visit<'a> for MockAstLoader {
     fn visit_ts_interface_declaration(&mut self, decl: &TSInterfaceDeclaration<'a>) {
         if let Some(target_name) = self.get_decl_name_for_resolve() {
             if decl.id.name.to_string() == *target_name {
-                self.set_decl(String::from("type interface"));
                 self.add_ts_interface(decl);
 
                 for ts_signature in &decl.body.body {
