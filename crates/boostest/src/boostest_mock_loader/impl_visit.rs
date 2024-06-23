@@ -11,7 +11,8 @@ use oxc::ast::ast::{
 use oxc::ast::{ast::Argument, Visit};
 
 use crate::boostest_mock_loader::mock_loader::MockLoader;
-use crate::boostest_mock_loader::{mock::BoostestMock, mock_target_ast::MockTargetAST};
+
+use super::mock_ast_loader::MockAstLoader;
 
 // *********************************** MockBuilder ***********************************
 impl<'a> Visit<'a> for MockLoader {
@@ -45,7 +46,7 @@ impl<'a> Visit<'a> for MockLoader {
 
             if ident.name.contains(pattern) {
                 let target_mock_name = ident.name.clone().into_string();
-                let mock = BoostestMock::new(target_mock_name.clone());
+                let mock = MockAstLoader::new(target_mock_name.clone(), None);
                 self.add_mock(mock);
                 if let Some(target_mock) = self.get_mock(&target_mock_name) {
                     target_mock.visit_call_expression(expr);
@@ -57,7 +58,7 @@ impl<'a> Visit<'a> for MockLoader {
 
 // *********************************** BoostestMock ***********************************
 
-impl<'a> Visit<'a> for BoostestMock {
+impl<'a> Visit<'a> for MockAstLoader {
     fn visit_call_expression(&mut self, expr: &CallExpression<'a>) {
         let CallExpression {
             type_parameters,
@@ -78,7 +79,7 @@ impl<'a> Visit<'a> for BoostestMock {
         for param in &ty.params {
             if let TSTypeReference(ty_ref) = param {
                 if let TSTypeName::IdentifierReference(identifier) = &ty_ref.type_name {
-                    self.add_ts_type_ref_target(identifier.name.clone().into_string());
+                    self.set_target_name(identifier.name.clone().into_string());
                 }
             }
         }
@@ -87,16 +88,14 @@ impl<'a> Visit<'a> for BoostestMock {
     fn visit_argument(&mut self, arg: &Argument<'a>) {
         match arg {
             Argument::Identifier(identifier) => {
-                self.add_class_ref_target(identifier.name.clone().into_string());
+                self.set_target_name(identifier.name.clone().into_string());
             }
             _ => {
                 println!("other arg: {:?}", arg);
             }
         }
     }
-}
 
-impl<'a> Visit<'a> for MockTargetAST {
     // -------------- ADD DECL TO MOCK --------------
 
     fn visit_statements(&mut self, stmts: &Vec<'a, Statement<'a>>) {
@@ -128,12 +127,12 @@ impl<'a> Visit<'a> for MockTargetAST {
     // handle mock target is class
     fn visit_class(&mut self, class: &Class<'a>) {
         if let Some(identifier) = &class.id {
-            let target_name = self.get_decl_name_for_resolve().clone();
+            if let Some(target_name) = self.get_decl_name_for_resolve() {
+                if identifier.name.to_string() == *target_name {
+                    self.add_class(class);
 
-            if identifier.name.to_string() == target_name {
-                self.add_class(class);
-
-                self.visit_class_body(&class.body);
+                    self.visit_class_body(&class.body);
+                }
             }
         }
     }
@@ -184,40 +183,38 @@ impl<'a> Visit<'a> for MockTargetAST {
 
     // handle mock target is type alias
     fn visit_ts_type_alias_declaration(&mut self, decl: &TSTypeAliasDeclaration<'a>) {
-        let target_name = self.get_decl_name_for_resolve().clone();
+        if let Some(target_name) = self.get_decl_name_for_resolve() {
+            if decl.id.name.to_string() == *target_name {
+                self.set_decl(String::from("type alias"));
+                self.add_ts_alias(decl);
 
-        if decl.id.name.to_string() == target_name {
-            self.set_decl(String::from("type alias"));
-            self.add_ts_alias(decl);
-
-            // NOTE: handle mock target property
-            match &decl.type_annotation {
-                TSType::TSTypeLiteral(ts_type_literal) => {
-                    for ts_signature in ts_type_literal.members.iter() {
-                        self.visit_ts_signature(ts_signature);
+                // NOTE: handle mock target property
+                match &decl.type_annotation {
+                    TSType::TSTypeLiteral(ts_type_literal) => {
+                        for ts_signature in ts_type_literal.members.iter() {
+                            self.visit_ts_signature(ts_signature);
+                        }
                     }
+                    _ => {}
                 }
-                _ => {}
             }
         }
     }
 
     fn visit_ts_interface_declaration(&mut self, decl: &TSInterfaceDeclaration<'a>) {
-        let target_name = self.get_decl_name_for_resolve().clone();
+        if let Some(target_name) = self.get_decl_name_for_resolve() {
+            if decl.id.name.to_string() == *target_name {
+                self.set_decl(String::from("type interface"));
+                self.add_ts_interface(decl);
 
-        if decl.id.name.to_string() == target_name {
-            self.set_decl(String::from("type interface"));
-            self.add_ts_interface(decl);
-
-            for ts_signature in &decl.body.body {
-                self.visit_ts_signature(ts_signature);
+                for ts_signature in &decl.body.body {
+                    self.visit_ts_signature(ts_signature);
+                }
             }
         }
     }
 
     fn visit_import_declaration(&mut self, decl: &ImportDeclaration<'a>) {
-        let target_name = self.get_decl_name_for_resolve().clone();
-
         if let Some(specifiers) = &decl.specifiers {
             for specifier in specifiers {
                 let full_path = decl.source.value.clone().into_string();
@@ -227,23 +224,17 @@ impl<'a> Visit<'a> for MockTargetAST {
                     ImportDeclarationSpecifier::ImportNamespaceSpecifier(namespace) => {
                         let local = namespace.local.name.clone().into_string();
 
-                        if local == target_name {
-                            self.set_temp_import_source(local, full_path, imported)
-                        }
+                        self.set_temp_import_source(local, full_path, imported)
                     }
                     ImportDeclarationSpecifier::ImportSpecifier(normal) => {
                         let local = normal.local.name.clone().into_string();
                         imported = Some(normal.imported.to_string());
 
-                        if local == target_name {
-                            self.set_temp_import_source(local, full_path, imported)
-                        }
+                        self.set_temp_import_source(local, full_path, imported)
                     }
                     ImportDeclarationSpecifier::ImportDefaultSpecifier(default) => {
                         let local = default.local.name.clone().into_string();
-                        if local == target_name {
-                            self.set_temp_import_source(local, full_path, imported)
-                        }
+                        self.set_temp_import_source(local, full_path, imported)
                     }
                 }
             }
@@ -251,8 +242,6 @@ impl<'a> Visit<'a> for MockTargetAST {
     }
 
     fn visit_export_named_declaration(&mut self, decl: &ExportNamedDeclaration<'a>) {
-        let target_name = self.get_decl_name_for_resolve().clone();
-
         let ExportNamedDeclaration {
             declaration,
             specifiers,
@@ -266,9 +255,7 @@ impl<'a> Visit<'a> for MockTargetAST {
                 let imported = specifier.local.name().to_string();
                 let name = specifier.exported.name().to_string();
 
-                if name == target_name {
-                    self.set_temp_import_source(name, full_path, Some(imported))
-                }
+                self.set_temp_import_source(name, full_path, Some(imported))
             }
         }
 

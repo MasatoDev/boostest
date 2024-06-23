@@ -37,13 +37,6 @@ ref_properties: [
 
 use crate::boostest_mock_builder::mock_builder::MockBuilder;
 use oxc::ast::ast::{Class, TSInterfaceDeclaration, TSTypeAliasDeclaration};
-use serde::{Deserialize, Serialize};
-
-#[derive(Serialize, Deserialize, Debug)]
-pub enum MockRefType {
-    Class,
-    Type,
-}
 
 #[derive(Clone, Debug)]
 pub struct Import {
@@ -53,38 +46,33 @@ pub struct Import {
 }
 
 #[derive(Debug)]
-pub struct MockTargetAST {
+pub struct MockAstLoader {
     pub mock_func_name: String,
-    pub name: String,
+    pub mock_target_name: Option<String>,
     pub import: Vec<Import>,
     pub ast: Option<String>,
     pub temp_import_source_vec: Option<Vec<Import>>,
-    pub ref_properties: Vec<MockTargetAST>,
+    pub ref_properties: Vec<MockAstLoader>,
     pub code: Option<String>,
     analysis_started: bool,
-    mock_type: MockRefType,
 }
 
-impl MockTargetAST {
-    pub fn new(
-        mock_func_name: String,
-        name: String,
-        mock_type: MockRefType,
-        import: Vec<Import>,
-        ast: Option<String>,
-        ref_properties: Vec<MockTargetAST>,
-    ) -> Self {
+impl MockAstLoader {
+    pub fn new(mock_func_name: String, mock_target_name: Option<String>) -> Self {
         Self {
             mock_func_name,
-            name,
-            mock_type,
-            import,
-            ast,
-            ref_properties,
+            mock_target_name,
+            import: Vec::new(),
+            ast: None,
+            ref_properties: Vec::new(),
             analysis_started: false,
             temp_import_source_vec: None,
             code: None,
         }
+    }
+
+    pub fn set_target_name(&mut self, name: String) {
+        self.mock_target_name = Some(name);
     }
 
     pub fn analysis_start(&mut self) {
@@ -99,6 +87,7 @@ impl MockTargetAST {
     pub fn add_class(&mut self, class: &Class) {
         let mut mock_builder = MockBuilder::new();
         let code = mock_builder.generate_class_code(self.mock_func_name.clone(), class);
+        println!("code:{:?} ", code);
         self.code = Some(code);
     }
 
@@ -117,14 +106,15 @@ impl MockTargetAST {
         self.code = Some(code);
     }
 
-    pub fn get_decl_name_for_resolve(&self) -> &String {
+    pub fn get_decl_name_for_resolve(&self) -> Option<&String> {
         if let Some(last) = self.import.last() {
             if let Some(imported) = &last.imported {
-                return &imported;
+                return Some(&imported);
             }
-            return &last.local;
+            return Some(&last.local);
         }
-        &self.name
+
+        self.mock_target_name.as_ref()
     }
 
     pub fn get_next_path(&self) -> Option<&String> {
@@ -136,7 +126,6 @@ impl MockTargetAST {
     }
 
     pub fn add_import(&mut self, local: String, full_path: String, imported: Option<String>) {
-        println!("add_import: {} {} {}", self.name, local, full_path);
         let import = Import {
             local,
             imported,
@@ -159,6 +148,12 @@ impl MockTargetAST {
         full_path: String,
         imported: Option<String>,
     ) {
+        if let Some(target_name) = &self.mock_target_name {
+            if *target_name != local {
+                return;
+            }
+        }
+
         let import = Import {
             local,
             imported,
@@ -185,30 +180,16 @@ impl MockTargetAST {
     }
 
     pub fn add_property_ts_type(&mut self, name: String) {
-        self.ref_properties.push(MockTargetAST::new(
-            self.mock_func_name.clone(),
-            name,
-            MockRefType::Type,
-            vec![],
-            // Arc::clone(&self.allocator_arc),
-            None,
-            Vec::new(),
-        ));
+        self.ref_properties
+            .push(MockAstLoader::new(self.mock_func_name.clone(), Some(name)));
     }
 
     pub fn add_property_class(&mut self, name: String) {
-        self.ref_properties.push(MockTargetAST::new(
-            self.mock_func_name.clone(),
-            name,
-            MockRefType::Class,
-            vec![],
-            // Arc::clone(&self.allocator_arc),
-            None,
-            Vec::new(),
-        ));
+        self.ref_properties
+            .push(MockAstLoader::new(self.mock_func_name.clone(), Some(name)));
     }
 
-    pub fn get_needs_start_analysis_properties(&mut self) -> Vec<&mut MockTargetAST> {
+    pub fn get_needs_start_analysis_properties(&mut self) -> Vec<&mut MockAstLoader> {
         let mut result = Vec::new();
 
         for prop in &mut self.ref_properties {

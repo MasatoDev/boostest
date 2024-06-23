@@ -1,12 +1,3 @@
-export function boostestUser<T>(args?: T): T {
-	return ({
-		'name':'string_val',
-		'age':42,
-		'sex':42,
-		...args
-	} as T);
-}
-
 export function boostestJOB<T>(args?: T): T {
 	return ({
 		'name':'string_val',
@@ -20,6 +11,17 @@ export function boostestOS<T>(args?: T): T {
 		'name':'string_val',
 		'version':42,
 		'license':'default_val(unimplemented)',
+		...args
+	} as T);
+}
+
+export function boostestUser<T>(args?: T): T {
+	return ({
+		'name':'string_val',
+		'age':42,
+		'sex':42,
+		'from':'default_val(unimplemented)',
+		'details':'default_val(unimplemented)',
 		...args
 	} as T);
 }

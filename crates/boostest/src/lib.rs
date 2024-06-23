@@ -42,12 +42,10 @@ pub fn call_boostest(path: &Path) {
                 let path = parent_path.join("boostest.ts"); // srcディレクトリ内のgreeting.ts
                 if let Ok(file) = File::create(path) {
                     let mut f = file;
-                    for mock in mock_loader.mocks.values() {
-                        if let Some(target_ast) = &mock.target_ast {
-                            if let Some(code) = &target_ast.code {
-                                f.write_all(code.as_bytes()).unwrap();
-                                f.write_all(b"\n").unwrap();
-                            }
+                    for mock_ast_loader in mock_loader.mocks.values() {
+                        if let Some(code) = &mock_ast_loader.code {
+                            f.write_all(code.as_bytes()).unwrap();
+                            f.write_all(b"\n").unwrap();
                         }
                     }
                 }
