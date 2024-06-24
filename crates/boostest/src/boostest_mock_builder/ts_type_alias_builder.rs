@@ -2,13 +2,16 @@ use oxc::{
     allocator::Allocator,
     ast::{
         ast::{
-            BindingIdentifier, Declaration, Expression, FunctionBody, NullLiteral, ObjectPropertyKind, Program, PropertyKind, Statement, TSAnyKeyword, TSPropertySignature, TSSignature, TSType, TSTypeAliasDeclaration
+            BindingIdentifier, Declaration, Expression, FunctionBody, NullLiteral,
+            ObjectPropertyKind, Program, PropertyKind, Statement, TSAnyKeyword,
+            TSPropertySignature, TSSignature, TSType, TSTypeAliasDeclaration,
         },
         AstBuilder, VisitMut,
     },
     codegen::{Codegen, CodegenOptions},
     parser::Parser,
-    span::{SourceType, Span}, syntax::number::NumberBase,
+    span::{SourceType, Span},
+    syntax::number::NumberBase,
 };
 
 use oxc::allocator;
@@ -22,6 +25,7 @@ pub struct ClassArg {
 
 pub struct TypeAliasMockData<'a> {
     pub mock_func_name: String,
+    pub key_name: Option<String>,
     pub properties: std::vec::Vec<&'a TSPropertySignature<'a>>,
 }
 
@@ -31,10 +35,11 @@ pub struct TSTypeAliasBuilder<'a> {
 }
 
 impl<'a> TSTypeAliasBuilder<'a> {
-    pub fn new(allocator: &'a Allocator, mock_func_name: String) -> Self {
+    pub fn new(allocator: &'a Allocator, mock_func_name: String, key_name: Option<String>) -> Self {
         let ast_builder = AstBuilder::new(allocator);
         let mock_data = TypeAliasMockData {
             mock_func_name,
+            key_name,
             properties: Vec::new(),
         };
 
@@ -89,7 +94,7 @@ impl<'a> TSTypeAliasBuilder<'a> {
             if let Some(key) = property.key.name() {
                 let new_key = self.ast_builder.string_literal(SPAN, key.as_str());
                 let new_key_expr = self.ast_builder.literal_string_expression(new_key);
-                let key = self.ast_builder.property_key_expression(new_key_expr);
+                let new_prop_key = self.ast_builder.property_key_expression(new_key_expr);
 
                 if let Some(val_type_annotation) = &property.type_annotation {
                     let val = match val_type_annotation.type_annotation {
@@ -118,6 +123,14 @@ impl<'a> TSTypeAliasBuilder<'a> {
                             );
                             self.ast_builder.literal_number_expression(num_literal)
                         }
+                        TSType::TSTypeReference(_) => {
+                            let new_id = self.ast_builder.identifier_reference(SPAN, key.as_str());
+                            let new_callee =
+                                self.ast_builder.identifier_reference_expression(new_id);
+                            let arg = self.ast_builder.new_vec();
+                            self.ast_builder
+                                .call_expression(SPAN, new_callee, arg, false, None)
+                        }
                         _ => {
                             let new_val = self
                                 .ast_builder
@@ -129,7 +142,7 @@ impl<'a> TSTypeAliasBuilder<'a> {
                     let object_expr = self.ast_builder.object_property(
                         SPAN,
                         PropertyKind::Init,
-                        key,
+                        new_prop_key,
                         val,
                         None,
                         false,
@@ -169,7 +182,12 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
             Declaration::FunctionDeclaration(func) => {
                 if let Some(id) = &mut func.id {
                     if id.name.to_string() == "boostestTSTypeAliasTemplate" {
-                        let name = self.ast_builder.new_atom(&self.mock_data.mock_func_name);
+                        let new_name = match &self.mock_data.key_name {
+                            Some(key_name) => key_name,
+                            None => &self.mock_data.mock_func_name,
+                        };
+
+                        let name = self.ast_builder.new_atom(new_name);
                         let new_binding = BindingIdentifier::new(SPAN, name);
 
                         let _ = std::mem::replace(id, new_binding);

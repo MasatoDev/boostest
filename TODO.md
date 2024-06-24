@@ -1,3 +1,26 @@
+- classを読んでast_loaderを作成する
+- プロパティを先に読み込む。
+- 必要な内容を頂戴する。この時保存する必要がある。
+
+
+ASTの一時保存ができない。
+
+ast_builderでallocするともらえはするが....
+ast_builder自体がlifetimeを持つため、対象のprogramのlifetimeとズレると難しい
+
+ast_loaderとprogramはスタート時点でlifetimeが一緒だが、それ以降はpropのprogramを読んで...みたいなタイミングで同じではなくなる
+ast_loaderとprogramは一緒で良さそうだけど...
+
+
+
+
+
+
+
+
+
+
+
 /*
 [TODO]
 

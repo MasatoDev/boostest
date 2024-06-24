@@ -49,6 +49,7 @@ pub struct Import {
 pub struct MockAstLoader {
     pub mock_func_name: String,
     pub mock_target_name: Option<String>,
+    pub prop_key_name: Option<String>,
     pub resolved: bool,
     pub import: Vec<Import>,
     pub temp_import_source_vec: Option<Vec<Import>>,
@@ -58,10 +59,15 @@ pub struct MockAstLoader {
 }
 
 impl MockAstLoader {
-    pub fn new(mock_func_name: String, mock_target_name: Option<String>) -> Self {
+    pub fn new(
+        mock_func_name: String,
+        mock_target_name: Option<String>,
+        prop_key_name: Option<String>,
+    ) -> Self {
         Self {
             mock_func_name,
             mock_target_name,
+            prop_key_name,
             resolved: false,
             import: Vec::new(),
             ref_properties: Vec::new(),
@@ -87,7 +93,12 @@ impl MockAstLoader {
         self.resolve();
 
         let mut mock_builder = MockBuilder::new();
-        let code = mock_builder.generate_class_code(self.mock_func_name.clone(), class);
+
+        let code = mock_builder.generate_class_code(
+            self.mock_func_name.clone(),
+            self.prop_key_name.clone(),
+            class,
+        );
         println!("code:{:?} ", code);
         self.code = Some(code);
     }
@@ -96,8 +107,11 @@ impl MockAstLoader {
         self.resolve();
 
         let mut mock_builder = MockBuilder::new();
-        let code =
-            mock_builder.generate_ts_interface_code(self.mock_func_name.clone(), ts_interface);
+        let code = mock_builder.generate_ts_interface_code(
+            self.mock_func_name.clone(),
+            self.prop_key_name.clone(),
+            ts_interface,
+        );
         self.code = Some(code);
     }
 
@@ -106,8 +120,11 @@ impl MockAstLoader {
 
         let mut mock_builder = MockBuilder::new();
 
-        let code =
-            mock_builder.generate_ts_type_alias_code(self.mock_func_name.clone(), ts_type_alias);
+        let code = mock_builder.generate_ts_type_alias_code(
+            self.mock_func_name.clone(),
+            self.prop_key_name.clone(),
+            ts_type_alias,
+        );
         self.code = Some(code);
     }
 
@@ -180,14 +197,20 @@ impl MockAstLoader {
         self.reset_temp_import_source();
     }
 
-    pub fn add_property_ts_type(&mut self, name: String) {
-        self.ref_properties
-            .push(MockAstLoader::new(self.mock_func_name.clone(), Some(name)));
+    pub fn add_property_ts_type(&mut self, name: String, key_name: String) {
+        self.ref_properties.push(MockAstLoader::new(
+            self.mock_func_name.clone(),
+            Some(name),
+            Some(key_name),
+        ));
     }
 
     pub fn add_property_class(&mut self, name: String) {
-        self.ref_properties
-            .push(MockAstLoader::new(self.mock_func_name.clone(), Some(name)));
+        self.ref_properties.push(MockAstLoader::new(
+            self.mock_func_name.clone(),
+            Some(name),
+            None,
+        ));
     }
 
     pub fn get_needs_start_analysis_properties(&mut self) -> Vec<&mut MockAstLoader> {

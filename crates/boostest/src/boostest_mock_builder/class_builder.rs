@@ -1,9 +1,12 @@
+use std::collections::HashMap;
+
 use oxc::{
     allocator::Allocator,
     ast::{
         ast::{
-            Argument, BindingIdentifier, BindingPattern, BindingPatternKind, Class, ClassElement,
-            Declaration, Expression, FunctionBody, NullLiteral, Program, Statement, TSType,
+            Argument, BindingIdentifier, BindingPattern, BindingPatternKind, CallExpression, Class,
+            ClassElement, Declaration, Expression, FunctionBody, NullLiteral, Program, Statement,
+            TSType,
         },
         AstBuilder, VisitMut,
     },
@@ -25,7 +28,8 @@ pub struct ClassArg {
 pub struct ClassMockData<'a> {
     pub mock_func_name: String,
     pub class_name: String,
-    pub constructor_args: std::vec::Vec<&'a TSType<'a>>,
+    pub key_name: Option<String>,
+    pub constructor_args: HashMap<String, &'a TSType<'a>>,
 }
 
 pub struct ClassBuilder<'a> {
@@ -34,12 +38,13 @@ pub struct ClassBuilder<'a> {
 }
 
 impl<'a> ClassBuilder<'a> {
-    pub fn new(allocator: &'a Allocator, mock_func_name: String) -> Self {
+    pub fn new(allocator: &'a Allocator, mock_func_name: String, key_name: Option<String>) -> Self {
         let ast_builder = AstBuilder::new(allocator);
         let mock_data = ClassMockData {
             mock_func_name,
+            key_name,
             class_name: "".to_string(),
-            constructor_args: Vec::new(),
+            constructor_args: HashMap::new(),
         };
 
         Self {
@@ -80,9 +85,11 @@ impl<'a> ClassBuilder<'a> {
                     ClassElement::MethodDefinition(method) => {
                         for formal_parameter in &method.value.params.items {
                             match &formal_parameter.pattern.kind {
-                                BindingPatternKind::BindingIdentifier(_) => {
+                                BindingPatternKind::BindingIdentifier(id) => {
                                     if let Some(item) = &formal_parameter.pattern.type_annotation {
-                                        self.mock_data.constructor_args.push(&item.type_annotation);
+                                        self.mock_data
+                                            .constructor_args
+                                            .insert(id.name.to_string(), &item.type_annotation);
                                     }
                                 }
                                 _ => {}
@@ -98,7 +105,7 @@ impl<'a> ClassBuilder<'a> {
     pub fn get_new_expression_argument(&mut self) -> allocator::Vec<'a, Argument<'a>> {
         let mut args = self.ast_builder.new_vec();
 
-        for ts_type in &mut self.mock_data.constructor_args {
+        for (key_name, ts_type) in &mut self.mock_data.constructor_args {
             let argument = match ts_type {
                 TSType::TSAnyKeyword(_) => {
                     let expression = self.ast_builder.string_literal(SPAN, "any");
@@ -139,6 +146,19 @@ impl<'a> ClassBuilder<'a> {
                     let expression = self.ast_builder.string_literal(SPAN, "string_val");
                     let argument_item = self.ast_builder.alloc(expression);
                     Argument::StringLiteral(argument_item)
+                }
+                TSType::TSTypeReference(_) => {
+                    let new_id = self.ast_builder.identifier_reference(SPAN, key_name);
+                    let new_callee = self.ast_builder.identifier_reference_expression(new_id);
+                    let arg = self.ast_builder.new_vec();
+
+                    Argument::CallExpression(self.ast_builder.alloc(CallExpression {
+                        span: SPAN,
+                        callee: new_callee,
+                        arguments: arg,
+                        optional: false,
+                        type_parameters: None,
+                    }))
                 }
                 // TSType::TSNeverKeyword(_) => "/* never */".to_string(), // never を表現
                 // TSType::TSObjectKeyword(_) => "{}".to_string(),
@@ -254,7 +274,12 @@ impl<'a> VisitMut<'a> for ClassBuilder<'a> {
             Declaration::FunctionDeclaration(func) => {
                 if let Some(id) = &mut func.id {
                     if id.name.to_string() == "boostestClassTemplate" {
-                        let name = self.ast_builder.new_atom(&self.mock_data.mock_func_name);
+                        let new_name = match &self.mock_data.key_name {
+                            Some(key_name) => key_name,
+                            None => &self.mock_data.mock_func_name,
+                        };
+
+                        let name = self.ast_builder.new_atom(new_name);
                         let new_binding = BindingIdentifier::new(SPAN, name);
 
                         let _ = std::mem::replace(id, new_binding);

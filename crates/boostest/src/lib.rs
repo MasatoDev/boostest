@@ -21,7 +21,8 @@ fn read(path: &Path) -> io::Result<String> {
     }
 }
 
-pub fn call_boostest(path: &Path) {
+#[tokio::main]
+pub async fn call_boostest(path: &Path) {
     let mut mock_loader = MockLoader::new();
 
     if let Ok(file) = read(path) {
@@ -46,6 +47,13 @@ pub fn call_boostest(path: &Path) {
                         if let Some(code) = &mock_ast_loader.code {
                             f.write_all(code.as_bytes()).unwrap();
                             f.write_all(b"\n").unwrap();
+                        }
+
+                        for prop in mock_ast_loader.ref_properties.iter() {
+                            if let Some(code) = &prop.code {
+                                f.write_all(code.as_bytes()).unwrap();
+                                f.write_all(b"\n").unwrap();
+                            }
                         }
                     }
                 }

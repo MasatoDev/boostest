@@ -17,18 +17,19 @@ impl MockLoader {
         self.mocks.get_mut(name)
     }
 
-    pub fn add_mock(&mut self, mock: MockAstLoader) {
-        self.mocks.insert(mock.mock_func_name.clone(), mock);
+    pub fn add_ast_loader(&mut self, name: String) {
+        let mock = MockAstLoader::new(name.clone(), None, None);
+        self.mocks.insert(name.clone(), mock);
     }
 
     #[cfg(debug_assertions)]
     pub fn debug(&self) {
         for mock in self.mocks.values() {
             println!("--------MOCK TARGET: {:?}---------", mock.mock_func_name);
-            // println!("---------------------");
-            // println!("AST: {:?}", mock.ast);
-            // println!("---------------------");
-            // println!("name: {:?}", self.name);
+            println!("---------------------");
+            println!("AST: {:?}", mock.ref_properties);
+            println!("---------------------");
+            // println!("name: {:?}", self.);
             // println!("---------------------");
         }
     }

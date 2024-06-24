@@ -46,8 +46,8 @@ impl<'a> Visit<'a> for MockLoader {
 
             if ident.name.contains(pattern) {
                 let target_mock_name = ident.name.clone().into_string();
-                let mock = MockAstLoader::new(target_mock_name.clone(), None);
-                self.add_mock(mock);
+                self.add_ast_loader(target_mock_name.clone().to_string());
+
                 if let Some(target_mock) = self.get_mock(&target_mock_name) {
                     target_mock.visit_call_expression(expr);
                 }
@@ -153,20 +153,23 @@ impl<'a> Visit<'a> for MockAstLoader {
 
     fn visit_property_definition(&mut self, def: &oxc::ast::ast::PropertyDefinition<'a>) {
         for annotation in def.type_annotation.iter() {
-            self.visit_ts_type_annotation(annotation);
+            match &annotation.type_annotation {
+                TSType::TSTypeReference(ty_ref) => {
+                    if let TSTypeName::IdentifierReference(identifier) = &ty_ref.type_name {
+                        if let Some(key_name) = def.key.name() {
+                            self.add_property_ts_type(
+                                identifier.name.clone().into_string(),
+                                key_name.to_string(),
+                            );
+                        }
+                    }
+                }
+                _ => {}
+            }
         }
     }
 
-    fn visit_ts_type_annotation(&mut self, annotation: &oxc::ast::ast::TSTypeAnnotation<'a>) {
-        match &annotation.type_annotation {
-            TSType::TSTypeReference(ty_ref) => {
-                if let TSTypeName::IdentifierReference(identifier) = &ty_ref.type_name {
-                    self.add_property_ts_type(identifier.name.clone().into_string());
-                }
-            }
-            _ => {}
-        }
-    }
+    // fn visit_ts_type_annotation(&mut self, annotation: &oxc::ast::ast::TSTypeAnnotation<'a>) {}
 
     fn visit_method_definition(&mut self, _def: &oxc::ast::ast::MethodDefinition<'a>) {}
 
@@ -174,7 +177,19 @@ impl<'a> Visit<'a> for MockAstLoader {
         match signature {
             TSSignature::TSPropertySignature(ts_prop_signature) => {
                 for annotation in ts_prop_signature.type_annotation.iter() {
-                    self.visit_ts_type_annotation(annotation);
+                    match &annotation.type_annotation {
+                        TSType::TSTypeReference(ty_ref) => {
+                            if let TSTypeName::IdentifierReference(identifier) = &ty_ref.type_name {
+                                if let Some(key_name) = ts_prop_signature.key.name() {
+                                    self.add_property_ts_type(
+                                        identifier.name.clone().into_string(),
+                                        key_name.to_string(),
+                                    );
+                                }
+                            }
+                        }
+                        _ => {}
+                    }
                 }
             }
             _ => {}
