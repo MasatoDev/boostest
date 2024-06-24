@@ -99,7 +99,6 @@ impl MockAstLoader {
             self.prop_key_name.clone(),
             class,
         );
-        println!("code:{:?} ", code);
         self.code = Some(code);
     }
 

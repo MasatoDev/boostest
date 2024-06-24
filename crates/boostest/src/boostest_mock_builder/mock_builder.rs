@@ -30,8 +30,6 @@ impl MockBuilder {
         key_name: Option<String>,
         class: &Class,
     ) -> String {
-        println!("class key_name: {:?}", key_name);
-
         let allocator = Allocator::default();
         let mut class_builder = ClassBuilder::new(&allocator, mock_func_name, key_name);
 
@@ -44,8 +42,6 @@ impl MockBuilder {
         key_name: Option<String>,
         ts_type_alias: &TSTypeAliasDeclaration,
     ) -> String {
-        println!("class key_name: {:?}", key_name);
-
         let allocator = Allocator::default();
         let mut ts_type_alias_builder =
             TSTypeAliasBuilder::new(&allocator, mock_func_name, key_name);
@@ -59,8 +55,6 @@ impl MockBuilder {
         key_name: Option<String>,
         ts_interface: &TSInterfaceDeclaration,
     ) -> String {
-        println!("class key_name: {:?}", key_name);
-
         let allocator = Allocator::default();
         let mut ts_interface_builder =
             TSInterfaceBuilder::new(&allocator, mock_func_name, key_name);

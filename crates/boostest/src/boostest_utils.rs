@@ -1,10 +1,10 @@
 use anyhow::{anyhow, Result};
 use oxc::ast::Visit;
 use oxc::{ast::ast::Program, parser::Parser, span::SourceType};
-use oxc_resolver::{Resolution, ResolveOptions, Resolver};
+use oxc_resolver::{Resolution, ResolveOptions, Resolver, TsconfigOptions, TsconfigReferences};
 use std::fs::File;
 use std::io::{self, Read};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use crate::boostest_mock_loader::mock_ast_loader::MockAstLoader;
 use crate::boostest_mock_loader::mock_loader::MockLoader;
@@ -21,6 +21,10 @@ fn read(path: &Path) -> io::Result<String> {
 fn resolve_specifier(path: &Path, specifier: &str) -> Result<Resolution> {
     let options = ResolveOptions {
         extensions: vec![".ts".into(), ".tsx".into()],
+        tsconfig: Some(TsconfigOptions {
+            config_file: PathBuf::from("tsconfig.json"),
+            references: TsconfigReferences::Auto,
+        }),
         ..ResolveOptions::default()
     };
 
@@ -93,7 +97,7 @@ pub fn load_mock<'a>(mock_loader: &mut MockLoader, program: &Program, path: &Pat
         resolve_mock_target_ast(mock_ast_loader, &program, path);
     }
 
-    println!("--------INIT---------");
-    mock_loader.debug();
-    println!("-----------------");
+    // println!("--------INIT---------");
+    // mock_loader.debug();
+    // println!("-----------------");
 }
