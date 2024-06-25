@@ -42,7 +42,8 @@ impl<'a> Visit<'a> for MockLoader {
 
     fn visit_call_expression(&mut self, expr: &CallExpression<'a>) {
         if let Expression::Identifier(ident) = &expr.callee {
-            let pattern = "boostest";
+            let pattern = &self.get_pattern();
+            println!("pattern: {:?}", pattern);
 
             if ident.name.contains(pattern) {
                 let target_mock_name = ident.name.clone().into_string();

@@ -4,12 +4,21 @@ use crate::boostest_mock_loader::mock_ast_loader::MockAstLoader;
 
 pub struct MockLoader {
     pub mocks: HashMap<String, MockAstLoader>,
+    pub pattern: Option<String>,
 }
 
 impl MockLoader {
-    pub fn new() -> Self {
+    pub fn new(pattern: Option<String>) -> Self {
         Self {
             mocks: HashMap::new(),
+            pattern,
+        }
+    }
+
+    pub fn get_pattern(&self) -> String {
+        match &self.pattern {
+            Some(pattern) => pattern.clone(),
+            None => String::from("boostest"),
         }
     }
 

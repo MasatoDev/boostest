@@ -6,8 +6,8 @@ import type Job from './types/job';
 import { Windows } from './types/windows';
 import { Customer } from './types/customer';
 
-const userInterfaceMock = boostestUser<User>();
-const JobTypeMock = boostestJOB<Job>();
+const userInterfaceMock = boostestFuncUser<User>();
+const JobTypeMock = boostestFuncJOB<Job>();
 const deepFileMock = boostestOS<Windows>();
 const customerClassMock = boostestCustomer<typeof Customer>(Customer);
 

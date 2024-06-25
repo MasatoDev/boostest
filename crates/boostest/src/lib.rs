@@ -16,15 +16,6 @@ use std::io::{self, BufReader};
 use std::ops::Deref;
 use std::path::{Path, PathBuf};
 
-fn read(path: &Path) -> io::Result<String> {
-    let mut f = File::open(path)?;
-    let mut s = String::new();
-    match f.read_to_string(&mut s) {
-        Ok(_) => Ok(s),
-        Err(e) => Err(e),
-    }
-}
-
 fn read_matching_files(patterns: Vec<String>) -> anyhow::Result<HashMap<PathBuf, String>> {
     let mut contents: HashMap<PathBuf, String> = HashMap::new();
 
@@ -160,7 +151,8 @@ pub fn call_boostest(path: &Path) {
         // tokio::spawn(async move {
         let path = path_buf.as_path();
 
-        let mut mock_loader = MockLoader::new();
+        let mut mock_loader = MockLoader::new(setting.name.clone());
+
         let allocator = oxc::allocator::Allocator::default();
         let parser = Parser::new(&allocator, &file, source_type);
         let program = parser.parse().program;

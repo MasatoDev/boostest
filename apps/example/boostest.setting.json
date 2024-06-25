@@ -1,5 +1,5 @@
 {
   "target_pattern": ["src/*.ts", "src/types/*.ts"],
-  "name": "boostestAnotherName",
+  "name": "boostestFunc",
   "tsconfig": "./tsconfig.json"
 }
