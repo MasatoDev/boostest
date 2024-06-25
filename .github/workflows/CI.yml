@@ -19,9 +19,6 @@ permissions:
       - .editorconfig
       - docs/**
   pull_request: null
-defaults:
-  run:
-    working-directory: packages/boostest
 jobs:
   build:
     strategy:
@@ -30,14 +27,14 @@ jobs:
         settings:
           - host: macos-latest
             target: x86_64-apple-darwin
-            build: pnpm build --target x86_64-apple-darwin
+            build: pnpm --filter boostest build --target x86_64-apple-darwin
           - host: windows-latest
-            build: pnpm build --target x86_64-pc-windows-msvc
+            build: pnpm --filter boostest build --target x86_64-pc-windows-msvc
             target: x86_64-pc-windows-msvc
           - host: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian
-            build: pnpm --target x86_64-unknown-linux-gnu
+            build: pnpm --filter boostest --target x86_64-unknown-linux-gnu
     name: stable - ${{ matrix.settings.target }} - node@20
     runs-on: ${{ matrix.settings.host }}
     steps:
@@ -58,12 +55,12 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            ~/.napi-rs
-            .cargo-cache
-            target/
+            packages/boostest/.cargo/registry/index/
+            packages/boostest/.cargo/registry/cache/
+            packages/boostest/.cargo/git/db/
+            packages/boostest/.napi-rs
+            packages/boostest/.cargo-cache
+            packages/boostest/target/
           key: ${{ matrix.settings.target }}-cargo-${{ matrix.settings.host }}
       - uses: goto-bus-stop/setup-zig@v2
         if: ${{ contains(matrix.settings.target, 'musl') }}
@@ -89,7 +86,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: bindings-${{ matrix.settings.target }}
-          path: ${{ env.APP_NAME }}.*.node
+          path: packages/boostest/${{ env.APP_NAME }}.*.node
           if-no-files-found: error
   publish:
     name: Publish
@@ -112,11 +109,11 @@ jobs:
         with:
           path: artifacts
       - name: create npm dirs
-        run: pnpm napi create-npm-dirs
+        run: pnpm --filter boostest napi create-npm-dirs
       - name: Move artifacts
-        run: pnpm artifacts
+        run: pnpm --filter boostest artifacts
       - name: List packages
-        run: ls -R ./npm
+        run: ls -R packages/boostest/npm
         shell: bash
       - name: Publish
         run: |
