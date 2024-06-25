@@ -31,8 +31,6 @@ fn resolve_specifier(
         None => None,
     };
 
-    println!("tsconfig: {:?}", tsconfig);
-
     let options = ResolveOptions {
         extensions: vec![".ts".into(), ".tsx".into()],
         tsconfig: tsconfig,
@@ -41,8 +39,7 @@ fn resolve_specifier(
 
     match Resolver::new(options).resolve(path, &specifier) {
         Err(error) => {
-            println!("Error: {error}");
-            return Err(anyhow!("ファイル読み込みでエラー"));
+            return Err(anyhow!("ファイル読み込みでエラー: {:?}", error));
         }
         Ok(resolution) => {
             return Ok(resolution);

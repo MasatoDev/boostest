@@ -2,19 +2,26 @@ pub mod boostest_mock_builder;
 pub mod boostest_mock_loader;
 mod boostest_utils;
 
-use boostest_mock_loader::mock_loader::{self, MockLoader};
+use boostest_mock_loader::mock_loader::MockLoader;
 
 use oxc::{parser::Parser, span::SourceType};
 
 use anyhow::{anyhow, Result};
 use glob::glob;
-use std::any;
 use std::collections::HashMap;
 use std::fs::{self, File};
-use std::io::prelude::*;
-use std::io::{self, BufReader};
-use std::ops::Deref;
+use std::io::BufReader;
+use std::io::{self, prelude::*};
 use std::path::{Path, PathBuf};
+
+fn read(path: &Path) -> io::Result<String> {
+    let mut f = File::open(path)?;
+    let mut s = String::new();
+    match f.read_to_string(&mut s) {
+        Ok(_) => Ok(s),
+        Err(e) => Err(e),
+    }
+}
 
 fn read_matching_files(patterns: Vec<String>) -> anyhow::Result<HashMap<PathBuf, String>> {
     let mut contents: HashMap<PathBuf, String> = HashMap::new();
@@ -107,7 +114,6 @@ fn get_setting() -> anyhow::Result<Setting> {
 
 fn handle_main_task(mock_loader: &mut MockLoader, path: &Path) -> Result<()> {
     if mock_loader.is_empty() {
-        println!("target is not found:{:?}", path);
         return Ok(());
     }
 
@@ -135,7 +141,6 @@ fn handle_main_task(mock_loader: &mut MockLoader, path: &Path) -> Result<()> {
     Ok(())
 }
 
-// #[tokio::main]
 pub fn call_boostest(path: &Path) {
     let setting = get_setting().expect("error get_setting");
     let target = setting.target.expect("error target");
@@ -145,20 +150,28 @@ pub fn call_boostest(path: &Path) {
         .with_always_strict(true)
         .with_module(true)
         .with_typescript(true);
-    // .with_jsx(true)
 
-    for (path_buf, file) in contents {
-        // tokio::spawn(async move {
-        let path = path_buf.as_path();
-
+    if let Ok(file) = read(&path) {
         let mut mock_loader = MockLoader::new(setting.name.clone());
-
         let allocator = oxc::allocator::Allocator::default();
         let parser = Parser::new(&allocator, &file, source_type);
         let program = parser.parse().program;
 
         boostest_utils::load_mock(&mut mock_loader, &program, path, &setting.tsconfig);
-        handle_main_task(&mut mock_loader, path);
-        // });
+        handle_main_task(&mut mock_loader, path).expect("error main task");
+
+        return;
+    }
+
+    for (path_buf, file) in contents {
+        let path = path_buf.as_path();
+
+        let mut mock_loader = MockLoader::new(setting.name.clone());
+        let allocator = oxc::allocator::Allocator::default();
+        let parser = Parser::new(&allocator, &file, source_type);
+        let program = parser.parse().program;
+
+        boostest_utils::load_mock(&mut mock_loader, &program, path, &setting.tsconfig);
+        handle_main_task(&mut mock_loader, path).expect("error main task");
     }
 }

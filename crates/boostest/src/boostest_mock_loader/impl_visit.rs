@@ -43,7 +43,6 @@ impl<'a> Visit<'a> for MockLoader {
     fn visit_call_expression(&mut self, expr: &CallExpression<'a>) {
         if let Expression::Identifier(ident) = &expr.callee {
             let pattern = &self.get_pattern();
-            println!("pattern: {:?}", pattern);
 
             if ident.name.contains(pattern) {
                 let target_mock_name = ident.name.clone().into_string();
@@ -71,9 +70,13 @@ impl<'a> Visit<'a> for MockAstLoader {
             self.visit_ts_type_parameter_instantiation(result);
         }
 
-        for argument in arguments.iter() {
-            self.visit_argument(argument);
+        // NOTE: handle first argument only
+        if let Some(first_arg) = arguments.get(0) {
+            self.visit_argument(first_arg);
         }
+        // for argument in arguments.iter() {
+        //     self.visit_argument(argument);
+        // }
     }
 
     fn visit_ts_type_parameter_instantiation(&mut self, ty: &TSTypeParameterInstantiation<'a>) {
@@ -92,7 +95,7 @@ impl<'a> Visit<'a> for MockAstLoader {
                 self.set_target_name(identifier.name.clone().into_string());
             }
             _ => {
-                println!("other arg: {:?}", arg);
+                println!("This isn't mock target: {:?}", arg);
             }
         }
     }

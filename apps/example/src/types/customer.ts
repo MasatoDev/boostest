@@ -1,4 +1,4 @@
-type Rank = {
+export type Rank = {
   name: string;
   benefits: string;
 };
