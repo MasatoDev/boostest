@@ -13,6 +13,10 @@ impl MockLoader {
         }
     }
 
+    pub fn is_empty(&mut self) -> bool {
+        self.mocks.is_empty()
+    }
+
     pub fn get_mock(&mut self, name: &String) -> Option<&mut MockAstLoader> {
         self.mocks.get_mut(name)
     }

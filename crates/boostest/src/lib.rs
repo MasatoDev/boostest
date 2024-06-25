@@ -2,12 +2,13 @@ pub mod boostest_mock_builder;
 pub mod boostest_mock_loader;
 mod boostest_utils;
 
-use boostest_mock_loader::mock_loader::MockLoader;
+use boostest_mock_loader::mock_loader::{self, MockLoader};
 
 use oxc::{parser::Parser, span::SourceType};
 
 use anyhow::{anyhow, Result};
 use glob::glob;
+use std::any;
 use std::collections::HashMap;
 use std::fs::{self, File};
 use std::io::prelude::*;
@@ -66,11 +67,8 @@ struct Setting {
 
 fn get_setting() -> anyhow::Result<Setting> {
     let cur_dir = std::env::current_dir()?;
-    println!("cur_dir {:?}", cur_dir);
 
     let config_path = find_boostest_json_recursive(cur_dir)?;
-
-    println!("config_path {:?}", config_path);
 
     let file = File::open(config_path)?;
     let reader = BufReader::new(file);
@@ -85,8 +83,6 @@ fn get_setting() -> anyhow::Result<Setting> {
     };
 
     for (key, value) in obj.iter() {
-        println!("key: {}, value: {}", key, value.to_string());
-
         match key.as_str() {
             "target_pattern" => {
                 if let serde_json::Value::Array(vals) = value {
@@ -118,49 +114,59 @@ fn get_setting() -> anyhow::Result<Setting> {
     Ok(setting)
 }
 
+fn handle_main_task(mock_loader: &mut MockLoader, path: &Path) -> Result<()> {
+    if mock_loader.is_empty() {
+        println!("target is not found:{:?}", path);
+        return Ok(());
+    }
+
+    let canonical_path = path.canonicalize()?;
+    let parent_path = canonical_path.parent().expect("get parent path");
+
+    let path = parent_path.join("boostest.ts"); // srcディレクトリ内のgreeting.ts
+    let file = File::create(path)?;
+    let mut f = file;
+
+    for mock_ast_loader in mock_loader.mocks.values() {
+        if let Some(code) = &mock_ast_loader.code {
+            f.write_all(code.as_bytes())?;
+            f.write_all(b"\n")?;
+        }
+
+        for prop in mock_ast_loader.ref_properties.iter() {
+            if let Some(code) = &prop.code {
+                f.write_all(code.as_bytes())?;
+                f.write_all(b"\n")?;
+            }
+        }
+    }
+
+    Ok(())
+}
+
+// #[tokio::main]
 pub fn call_boostest(path: &Path) {
     let setting = get_setting().expect("error get_setting");
     let target = setting.target.expect("error target");
-    println!("target {:?}", target);
     let contents = read_matching_files(target).expect("error read_matching_files");
 
-    println!("contents {:?}", contents);
+    let source_type = SourceType::default()
+        .with_always_strict(true)
+        .with_module(true)
+        .with_typescript(true);
+    // .with_jsx(true)
 
-    let mut mock_loader = MockLoader::new();
+    for (path_buf, file) in contents {
+        // tokio::spawn(async move {
+        let path = path_buf.as_path();
 
-    if let Ok(file) = read(path) {
-        let source_type = SourceType::default()
-            .with_always_strict(true)
-            .with_module(true)
-            .with_typescript(true);
-        // .with_jsx(true)
-
+        let mut mock_loader = MockLoader::new();
         let allocator = oxc::allocator::Allocator::default();
         let parser = Parser::new(&allocator, &file, source_type);
         let program = parser.parse().program;
 
         boostest_utils::load_mock(&mut mock_loader, &program, path);
-
-        if let Ok(canonical_path) = path.canonicalize() {
-            if let Some(parent_path) = canonical_path.parent() {
-                let path = parent_path.join("boostest.ts"); // srcディレクトリ内のgreeting.ts
-                if let Ok(file) = File::create(path) {
-                    let mut f = file;
-                    for mock_ast_loader in mock_loader.mocks.values() {
-                        if let Some(code) = &mock_ast_loader.code {
-                            f.write_all(code.as_bytes()).unwrap();
-                            f.write_all(b"\n").unwrap();
-                        }
-
-                        for prop in mock_ast_loader.ref_properties.iter() {
-                            if let Some(code) = &prop.code {
-                                f.write_all(code.as_bytes()).unwrap();
-                                f.write_all(b"\n").unwrap();
-                            }
-                        }
-                    }
-                }
-            }
-        }
+        handle_main_task(&mut mock_loader, path);
+        // });
     }
 }
