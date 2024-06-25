@@ -26,3 +26,9 @@ pre_release_boostest:
   # npm version minor
   # npm version preminor
   # npm version prerelease
+
+
+build_release:
+  pnpm --filter boostest build --target x86_64-apple-darwin
+  pnpm --filter boostest build --target x86_64-pc-windows-msvc
+  pnpm --filter boostest build --target x86_64-unknown-linux-gnu
