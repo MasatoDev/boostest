@@ -1,5 +1,5 @@
 export function boostestCustomer2<T extends abstract new (...args: any) => any>(Customer): T {
-	return new Customer(42, 'string_val', rank_boostestCustomer2());
+	return new Customer(rank_boostestCustomer2(), 42, 'string_val');
 }
 
 export function rank_boostestCustomer2<T>(args?: Partial<T>): T {
@@ -10,10 +10,14 @@ export function rank_boostestCustomer2<T>(args?: Partial<T>): T {
 	} as T);
 }
 
-export function boostestJOB<T>(args?: Partial<T>): T {
+export function boostestCustomer<T extends abstract new (...args: any) => any>(Customer): T {
+	return new Customer(42, 'string_val', rank_boostestCustomer());
+}
+
+export function rank_boostestCustomer<T>(args?: Partial<T>): T {
 	return ({
 		'name':'string_val',
-		'salary':42,
+		'benefits':'string_val',
 		...args
 	} as T);
 }
@@ -27,17 +31,14 @@ export function boostestOS<T>(args?: Partial<T>): T {
 	} as T);
 }
 
-export function license_boostestOS<T>(args?: Partial<T>): T {
-	return ({
-		'name':'string_val',
-		...args
-	} as T);
+export function boostestCafe<T extends abstract new (...args: any) => any>(Cafe): T {
+	return new Cafe('string_val');
 }
 
-export function boostestRank<T>(args?: Partial<T>): T {
+export function boostestJOB<T>(args?: Partial<T>): T {
 	return ({
 		'name':'string_val',
-		'benefits':'string_val',
+		'salary':42,
 		...args
 	} as T);
 }
@@ -68,19 +69,11 @@ export function details_boostestUser<T>(args?: Partial<T>): T {
 	} as T);
 }
 
-export function boostestCustomer<T extends abstract new (...args: any) => any>(Customer): T {
-	return new Customer('string_val', rank_boostestCustomer(), 42);
-}
-
-export function rank_boostestCustomer<T>(args?: Partial<T>): T {
+export function boostestRank<T>(args?: Partial<T>): T {
 	return ({
 		'name':'string_val',
 		'benefits':'string_val',
 		...args
 	} as T);
-}
-
-export function boostestCafe<T extends abstract new (...args: any) => any>(Cafe): T {
-	return new Cafe('string_val');
 }
 

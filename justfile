@@ -10,8 +10,7 @@ setup:
 
 debug:
   pnpm --filter boostest build:debug
-  pnpm 
-  pnpm --filter example dev
+  pnpm --filter example start:boostest
 
 build:
   pnpm --filter boostest build

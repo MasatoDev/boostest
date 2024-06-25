@@ -52,7 +52,17 @@ pub fn resolve_mock_target_ast(
     program: &Program,
     path: &Path,
     ts_config_path: &Option<PathBuf>,
+    depth: u8,
 ) {
+    // prevent infinite loop
+    if depth > 50 {
+        println!(
+            "module resolution depth is too deep: {}",
+            mock_ast_loader.mock_func_name
+        );
+        return;
+    }
+
     if mock_ast_loader.resolved {
         return;
     };
@@ -66,7 +76,7 @@ pub fn resolve_mock_target_ast(
      */
     for prop in mock_ast_loader.get_needs_start_analysis_properties() {
         prop.analysis_start();
-        resolve_mock_target_ast(prop, program, path, ts_config_path);
+        resolve_mock_target_ast(prop, program, path, ts_config_path, depth + 1);
     }
 
     if !mock_ast_loader.resolved {
@@ -94,6 +104,7 @@ pub fn resolve_mock_target_ast(
                                 &program,
                                 new_path.as_path(),
                                 ts_config_path,
+                                depth + 1,
                             );
                         }
                     }
@@ -114,7 +125,7 @@ pub fn load_mock<'a>(
     mock_loader.visit_statements(&program.body);
 
     for (_, mock_ast_loader) in mock_loader.mocks.iter_mut() {
-        resolve_mock_target_ast(mock_ast_loader, &program, path, ts_config_path);
+        resolve_mock_target_ast(mock_ast_loader, &program, path, ts_config_path, 1);
     }
 
     // println!("--------INIT---------");
