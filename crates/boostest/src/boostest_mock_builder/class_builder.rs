@@ -327,7 +327,6 @@ impl<'a> VisitMut<'a> for ClassBuilder<'a> {
                 let args = self.get_new_expression_argument();
                 let new_expression = self.ast_builder.new_expression(SPAN, callee, args, None);
 
-                // TODO: replaceでいいのか？
                 let _ = std::mem::replace(expr, new_expression);
             }
 

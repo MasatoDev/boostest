@@ -15,8 +15,3 @@ console.log('userInterfaceMock', userInterfaceTestData);
 console.log('------------------------');
 console.log('JobTypeMock', JobTypeTestData);
 console.log('------------------------');
-
-/**
- * TODO:
- * - export defaultへの対応
- */

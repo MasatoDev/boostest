@@ -237,7 +237,6 @@ impl<'a> VisitMut<'a> for TSInterfaceBuilder<'a> {
             }
             Expression::TSAsExpression(ts_as_expr) => {
                 match &mut ts_as_expr.expression {
-                    // TODO: as T が反映されないためカバーする
                     Expression::ObjectExpression(obj_expr) => {
                         let mock_properties = self.get_object_property_kind();
 

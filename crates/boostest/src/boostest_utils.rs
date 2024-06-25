@@ -111,8 +111,6 @@ pub fn resolve_mock_target_ast(
                 }
             }
         }
-
-        //TODO: importを利用して次のASTをresolveしてloopさせる
     }
 }
 

@@ -1,4 +1,3 @@
-// TODO: auto add import statement
 import { boostestUser, boostestJOB, boostestOS, boostestCustomer, boostestCafe, boostestRank, boostestCustomer2 } from './boostest';
 
 import { User } from './types/user';
@@ -36,8 +35,3 @@ console.log('------------------------');
 console.log('customerClassMock2', customerClassTestData2);
 console.log('------------------------');
 console.log('cafeClassMock', cafeTestData);
-
-/**
- * TODO:
- * - export defaultへの対応
- */
