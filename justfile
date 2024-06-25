@@ -20,3 +20,9 @@ try:
   pnpm --filter example update boostest
   pnpm --filter example start:boostest
 
+
+pre_release_boostest:
+  npm version patch
+  # npm version minor
+  # npm version preminor
+  # npm version prerelease
