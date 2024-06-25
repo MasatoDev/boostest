@@ -1,3 +1,3 @@
-# `omoshiroku-darwin-x64`
+# `boostest-darwin-x64`
 
-This is the **x86_64-apple-darwin** binary for `omoshiroku`
+This is the **x86_64-apple-darwin** binary for `boostest`

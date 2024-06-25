@@ -1,3 +1,3 @@
-# `omoshiroku-linux-x64-gnu`
+# `boostest-linux-x64-gnu`
 
-This is the **x86_64-unknown-linux-gnu** binary for `omoshiroku`
+This is the **x86_64-unknown-linux-gnu** binary for `boostest`

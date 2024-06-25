@@ -1,0 +1,23 @@
+{
+  "include": ["bin/**/*"],
+  "exclude": ["bin/*.js", "bin/*.mjs", "bin/*.cjs", "node_modules"],
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "baseUrl": "./",
+    "paths": {
+      "@bin/*": ["bin/*"]
+    },
+    "outDir": "dist",
+    "types": ["node"],
+    "allowJs": true,
+    "checkJs": true,
+    // "noEmit": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true
+  }
+}

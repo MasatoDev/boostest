@@ -7,7 +7,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "demo": "node --no-warnings --loader ts-node/esm ./src/example.ts",
-    "dev": "node index.js"
+    "start:boostest": "boostest"
   },
   "keywords": [],
   "author": "",

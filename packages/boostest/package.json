@@ -1,10 +1,10 @@
 {
   "name": "boostest",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "main": "index.js",
   "types": "index.d.ts",
   "bin": {
-    "omoshiroku": "index.js"
+    "boostest": "./dist/cli.js"
   },
   "napi": {
     "name": "boostest",
@@ -28,6 +28,20 @@
     "prepublishOnly": "napi prepublish -t npm",
     "test": "ava",
     "universal": "napi universal",
-    "version": "napi version"
+    "version": "napi version",
+    "type-check": "tsc --noEmit",
+    "bin:build": "tsc"
+  },
+  "dependencies": {
+    "@types/node": "^20.14.8",
+    "@types/yargs": "^17.0.32",
+    "build": "^0.1.4",
+    "typescript": "^5.4.5",
+    "yargs": "^17.7.2"
+  },
+  "optionalDependencies": {
+    "boostest-darwin-x64": "0.0.0",
+    "boostest-linux-x64-gnu": "0.0.0",
+    "boostest-win32-x64-msvc": "0.0.0"
   }
 }

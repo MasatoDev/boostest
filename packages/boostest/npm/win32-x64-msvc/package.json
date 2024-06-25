@@ -1,15 +1,15 @@
 {
-  "name": "omoshiroku-win32-x64-msvc",
-  "version": "0.0.0",
+  "name": "boostest-win32-x64-msvc",
+  "version": "0.0.1",
   "os": [
     "win32"
   ],
   "cpu": [
     "x64"
   ],
-  "main": "omoshiroku.win32-x64-msvc.node",
+  "main": "boostest.win32-x64-msvc.node",
   "files": [
-    "omoshiroku.win32-x64-msvc.node"
+    "boostest.win32-x64-msvc.node"
   ],
   "license": "MIT",
   "engines": {

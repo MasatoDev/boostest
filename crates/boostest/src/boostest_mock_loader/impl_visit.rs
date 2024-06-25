@@ -95,7 +95,7 @@ impl<'a> Visit<'a> for MockAstLoader {
                 self.set_target_name(identifier.name.clone().into_string());
             }
             _ => {
-                println!("This isn't mock target: {:?}", arg);
+                // println!("This isn't mock target: {:?}", arg);
             }
         }
     }
