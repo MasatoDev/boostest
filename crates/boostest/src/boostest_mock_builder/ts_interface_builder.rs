@@ -118,7 +118,9 @@ impl<'a> TSInterfaceBuilder<'a> {
                             self.ast_builder.literal_number_expression(num_literal)
                         }
                         TSType::TSTypeReference(_) => {
-                            let new_id = self.ast_builder.identifier_reference(SPAN, key.as_str());
+                            let new_name =
+                                format!("{}_{}", key.as_str(), &self.mock_data.mock_func_name);
+                            let new_id = self.ast_builder.identifier_reference(SPAN, &new_name);
                             let new_callee =
                                 self.ast_builder.identifier_reference_expression(new_id);
                             let arg = self.ast_builder.new_vec();
@@ -177,11 +179,13 @@ impl<'a> VisitMut<'a> for TSInterfaceBuilder<'a> {
                 if let Some(id) = &mut func.id {
                     if id.name.to_string() == "boostestTSTypeAliasTemplate" {
                         let new_name = match &self.mock_data.key_name {
-                            Some(key_name) => key_name,
-                            None => &self.mock_data.mock_func_name,
+                            Some(key_name) => {
+                                format!("{}_{}", key_name, self.mock_data.mock_func_name)
+                            }
+                            None => self.mock_data.mock_func_name.clone(),
                         };
 
-                        let name = self.ast_builder.new_atom(new_name);
+                        let name = self.ast_builder.new_atom(&new_name);
                         let new_binding = BindingIdentifier::new(SPAN, name);
 
                         let _ = std::mem::replace(id, new_binding);

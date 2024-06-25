@@ -165,7 +165,7 @@ pub fn call_boostest(path: &Path) {
         let parser = Parser::new(&allocator, &file, source_type);
         let program = parser.parse().program;
 
-        boostest_utils::load_mock(&mut mock_loader, &program, path);
+        boostest_utils::load_mock(&mut mock_loader, &program, path, &setting.tsconfig);
         handle_main_task(&mut mock_loader, path);
         // });
     }
