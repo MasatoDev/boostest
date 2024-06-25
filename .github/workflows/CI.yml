@@ -1,137 +1,134 @@
-name: CI
-env:
-  DEBUG: napi:*
-  APP_NAME: boostest
-  MACOSX_DEPLOYMENT_TARGET: '10.13'
-permissions:
-  contents: write
-  id-token: write
-'on':
-  push:
-    branches:
-      - main
-    tags-ignore:
-      - '**'
-    paths-ignore:
-      - '**/*.md'
-      - LICENSE
-      - '**/*.gitignore'
-      - .editorconfig
-      - docs/**
-  pull_request: null
-defaults:
-  run:
-    working-directory: packages/boostest
-jobs:
-  build:
-    strategy:
-      fail-fast: false
-      matrix:
-        settings:
-          - host: macos-latest
-            target: x86_64-apple-darwin
-            build: pnpm build --target x86_64-apple-darwin
-          - host: windows-latest
-            build: pnpm build --target x86_64-pc-windows-msvc
-            target: x86_64-pc-windows-msvc
-          - host: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
-            docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian
-            build: pnpm --target x86_64-unknown-linux-gnu
-    name: stable - ${{ matrix.settings.target }} - node@20
-    runs-on: ${{ matrix.settings.host }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: setup pnpm
-        uses: pnpm/action-setup@v2
-      - name: Setup node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
-      - name: Install
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          toolchain: stable
-          targets: ${{ matrix.settings.target }}
-      - name: Cache cargo
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            ~/.napi-rs
-            .cargo-cache
-            target/
-          key: ${{ matrix.settings.target }}-cargo-${{ matrix.settings.host }}
-      - uses: goto-bus-stop/setup-zig@v2
-        if: ${{ contains(matrix.settings.target, 'musl') }}
-        with:
-          version: 0.12.0
-      - name: Setup toolchain
-        run: ${{ matrix.settings.setup }}
-        if: ${{ matrix.settings.setup }}
-        shell: bash
-      - name: Install dependencies
-        run: pnpm install
-      - name: Setup node x86
-        uses: actions/setup-node@v4
-        if: matrix.settings.target == 'i686-pc-windows-msvc'
-        with:
-          node-version: 20
-          cache: pnpm
-          architecture: x86
-      - name: Build
-        run: ${{ matrix.settings.build }}
-        shell: bash
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: bindings-${{ matrix.settings.target }}
-          path: ${{ env.APP_NAME }}.*.node
-          if-no-files-found: error
-  publish:
-    name: Publish
-    runs-on: ubuntu-latest
-    needs:
-      - build
-    steps:
-      - uses: actions/checkout@v4
-      - name: setup pnpm
-        uses: pnpm/action-setup@v2
-      - name: Setup node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: pnpm
-      - name: Install dependencies
-        run: pnpm install
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts
-      - name: create npm dirs
-        run: pnpm napi create-npm-dirs
-      - name: Move artifacts
-        run: pnpm artifacts
-      - name: List packages
-        run: ls -R ./npm
-        shell: bash
-      - name: Publish
-        run: |
-          npm config set provenance true
-          if git log -1 --pretty=%B | grep "^[0-9]\+\.[0-9]\+\.[0-9]\+$";
-          then
-            echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
-            npm publish --access public
-          elif git log -1 --pretty=%B | grep "^[0-9]\+\.[0-9]\+\.[0-9]\+";
-          then
-            echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
-            npm publish --tag next --access public
-          else
-            echo "Not a release, skipping publish"
-          fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+# name: CI
+# env:
+#   DEBUG: napi:*
+#   APP_NAME: boostest
+#   MACOSX_DEPLOYMENT_TARGET: '10.13'
+# permissions:
+#   contents: write
+#   id-token: write
+# 'on':
+#   push:
+#     branches:
+#       - main
+#     tags-ignore:
+#       - '**'
+#     paths-ignore:
+#       - '**/*.md'
+#       - LICENSE
+#       - '**/*.gitignore'
+#       - .editorconfig
+#       - docs/**
+#   pull_request: null
+# jobs:
+#   build:
+#     strategy:
+#       fail-fast: false
+#       matrix:
+#         settings:
+#           - host: macos-latest
+#             target: x86_64-apple-darwin
+#             build: pnpm --filter boostest build --target x86_64-apple-darwin
+#           - host: windows-latest
+#             build: pnpm --filter boostest build --target x86_64-pc-windows-msvc
+#             target: x86_64-pc-windows-msvc
+#           - host: ubuntu-latest
+#             target: x86_64-unknown-linux-gnu
+#             docker: ghcr.io/napi-rs/napi-rs/nodejs-rust:lts-debian
+#             build: pnpm --filter boostest --target x86_64-unknown-linux-gnu
+#     name: stable - ${{ matrix.settings.target }} - node@20
+#     runs-on: ${{ matrix.settings.host }}
+#     steps:
+#       - uses: actions/checkout@v4
+#       - name: setup pnpm
+#         uses: pnpm/action-setup@v2
+#       - name: Setup node
+#         uses: actions/setup-node@v4
+#         with:
+#           node-version: 20
+#           cache: pnpm
+#       - name: Install
+#         uses: dtolnay/rust-toolchain@stable
+#         with:
+#           toolchain: stable
+#           targets: ${{ matrix.settings.target }}
+#       - name: Cache cargo
+#         uses: actions/cache@v4
+#         with:
+#           path: |
+#             packages/boostest/.cargo/registry/index/
+#             packages/boostest/.cargo/registry/cache/
+#             packages/boostest/.cargo/git/db/
+#             packages/boostest/.napi-rs
+#             packages/boostest/.cargo-cache
+#             packages/boostest/target/
+#           key: ${{ matrix.settings.target }}-cargo-${{ matrix.settings.host }}
+#       - uses: goto-bus-stop/setup-zig@v2
+#         if: ${{ contains(matrix.settings.target, 'musl') }}
+#         with:
+#           version: 0.12.0
+#       - name: Setup toolchain
+#         run: ${{ matrix.settings.setup }}
+#         if: ${{ matrix.settings.setup }}
+#         shell: bash
+#       - name: Install dependencies
+#         run: pnpm install --no-frozen-lockfile
+#       - name: Setup node x86
+#         uses: actions/setup-node@v4
+#         if: matrix.settings.target == 'i686-pc-windows-msvc'
+#         with:
+#           node-version: 20
+#           cache: pnpm
+#           architecture: x86
+#       - name: Build
+#         run: ${{ matrix.settings.build }}
+#         shell: bash
+#       - name: Upload artifact
+#         uses: actions/upload-artifact@v4
+#         with:
+#           name: bindings-${{ matrix.settings.target }}
+#           path: packages/boostest/${{ env.APP_NAME }}.*.node
+#           if-no-files-found: error
+#   publish:
+#     name: Publish
+#     runs-on: ubuntu-latest
+#     needs:
+#       - build
+#     steps:
+#       - uses: actions/checkout@v4
+#       - name: setup pnpm
+#         uses: pnpm/action-setup@v2
+#       - name: Setup node
+#         uses: actions/setup-node@v4
+#         with:
+#           node-version: 20
+#           cache: pnpm
+#       - name: Install dependencies
+#         run: pnpm install --no-frozen-lockfile
+#       - name: Download all artifacts
+#         uses: actions/download-artifact@v4
+#         with:
+#           path: artifacts
+#       - name: create npm dirs
+#         run: pnpm --filter boostest napi create-npm-dirs
+#       - name: Move artifacts
+#         run: pnpm --filter boostest artifacts
+#       - name: List packages
+#         run: ls -R packages/boostest/npm
+#         shell: bash
+#       - name: Publish
+#         run: |
+#           npm config set provenance true
+#           if git log -1 --pretty=%B | grep "^[0-9]\+\.[0-9]\+\.[0-9]\+$";
+#           then
+#             echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+#             npm publish --access public
+#           elif git log -1 --pretty=%B | grep "^[0-9]\+\.[0-9]\+\.[0-9]\+";
+#           then
+#             echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+#             npm publish --tag next --access public
+#           else
+#             echo "Not a release, skipping publish"
+#           fi
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
