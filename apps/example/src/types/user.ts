@@ -20,4 +20,13 @@ export interface User {
   shor_name: 'john' | 'doe';
   from: From | AbroadFrom;
   details: Details;
+  func: () => void;
+  undefinedKey: undefined;
+  anyKey: any;
+  nullKey: null;
+  optionalKey?: string;
+  unknownKey: unknown;
+  thieKey: ThisType<From>;
+  conditionalKey: User extends From ? string : number;
+  objectKey: object;
 }

@@ -11,7 +11,7 @@ setup:
 debug:
   pnpm --filter boostest build:debug
   pnpm --filter example start:boostest
-  pnpm --filter example demo
+  # pnpm --filter example demo
 
 build:
   pnpm --filter boostest build

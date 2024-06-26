@@ -4,9 +4,9 @@ use oxc::{
     allocator::Allocator,
     ast::{
         ast::{
-            BindingIdentifier, Declaration, Expression, FunctionBody, NullLiteral,
-            ObjectPropertyKind, Program, PropertyKind, Statement, TSAnyKeyword,
-            TSInterfaceDeclaration, TSLiteral, TSSignature, TSType,
+            BindingIdentifier, Declaration, Expression, FormalParameterKind, FunctionBody,
+            FunctionType, NullLiteral, ObjectPropertyKind, Program, PropertyKind, Statement,
+            TSAnyKeyword, TSInterfaceDeclaration, TSLiteral, TSSignature, TSType,
         },
         AstBuilder, VisitMut,
     },
@@ -123,6 +123,54 @@ impl<'a> TSInterfaceBuilder<'a> {
                     .string_literal(SPAN, "default_val(unimplemented)");
                 self.ast_builder.literal_string_expression(new_val)
             }
+            TSType::TSObjectKeyword(_) => {
+                self.ast_builder
+                    .object_expression(SPAN, self.ast_builder.new_vec(), None)
+            }
+
+            TSType::TSFunctionType(ts_func_type) => {
+                println!("TSFunctionType: {:?}", ts_func_type);
+                let params = self.ast_builder.formal_parameters(
+                    SPAN,
+                    FormalParameterKind::ArrowFormalParameters,
+                    self.ast_builder.new_vec(),
+                    None,
+                );
+                let body = self.ast_builder.function_body(
+                    SPAN,
+                    self.ast_builder.new_vec(),
+                    self.ast_builder.new_vec(),
+                );
+
+                self.ast_builder
+                    .arrow_function_expression(SPAN, false, false, params, body, None, None)
+            }
+            TSType::TSUndefinedKeyword(_) => {
+                let undefined_id = self.ast_builder.identifier_reference(SPAN, "undefined");
+                self.ast_builder
+                    .identifier_reference_expression(undefined_id)
+            }
+            TSType::TSUnknownKeyword(_) => {
+                // same any
+                let undefined_id = self.ast_builder.identifier_reference(SPAN, "undefined");
+                self.ast_builder
+                    .identifier_reference_expression(undefined_id)
+            }
+            TSType::TSThisType(_) => {
+                // TODO
+                self.ast_builder
+                    .object_expression(SPAN, self.ast_builder.new_vec(), None)
+            }
+            TSType::TSConditionalType(ts_conditional_type) => {
+                let ts_type = self.ast_builder.copy(&ts_conditional_type.true_type);
+                let new = self.get_expression(ts_type, key_name);
+                return new;
+            }
+            TSType::TSConstructorType(aaa) => {
+                // TODO
+                self.ast_builder
+                    .object_expression(SPAN, self.ast_builder.new_vec(), None)
+            }
 
             TSType::TSLiteralType(literal_type) => {
                 let val = match &literal_type.literal {
@@ -160,13 +208,6 @@ impl<'a> TSInterfaceBuilder<'a> {
                 };
                 val
             }
-            // TSType::TSTypeLiteral(ts_type_literal_type) => {
-            //     println!("TSTypeLiteral: {:?}", literal_type);
-            //     let new_val = self
-            //         .ast_builder
-            //         .string_literal(SPAN, "default_val(unimplemented)");
-            //     self.ast_builder.literal_string_expression(new_val)
-            // }
             _ => {
                 let new_val = self
                     .ast_builder
