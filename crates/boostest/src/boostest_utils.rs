@@ -1,5 +1,5 @@
 use anyhow::{anyhow, Result};
-use oxc::ast::Visit;
+use oxc::ast::VisitMut;
 use oxc::{ast::ast::Program, parser::Parser, span::SourceType};
 use oxc_resolver::{Resolution, ResolveOptions, Resolver, TsconfigOptions, TsconfigReferences};
 use std::fs::File;
@@ -49,7 +49,7 @@ fn resolve_specifier(
 
 pub fn resolve_mock_target_ast(
     mock_ast_loader: &mut MockAstLoader,
-    program: &Program,
+    program: &mut Program,
     path: &Path,
     ts_config_path: &Option<PathBuf>,
     depth: u8,
@@ -68,7 +68,7 @@ pub fn resolve_mock_target_ast(
     };
 
     mock_ast_loader.analysis_start();
-    mock_ast_loader.visit_statements(&program.body);
+    mock_ast_loader.visit_statements(&mut program.body);
 
     /*
      * NOTE:
@@ -96,12 +96,12 @@ pub fn resolve_mock_target_ast(
 
                             let allocator = oxc::allocator::Allocator::default();
                             let parser = Parser::new(&allocator, &file, source_type);
-                            let program = parser.parse().program;
+                            let mut program = parser.parse().program;
                             let new_path = resolution.full_path();
 
                             resolve_mock_target_ast(
                                 mock_ast_loader,
-                                &program,
+                                &mut program,
                                 new_path.as_path(),
                                 ts_config_path,
                                 depth + 1,
@@ -116,14 +116,14 @@ pub fn resolve_mock_target_ast(
 
 pub fn load_mock<'a>(
     mock_loader: &mut MockLoader,
-    program: &Program,
+    program: &mut Program,
     path: &Path,
     ts_config_path: &Option<PathBuf>,
 ) {
-    mock_loader.visit_statements(&program.body);
+    mock_loader.visit_statements(&mut program.body);
 
     for (_, mock_ast_loader) in mock_loader.mocks.iter_mut() {
-        resolve_mock_target_ast(mock_ast_loader, &program, path, ts_config_path, 1);
+        resolve_mock_target_ast(mock_ast_loader, program, path, ts_config_path, 1);
     }
 
     // println!("--------INIT---------");

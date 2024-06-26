@@ -155,9 +155,9 @@ pub fn call_boostest(path: &Path) {
         let mut mock_loader = MockLoader::new(setting.name.clone());
         let allocator = oxc::allocator::Allocator::default();
         let parser = Parser::new(&allocator, &file, source_type);
-        let program = parser.parse().program;
+        let mut program = parser.parse().program;
 
-        boostest_utils::load_mock(&mut mock_loader, &program, path, &setting.tsconfig);
+        boostest_utils::load_mock(&mut mock_loader, &mut program, path, &setting.tsconfig);
         handle_main_task(&mut mock_loader, path).expect("error main task");
 
         return;
@@ -169,9 +169,9 @@ pub fn call_boostest(path: &Path) {
         let mut mock_loader = MockLoader::new(setting.name.clone());
         let allocator = oxc::allocator::Allocator::default();
         let parser = Parser::new(&allocator, &file, source_type);
-        let program = parser.parse().program;
+        let mut program = parser.parse().program;
 
-        boostest_utils::load_mock(&mut mock_loader, &program, path, &setting.tsconfig);
+        boostest_utils::load_mock(&mut mock_loader, &mut program, path, &setting.tsconfig);
         handle_main_task(&mut mock_loader, path).expect("error main task");
     }
 }

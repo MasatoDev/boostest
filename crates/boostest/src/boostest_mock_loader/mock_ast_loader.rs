@@ -89,7 +89,7 @@ impl MockAstLoader {
         self.resolved = true;
     }
 
-    pub fn add_class(&mut self, class: &Class) {
+    pub fn add_class(&mut self, class: &mut Class) {
         self.resolve();
 
         let mut mock_builder = MockBuilder::new();
@@ -102,10 +102,11 @@ impl MockAstLoader {
         self.code = Some(code);
     }
 
-    pub fn add_ts_interface(&mut self, ts_interface: &TSInterfaceDeclaration) {
+    pub fn add_ts_interface(&mut self, ts_interface: &mut TSInterfaceDeclaration) {
         self.resolve();
 
         let mut mock_builder = MockBuilder::new();
+
         let code = mock_builder.generate_ts_interface_code(
             self.mock_func_name.clone(),
             self.prop_key_name.clone(),
@@ -114,7 +115,7 @@ impl MockAstLoader {
         self.code = Some(code);
     }
 
-    pub fn add_ts_alias(&mut self, ts_type_alias: &TSTypeAliasDeclaration) {
+    pub fn add_ts_alias(&mut self, ts_type_alias: &mut TSTypeAliasDeclaration) {
         self.resolve();
 
         let mut mock_builder = MockBuilder::new();

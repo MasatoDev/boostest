@@ -6,10 +6,7 @@ import { Windows } from './types/windows';
 import { Customer, Rank } from './types/customer';
 import Cafe from './types/caffe';
 
-const userInterfaceTestData = boostestUser<User>({
-  name: 'override_name',
-  age: 42,
-});
+const userInterfaceTestData = boostestUser<User>();
 const JobTypeTestData = boostestJOB<Job>({
   name: 'override_name',
   salary: 100,

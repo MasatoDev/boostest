@@ -28,37 +28,38 @@ impl MockBuilder {
         &mut self,
         mock_func_name: String,
         key_name: Option<String>,
-        class: &Class,
+        class: &mut Class,
     ) -> String {
         let allocator = Allocator::default();
-        let mut class_builder = ClassBuilder::new(&allocator, mock_func_name, key_name);
+        let mut class_builder = ClassBuilder::new(&allocator, class, mock_func_name, key_name);
 
-        class_builder.generate_code(&allocator, self.source_type, class)
+        class_builder.generate_code(self.source_type)
     }
 
     pub fn generate_ts_type_alias_code(
         &mut self,
         mock_func_name: String,
         key_name: Option<String>,
-        ts_type_alias: &TSTypeAliasDeclaration,
+        ts_type_alias: &mut TSTypeAliasDeclaration,
     ) -> String {
         let allocator = Allocator::default();
-        let mut ts_type_alias_builder =
-            TSTypeAliasBuilder::new(&allocator, mock_func_name, key_name);
 
-        ts_type_alias_builder.generate_code(&allocator, self.source_type, ts_type_alias)
+        let mut ts_type_alias_builder =
+            TSTypeAliasBuilder::new(&allocator, ts_type_alias, mock_func_name, key_name);
+
+        ts_type_alias_builder.generate_code(self.source_type)
     }
 
     pub fn generate_ts_interface_code(
         &mut self,
         mock_func_name: String,
         key_name: Option<String>,
-        ts_interface: &TSInterfaceDeclaration,
+        ts_interface: &mut TSInterfaceDeclaration,
     ) -> String {
         let allocator = Allocator::default();
         let mut ts_interface_builder =
-            TSInterfaceBuilder::new(&allocator, mock_func_name, key_name);
+            TSInterfaceBuilder::new(&allocator, ts_interface, mock_func_name, key_name);
 
-        ts_interface_builder.generate_code(&allocator, self.source_type, ts_interface)
+        ts_interface_builder.generate_code(self.source_type)
     }
 }

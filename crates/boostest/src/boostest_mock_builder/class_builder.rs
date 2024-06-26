@@ -25,46 +25,53 @@ pub struct ClassArg {
     pub val: String,
 }
 
-pub struct ClassMockData<'a> {
+pub struct ClassMockData {
     pub mock_func_name: String,
     pub class_name: String,
     pub key_name: Option<String>,
-    pub constructor_args: HashMap<String, &'a TSType<'a>>,
 }
 
 pub struct ClassBuilder<'a> {
-    mock_data: ClassMockData<'a>,
+    mock_data: ClassMockData,
     ast_builder: AstBuilder<'a>,
+    class: Class<'a>,
 }
 
 impl<'a> ClassBuilder<'a> {
-    pub fn new(allocator: &'a Allocator, mock_func_name: String, key_name: Option<String>) -> Self {
+    pub fn new(
+        allocator: &'a Allocator,
+        class: &'a Class,
+        mock_func_name: String,
+        key_name: Option<String>,
+    ) -> Self {
         let ast_builder = AstBuilder::new(allocator);
+
+        let copied_class = ast_builder.copy(class);
+
         let mock_data = ClassMockData {
             mock_func_name,
             key_name,
             class_name: "".to_string(),
-            constructor_args: HashMap::new(),
         };
 
         Self {
             ast_builder,
             mock_data,
+            class: copied_class,
         }
     }
 
-    pub fn generate_code(
-        &mut self,
-        allocator: &'a Allocator,
-        source_type: SourceType,
-        class: &'a Class<'a>,
-    ) -> String {
+    pub fn generate_code(&mut self, source_type: SourceType) -> String {
         let bytes = include_bytes!("./template/class.ts");
         let source_code = std::str::from_utf8(bytes).unwrap();
-        let parser = Parser::new(allocator, source_code, source_type);
+        let parser = Parser::new(self.ast_builder.allocator, source_code, source_type);
         let program = &mut parser.parse().program;
 
-        self.get_new_class_expression(class);
+        if let Some(ident) = &self.class.id {
+            let name = ident.name.to_string();
+            self.mock_data.class_name = name;
+        }
+
         self.visit_program(program);
 
         let mut codegen_options = CodegenOptions::default();
@@ -75,37 +82,29 @@ impl<'a> ClassBuilder<'a> {
             .source_text
     }
 
-    pub fn get_new_class_expression(&mut self, class: &'a Class<'a>) {
-        if let Some(ident) = &class.id {
-            let name = ident.name.to_string();
-            self.mock_data.class_name = name;
-
-            for stmt in &class.body.body {
-                match stmt {
-                    ClassElement::MethodDefinition(method) => {
-                        for formal_parameter in &method.value.params.items {
-                            match &formal_parameter.pattern.kind {
-                                BindingPatternKind::BindingIdentifier(id) => {
-                                    if let Some(item) = &formal_parameter.pattern.type_annotation {
-                                        self.mock_data
-                                            .constructor_args
-                                            .insert(id.name.to_string(), &item.type_annotation);
-                                    }
-                                }
-                                _ => {}
-                            }
-                        }
-                    }
-                    _ => {}
-                }
-            }
-        }
-    }
-
     pub fn get_new_expression_argument(&mut self) -> allocator::Vec<'a, Argument<'a>> {
         let mut args = self.ast_builder.new_vec();
+        let mut target_data = HashMap::new();
 
-        for (key_name, ts_type) in &mut self.mock_data.constructor_args {
+        for stmt in &self.class.body.body {
+            match stmt {
+                ClassElement::MethodDefinition(method) => {
+                    for formal_parameter in &method.value.params.items {
+                        match &formal_parameter.pattern.kind {
+                            BindingPatternKind::BindingIdentifier(id) => {
+                                if let Some(item) = &formal_parameter.pattern.type_annotation {
+                                    target_data.insert(id.name.to_string(), &item.type_annotation);
+                                }
+                            }
+                            _ => {}
+                        }
+                    }
+                }
+                _ => {}
+            }
+        }
+
+        for (key_name, ts_type) in &mut target_data {
             let argument = match ts_type {
                 TSType::TSAnyKeyword(_) => {
                     let expression = self.ast_builder.string_literal(SPAN, "any");
