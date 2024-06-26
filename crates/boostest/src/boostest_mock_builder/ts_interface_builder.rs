@@ -4,17 +4,16 @@ use oxc::{
     allocator::Allocator,
     ast::{
         ast::{
-            ArrayExpression, ArrayExpressionElement, BindingIdentifier, Declaration, Expression,
-            FormalParameterKind, FunctionBody, FunctionType, NullLiteral, ObjectPropertyKind,
-            Program, PropertyKind, Statement, TSAnyKeyword, TSInterfaceDeclaration, TSLiteral,
-            TSSignature, TSType,
+            BindingIdentifier, Declaration, Expression, FormalParameterKind, FunctionBody,
+            NullLiteral, ObjectPropertyKind, Program, PropertyKind, Statement, TSAnyKeyword,
+            TSInterfaceDeclaration, TSLiteral, TSSignature, TSType,
         },
         AstBuilder, VisitMut,
     },
     codegen::{Codegen, CodegenOptions},
     parser::Parser,
     span::{SourceType, Span},
-    syntax::number::NumberBase,
+    syntax::number::{BigintBase, NumberBase},
 };
 
 use oxc::allocator;
@@ -78,8 +77,17 @@ impl<'a> TSInterfaceBuilder<'a> {
 
     pub fn get_expression(&self, type_annotation: TSType<'a>, key_name: &str) -> Expression<'a> {
         let val = match type_annotation {
+            TSType::TSTypeReference(_) => {
+                // 'key_name':[key_name]_boostestHoge(),
+                let new_name = format!("{}_{}", key_name, &self.mock_data.mock_func_name);
+                let new_id = self.ast_builder.identifier_reference(SPAN, &new_name);
+                let new_callee = self.ast_builder.identifier_reference_expression(new_id);
+                let arg = self.ast_builder.new_vec();
+                self.ast_builder
+                    .call_expression(SPAN, new_callee, arg, false, None)
+            }
             TSType::TSStringKeyword(_) => {
-                let str_literal = self.ast_builder.string_literal(SPAN, "string_val");
+                let str_literal = self.ast_builder.string_literal(SPAN, "test data string");
                 self.ast_builder.literal_string_expression(str_literal)
             }
             TSType::TSAnyKeyword(_) => {
@@ -100,29 +108,13 @@ impl<'a> TSInterfaceBuilder<'a> {
                         .number_literal(SPAN, 42.0, "42", NumberBase::Decimal);
                 self.ast_builder.literal_number_expression(num_literal)
             }
-            TSType::TSTypeReference(_) => {
-                let new_name = format!("{}_{}", key_name, &self.mock_data.mock_func_name);
-                let new_id = self.ast_builder.identifier_reference(SPAN, &new_name);
-                let new_callee = self.ast_builder.identifier_reference_expression(new_id);
-                let arg = self.ast_builder.new_vec();
-                self.ast_builder
-                    .call_expression(SPAN, new_callee, arg, false, None)
-            }
-
-            TSType::TSUnionType(box_ts_union_type) => {
-                let ts_union_type = &mut box_ts_union_type.unbox();
-                let first_union_type = ts_union_type.types.first_mut();
-
-                if let Some(first_type) = first_union_type {
-                    let ts_type = self.ast_builder.copy(first_type);
-                    let new = self.get_expression(ts_type, key_name);
-                    return new;
-                }
-
-                let new_val = self
-                    .ast_builder
-                    .string_literal(SPAN, "default_val(unimplemented)");
-                self.ast_builder.literal_string_expression(new_val)
+            TSType::TSBigIntKeyword(_) => {
+                let big_int_literal = self.ast_builder.bigint_literal(
+                    SPAN,
+                    self.ast_builder.new_atom("9007199254740991"),
+                    BigintBase::Decimal,
+                );
+                self.ast_builder.literal_bigint_expression(big_int_literal)
             }
             TSType::TSObjectKeyword(_) => {
                 self.ast_builder
@@ -132,7 +124,7 @@ impl<'a> TSInterfaceBuilder<'a> {
                 let new_val = NullLiteral::new(SPAN);
                 self.ast_builder.literal_null_expression(new_val)
             }
-            TSType::TSFunctionType(ts_func_type) => {
+            TSType::TSFunctionType(_) => {
                 let params = self.ast_builder.formal_parameters(
                     SPAN,
                     FormalParameterKind::ArrowFormalParameters,
@@ -158,6 +150,37 @@ impl<'a> TSInterfaceBuilder<'a> {
                 let undefined_id = self.ast_builder.identifier_reference(SPAN, "undefined");
                 self.ast_builder
                     .identifier_reference_expression(undefined_id)
+            }
+            TSType::TSConditionalType(ts_conditional_type) => {
+                let ts_type = self.ast_builder.copy(&ts_conditional_type.true_type);
+                let new = self.get_expression(ts_type, key_name);
+                return new;
+            }
+            TSType::TSUnionType(box_ts_union_type) => {
+                let ts_union_type = &mut box_ts_union_type.unbox();
+                let first_union_type = ts_union_type.types.first_mut();
+
+                if let Some(first_type) = first_union_type {
+                    let ts_type = self.ast_builder.copy(first_type);
+                    let new = self.get_expression(ts_type, key_name);
+                    return new;
+                }
+
+                let new_val = self
+                    .ast_builder
+                    .string_literal(SPAN, "default_val(unimplemented)");
+                self.ast_builder.literal_string_expression(new_val)
+            }
+            TSType::TSNeverKeyword(_) => {
+                let null_literal = NullLiteral::new(SPAN);
+                self.ast_builder.literal_null_expression(null_literal)
+            }
+            TSType::TSArrayType(_) => {
+                // let new_ts_type = self.ast_builder.copy(&ts_array.element_type);
+                // let expr = self.get_expression(new_ts_type, key_name);
+
+                let new_array = self.ast_builder.new_vec();
+                self.ast_builder.array_expression(SPAN, new_array, None)
             }
             TSType::TSThisType(_) => {
                 // TODO
@@ -220,18 +243,12 @@ impl<'a> TSInterfaceBuilder<'a> {
                 self.ast_builder
                     .object_expression(SPAN, self.ast_builder.new_vec(), None)
             }
-
-            TSType::TSConditionalType(ts_conditional_type) => {
-                let ts_type = self.ast_builder.copy(&ts_conditional_type.true_type);
-                let new = self.get_expression(ts_type, key_name);
-                return new;
-            }
-            TSType::TSConstructorType(aaa) => {
+            TSType::TSConstructorType(_) => {
                 // TODO
                 self.ast_builder
                     .object_expression(SPAN, self.ast_builder.new_vec(), None)
             }
-            TSType::TSIndexedAccessType(ts_index) => {
+            TSType::TSIndexedAccessType(_) => {
                 // person["name"]
                 // TODO
                 self.ast_builder
@@ -243,21 +260,19 @@ impl<'a> TSInterfaceBuilder<'a> {
                 self.ast_builder
                     .object_expression(SPAN, self.ast_builder.new_vec(), None)
             }
-            TSType::TSIntersectionType(ts_intersection_type) => {
+            TSType::TSIntersectionType(_ts_intersection_type) => {
                 // TODO
-                for ts_type in ts_intersection_type.types.iter() {
-                    let new_ts_type = self.ast_builder.copy(ts_type);
+                // for ts_type in ts_intersection_type.types.iter() {
+                //     let new_ts_type = self.ast_builder.copy(ts_type);
+                //     println!("TSIntersectionType {:?}", new_ts_type);
+                //     let expr = self.get_expression(new_ts_type, key_name);
+                //     println!("TSIntersectionType {:?}", expr);
+                // }
 
-                    // println!("TSIntersectionType {:?}", new_ts_type);
-                    let expr = self.get_expression(new_ts_type, key_name);
-                    // println!("TSIntersectionType {:?}", expr);
-                }
-
-                // println!("TSIntersectionType {:?}", ts_intersection);
+                // println!("TSIntrsectionType {:?}", ts_intersection);
                 self.ast_builder
                     .object_expression(SPAN, self.ast_builder.new_vec(), None)
             }
-
             TSType::TSLiteralType(literal_type) => {
                 let val = match &literal_type.literal {
                     TSLiteral::StringLiteral(string_literal) => {
@@ -305,28 +320,13 @@ impl<'a> TSInterfaceBuilder<'a> {
                 self.ast_builder
                     .object_expression(SPAN, self.ast_builder.new_vec(), None)
             }
-            TSType::TSBigIntKeyword(_) => {
-                // TODO
-                self.ast_builder
-                    .object_expression(SPAN, self.ast_builder.new_vec(), None)
-            }
             TSType::TSSymbolKeyword(_) => {
                 // TODO
                 self.ast_builder
                     .object_expression(SPAN, self.ast_builder.new_vec(), None)
             }
-            TSType::TSNeverKeyword(_) => {
-                let null_literal = NullLiteral::new(SPAN);
-                self.ast_builder.literal_null_expression(null_literal)
-            }
-            TSType::TSArrayType(_) => {
-                // let new_ts_type = self.ast_builder.copy(&ts_array.element_type);
-                // let expr = self.get_expression(new_ts_type, key_name);
-
-                let new_array = self.ast_builder.new_vec();
-                self.ast_builder.array_expression(SPAN, new_array, None)
-            }
             TSType::TSImportType(_) => {
+                // TODO
                 self.ast_builder
                     .object_expression(SPAN, self.ast_builder.new_vec(), None)
             }
