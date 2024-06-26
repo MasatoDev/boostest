@@ -26,7 +26,11 @@ export interface User {
   nullKey: null;
   optionalKey?: string;
   unknownKey: unknown;
-  thieKey: ThisType<From>;
+  thisKey: ThisType<From>;
   conditionalKey: User extends From ? string : number;
   objectKey: object;
+  voidKey: void;
+  indexedKey: AbroadFrom['country'];
+  intersectionKey: AbroadFrom & From;
+  arrayKey: string[];
 }
