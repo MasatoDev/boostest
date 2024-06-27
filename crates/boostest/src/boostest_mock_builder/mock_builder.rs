@@ -1,6 +1,8 @@
 use oxc::{
-    allocator::Allocator,
-    ast::ast::{Class, TSInterfaceDeclaration, TSTypeAliasDeclaration},
+    allocator::{self, Allocator},
+    ast::ast::{
+        Class, TSInterfaceDeclaration, TSTypeAliasDeclaration, TSTypeName, TSTypeReference,
+    },
     span::SourceType,
 };
 
@@ -61,5 +63,15 @@ impl MockBuilder {
             TSInterfaceBuilder::new(&allocator, ts_interface, mock_func_name, key_name);
 
         ts_interface_builder.generate_code(self.source_type)
+    }
+
+    // common functions
+    pub fn is_this_type<'a>(ts_type_ref: &allocator::Box<'a, TSTypeReference<'a>>) -> bool {
+        if let TSTypeName::IdentifierReference(id) = &ts_type_ref.type_name {
+            if id.name.to_string() == "ThisType" {
+                return true;
+            }
+        }
+        false
     }
 }

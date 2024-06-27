@@ -1,5 +1,3 @@
-use std::collections::HashMap;
-
 use oxc::{
     allocator::Allocator,
     ast::{
@@ -17,6 +15,8 @@ use oxc::{
 };
 
 use oxc::allocator;
+
+use super::mock_builder::MockBuilder;
 
 const SPAN: Span = Span::new(0, 0);
 
@@ -77,6 +77,10 @@ impl<'a> TSInterfaceBuilder<'a> {
 
     pub fn get_expression(&self, type_annotation: TSType<'a>, key_name: &str) -> Expression<'a> {
         let val = match type_annotation {
+            TSType::TSTypeReference(ts_type_ref) if MockBuilder::is_this_type(&ts_type_ref) => {
+                let str_literal = self.ast_builder.string_literal(SPAN, "ThisType");
+                self.ast_builder.literal_string_expression(str_literal)
+            }
             TSType::TSTypeReference(_) => {
                 // 'key_name':[key_name]_boostestHoge(),
                 let new_name = format!("{}_{}", key_name, &self.mock_data.mock_func_name);
@@ -336,7 +340,7 @@ impl<'a> TSInterfaceBuilder<'a> {
     }
 
     pub fn get_object_property_kind(&mut self) -> Vec<ObjectPropertyKind<'a>> {
-        let mut target_ts_types = HashMap::new();
+        let mut target_ts_types_vec = Vec::new();
 
         let mut properties: Vec<_> = self
             .target_ts_interface
@@ -355,14 +359,14 @@ impl<'a> TSInterfaceBuilder<'a> {
                     let ts_type = self.ast_builder.copy(&val_type_annotation.type_annotation);
 
                     let key_name = key.to_string();
-                    target_ts_types.insert(key_name, ts_type);
+                    target_ts_types_vec.push((key_name, ts_type));
                 }
             }
         }
 
         let mut temp_properties = Vec::new();
 
-        for (key, ts_type) in target_ts_types {
+        for (key, ts_type) in target_ts_types_vec {
             let val = self.get_expression(ts_type, key.as_str());
             let new_key = self.ast_builder.string_literal(SPAN, key.as_str());
             let new_key_expr = self.ast_builder.literal_string_expression(new_key);

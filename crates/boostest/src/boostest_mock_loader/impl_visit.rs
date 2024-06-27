@@ -170,7 +170,6 @@ impl<'a> VisitMut<'a> for MockAstLoader {
                     }
                 }
                 TSType::TSUnionType(ts_union_type) => {
-                    println!("TSUnionType {:?}", ts_union_type);
                     if let Some(first_union_type) = ts_union_type.types.first() {
                         if let TSType::TSTypeReference(ty_ref) = first_union_type {
                             if let TSTypeName::IdentifierReference(identifier) = &ty_ref.type_name {
