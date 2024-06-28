@@ -202,8 +202,6 @@ impl MockAstLoader {
             file_d_ts_loaded: false,
         };
 
-        println!("import: {:?}", import);
-
         if let Some(vec) = &mut self.temp_import_source_vec {
             vec.push(import);
         } else {

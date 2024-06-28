@@ -33,9 +33,6 @@ fn resolve_specifier(
         None => None,
     };
 
-    println!("{}: {}", "path".green(), path.display());
-    println!("{}: {}", "specifier".red(), specifier);
-
     let options = ResolveOptions {
         extensions: vec![".d.ts".into(), ".ts".into(), ".tsx".into()],
         main_files: vec!["index.d".into()],
