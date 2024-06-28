@@ -1,8 +1,8 @@
 import ComplexInterfaceChips from './deepfiles/lib/comp_interface';
 
-interface ExportDefaultInterface {
+interface ExportNamedDeclInterface {
   name: string;
   chips: ComplexInterfaceChips;
 }
 
-export default ExportDefaultInterface;
+export type { ExportNamedDeclInterface as AnoExportNamedDeclInterface };
