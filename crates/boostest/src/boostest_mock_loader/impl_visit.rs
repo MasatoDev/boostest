@@ -46,6 +46,7 @@ impl<'a> VisitMut<'a> for MockLoader {
         if let Expression::Identifier(ident) = &expr.callee {
             let pattern = &self.get_pattern();
 
+            // add target function to mock ast loader
             if ident.name.contains(pattern) {
                 let target_mock_name = ident.name.clone().into_string();
                 self.add_ast_loader(target_mock_name.clone().to_string());
@@ -125,6 +126,7 @@ impl<'a> VisitMut<'a> for MockAstLoader {
                 Statement::TSInterfaceDeclaration(decl) => {
                     self.visit_ts_interface_declaration(decl);
                 }
+                Statement::ExportDefaultDeclaration(_) => {}
 
                 _ => {
                     // println!("Another Statement {:?}", stmt);
@@ -278,7 +280,7 @@ impl<'a> VisitMut<'a> for MockAstLoader {
                     .value
                     .clone()
                     .into_string();
-                self.set_temp_import_source(name.to_string(), full_path, None)
+                self.set_temp_import_source(name.to_string(), full_path, None, false)
             }
             TSModuleReference::IdentifierReference(id) => {
                 println!("id: {:?}", id)
@@ -288,6 +290,8 @@ impl<'a> VisitMut<'a> for MockAstLoader {
     }
 
     fn visit_import_declaration(&mut self, decl: &mut ImportDeclaration<'a>) {
+        println!("decl: {:?}", decl);
+
         if let Some(specifiers) = &decl.specifiers {
             for specifier in specifiers {
                 let full_path = decl.source.value.clone().into_string();
@@ -296,18 +300,17 @@ impl<'a> VisitMut<'a> for MockAstLoader {
                 match specifier {
                     ImportDeclarationSpecifier::ImportNamespaceSpecifier(namespace) => {
                         let local = namespace.local.name.clone().into_string();
-
-                        self.set_temp_import_source(local, full_path, imported)
+                        self.set_temp_import_source(local, full_path, imported, false)
                     }
                     ImportDeclarationSpecifier::ImportSpecifier(normal) => {
                         let local = normal.local.name.clone().into_string();
                         imported = Some(normal.imported.to_string());
 
-                        self.set_temp_import_source(local, full_path, imported)
+                        self.set_temp_import_source(local, full_path, imported, false)
                     }
                     ImportDeclarationSpecifier::ImportDefaultSpecifier(default) => {
                         let local = default.local.name.clone().into_string();
-                        self.set_temp_import_source(local, full_path, imported)
+                        self.set_temp_import_source(local, full_path, imported, true)
                     }
                 }
             }
@@ -323,12 +326,24 @@ impl<'a> VisitMut<'a> for MockAstLoader {
         } = decl;
 
         for specifier in specifiers.iter_mut() {
+            let local = specifier.local.name().to_string();
+            let exported = specifier.exported.name().to_string();
+
+            /*
+             * export type { Huga as default };     // source is None
+             * export type { Huga as default } from '...';
+             */
             if let Some(source) = source {
                 let full_path = source.value.clone().into_string();
-                let imported = specifier.local.name().to_string();
-                let name = specifier.exported.name().to_string();
+                // NOTE: set local to imported because use for searching decl with local name
+                // export type {Huga(local) as Hoge(exported)} from '...'
+                self.set_temp_import_source(exported, full_path, Some(local), false);
+            } else {
+                // export type {Huga as default};
+                self.set_default_import_name(&exported, &local);
 
-                self.set_temp_import_source(name, full_path, Some(imported))
+                // export type {Huga as AnotherHuga};
+                self.set_original_name(&exported, &local)
             }
         }
 

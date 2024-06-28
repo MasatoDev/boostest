@@ -57,6 +57,8 @@ pub fn resolve_mock_target_ast(
     ts_config_path: &Option<PathBuf>,
     depth: u8,
 ) {
+    println!("implement resolve mock:{:?}", mock_ast_loader.import);
+
     // prevent infinite loop
     if depth > 50 {
         let target = mock_ast_loader
@@ -105,6 +107,7 @@ pub fn resolve_mock_target_ast(
                     let mut read_file_path: PathBuf = PathBuf::new();
                     let parent_path_buf = parent_path.to_path_buf();
 
+                    // important the order of is_loaded_hogehoge() because these func handle loaded flag
                     if MockAstLoader::is_loaded_index_d_ts(&next_import) {
                         let next_file_stem = Path::new(&next_import.full_path)
                             .file_stem()
@@ -128,14 +131,26 @@ pub fn resolve_mock_target_ast(
                     }
 
                     if MockAstLoader::is_unloaded_import(&next_import) {
+                        println!("next_import.full_path: {}", next_import.full_path);
+                        println!("parent_path: {:?}", parent_path);
                         let resolution_result =
                             resolve_specifier(parent_path, &next_import.full_path, ts_config_path);
 
                         if let Ok(resolution) = resolution_result {
+                            println!("resolution: {:?}", resolution);
                             read_file_path = resolution.full_path();
                             next_import.loaded = true;
+                        } else {
+                            println!("resolution error: {:?}", resolution_result);
                         }
                     }
+
+                    // TODO: use same program ast
+                    if next_import.need_reload {
+                        read_file_path = PathBuf::from(path);
+                    }
+
+                    println!("{}: {}", "read_file_path".green(), read_file_path.display());
 
                     let file = read(&read_file_path).unwrap_or(String::new());
 
@@ -167,13 +182,14 @@ pub fn load_mock<'a>(
     path: &Path,
     ts_config_path: &Option<PathBuf>,
 ) {
+    // add target functions to mock ast loader
     mock_loader.visit_statements(&mut program.body);
 
     for (_, mock_ast_loader) in mock_loader.mocks.iter_mut() {
         resolve_mock_target_ast(mock_ast_loader, program, path, ts_config_path, 1);
     }
 
-    // println!("--------INIT---------");
-    // mock_loader.debug();
-    // println!("-----------------");
+    println!("--------INIT---------");
+    mock_loader.debug();
+    println!("-----------------");
 }

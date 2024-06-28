@@ -152,10 +152,21 @@ fn handle_main_task(mock_loader: &mut MockLoader, path: &Path, out_file_name: &s
         return Ok(());
     }
 
+    if mock_loader.is_output_empty() {
+        println!(
+            "{}",
+            format!("failed create test data of: {}", file_name).red()
+        );
+
+        return Ok(());
+    }
+
     let canonical_path = path.canonicalize()?;
     let parent_path = canonical_path.parent().expect("get parent path");
 
     let path = parent_path.join(format!("{}_{}{}", file_name, out_file_name, ".ts")); // srcディレクトリ内のgreeting.ts
+
+    let mut f: File = File::create(&path)?;
 
     for mock_ast_loader in mock_loader.mocks.values() {
         if mock_ast_loader.is_empty_code() {
@@ -169,8 +180,6 @@ fn handle_main_task(mock_loader: &mut MockLoader, path: &Path, out_file_name: &s
             );
             continue;
         }
-
-        let mut f: File = File::create(&path)?;
 
         if let Some(code) = &mock_ast_loader.code {
             f.write_all(code.as_bytes())?;

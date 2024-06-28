@@ -26,6 +26,10 @@ impl MockLoader {
         self.mocks.is_empty()
     }
 
+    pub fn is_output_empty(&mut self) -> bool {
+        self.mocks.values().all(|mock| mock.code.is_none())
+    }
+
     pub fn get_mock(&mut self, name: &String) -> Option<&mut MockAstLoader> {
         self.mocks.get_mut(name)
     }

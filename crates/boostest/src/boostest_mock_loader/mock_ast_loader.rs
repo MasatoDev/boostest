@@ -37,12 +37,16 @@ ref_properties: [
 
 use crate::boostest_mock_builder::mock_builder::MockBuilder;
 use oxc::ast::ast::{Class, TSInterfaceDeclaration, TSTypeAliasDeclaration};
+use serde::de;
 
 #[derive(Clone, Debug)]
 pub struct Import {
     local: String,
     imported: Option<String>,
+    original_name: Option<String>, // export {original_name as local_name(or default)};
+    default_import: bool,
     pub full_path: String,
+    pub need_reload: bool,
     pub loaded: bool,
     pub index_d_ts_loaded: bool,
     pub file_d_ts_loaded: bool,
@@ -131,10 +135,15 @@ impl MockAstLoader {
         self.code = Some(code);
     }
 
+    // import {Hoge(imported) as Huga(local)} from '...'
     pub fn get_decl_name_for_resolve(&self) -> Option<&String> {
         if let Some(last) = self.import.last() {
+            if let Some(original_name) = &last.original_name {
+                return Some(original_name);
+            }
+
             if let Some(imported) = &last.imported {
-                return Some(&imported);
+                return Some(imported);
             }
             return Some(&last.local);
         }
@@ -151,6 +160,47 @@ impl MockAstLoader {
         }
         None
     }
+
+    pub fn set_default_import_name(&mut self, exported: &String, local: &String) {
+        println!("set default exported:{:?}, local:{:?}", &exported, &local);
+        if let Some(import) = self.get_next_import() {
+            if import.default_import && import.original_name.is_none() {
+                if exported.clone() == String::from("default") {
+                    import.original_name = Some(local.clone());
+
+                    import.need_reload = true;
+                    // // Once read, it is skipped, so read again and look for the declaration
+                    // MockAstLoader::reset_loaded_import(import);
+                }
+            }
+        }
+    }
+
+    pub fn set_original_name(&mut self, exported: &String, local: &String) {
+        if let Some(import) = self.get_next_import() {
+            let target_name: &String;
+
+            if let Some(imported) = &import.imported {
+                target_name = imported;
+            } else {
+                target_name = &import.local;
+            }
+
+            if target_name == exported {
+                import.original_name = Some(local.clone());
+
+                // Once read, it is skipped, so read again and look for the declaration
+                // MockAstLoader::reset_loaded_import(import);
+                import.need_reload = true;
+            }
+        }
+    }
+
+    // pub fn reset_loaded_import(import: &mut Import) {
+    //     import.loaded = false;
+    //     import.index_d_ts_loaded = false;
+    //     import.file_d_ts_loaded = false;
+    // }
 
     pub fn is_unloaded_import(import: &Import) -> bool {
         !import.loaded && !import.index_d_ts_loaded && !import.file_d_ts_loaded
@@ -174,6 +224,9 @@ impl MockAstLoader {
             local,
             imported,
             full_path,
+            original_name: None,
+            default_import: false,
+            need_reload: false,
             loaded: false,
             index_d_ts_loaded: false,
             file_d_ts_loaded: false,
@@ -190,8 +243,13 @@ impl MockAstLoader {
         local: String,
         full_path: String,
         imported: Option<String>,
+        default_import: bool,
     ) {
-        if let Some(target_name) = &self.mock_target_name {
+        // import {Hoge(imported) as Huga(local)} from '...'
+        // import {Hoge(imported | local)} from '...'
+        if let Some(target_name) = self.get_decl_name_for_resolve() {
+            println!("target_name:{:?}", &target_name);
+            println!("local:{:?}", &local);
             if *target_name != local {
                 return;
             }
@@ -201,10 +259,15 @@ impl MockAstLoader {
             local,
             imported,
             full_path,
+            original_name: None,
+            default_import,
+            need_reload: false,
             loaded: false,
             index_d_ts_loaded: false,
             file_d_ts_loaded: false,
         };
+
+        println!("import:{:?}", &import);
 
         if let Some(vec) = &mut self.temp_import_source_vec {
             vec.push(import);
@@ -213,6 +276,7 @@ impl MockAstLoader {
         }
     }
 
+    // if not resolved set import as a target to resolve
     pub fn set_import_source(&mut self) {
         if self.resolved {
             return;
