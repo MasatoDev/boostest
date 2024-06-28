@@ -6,15 +6,18 @@ import { ExportNamedDecl } from './types/export_named_decl';
 import ExportDefaultNamedDecl from './types/export_default_named_decl';
 import { AnoExportNamedDeclInterface } from './types/export_named_decl_interface';
 import { AnoExportNamedDeclClass } from './types/export_named_decl_class';
+import Mix, { MixCompTSAlias } from './types/mix';
 import {
   boostestAnoExportDefaultClass,
   boostestAnoExportDefaultInterface,
   boostestAnoExportNamedDeclClass,
+  boostestAnoMixInterface,
   boostestExportDefaultClass,
   boostestExportDefaultClassWithDecl,
   boostestExportDefaultNamedDecl,
   boostestExportNamedDecl,
   boostestExportNamedDeclInterface,
+  boostestMixCompTSAlias,
 } from './example_test_data';
 
 const anoExportAnoDefaultInterface = boostestAnoExportDefaultInterface<AnoExportDefaultInterface>({
@@ -27,6 +30,8 @@ const exportNamedDecl = boostestExportNamedDecl<ExportNamedDecl>();
 const exportDefaultNamedDecl = boostestExportDefaultNamedDecl<ExportDefaultNamedDecl>();
 const exportNamedDeclInterface = boostestExportNamedDeclInterface<AnoExportNamedDeclInterface>();
 const exportNamedDeclClass = boostestAnoExportNamedDeclClass<typeof AnoExportNamedDeclClass>(AnoExportNamedDeclClass);
+const mix = boostestAnoMixInterface<Mix>({name:'mix'});
+const mixCompTSAlias = boostestMixCompTSAlias<MixCompTSAlias>({name:'mixCompTSAlias'});
 
 const values = [
   anoExportAnoDefaultInterface,
@@ -37,6 +42,8 @@ const values = [
   exportDefaultNamedDecl,
   exportNamedDeclInterface,
   exportNamedDeclClass,
+  mix,
+  mixCompTSAlias,
 ];
 
 for (const value of values) {
