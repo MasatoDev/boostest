@@ -1,4 +1,4 @@
-class Cafe {
+class ExportDefaultClass {
   name: string;
   version: string;
 
@@ -7,4 +7,4 @@ class Cafe {
   }
 }
 
-export default Cafe;
+export default ExportDefaultClass;

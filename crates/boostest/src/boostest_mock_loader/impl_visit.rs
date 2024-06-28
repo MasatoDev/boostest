@@ -6,9 +6,9 @@ use oxc::ast::ast::{
     TSTypeName, VariableDeclaration,
 };
 use oxc::ast::ast::{
-    Class, ClassBody, ExportNamedDeclaration, PropertyDefinition, TSInterfaceDeclaration,
-    TSModuleReference, TSSignature, TSType, TSTypeAliasDeclaration, TSTypeParameterInstantiation,
-    VariableDeclarator,
+    Class, ClassBody, ExportDefaultDeclaration, ExportDefaultDeclarationKind,
+    ExportNamedDeclaration, PropertyDefinition, TSInterfaceDeclaration, TSModuleReference,
+    TSSignature, TSType, TSTypeAliasDeclaration, TSTypeParameterInstantiation, VariableDeclarator,
 };
 use oxc::ast::VisitMut;
 
@@ -118,7 +118,6 @@ impl<'a> VisitMut<'a> for MockAstLoader {
                 Statement::ExportNamedDeclaration(export_named_decl) => {
                     self.visit_export_named_declaration(export_named_decl);
                 }
-
                 Statement::ClassDeclaration(class) => self.visit_class(class),
                 Statement::TSTypeAliasDeclaration(decl) => {
                     self.visit_ts_type_alias_declaration(decl);
@@ -126,8 +125,13 @@ impl<'a> VisitMut<'a> for MockAstLoader {
                 Statement::TSInterfaceDeclaration(decl) => {
                     self.visit_ts_interface_declaration(decl);
                 }
-                Statement::ExportDefaultDeclaration(_) => {}
-
+                Statement::TSExportAssignment(_ts_export_assignment) => {
+                    // not implemented (commonjs)
+                    // println!("TSExportAssignment: {:?}", ts_export_assignment);
+                }
+                Statement::ExportDefaultDeclaration(export_default_decl) => {
+                    self.visit_export_default_declaration(export_default_decl);
+                }
                 _ => {
                     // println!("Another Statement {:?}", stmt);
                 }
@@ -135,13 +139,30 @@ impl<'a> VisitMut<'a> for MockAstLoader {
         }
     }
 
+    fn visit_export_default_declaration(&mut self, decl: &mut ExportDefaultDeclaration<'a>) {
+        match &mut decl.declaration {
+            ExportDefaultDeclarationKind::ClassDeclaration(class) => {
+                self.visit_class(class);
+            }
+            ExportDefaultDeclarationKind::TSInterfaceDeclaration(ts_interface_decl) => {
+                self.visit_ts_interface_declaration(ts_interface_decl);
+            }
+            ExportDefaultDeclarationKind::TSEnumDeclaration(_) => {}
+            ExportDefaultDeclarationKind::FunctionDeclaration(_) => {}
+            _ => {}
+        }
+    }
+
     // handle mock target is class
     fn visit_class(&mut self, class: &mut Class<'a>) {
         if let Some(identifier) = &class.id {
-            if let Some(target_name) = self.get_decl_name_for_resolve() {
+            // export default is not named
+            if self.is_default_import() {
+                self.add_class(class);
+                self.visit_class_body(&mut class.body);
+            } else if let Some(target_name) = self.get_decl_name_for_resolve() {
                 if identifier.name.to_string() == *target_name {
                     self.add_class(class);
-
                     self.visit_class_body(&mut class.body);
                 }
             }
@@ -259,7 +280,14 @@ impl<'a> VisitMut<'a> for MockAstLoader {
     }
 
     fn visit_ts_interface_declaration(&mut self, decl: &mut TSInterfaceDeclaration<'a>) {
-        if let Some(target_name) = self.get_decl_name_for_resolve() {
+        // export default is not named
+        if self.is_default_import() {
+            self.add_ts_interface(decl);
+
+            for ts_signature in decl.body.body.iter_mut() {
+                self.visit_ts_signature(ts_signature);
+            }
+        } else if let Some(target_name) = self.get_decl_name_for_resolve() {
             if decl.id.name.to_string() == *target_name {
                 self.add_ts_interface(decl);
 
@@ -283,15 +311,13 @@ impl<'a> VisitMut<'a> for MockAstLoader {
                 self.set_temp_import_source(name.to_string(), full_path, None, false)
             }
             TSModuleReference::IdentifierReference(id) => {
-                println!("id: {:?}", id)
+                // println!("id: {:?}", id)
             }
             _ => {}
         };
     }
 
     fn visit_import_declaration(&mut self, decl: &mut ImportDeclaration<'a>) {
-        println!("decl: {:?}", decl);
-
         if let Some(specifiers) = &decl.specifiers {
             for specifier in specifiers {
                 let full_path = decl.source.value.clone().into_string();

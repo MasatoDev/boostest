@@ -57,8 +57,6 @@ pub fn resolve_mock_target_ast(
     ts_config_path: &Option<PathBuf>,
     depth: u8,
 ) {
-    println!("implement resolve mock:{:?}", mock_ast_loader.import);
-
     // prevent infinite loop
     if depth > 50 {
         let target = mock_ast_loader
@@ -131,17 +129,12 @@ pub fn resolve_mock_target_ast(
                     }
 
                     if MockAstLoader::is_unloaded_import(&next_import) {
-                        println!("next_import.full_path: {}", next_import.full_path);
-                        println!("parent_path: {:?}", parent_path);
                         let resolution_result =
                             resolve_specifier(parent_path, &next_import.full_path, ts_config_path);
 
                         if let Ok(resolution) = resolution_result {
-                            println!("resolution: {:?}", resolution);
                             read_file_path = resolution.full_path();
                             next_import.loaded = true;
-                        } else {
-                            println!("resolution error: {:?}", resolution_result);
                         }
                     }
 
@@ -150,7 +143,7 @@ pub fn resolve_mock_target_ast(
                         read_file_path = PathBuf::from(path);
                     }
 
-                    println!("{}: {}", "read_file_path".green(), read_file_path.display());
+                    // println!("{}: {}", "read_file_path".green(), read_file_path.display());
 
                     let file = read(&read_file_path).unwrap_or(String::new());
 
@@ -189,7 +182,7 @@ pub fn load_mock<'a>(
         resolve_mock_target_ast(mock_ast_loader, program, path, ts_config_path, 1);
     }
 
-    println!("--------INIT---------");
-    mock_loader.debug();
-    println!("-----------------");
+    // println!("--------INIT---------");
+    // mock_loader.debug();
+    // println!("-----------------");
 }

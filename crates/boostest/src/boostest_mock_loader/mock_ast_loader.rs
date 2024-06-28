@@ -44,7 +44,7 @@ pub struct Import {
     local: String,
     imported: Option<String>,
     original_name: Option<String>, // export {original_name as local_name(or default)};
-    default_import: bool,
+    pub default_import: bool,
     pub full_path: String,
     pub need_reload: bool,
     pub loaded: bool,
@@ -97,6 +97,7 @@ impl MockAstLoader {
     }
 
     pub fn add_class(&mut self, class: &mut Class) {
+        // println!("add_class{:?}", class);
         self.resolve();
 
         let mut mock_builder = MockBuilder::new();
@@ -110,6 +111,7 @@ impl MockAstLoader {
     }
 
     pub fn add_ts_interface(&mut self, ts_interface: &mut TSInterfaceDeclaration) {
+        // println!("add_ts_interface{:?}", ts_interface);
         self.resolve();
 
         let mut mock_builder = MockBuilder::new();
@@ -123,6 +125,7 @@ impl MockAstLoader {
     }
 
     pub fn add_ts_alias(&mut self, ts_type_alias: &mut TSTypeAliasDeclaration) {
+        // println!("add_ts_alias{:?}", ts_type_alias);
         self.resolve();
 
         let mut mock_builder = MockBuilder::new();
@@ -161,8 +164,14 @@ impl MockAstLoader {
         None
     }
 
+    pub fn is_default_import(&self) -> bool {
+        if let Some(last) = self.import.last() {
+            return last.default_import;
+        }
+        false
+    }
+
     pub fn set_default_import_name(&mut self, exported: &String, local: &String) {
-        println!("set default exported:{:?}, local:{:?}", &exported, &local);
         if let Some(import) = self.get_next_import() {
             if import.default_import && import.original_name.is_none() {
                 if exported.clone() == String::from("default") {
@@ -248,8 +257,6 @@ impl MockAstLoader {
         // import {Hoge(imported) as Huga(local)} from '...'
         // import {Hoge(imported | local)} from '...'
         if let Some(target_name) = self.get_decl_name_for_resolve() {
-            println!("target_name:{:?}", &target_name);
-            println!("local:{:?}", &local);
             if *target_name != local {
                 return;
             }
@@ -266,8 +273,6 @@ impl MockAstLoader {
             index_d_ts_loaded: false,
             file_d_ts_loaded: false,
         };
-
-        println!("import:{:?}", &import);
 
         if let Some(vec) = &mut self.temp_import_source_vec {
             vec.push(import);

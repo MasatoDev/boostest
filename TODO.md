@@ -4,4 +4,4 @@
 
 - default exportへの対応(名前が変わるため)
 - as defaultへの対応
-- 
+- Enum

@@ -42,7 +42,8 @@ impl MockLoader {
     #[cfg(debug_assertions)]
     pub fn debug(&self) {
         for mock in self.mocks.values() {
-            println!("--------MOCK TARGET: {:?}---------", mock.mock_func_name);
+            println!("--------MOCK: {:?}---------", &mock.mock_func_name);
+            println!("--------MOCK TARGET: {:?}---------", &mock.mock_target_name);
             println!("---------------------");
             println!("import: {:?}", mock.import);
             println!("---------------------");
