@@ -12,6 +12,7 @@ use oxc::{parser::Parser, span::SourceType};
 use anyhow::{anyhow, Result};
 use glob::glob;
 use std::collections::HashMap;
+use std::ffi::OsStr;
 use std::fs::{self, File};
 use std::io::BufReader;
 use std::io::{self, prelude::*};
@@ -64,6 +65,7 @@ struct Setting {
     target: Option<Vec<String>>,
     name: Option<String>,
     tsconfig: Option<PathBuf>,
+    out_file_name: Option<String>,
 }
 
 fn get_setting() -> anyhow::Result<Setting> {
@@ -81,6 +83,7 @@ fn get_setting() -> anyhow::Result<Setting> {
         target: None,
         name: None,
         tsconfig: None,
+        out_file_name: None,
     };
 
     for (key, value) in obj.iter() {
@@ -102,12 +105,18 @@ fn get_setting() -> anyhow::Result<Setting> {
                     setting.name = Some(val.clone());
                 }
             }
+            "out_file_name" => {
+                if let serde_json::Value::String(val) = value {
+                    setting.out_file_name = Some(val.clone());
+                }
+            }
             "tsconfig" => {
                 if let serde_json::Value::String(val) = value {
                     let ps = PathBuf::from(val);
                     setting.tsconfig = Some(ps);
                 }
             }
+
             _ => {}
         }
     }
@@ -115,15 +124,21 @@ fn get_setting() -> anyhow::Result<Setting> {
     Ok(setting)
 }
 
-fn handle_main_task(mock_loader: &mut MockLoader, path: &Path) -> Result<()> {
+fn handle_main_task(mock_loader: &mut MockLoader, path: &Path, out_file_name: &str) -> Result<()> {
     if mock_loader.is_empty() {
         return Ok(());
     }
 
+    let file_name = path
+        .file_stem()
+        .unwrap_or(OsStr::new("none_file_name"))
+        .to_str()
+        .unwrap_or("none_file_name");
+
     let canonical_path = path.canonicalize()?;
     let parent_path = canonical_path.parent().expect("get parent path");
 
-    let path = parent_path.join("boostest.ts"); // srcディレクトリ内のgreeting.ts
+    let path = parent_path.join(format!("{}_{}{}", file_name, out_file_name, ".ts")); // srcディレクトリ内のgreeting.ts
     let file = File::create(path)?;
     let mut f = file;
 
@@ -148,6 +163,7 @@ pub fn call_boostest(path: &Path) {
     let setting = get_setting().expect("error get_setting");
     let target = setting.target.expect("error target");
     let contents = read_matching_files(target).expect("error read_matching_files");
+    let out_file_name = setting.out_file_name.unwrap_or(String::from("boostest"));
 
     let source_type = SourceType::default()
         .with_always_strict(true)
@@ -161,7 +177,7 @@ pub fn call_boostest(path: &Path) {
         let mut program = parser.parse().program;
 
         boostest_utils::load_mock(&mut mock_loader, &mut program, path, &setting.tsconfig);
-        handle_main_task(&mut mock_loader, path).expect("error main task");
+        handle_main_task(&mut mock_loader, path, &out_file_name).expect("error main task");
 
         return;
     }
@@ -195,8 +211,8 @@ pub fn call_boostest(path: &Path) {
         let mut program = parser.parse().program;
 
         boostest_utils::load_mock(&mut mock_loader, &mut program, path, &setting.tsconfig);
-        handle_main_task(&mut mock_loader, path).expect("error main task");
+        handle_main_task(&mut mock_loader, path, &out_file_name).expect("error main task");
     }
 
-    pb.finish_with_message("\nfinished!\n");
+    pb.finish();
 }
