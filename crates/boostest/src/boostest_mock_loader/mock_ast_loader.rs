@@ -37,7 +37,6 @@ ref_properties: [
 
 use crate::boostest_mock_builder::mock_builder::MockBuilder;
 use oxc::ast::ast::{Class, TSInterfaceDeclaration, TSTypeAliasDeclaration};
-use serde::de;
 
 #[derive(Clone, Debug)]
 pub struct Import {

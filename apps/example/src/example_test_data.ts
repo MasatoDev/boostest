@@ -1,31 +1,15 @@
-export function boostestCustomer<T extends abstract new (...args: any) => any>(Store): T {
-	return new Store('string_val', {}, {}, {}, {}, details_boostestCustomer(), () => {
-	}, undefined, 'any', null, undefined, 'ThisType', {}, null, {}, {}, []);
+export function boostestExportDefaultClassWithDecl<T extends abstract new (...args: any) => any>(ExportDefaultClassWithDecl): T {
+	return new ExportDefaultClassWithDecl('string_val', chips_boostestExportDefaultClassWithDecl());
 }
 
-export function from_boostestCustomer<T>(args?: Partial<T>): T {
-	return ({
-		'country':'test data string',
-		'city':'test data string',
-		...args
-	} as T);
-}
-
-export function details_boostestCustomer<T>(args?: Partial<T>): T {
-	return ({
-		'ownerName':'test data string',
-		...args
-	} as T);
-}
-
-export function boostestUser<T>(args?: Partial<T>): T {
+export function chips_boostestExportDefaultClassWithDecl<T>(args?: Partial<T>): T {
 	return ({
 		'name':'test data string',
 		'age':42,
 		'sex':1,
-		'shor_name':'john',
-		'from':from_boostestUser(),
-		'details':details_boostestUser(),
+		'short_name':'john',
+		'favorite':favorite_boostestExportDefaultClassWithDecl(),
+		'mostFav':mostFav_boostestExportDefaultClassWithDecl(),
 		'func':() => {
 		},
 		'undefinedKey':undefined,
@@ -34,7 +18,7 @@ export function boostestUser<T>(args?: Partial<T>): T {
 		'optionalKey':'test data string',
 		'unknownKey':undefined,
 		'thisKey':'ThisType',
-		'conditionalKey':'test data string',
+		'conditionalKey':conditionalKey_boostestExportDefaultClassWithDecl(),
 		'objectKey':{},
 		'voidKey':null,
 		'indexedKey':{},
@@ -44,84 +28,26 @@ export function boostestUser<T>(args?: Partial<T>): T {
 	} as T);
 }
 
-export function from_boostestUser<T>(args?: Partial<T>): T {
+export function favorite_boostestExportDefaultClassWithDecl<T>(args?: Partial<T>): T {
 	return ({
-		'country':'test data string',
-		'city':'test data string',
+		'name':'Calbee Lightly Salted',
+		'price':120,
 		...args
 	} as T);
 }
 
-export function details_boostestUser<T>(args?: Partial<T>): T {
+export function mostFav_boostestExportDefaultClassWithDecl<T>(args?: Partial<T>): T {
 	return ({
-		'parentName':'test data string',
+		'name':'Pringles Sour Cream & Onion',
+		'price':200,
 		...args
 	} as T);
 }
 
-export function boostestBuu<T>(args?: Partial<T>): T {
+export function conditionalKey_boostestExportDefaultClassWithDecl<T>(args?: Partial<T>): T {
 	return ({
-		'name':'test data string',
-		'details':() => {
-		},
-		...args
-	} as T);
-}
-
-export function boostestAnoHoge<T>(args?: Partial<T>): T {
-	return ({
-		'name':'test data string',
-		'details':() => {
-		},
-		...args
-	} as T);
-}
-
-export function boostestOS<T>(args?: Partial<T>): T {
-	return ({
-		'name':'test data string',
-		'version':42,
-		'license':license_boostestOS(),
-		...args
-	} as T);
-}
-
-export function license_boostestOS<T>(args?: Partial<T>): T {
-	return ({
-		'name':'test data string',
-		'duration':42,
-		...args
-	} as T);
-}
-
-export function boostestRank<T>(args?: Partial<T>): T {
-	return ({
-		'name':'test data string',
-		'benefits':'test data string',
-		...args
-	} as T);
-}
-
-export function boostestCustomer2<T extends abstract new (...args: any) => any>(Customer): T {
-	return new Customer('string_val', 42, rank_boostestCustomer2());
-}
-
-export function rank_boostestCustomer2<T>(args?: Partial<T>): T {
-	return ({
-		'name':'test data string',
-		'benefits':'test data string',
-		...args
-	} as T);
-}
-
-export function boostestExportDefaultClass<T extends abstract new (...args: any) => any>(ExportDefaultClass): T {
-	return new ExportDefaultClass('string_val');
-}
-
-export function boostestJOB<T>(args?: Partial<T>): T {
-	return ({
-		'name':'test data string',
-		'salary':42,
+		'name':'Kettle Brand Sea Salt & Vinegar',
+		'price':250,
 		...args
 	} as T);
 }
@@ -129,8 +55,111 @@ export function boostestJOB<T>(args?: Partial<T>): T {
 export function boostestExportDefaultInterface<T>(args?: Partial<T>): T {
 	return ({
 		'name':'test data string',
-		'details':() => {
+		'chips':chips_boostestExportDefaultInterface(),
+		...args
+	} as T);
+}
+
+export function chips_boostestExportDefaultInterface<T>(args?: Partial<T>): T {
+	return ({
+		'name':'test data string',
+		'age':42,
+		'sex':1,
+		'short_name':'john',
+		'favorite':favorite_boostestExportDefaultInterface(),
+		'mostFav':mostFav_boostestExportDefaultInterface(),
+		'func':() => {
 		},
+		'undefinedKey':undefined,
+		'anyKey':'any',
+		'nullKey':null,
+		'optionalKey':'test data string',
+		'unknownKey':undefined,
+		'thisKey':'ThisType',
+		'conditionalKey':conditionalKey_boostestExportDefaultInterface(),
+		'objectKey':{},
+		'voidKey':null,
+		'indexedKey':{},
+		'intersectionKey':{},
+		'arrayKey':[],
+		...args
+	} as T);
+}
+
+export function favorite_boostestExportDefaultInterface<T>(args?: Partial<T>): T {
+	return ({
+		'name':'Calbee Lightly Salted',
+		'price':120,
+		...args
+	} as T);
+}
+
+export function mostFav_boostestExportDefaultInterface<T>(args?: Partial<T>): T {
+	return ({
+		'name':'Pringles Sour Cream & Onion',
+		'price':200,
+		...args
+	} as T);
+}
+
+export function conditionalKey_boostestExportDefaultInterface<T>(args?: Partial<T>): T {
+	return ({
+		'name':'Kettle Brand Sea Salt & Vinegar',
+		'price':250,
+		...args
+	} as T);
+}
+
+export function boostestExportDefaultClass<T extends abstract new (...args: any) => any>(ExportDefaultClass): T {
+	return new ExportDefaultClass('string_val', chips_boostestExportDefaultClass());
+}
+
+export function chips_boostestExportDefaultClass<T>(args?: Partial<T>): T {
+	return ({
+		'name':'test data string',
+		'age':42,
+		'sex':1,
+		'short_name':'john',
+		'favorite':favorite_boostestExportDefaultClass(),
+		'mostFav':mostFav_boostestExportDefaultClass(),
+		'func':() => {
+		},
+		'undefinedKey':undefined,
+		'anyKey':'any',
+		'nullKey':null,
+		'optionalKey':'test data string',
+		'unknownKey':undefined,
+		'thisKey':'ThisType',
+		'conditionalKey':conditionalKey_boostestExportDefaultClass(),
+		'objectKey':{},
+		'voidKey':null,
+		'indexedKey':{},
+		'intersectionKey':{},
+		'arrayKey':[],
+		...args
+	} as T);
+}
+
+export function favorite_boostestExportDefaultClass<T>(args?: Partial<T>): T {
+	return ({
+		'name':'Calbee Lightly Salted',
+		'price':120,
+		...args
+	} as T);
+}
+
+export function mostFav_boostestExportDefaultClass<T>(args?: Partial<T>): T {
+	return ({
+		'name':'Pringles Sour Cream & Onion',
+		'price':200,
+		...args
+	} as T);
+}
+
+export function conditionalKey_boostestExportDefaultClass<T>(args?: Partial<T>): T {
+	return ({
+		'name':'Kettle Brand Sea Salt & Vinegar',
+		'price':250,
 		...args
 	} as T);
 }

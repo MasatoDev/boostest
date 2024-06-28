@@ -1,6 +1,6 @@
 import ComplexInterfaceChips from './deepfiles/lib/comp_interface';
 
-class ExportDefaultClass {
+export default class ExportDefaultClassWithDecl {
   name: string;
   chips: ComplexInterfaceChips;
 
@@ -9,5 +9,3 @@ class ExportDefaultClass {
     this.chips = chips;
   }
 }
-
-export default ExportDefaultClass;

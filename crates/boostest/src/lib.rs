@@ -2,6 +2,7 @@ pub mod boostest_mock_builder;
 pub mod boostest_mock_loader;
 mod boostest_utils;
 
+use boostest_mock_loader::mock_ast_loader::MockAstLoader;
 use colored::*;
 use indicatif::{ProgressBar, ProgressStyle};
 
@@ -186,14 +187,21 @@ fn handle_main_task(mock_loader: &mut MockLoader, path: &Path, out_file_name: &s
             f.write_all(b"\n")?;
         }
 
-        for prop in mock_ast_loader.ref_properties.iter() {
-            if let Some(code) = &prop.code {
-                f.write_all(code.as_bytes())?;
-                f.write_all(b"\n")?;
-            }
-        }
+        write_ref_properties(mock_ast_loader, &mut f)?;
     }
 
+    Ok(())
+}
+
+pub fn write_ref_properties(prop: &MockAstLoader, f: &mut File) -> Result<()> {
+    for prop in prop.ref_properties.iter() {
+        if let Some(code) = &prop.code {
+            f.write_all(code.as_bytes())?;
+            f.write_all(b"\n")?;
+        }
+
+        write_ref_properties(prop, f)?;
+    }
     Ok(())
 }
 

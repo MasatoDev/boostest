@@ -196,6 +196,18 @@ impl<'a> VisitMut<'a> for MockAstLoader {
                         }
                     }
                 }
+                TSType::TSConditionalType(ts_condition_type) => {
+                    if let TSType::TSTypeReference(ty_ref) = &ts_condition_type.true_type {
+                        if let TSTypeName::IdentifierReference(identifier) = &ty_ref.type_name {
+                            if let Some(key_name) = def.key.name() {
+                                self.add_property_ts_type(
+                                    identifier.name.clone().into_string(),
+                                    key_name.to_string(),
+                                );
+                            }
+                        }
+                    }
+                }
                 TSType::TSUnionType(ts_union_type) => {
                     if let Some(first_union_type) = ts_union_type.types.first() {
                         if let TSType::TSTypeReference(ty_ref) = first_union_type {
@@ -229,6 +241,20 @@ impl<'a> VisitMut<'a> for MockAstLoader {
                                         identifier.name.clone().into_string(),
                                         key_name.to_string(),
                                     );
+                                }
+                            }
+                        }
+                        TSType::TSConditionalType(ts_condition_type) => {
+                            if let TSType::TSTypeReference(ty_ref) = &ts_condition_type.true_type {
+                                if let TSTypeName::IdentifierReference(identifier) =
+                                    &ty_ref.type_name
+                                {
+                                    if let Some(key_name) = ts_prop_signature.key.name() {
+                                        self.add_property_ts_type(
+                                            identifier.name.clone().into_string(),
+                                            key_name.to_string(),
+                                        );
+                                    }
                                 }
                             }
                         }
@@ -310,7 +336,7 @@ impl<'a> VisitMut<'a> for MockAstLoader {
                     .into_string();
                 self.set_temp_import_source(name.to_string(), full_path, None, false)
             }
-            TSModuleReference::IdentifierReference(id) => {
+            TSModuleReference::IdentifierReference(_id) => {
                 // println!("id: {:?}", id)
             }
             _ => {}
