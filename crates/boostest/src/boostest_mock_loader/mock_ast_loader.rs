@@ -165,6 +165,10 @@ impl MockAstLoader {
         import.loaded && import.index_d_ts_loaded && import.file_d_ts_loaded
     }
 
+    pub fn is_empty_code(&self) -> bool {
+        self.code.is_none()
+    }
+
     pub fn add_import(&mut self, local: String, full_path: String, imported: Option<String>) {
         let import = Import {
             local,

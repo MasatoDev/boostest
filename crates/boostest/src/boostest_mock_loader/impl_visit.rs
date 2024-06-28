@@ -1,13 +1,14 @@
 use oxc::allocator::Vec;
 
-use oxc::ast::ast::Argument;
 use oxc::ast::ast::{
-    CallExpression, Declaration, Expression, ImportDeclaration, ImportDeclarationSpecifier,
-    Statement, TSType::TSTypeReference, TSTypeName, VariableDeclaration,
+    Argument, CallExpression, Declaration, Expression, ImportDeclaration,
+    ImportDeclarationSpecifier, Statement, TSImportEqualsDeclaration, TSType::TSTypeReference,
+    TSTypeName, VariableDeclaration,
 };
 use oxc::ast::ast::{
     Class, ClassBody, ExportNamedDeclaration, PropertyDefinition, TSInterfaceDeclaration,
-    TSSignature, TSType, TSTypeAliasDeclaration, TSTypeParameterInstantiation, VariableDeclarator,
+    TSModuleReference, TSSignature, TSType, TSTypeAliasDeclaration, TSTypeParameterInstantiation,
+    VariableDeclarator,
 };
 use oxc::ast::VisitMut;
 
@@ -107,7 +108,7 @@ impl<'a> VisitMut<'a> for MockAstLoader {
         for stmt in stmts.iter_mut() {
             match stmt {
                 Statement::TSImportEqualsDeclaration(ts_import_equals_decl) => {
-                    println!("TSImportEqualsDeclaration {:?}", ts_import_equals_decl);
+                    self.visit_ts_import_equals_declaration(ts_import_equals_decl);
                 }
                 Statement::ImportDeclaration(import) => {
                     self.visit_import_declaration(import);
@@ -265,6 +266,25 @@ impl<'a> VisitMut<'a> for MockAstLoader {
                 }
             }
         }
+    }
+
+    fn visit_ts_import_equals_declaration(&mut self, decl: &mut TSImportEqualsDeclaration<'a>) {
+        let name = &decl.id.name;
+
+        match &decl.module_reference {
+            TSModuleReference::ExternalModuleReference(external_module_reference) => {
+                let full_path = external_module_reference
+                    .expression
+                    .value
+                    .clone()
+                    .into_string();
+                self.set_temp_import_source(name.to_string(), full_path, None)
+            }
+            TSModuleReference::IdentifierReference(id) => {
+                println!("id: {:?}", id)
+            }
+            _ => {}
+        };
     }
 
     fn visit_import_declaration(&mut self, decl: &mut ImportDeclaration<'a>) {

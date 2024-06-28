@@ -27,7 +27,10 @@ fn read(path: &Path) -> io::Result<String> {
     }
 }
 
-fn read_matching_files(patterns: Vec<String>) -> anyhow::Result<HashMap<PathBuf, String>> {
+fn read_matching_files(
+    patterns: Vec<String>,
+    out_file_name: &String,
+) -> anyhow::Result<HashMap<PathBuf, String>> {
     let mut contents: HashMap<PathBuf, String> = HashMap::new();
 
     for pattern in &patterns {
@@ -35,6 +38,15 @@ fn read_matching_files(patterns: Vec<String>) -> anyhow::Result<HashMap<PathBuf,
 
         for entry in result_glob {
             let path = entry?;
+
+            if path
+                .file_name()
+                .unwrap_or(OsStr::new("none_file_name"))
+                .to_string_lossy()
+                .contains(out_file_name.as_str())
+            {
+                continue;
+            }
 
             if path.is_file() {
                 contents.insert(path.clone(), fs::read_to_string(path)?);
@@ -144,9 +156,22 @@ fn handle_main_task(mock_loader: &mut MockLoader, path: &Path, out_file_name: &s
     let parent_path = canonical_path.parent().expect("get parent path");
 
     let path = parent_path.join(format!("{}_{}{}", file_name, out_file_name, ".ts")); // srcディレクトリ内のgreeting.ts
-    let mut f = File::create(path)?;
 
     for mock_ast_loader in mock_loader.mocks.values() {
+        if mock_ast_loader.is_empty_code() {
+            println!(
+                "{}",
+                format!(
+                    "Something went wrong to create test data: {} of {}",
+                    mock_ast_loader.mock_func_name, file_name
+                )
+                .purple()
+            );
+            continue;
+        }
+
+        let mut f: File = File::create(&path)?;
+
         if let Some(code) = &mock_ast_loader.code {
             f.write_all(code.as_bytes())?;
             f.write_all(b"\n")?;
@@ -160,24 +185,15 @@ fn handle_main_task(mock_loader: &mut MockLoader, path: &Path, out_file_name: &s
         }
     }
 
-    let mut contents = String::new();
-    let _ = f.read_to_string(&mut contents);
-
-    if contents.trim().is_empty() {
-        println!(
-            "{}",
-            format!("failed create test data: {}", file_name).red()
-        );
-    }
-
     Ok(())
 }
 
 pub fn call_boostest(path: &Path) {
     let setting = get_setting().expect("error get_setting");
-    let target = setting.target.expect("error target");
-    let contents = read_matching_files(target).expect("error read_matching_files");
     let out_file_name = setting.out_file_name.unwrap_or(String::from("boostest"));
+
+    let target = setting.target.expect("error target");
+    let contents = read_matching_files(target, &out_file_name).expect("error read_matching_files");
 
     let source_type = SourceType::default()
         .with_always_strict(true)
@@ -211,7 +227,6 @@ pub fn call_boostest(path: &Path) {
     for (path_buf, file) in contents {
         let path = path_buf.as_path();
 
-        pb.inc(1);
         println!(
             "target file: {}",
             format!("{}", path.to_string_lossy()).green()
@@ -224,6 +239,8 @@ pub fn call_boostest(path: &Path) {
 
         boostest_utils::load_mock(&mut mock_loader, &mut program, path, &setting.tsconfig);
         handle_main_task(&mut mock_loader, path, &out_file_name).expect("error main task");
+
+        pb.inc(1);
     }
 
     pb.finish();
