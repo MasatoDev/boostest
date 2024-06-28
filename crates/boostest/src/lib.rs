@@ -2,6 +2,9 @@ pub mod boostest_mock_builder;
 pub mod boostest_mock_loader;
 mod boostest_utils;
 
+use colored::*;
+use indicatif::{ProgressBar, ProgressStyle};
+
 use boostest_mock_loader::mock_loader::MockLoader;
 
 use oxc::{parser::Parser, span::SourceType};
@@ -163,8 +166,28 @@ pub fn call_boostest(path: &Path) {
         return;
     }
 
+    if contents.is_empty() {
+        println!("{}", "Not found target files".red());
+        return;
+    }
+
+    let pb = ProgressBar::new(contents.len() as u64);
+    pb.set_style(
+        ProgressStyle::with_template(
+            "[{elapsed_precise}] {bar:40.cyan/blue} {pos:>7}/{len:7} {msg}",
+        )
+        .unwrap()
+        .progress_chars("##-"),
+    );
+
     for (path_buf, file) in contents {
         let path = path_buf.as_path();
+
+        pb.inc(1);
+        println!(
+            "target file: {}\n",
+            format!("{}", path.to_string_lossy()).green()
+        );
 
         let mut mock_loader = MockLoader::new(setting.name.clone());
         let allocator = oxc::allocator::Allocator::default();
@@ -174,4 +197,6 @@ pub fn call_boostest(path: &Path) {
         boostest_utils::load_mock(&mut mock_loader, &mut program, path, &setting.tsconfig);
         handle_main_task(&mut mock_loader, path).expect("error main task");
     }
+
+    pb.finish_with_message("\nfinished!\n");
 }

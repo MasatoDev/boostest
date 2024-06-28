@@ -12,6 +12,8 @@
   "keywords": [],
   "author": "",
   "dependencies": {
+    "@sendgrid/mail": "^8.1.3",
+    "axios": "^1.7.2",
     "boostest": "workspace:*",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5"

@@ -42,7 +42,10 @@ use oxc::ast::ast::{Class, TSInterfaceDeclaration, TSTypeAliasDeclaration};
 pub struct Import {
     local: String,
     imported: Option<String>,
-    full_path: String,
+    pub full_path: String,
+    pub loaded: bool,
+    pub index_d_ts_loaded: bool,
+    pub file_d_ts_loaded: bool,
 }
 
 #[derive(Debug)]
@@ -139,12 +142,27 @@ impl MockAstLoader {
         self.mock_target_name.as_ref()
     }
 
-    pub fn get_next_path(&self) -> Option<&String> {
-        if let Some(last) = self.import.last() {
-            return Some(&last.full_path);
+    pub fn get_next_import(&mut self) -> Option<&mut Import> {
+        if let Some(last) = self.import.last_mut() {
+            if MockAstLoader::is_loaded_file_d_ts(last) {
+                return None;
+            }
+            return Some(last);
         }
-
         None
+    }
+
+    pub fn is_unloaded_import(import: &Import) -> bool {
+        !import.loaded && !import.index_d_ts_loaded && !import.file_d_ts_loaded
+    }
+    pub fn is_loaded_full_path(import: &Import) -> bool {
+        import.loaded && !import.index_d_ts_loaded && !import.file_d_ts_loaded
+    }
+    pub fn is_loaded_index_d_ts(import: &Import) -> bool {
+        import.loaded && import.index_d_ts_loaded && !import.file_d_ts_loaded
+    }
+    pub fn is_loaded_file_d_ts(import: &Import) -> bool {
+        import.loaded && import.index_d_ts_loaded && import.file_d_ts_loaded
     }
 
     pub fn add_import(&mut self, local: String, full_path: String, imported: Option<String>) {
@@ -152,6 +170,9 @@ impl MockAstLoader {
             local,
             imported,
             full_path,
+            loaded: false,
+            index_d_ts_loaded: false,
+            file_d_ts_loaded: false,
         };
         self.import.push(import);
     }
@@ -176,7 +197,12 @@ impl MockAstLoader {
             local,
             imported,
             full_path,
+            loaded: false,
+            index_d_ts_loaded: false,
+            file_d_ts_loaded: false,
         };
+
+        println!("import: {:?}", import);
 
         if let Some(vec) = &mut self.temp_import_source_vec {
             vec.push(import);

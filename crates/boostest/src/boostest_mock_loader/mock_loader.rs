@@ -40,6 +40,8 @@ impl MockLoader {
         for mock in self.mocks.values() {
             println!("--------MOCK TARGET: {:?}---------", mock.mock_func_name);
             println!("---------------------");
+            println!("import: {:?}", mock.temp_import_source_vec);
+            println!("---------------------");
             println!("AST: {:?}", mock.ref_properties);
             println!("---------------------");
             // println!("name: {:?}", self.);

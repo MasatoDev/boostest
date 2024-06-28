@@ -1,3 +1,5 @@
+use colored::*;
+
 use anyhow::{anyhow, Result};
 use oxc::ast::VisitMut;
 use oxc::{ast::ast::Program, parser::Parser, span::SourceType};
@@ -31,8 +33,12 @@ fn resolve_specifier(
         None => None,
     };
 
+    println!("{}: {}", "path".green(), path.display());
+    println!("{}: {}", "specifier".red(), specifier);
+
     let options = ResolveOptions {
-        extensions: vec![".ts".into(), ".tsx".into()],
+        extensions: vec![".d.ts".into(), ".ts".into(), ".tsx".into()],
+        main_files: vec!["index.d".into()],
         tsconfig: tsconfig,
         ..ResolveOptions::default()
     };
@@ -56,9 +62,18 @@ pub fn resolve_mock_target_ast(
 ) {
     // prevent infinite loop
     if depth > 50 {
+        let target = mock_ast_loader
+            .mock_target_name
+            .as_ref()
+            .expect("target name is exist");
+
         println!(
-            "module resolution depth is too deep: {}",
-            mock_ast_loader.mock_func_name
+            "{}",
+            format!(
+                "module resolution depth is too deep: {} of {}",
+                target, mock_ast_loader.mock_func_name
+            )
+            .red()
         );
         return;
     }
@@ -84,30 +99,65 @@ pub fn resolve_mock_target_ast(
 
         if let Ok(module_path) = path.canonicalize() {
             if let Some(parent_path) = module_path.parent() {
-                if let Some(specifier) = mock_ast_loader.get_next_path() {
-                    let resolution_result =
-                        resolve_specifier(parent_path, &specifier, ts_config_path);
-                    if let Ok(resolution) = resolution_result {
-                        if let Ok(file) = read(&resolution.full_path()) {
-                            let source_type = SourceType::default()
-                                .with_always_strict(true)
-                                .with_module(true)
-                                .with_typescript(true);
+                if let Some(next_import) = mock_ast_loader.get_next_import() {
+                    if MockAstLoader::is_loaded_file_d_ts(&next_import) {
+                        // tried all possible patterns.
+                        return;
+                    }
 
-                            let allocator = oxc::allocator::Allocator::default();
-                            let parser = Parser::new(&allocator, &file, source_type);
-                            let mut program = parser.parse().program;
-                            let new_path = resolution.full_path();
+                    let mut read_file_path: PathBuf = PathBuf::new();
+                    let parent_path_buf = parent_path.to_path_buf();
 
-                            resolve_mock_target_ast(
-                                mock_ast_loader,
-                                &mut program,
-                                new_path.as_path(),
-                                ts_config_path,
-                                depth + 1,
-                            );
+                    if MockAstLoader::is_loaded_index_d_ts(&next_import) {
+                        let next_file_stem = Path::new(&next_import.full_path)
+                            .file_stem()
+                            .expect("not found file stem");
+                        let next_file_name = next_file_stem.to_string_lossy();
+
+                        if next_file_name.ends_with(".d") {
+                            read_file_path =
+                                parent_path_buf.join(format!("{}{}", next_file_name, ".ts"));
+                        } else {
+                            read_file_path =
+                                parent_path_buf.join(format!("{}{}", next_file_name, ".d.ts"));
+                        }
+
+                        next_import.file_d_ts_loaded = true;
+                    }
+
+                    if MockAstLoader::is_loaded_full_path(&next_import) {
+                        read_file_path = parent_path_buf.join("index.d.ts");
+                        next_import.index_d_ts_loaded = true;
+                    }
+
+                    if MockAstLoader::is_unloaded_import(&next_import) {
+                        let resolution_result =
+                            resolve_specifier(parent_path, &next_import.full_path, ts_config_path);
+
+                        if let Ok(resolution) = resolution_result {
+                            read_file_path = resolution.full_path();
+                            next_import.loaded = true;
                         }
                     }
+
+                    let file = read(&read_file_path).unwrap_or(String::new());
+
+                    let source_type = SourceType::default()
+                        .with_always_strict(true)
+                        .with_module(true)
+                        .with_typescript(true);
+
+                    let allocator = oxc::allocator::Allocator::default();
+                    let parser = Parser::new(&allocator, &file, source_type);
+                    let mut program = parser.parse().program;
+
+                    resolve_mock_target_ast(
+                        mock_ast_loader,
+                        &mut program,
+                        read_file_path.as_path(),
+                        ts_config_path,
+                        depth + 1,
+                    );
                 }
             }
         }
