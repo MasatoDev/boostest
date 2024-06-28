@@ -106,6 +106,9 @@ impl<'a> VisitMut<'a> for MockAstLoader {
     fn visit_statements(&mut self, stmts: &mut Vec<'a, Statement<'a>>) {
         for stmt in stmts.iter_mut() {
             match stmt {
+                Statement::TSImportEqualsDeclaration(ts_import_equals_decl) => {
+                    println!("TSImportEqualsDeclaration {:?}", ts_import_equals_decl);
+                }
                 Statement::ImportDeclaration(import) => {
                     self.visit_import_declaration(import);
                 }

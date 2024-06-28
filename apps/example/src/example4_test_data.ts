@@ -1,3 +1,20 @@
+export function boostestOS<T>(args?: Partial<T>): T {
+	return ({
+		'name':'test data string',
+		'version':42,
+		'license':license_boostestOS(),
+		...args
+	} as T);
+}
+
+export function license_boostestOS<T>(args?: Partial<T>): T {
+	return ({
+		'name':'test data string',
+		'duration':42,
+		...args
+	} as T);
+}
+
 export function boostestCustomer2<T extends abstract new (...args: any) => any>(Customer): T {
 	return new Customer('string_val', 42, rank_boostestCustomer2());
 }
@@ -6,38 +23,6 @@ export function rank_boostestCustomer2<T>(args?: Partial<T>): T {
 	return ({
 		'name':'test data string',
 		'benefits':'test data string',
-		...args
-	} as T);
-}
-
-export function boostestCafe<T extends abstract new (...args: any) => any>(Cafe): T {
-	return new Cafe('string_val');
-}
-
-export function boostestRank<T>(args?: Partial<T>): T {
-	return ({
-		'name':'test data string',
-		'benefits':'test data string',
-		...args
-	} as T);
-}
-
-export function boostestCustomer<T extends abstract new (...args: any) => any>(Store): T {
-	return new Store('string_val', {}, {}, {}, {}, details_boostestCustomer(), () => {
-	}, undefined, 'any', null, undefined, 'ThisType', {}, null, {}, {}, []);
-}
-
-export function from_boostestCustomer<T>(args?: Partial<T>): T {
-	return ({
-		'country':'test data string',
-		'city':'test data string',
-		...args
-	} as T);
-}
-
-export function details_boostestCustomer<T>(args?: Partial<T>): T {
-	return ({
-		'ownerName':'test data string',
 		...args
 	} as T);
 }
@@ -83,6 +68,30 @@ export function details_boostestUser<T>(args?: Partial<T>): T {
 	} as T);
 }
 
+export function boostestCafe<T extends abstract new (...args: any) => any>(Cafe): T {
+	return new Cafe('string_val');
+}
+
+export function boostestCustomer<T extends abstract new (...args: any) => any>(Store): T {
+	return new Store('string_val', {}, {}, {}, {}, details_boostestCustomer(), () => {
+	}, undefined, 'any', null, undefined, 'ThisType', {}, null, {}, {}, []);
+}
+
+export function from_boostestCustomer<T>(args?: Partial<T>): T {
+	return ({
+		'country':'test data string',
+		'city':'test data string',
+		...args
+	} as T);
+}
+
+export function details_boostestCustomer<T>(args?: Partial<T>): T {
+	return ({
+		'ownerName':'test data string',
+		...args
+	} as T);
+}
+
 export function boostestJOB<T>(args?: Partial<T>): T {
 	return ({
 		'name':'test data string',
@@ -91,19 +100,10 @@ export function boostestJOB<T>(args?: Partial<T>): T {
 	} as T);
 }
 
-export function boostestOS<T>(args?: Partial<T>): T {
+export function boostestRank<T>(args?: Partial<T>): T {
 	return ({
 		'name':'test data string',
-		'version':42,
-		'license':license_boostestOS(),
-		...args
-	} as T);
-}
-
-export function license_boostestOS<T>(args?: Partial<T>): T {
-	return ({
-		'name':'test data string',
-		'duration':42,
+		'benefits':'test data string',
 		...args
 	} as T);
 }

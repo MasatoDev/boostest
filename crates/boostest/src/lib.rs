@@ -125,22 +125,26 @@ fn get_setting() -> anyhow::Result<Setting> {
 }
 
 fn handle_main_task(mock_loader: &mut MockLoader, path: &Path, out_file_name: &str) -> Result<()> {
-    if mock_loader.is_empty() {
-        return Ok(());
-    }
-
     let file_name = path
         .file_stem()
         .unwrap_or(OsStr::new("none_file_name"))
         .to_str()
         .unwrap_or("none_file_name");
 
+    if mock_loader.is_empty() {
+        println!(
+            "{}",
+            format!("not found target function: {}", file_name).red()
+        );
+
+        return Ok(());
+    }
+
     let canonical_path = path.canonicalize()?;
     let parent_path = canonical_path.parent().expect("get parent path");
 
     let path = parent_path.join(format!("{}_{}{}", file_name, out_file_name, ".ts")); // srcディレクトリ内のgreeting.ts
-    let file = File::create(path)?;
-    let mut f = file;
+    let mut f = File::create(path)?;
 
     for mock_ast_loader in mock_loader.mocks.values() {
         if let Some(code) = &mock_ast_loader.code {
@@ -154,6 +158,16 @@ fn handle_main_task(mock_loader: &mut MockLoader, path: &Path, out_file_name: &s
                 f.write_all(b"\n")?;
             }
         }
+    }
+
+    let mut contents = String::new();
+    let _ = f.read_to_string(&mut contents);
+
+    if contents.trim().is_empty() {
+        println!(
+            "{}",
+            format!("failed create test data: {}", file_name).red()
+        );
     }
 
     Ok(())
@@ -189,11 +203,9 @@ pub fn call_boostest(path: &Path) {
 
     let pb = ProgressBar::new(contents.len() as u64);
     pb.set_style(
-        ProgressStyle::with_template(
-            "[{elapsed_precise}] {bar:40.cyan/blue} {pos:>7}/{len:7} {msg}",
-        )
-        .unwrap()
-        .progress_chars("##-"),
+        ProgressStyle::with_template("{bar:40.cyan/blue} {pos:>7}/{len:7} {msg}")
+            .unwrap()
+            .progress_chars("##-"),
     );
 
     for (path_buf, file) in contents {
@@ -201,7 +213,7 @@ pub fn call_boostest(path: &Path) {
 
         pb.inc(1);
         println!(
-            "target file: {}\n",
+            "target file: {}",
             format!("{}", path.to_string_lossy()).green()
         );
 
