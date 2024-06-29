@@ -6,7 +6,7 @@
 - `type`や`interface`はテストデータを部分的に上書きできます。
 - 作成は`boostest`コマンド入力するだけです。
 
-## 概要
+https://github.com/MasatoDev/boostest/assets/46220963/62ce7221-9dfd-4931-bcbe-d540be2db75e
 
 
 ## 使い方
@@ -16,12 +16,13 @@
 
 
 ```ts
-import { User } from "./class/user"
+import { User } from './class/user';
+import { boostestRes, boostestUserClass, boostestUserRes } from './demo_test_data';
 
 type Res = {
-  statusCode: "200" | "400" | "500",
-  body: string
-}
+  statusCode: '200' | '400' | '500';
+  body: string;
+};
 
 interface UserRes {
   name: string;
@@ -30,11 +31,23 @@ interface UserRes {
 
 const testData1 = boostestRes<Res>();
 const testData2 = boostestUserRes<UserRes>();
-const testDataInstance = boostestUserRes<typeof User>(User);
+const testDataInstance = boostestUserClass<typeof User>(User);
 
 // 値は上書きできます
-const testData3 = boostestRes<Res>({statusCode: "500"});
-const testData4 = boostestUserRes<UserRes>({name: "Override Name"});
+const testData3 = boostestRes<Res>({ statusCode: '500' });
+const testData4 = boostestUserRes<UserRes>({ name: 'Override Name' });
+
+console.log('testData1', testData1);
+// testData1 { statusCode: '200', body: 'test data string' }
+console.log('testData2', testData2);
+// testData2 { name: 'test data string', age: 42 }
+console.log('testDataInstance', testDataInstance);
+// testDataInstance User { name: 'string_val', age: 42 }
+
+console.log('testData3', testData3);
+// testData3 { statusCode: '500', body: 'test data string' }
+console.log('testData4', testData4);
+// testData4 { name: 'Override Name', age: 42 }
 ```
 
 `boostestRes`などの関数を定義する必要はありません。`boostest`コマンドで自動生成されます。
