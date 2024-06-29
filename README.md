@@ -2,6 +2,8 @@
 
 Instantly generate test data from TypeScript `type`, `interface`, or `class` 🤖
 
+日本語版はこちら→[README-ja.md](https://github.com/MasatoDev/boostest/blob/main/README-ja.md)
+
 ## TL;DR
 
 - Instantly create test data from TypeScript `type`, `interface`, or `class` 📝
