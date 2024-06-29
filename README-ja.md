@@ -43,7 +43,6 @@ const testData = boostestGetUserRes<GetUserRes>();
 
 コマンド実行しテストデータを返す`boostestGetUserRes`を自動生成
 
-```
 
 ```bash
 npx boostest [target_file_path]
