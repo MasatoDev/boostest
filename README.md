@@ -2,8 +2,8 @@
 
 ## TL;DR
 
-- typescriptの`type`や`interface`, `class`から瞬時にテストデータ作成します。
-- `type`や`interface`はテストデータを部分的に上書きできます。
+- typescriptの`type`や`interface`, `class`から瞬時にテストデータ作成
+- `type`や`interface`はテストデータを部分的に上書き可能
 - 作成は`boostest`コマンド入力するだけです。
 
 https://github.com/MasatoDev/boostest/assets/46220963/62ce7221-9dfd-4931-bcbe-d540be2db75e
