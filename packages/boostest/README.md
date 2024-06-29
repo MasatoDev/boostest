@@ -187,7 +187,7 @@ Boostest is currently in beta.
 The basic functionality has been implemented, but the code provided from node_modules is a mix of ESM, Commonjs, and other notations, and is not perfectly covered.
 Boostest basically supports ESM.
 
-Also, at this time, the coverage of type kinds when generating test data is not perfect.
+Also, at this time, the coverage of type kinds when generating test data is not perfect.(but can be overridden in that case)
 
 If it's not code from node_modules, and you're not doing complex exports, you should be able to use it without any problems.
 If you have any problems or feature requests, please feel free to create an ISSUE.
