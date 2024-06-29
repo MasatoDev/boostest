@@ -7,6 +7,7 @@ import ExportDefaultNamedDecl from './types/export_default_named_decl';
 import { AnoExportNamedDeclInterface } from './types/export_named_decl_interface';
 import { AnoExportNamedDeclClass } from './types/export_named_decl_class';
 import Mix, { MixCompTSAlias } from './types/mix';
+import ClassObj from './types/class_obj';
 import {
   boostestAnoExportDefaultClass,
   boostestAnoExportDefaultInterface,
@@ -20,18 +21,19 @@ import {
   boostestMixCompTSAlias,
 } from './example_test_data';
 
-const anoExportAnoDefaultInterface = boostestAnoExportDefaultInterface<AnoExportDefaultInterface>({
-  name: 'overridden',
-});
-const AnoexportDefaultClass = boostestAnoExportDefaultClass<typeof AnoExportDefaultClass>(AnoExportDefaultClass);
-const exportDefaultClass = boostestExportDefaultClass<typeof ExportDefaultClass>(ExportDefaultClass);
-const exportDefaultClassWithDecl = boostestExportDefaultClassWithDecl<typeof ExportDefaultClassWithDecl>(ExportDefaultClassWithDecl);
-const exportNamedDecl = boostestExportNamedDecl<ExportNamedDecl>();
-const exportDefaultNamedDecl = boostestExportDefaultNamedDecl<ExportDefaultNamedDecl>();
-const exportNamedDeclInterface = boostestExportNamedDeclInterface<AnoExportNamedDeclInterface>();
-const exportNamedDeclClass = boostestAnoExportNamedDeclClass<typeof AnoExportNamedDeclClass>(AnoExportNamedDeclClass);
-const mix = boostestAnoMixInterface<Mix>({name:'mix'});
-const mixCompTSAlias = boostestMixCompTSAlias<MixCompTSAlias>({name:'mixCompTSAlias'});
+// const anoExportAnoDefaultInterface = boostestAnoExportDefaultInterface<AnoExportDefaultInterface>({
+//   name: 'overridden',
+// });
+// const AnoexportDefaultClass = boostestAnoExportDefaultClass<typeof AnoExportDefaultClass>(AnoExportDefaultClass);
+// const exportDefaultClass = boostestExportDefaultClass<typeof ExportDefaultClass>(ExportDefaultClass);
+// const exportDefaultClassWithDecl = boostestExportDefaultClassWithDecl<typeof ExportDefaultClassWithDecl>(ExportDefaultClassWithDecl);
+// const exportNamedDecl = boostestExportNamedDecl<ExportNamedDecl>();
+// const exportDefaultNamedDecl = boostestExportDefaultNamedDecl<ExportDefaultNamedDecl>();
+// const exportNamedDeclInterface = boostestExportNamedDeclInterface<AnoExportNamedDeclInterface>();
+// const exportNamedDeclClass = boostestAnoExportNamedDeclClass<typeof AnoExportNamedDeclClass>(AnoExportNamedDeclClass);
+// const mix = boostestAnoMixInterface<Mix>({name:'mix'});
+// const mixCompTSAlias = boostestMixCompTSAlias<MixCompTSAlias>({name:'mixCompTSAlias'});
+const classsObj = boostestClassObj<typeof ClassObj>(ClassObj);
 
 const values = [
   anoExportAnoDefaultInterface,
