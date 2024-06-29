@@ -1,12 +1,12 @@
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { createMock } from '../index';
+import { boostest } from '../index';
 
 const path = process.argv[2]; // 0: node, 1: スクリプト名, 2: 引数
 if (path) {
-  createMock(path);
+  boostest(path);
 } else {
-  createMock('');
+  boostest('');
 }
 
 // const argv = yargs(hideBin(process.argv))

@@ -2,12 +2,17 @@ target
 Cargo.lock
 .cargo
 .github
-npm
+# npm
 .eslintrc
 .prettierignore
 rustfmt.toml
 yarn.lock
-*.node
+# *.node
 .yarn
 __test__
 renovate.json
+
+.yarnrc.yml
+build.rs
+Cargo.toml
+bin/
