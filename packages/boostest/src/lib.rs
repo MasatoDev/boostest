@@ -5,7 +5,7 @@ use std::path::Path;
 extern crate napi_derive;
 
 #[napi]
-pub fn create_mock(path: String) {
+pub fn boostest(path: String) {
   let path = Path::new(&path);
   call_boostest(path);
 }

@@ -1,6 +1,7 @@
 {
   "name": "boostest",
-  "version": "0.1.0",
+  "version": "0.1.1",
+  "description": "Boostest is a tool that generates test code from type definitions.",
   "main": "index.js",
   "types": "index.d.ts",
   "publishConfig": {
@@ -13,7 +14,6 @@
     "name": "boostest",
     "triples": {}
   },
-  "license": "MIT",
   "devDependencies": {
     "@napi-rs/cli": "^2.18.3",
     "ava": "^6.0.1"
@@ -43,9 +43,10 @@
     "yargs": "^17.7.2"
   },
   "optionalDependencies": {
-    "boostest-win32-x64-msvc": "0.1.0",
-    "boostest-darwin-x64": "0.1.0",
-    "boostest-linux-x64-gnu": "0.1.0"
+    "boostest-win32-x64-msvc": "0.1.1",
+    "boostest-darwin-x64": "0.1.1",
+    "boostest-linux-x64-gnu": "0.1.1"
   },
+  "author": "MasatoDev",
   "license": "MIT"
 }
