@@ -10,7 +10,8 @@ typescriptの`type`や`interface`, `class`から瞬時にテストデータ作�
 
 <br />
 
-https://github.com/MasatoDev/boostest/assets/46220963/62ce7221-9dfd-4931-bcbe-d540be2db75e
+https://github.com/MasatoDev/boostest/assets/46220963/16d43dd8-d194-42e0-9039-5b7f205ba15f
+
 
 <br />
 
