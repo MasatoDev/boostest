@@ -1,0 +1,6 @@
+{
+  "target_pattern": ["src/test.ts"],
+  "name": "boostest",
+  "out_file_name": "test_data",
+  "tsconfig": "./tsconfig.json"
+}

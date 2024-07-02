@@ -169,7 +169,9 @@ fn handle_main_task(mock_loader: &mut MockLoader, path: &Path, out_file_name: &s
 
     let mut f: File = File::create(&path)?;
 
-    for mock_ast_loader in mock_loader.mocks.values() {
+    let mock_ast_loader_vec = mock_loader.get_sorted_mocks();
+
+    for mock_ast_loader in mock_ast_loader_vec {
         if mock_ast_loader.is_empty_code() {
             println!(
                 "{}",
@@ -187,7 +189,7 @@ fn handle_main_task(mock_loader: &mut MockLoader, path: &Path, out_file_name: &s
             f.write_all(b"\n")?;
         }
 
-        write_ref_properties(mock_ast_loader, &mut f)?;
+        write_ref_properties(&mock_ast_loader, &mut f)?;
     }
 
     Ok(())
