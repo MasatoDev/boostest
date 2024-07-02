@@ -261,6 +261,13 @@ impl<'a> TSTypeAliasBuilder<'a> {
         }
     }
 
+    pub fn is_ts_type_literal(&self) -> bool {
+        match &self.ts_type_alias.type_annotation {
+            TSType::TSTypeLiteral(_) => true,
+            _ => false,
+        }
+    }
+
     pub fn get_object_property_kind(&mut self) -> Vec<ObjectPropertyKind<'a>> {
         let mut target_ts_types_vec = Vec::new();
 
@@ -377,6 +384,14 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
     }
 
     fn visit_expression(&mut self, expr: &mut Expression<'a>) {
+        if !self.is_ts_type_literal() {
+            let ts_annotation = self.ast_builder.copy(&self.ts_type_alias.type_annotation);
+            let new_expr = self.get_expression(ts_annotation, "key_name");
+
+            let _ = std::mem::replace(expr, new_expr);
+            return;
+        }
+
         let mut temp_obj_expr = self.ast_builder.move_expression(expr);
 
         match &mut temp_obj_expr {
