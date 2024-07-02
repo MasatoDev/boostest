@@ -546,3 +546,43 @@ export function conditionalKey_boostestMixCompTSAlias<T>(args?: Partial<T>): T {
 	} as T);
 }
 
+export function boostestTSAliasMixUnionObjType<T>(args?: Partial<T>): T {
+	return ({
+		'ref_type':ref_type_boostestTSAliasMixUnionObjType(),
+		'type':50000,
+		...args
+	} as T);
+}
+
+export function ref_type_boostestTSAliasMixUnionObjType<T>(args?: Partial<T>): T {
+	return ({
+		...args
+	} as T);
+}
+
+export function boostestTSAliasMixUnionType<T>(args?: Partial<T>): T {
+	return ({
+		...args
+	} as T);
+}
+
+export function boostestTSAliasStringUnionType<T>(args?: Partial<T>): T {
+	return ({
+		...args
+	} as T);
+}
+
+export function boostestTSInterfaceMixUnionType<T>(args?: Partial<T>): T {
+	return ({
+		'type':50000,
+		...args
+	} as T);
+}
+
+export function boostestTSInterfaceStringUnionType<T>(args?: Partial<T>): T {
+	return ({
+		'type':'A',
+		...args
+	} as T);
+}
+

@@ -31,3 +31,10 @@ let j = boostestMixCompTSAlias<MixCompTSAlias>({ name: 'mixCompTSAlias' });
 // TODO
 // import ClassObj from './types/class_obj';
 // let k = boostestClassObj<typeof ClassObj>(ClassObj);
+
+import { TSAliasMixUnionType, TSAliasStringUnionType, TSAliasMixUnionObjType, TSInterfaceMixUnionType, TSInterfaceStringUnionType } from './types/ts_types/union';
+let k = boostestTSAliasMixUnionType<TSAliasMixUnionType>('A');
+let l = boostestTSAliasStringUnionType<TSAliasStringUnionType>('A');
+let m = boostestTSInterfaceMixUnionType<TSInterfaceMixUnionType>({ type: 'A' });
+let n = boostestTSInterfaceStringUnionType<TSInterfaceStringUnionType>({ type: 'A' });
+let o = boostestTSAliasMixUnionObjType<TSAliasMixUnionObjType>({ ref_type: 'A', type: 'A' });
