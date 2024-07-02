@@ -15,6 +15,12 @@ impl MockLoader {
         }
     }
 
+    pub fn get_sorted_mocks(&mut self) -> Vec<&mut MockAstLoader> {
+        let mut mocks: Vec<&mut MockAstLoader> = self.mocks.values_mut().collect();
+        mocks.sort_by(|a, b| a.mock_func_name.cmp(&b.mock_func_name));
+        mocks
+    }
+
     pub fn get_pattern(&self) -> String {
         match &self.pattern {
             Some(pattern) => pattern.clone(),

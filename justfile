@@ -8,9 +8,20 @@ setup:
   pnpm install
   echo "✅ Setup complete!"
 
-debug:
+debug_build:
   pnpm --filter boostest build:debug
+
+debug:
+  just debug_build
   pnpm --filter example start:boostest
+
+update_snapshot:
+  just debug_build
+  pnpm --filter test snapshot  
+
+test:
+  just debug_build
+  pnpm --filter test test:out
   
 example_demo:
   pnpm --filter boostest build:debug
