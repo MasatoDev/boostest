@@ -1,7 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`boostest output correctly 1`] = `
-"export function boostestAnoExportDefaultClass<T extends abstract new (...args: any) => any>(ExportDefaultClass): T {
+"export function boostestAccessorClass<T extends abstract new (...args: any) => any>(AccessorClass): T {
+	return new AccessorClass('test string data', 10, 10);
+}
+
+export function boostestAnoExportDefaultClass<T extends abstract new (...args: any) => any>(ExportDefaultClass): T {
 	return new ExportDefaultClass('test string data', chips_boostestAnoExportDefaultClass());
 }
 
@@ -552,6 +556,14 @@ export function referenceLiteral_boostestLiteralType<T>(args?: Partial<T>): T {
 export function boostestLiteralTypeClass<T extends abstract new (...args: any) => any>(LiteralTypeClass): T {
 	return new LiteralTypeClass('test string data', 10, 9007199254740991, true, null, undefined, 'any', undefined, null, {}, null, () => {
 	}, [], referenceLiteral_boostestLiteralTypeClass(), {}, {}, [], {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {});
+}
+
+export function referenceLiteral_boostestLiteralTypeClass<T>(args?: Partial<T>): T {
+	return ({
+		'name':'test string data',
+		'ver':10,
+		...args
+	} as T);
 }
 
 export function boostestMixCompTSAlias<T>(args?: Partial<T>): T {

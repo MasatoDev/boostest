@@ -1,3 +1,7 @@
+export function boostestAccessorClass<T extends abstract new (...args: any) => any>(AccessorClass): T {
+	return new AccessorClass('test string data', 10, 10);
+}
+
 export function boostestAnoExportDefaultClass<T extends abstract new (...args: any) => any>(ExportDefaultClass): T {
 	return new ExportDefaultClass('test string data', chips_boostestAnoExportDefaultClass());
 }
@@ -492,69 +496,6 @@ export function conditionalKey_boostestExportNamedDeclInterface<T>(args?: Partia
 	return ({
 		'name':'Kettle Brand Sea Salt & Vinegar',
 		'price':250,
-		...args
-	} as T);
-}
-
-export function boostestLiteralType<T>(args?: Partial<T>): T {
-	return ({
-		'stringLiteral':'test string data',
-		'numberLiteral':10,
-		'bigintLiteral':9007199254740991,
-		'booleanLiteral':true,
-		'nullLiteral':null,
-		'undefinedId':undefined,
-		'anyLiteral':'any',
-		'unknownLiteral':undefined,
-		'neverLiteral':null,
-		'objectLiteral':{},
-		'voidLiteral':null,
-		'functionLiteral':() => {
-		},
-		'arrayLiteral':[],
-		'referenceLiteral':referenceLiteral_boostestLiteralType(),
-		'thisType':{},
-		'unionType':'test string data',
-		'conditionalType':true,
-		'tsLiteralString':'string',
-		'tsLiteralNumber':20,
-		'tsLiteralBoolean':true,
-		'tsNullLiteral':null,
-		'array':[],
-		'partial':{},
-		'required':{},
-		'readonly':{},
-		'pick':{},
-		'omit':{},
-		'extract':{},
-		'exclude':{},
-		'nonNullable':{},
-		'parameters':{},
-		'constructorParameters':{},
-		'returnType':{},
-		'instanceType':{},
-		'promise':{},
-		...args
-	} as T);
-}
-
-export function referenceLiteral_boostestLiteralType<T>(args?: Partial<T>): T {
-	return ({
-		'name':'test string data',
-		'ver':10,
-		...args
-	} as T);
-}
-
-export function boostestLiteralTypeClass<T extends abstract new (...args: any) => any>(LiteralTypeClass): T {
-	return new LiteralTypeClass('test string data', 10, 9007199254740991, true, null, undefined, 'any', undefined, null, {}, null, () => {
-	}, [], referenceLiteral_boostestLiteralTypeClass(), {}, {}, [], {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {});
-}
-
-export function referenceLiteral_boostestLiteralTypeClass<T>(args?: Partial<T>): T {
-	return ({
-		'name':'test string data',
-		'ver':10,
 		...args
 	} as T);
 }

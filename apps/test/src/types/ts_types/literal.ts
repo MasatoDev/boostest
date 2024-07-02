@@ -58,7 +58,6 @@ export class LiteralTypeClass {
     public objectLiteral: object,
     public voidLiteral: void,
     public functionLiteral: () => void,
-    // public arrayLiteral: Array<string>
     public arrayLiteral: string[],
     public referenceLiteral: RefType,
     public thisType: ThisType<string>,

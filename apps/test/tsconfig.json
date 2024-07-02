@@ -10,7 +10,7 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "paths": {
-      "@/*": ["./types/*"]
+      "@/*": ["./src/types/*"]
     }
   },
   "ts-node": {
