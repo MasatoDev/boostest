@@ -111,9 +111,17 @@ impl<'a> ClassBuilder<'a> {
                 TSType::TSNullKeyword(_) => test_data_factory::null_arg(&self.ast_builder),
                 TSType::TSNumberKeyword(_) => test_data_factory::number_arg(&self.ast_builder),
                 TSType::TSStringKeyword(_) => test_data_factory::string_arg(&self.ast_builder),
-                TSType::TSTypeReference(ts_type_ref) if MockBuilder::is_this_type(&ts_type_ref) => {
+                TSType::TSTypeReference(ts_type_ref)
+                    if MockBuilder::is_defined_type(&ts_type_ref) =>
+                {
                     // TODO: ThisType
                     test_data_factory::object_arg(&self.ast_builder)
+                }
+                TSType::TSTypeReference(ts_type_ref)
+                    if MockBuilder::is_array_type(&ts_type_ref) =>
+                {
+                // TODO: Array
+                    test_data_factory::array_arg(&self.ast_builder)
                 }
                 TSType::TSTypeReference(_) => test_data_factory::ref_arg(
                     &self.ast_builder,
