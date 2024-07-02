@@ -208,11 +208,13 @@ pub fn write_ref_properties(prop: &MockAstLoader, f: &mut File) -> Result<()> {
 }
 
 pub fn call_boostest(path: &Path) {
-    let setting = get_setting().expect("error get_setting");
+    let setting = get_setting().unwrap_or(Setting {
+        target: None,
+        name: None,
+        tsconfig: None,
+        out_file_name: None,
+    });
     let out_file_name = setting.out_file_name.unwrap_or(String::from("boostest"));
-
-    let target = setting.target.expect("error target");
-    let contents = read_matching_files(target, &out_file_name).expect("error read_matching_files");
 
     let source_type = SourceType::default()
         .with_always_strict(true)
@@ -230,6 +232,9 @@ pub fn call_boostest(path: &Path) {
 
         return;
     }
+
+    let target = setting.target.expect("target file is not found");
+    let contents = read_matching_files(target, &out_file_name).expect("error read_matching_files");
 
     if contents.is_empty() {
         println!("{}", "Not found target files".red());
