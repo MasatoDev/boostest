@@ -16,7 +16,6 @@ export type LiteralType = {
   objectLiteral: object;
   voidLiteral: void;
   functionLiteral: () => void;
-  // arrayLiteral: Array<string>;
   arrayLiteral: string[];
   referenceLiteral: RefType;
   thisType: ThisType<string>;
@@ -27,6 +26,22 @@ export type LiteralType = {
   tsLiteralNumber: 20;
   tsLiteralBoolean: true;
   tsNullLiteral: null;
+
+  // TODO
+  array: Array<string>;
+  partial: Partial<RefType>;
+  required: Required<RefType>;
+  readonly: Readonly<RefType>;
+  pick: Pick<RefType, 'name'>;
+  omit: Omit<RefType, 'name'>;
+  extract: Extract<string | number, string>;
+  exclude: Exclude<string | number, string>;
+  nonNullable: NonNullable<string | null>;
+  parameters: Parameters<() => void>;
+  constructorParameters: ConstructorParameters<typeof LiteralTypeClass>;
+  returnType: ReturnType<() => void>;
+  instanceType: InstanceType<typeof LiteralTypeClass>;
+  promise: Promise<RefType>;
 };
 
 export class LiteralTypeClass {
@@ -46,6 +61,22 @@ export class LiteralTypeClass {
     // public arrayLiteral: Array<string>
     public arrayLiteral: string[],
     public referenceLiteral: RefType,
-    public thisType: ThisType<string> // public unionType: string | number
+    public thisType: ThisType<string>,
+    public unionType: string | number,
+
+    public array: Array<string>,
+    public partial: Partial<RefType>,
+    public required: Required<RefType>,
+    public readonly: Readonly<RefType>,
+    public pick: Pick<RefType, 'name'>,
+    public omit: Omit<RefType, 'name'>,
+    public extract: Extract<string | number, string>,
+    public exclude: Exclude<string | number, string>,
+    public nonNullable: NonNullable<string | null>,
+    public parameters: Parameters<() => void>,
+    // public constructorParameters: ConstructorParameters<typeof LiteralTypeClass>,
+    public returnType: ReturnType<() => void>,
+    // public instanceType: InstanceType<typeof LiteralTypeClass>,
+    public promise: Promise<RefType>
   ) {}
 }

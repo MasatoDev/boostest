@@ -523,6 +523,20 @@ export function boostestLiteralType<T>(args?: Partial<T>): T {
 		'tsLiteralNumber':20,
 		'tsLiteralBoolean':true,
 		'tsNullLiteral':null,
+		'array':[],
+		'partial':{},
+		'required':{},
+		'readonly':{},
+		'pick':{},
+		'omit':{},
+		'extract':{},
+		'exclude':{},
+		'nonNullable':{},
+		'parameters':{},
+		'constructorParameters':{},
+		'returnType':{},
+		'instanceType':{},
+		'promise':{},
 		...args
 	} as T);
 }
@@ -537,7 +551,7 @@ export function referenceLiteral_boostestLiteralType<T>(args?: Partial<T>): T {
 
 export function boostestLiteralTypeClass<T extends abstract new (...args: any) => any>(LiteralTypeClass): T {
 	return new LiteralTypeClass('test string data', 10, 9007199254740991, true, null, undefined, 'any', undefined, null, {}, null, () => {
-	}, [], referenceLiteral_boostestLiteralTypeClass(), {});
+	}, [], referenceLiteral_boostestLiteralTypeClass(), {}, {}, [], {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {});
 }
 
 export function boostestMixCompTSAlias<T>(args?: Partial<T>): T {

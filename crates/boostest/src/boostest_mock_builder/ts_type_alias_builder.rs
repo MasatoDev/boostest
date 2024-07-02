@@ -75,9 +75,13 @@ impl<'a> TSTypeAliasBuilder<'a> {
 
     pub fn get_expression(&self, type_annotation: TSType<'a>, key_name: &str) -> Expression<'a> {
         let val = match type_annotation {
-            TSType::TSTypeReference(ts_type_ref) if MockBuilder::is_this_type(&ts_type_ref) => {
-                // TODO: ThisType
+            TSType::TSTypeReference(ts_type_ref) if MockBuilder::is_defined_type(&ts_type_ref) => {
+                // TODO: Defined type
                 test_data_factory::object_expr(&self.ast_builder)
+            }
+            TSType::TSTypeReference(ts_type_ref) if MockBuilder::is_array_type(&ts_type_ref) => {
+                // TODO: Array
+                test_data_factory::array_expr(&self.ast_builder)
             }
             TSType::TSTypeReference(_) => test_data_factory::ref_expr(
                 &self.ast_builder,
