@@ -2,21 +2,19 @@ use oxc::{
     allocator::Allocator,
     ast::{
         ast::{
-            BindingIdentifier, Declaration, Expression, FormalParameterKind, FunctionBody,
-            NullLiteral, ObjectPropertyKind, Program, PropertyKind, Statement, TSAnyKeyword,
-            TSInterfaceDeclaration, TSLiteral, TSSignature, TSType,
+            BindingIdentifier, Declaration, Expression, FunctionBody, ObjectPropertyKind, Program,
+            PropertyKind, Statement, TSAnyKeyword, TSInterfaceDeclaration, TSSignature, TSType,
         },
         AstBuilder, VisitMut,
     },
     codegen::{Codegen, CodegenOptions},
     parser::Parser,
     span::{SourceType, Span},
-    syntax::number::{BigintBase, NumberBase},
 };
 
 use oxc::allocator;
 
-use super::mock_builder::MockBuilder;
+use super::{mock_builder::MockBuilder, test_data_factory};
 
 const SPAN: Span = Span::new(0, 0);
 
@@ -78,87 +76,30 @@ impl<'a> TSInterfaceBuilder<'a> {
     pub fn get_expression(&self, type_annotation: TSType<'a>, key_name: &str) -> Expression<'a> {
         let val = match type_annotation {
             TSType::TSTypeReference(ts_type_ref) if MockBuilder::is_this_type(&ts_type_ref) => {
-                let str_literal = self.ast_builder.string_literal(SPAN, "ThisType");
-                self.ast_builder.literal_string_expression(str_literal)
+                // TODO: ThisType
+                test_data_factory::object_expr(&self.ast_builder)
             }
-            TSType::TSTypeReference(_) => {
-                // 'key_name':[key_name]_boostestHoge(),
-                let new_name = format!("{}_{}", key_name, &self.mock_data.mock_func_name);
-                let new_id = self.ast_builder.identifier_reference(SPAN, &new_name);
-                let new_callee = self.ast_builder.identifier_reference_expression(new_id);
-                let arg = self.ast_builder.new_vec();
-                self.ast_builder
-                    .call_expression(SPAN, new_callee, arg, false, None)
-            }
-            TSType::TSStringKeyword(_) => {
-                let str_literal = self.ast_builder.string_literal(SPAN, "test data string");
-                self.ast_builder.literal_string_expression(str_literal)
-            }
-            TSType::TSAnyKeyword(_) => {
-                let any_literal = self.ast_builder.string_literal(SPAN, "any");
-                self.ast_builder.literal_string_expression(any_literal)
-            }
-            TSType::TSBooleanKeyword(_) => {
-                let bool_literal = self.ast_builder.boolean_literal(SPAN, true);
-                self.ast_builder.literal_boolean_expression(bool_literal)
-            }
-            TSType::TSNullKeyword(_) => {
-                let null_literal = NullLiteral::new(SPAN);
-                self.ast_builder.literal_null_expression(null_literal)
-            }
+            TSType::TSTypeReference(_) => test_data_factory::ref_expr(
+                &self.ast_builder,
+                key_name,
+                &self.mock_data.mock_func_name,
+            ),
+            TSType::TSStringKeyword(_) => test_data_factory::string_expr(&self.ast_builder, None),
+            TSType::TSAnyKeyword(_) => test_data_factory::any_expr(&self.ast_builder),
+            TSType::TSBooleanKeyword(_) => test_data_factory::boolean_expr(&self.ast_builder, None),
+            TSType::TSNullKeyword(_) => test_data_factory::null_expr(&self.ast_builder),
             TSType::TSNumberKeyword(_) => {
-                let num_literal =
-                    self.ast_builder
-                        .number_literal(SPAN, 42.0, "42", NumberBase::Decimal);
-                self.ast_builder.literal_number_expression(num_literal)
+                test_data_factory::number_expr(&self.ast_builder, None, None, None)
             }
-            TSType::TSBigIntKeyword(_) => {
-                let big_int_literal = self.ast_builder.bigint_literal(
-                    SPAN,
-                    self.ast_builder.new_atom("9007199254740991"),
-                    BigintBase::Decimal,
-                );
-                self.ast_builder.literal_bigint_expression(big_int_literal)
-            }
-            TSType::TSObjectKeyword(_) => {
-                self.ast_builder
-                    .object_expression(SPAN, self.ast_builder.new_vec(), None)
-            }
-            TSType::TSVoidKeyword(_) => {
-                let new_val = NullLiteral::new(SPAN);
-                self.ast_builder.literal_null_expression(new_val)
-            }
-            TSType::TSFunctionType(_) => {
-                let params = self.ast_builder.formal_parameters(
-                    SPAN,
-                    FormalParameterKind::ArrowFormalParameters,
-                    self.ast_builder.new_vec(),
-                    None,
-                );
-                let body = self.ast_builder.function_body(
-                    SPAN,
-                    self.ast_builder.new_vec(),
-                    self.ast_builder.new_vec(),
-                );
-
-                self.ast_builder
-                    .arrow_function_expression(SPAN, false, false, params, body, None, None)
-            }
-            TSType::TSUndefinedKeyword(_) => {
-                let undefined_id = self.ast_builder.identifier_reference(SPAN, "undefined");
-                self.ast_builder
-                    .identifier_reference_expression(undefined_id)
-            }
-            TSType::TSUnknownKeyword(_) => {
-                // same any
-                let undefined_id = self.ast_builder.identifier_reference(SPAN, "undefined");
-                self.ast_builder
-                    .identifier_reference_expression(undefined_id)
-            }
+            TSType::TSBigIntKeyword(_) => test_data_factory::bigint_expr(&self.ast_builder),
+            TSType::TSObjectKeyword(_) => test_data_factory::object_expr(&self.ast_builder),
+            TSType::TSVoidKeyword(_) => test_data_factory::null_expr(&self.ast_builder),
+            TSType::TSFunctionType(_) => test_data_factory::function_expr(&self.ast_builder),
+            TSType::TSUndefinedKeyword(_) => test_data_factory::undefined_expr(&self.ast_builder),
+            TSType::TSUnknownKeyword(_) => test_data_factory::undefined_expr(&self.ast_builder),
             TSType::TSConditionalType(ts_conditional_type) => {
                 let ts_type = self.ast_builder.copy(&ts_conditional_type.true_type);
-                let new = self.get_expression(ts_type, key_name);
-                return new;
+                self.get_expression(ts_type, key_name)
             }
             TSType::TSUnionType(box_ts_union_type) => {
                 let ts_union_type = &mut box_ts_union_type.unbox();
@@ -170,22 +111,11 @@ impl<'a> TSInterfaceBuilder<'a> {
                     return new;
                 }
 
-                let new_val = self
-                    .ast_builder
-                    .string_literal(SPAN, "default_val(unimplemented)");
-                self.ast_builder.literal_string_expression(new_val)
+                // fallback
+                test_data_factory::null_expr(&self.ast_builder)
             }
-            TSType::TSNeverKeyword(_) => {
-                let null_literal = NullLiteral::new(SPAN);
-                self.ast_builder.literal_null_expression(null_literal)
-            }
-            TSType::TSArrayType(_) => {
-                // let new_ts_type = self.ast_builder.copy(&ts_array.element_type);
-                // let expr = self.get_expression(new_ts_type, key_name);
-
-                let new_array = self.ast_builder.new_vec();
-                self.ast_builder.array_expression(SPAN, new_array, None)
-            }
+            TSType::TSNeverKeyword(_) => test_data_factory::null_expr(&self.ast_builder),
+            TSType::TSArrayType(_) => test_data_factory::array_expr(&self.ast_builder),
             TSType::TSThisType(_) => {
                 // TODO
                 // error
@@ -278,42 +208,11 @@ impl<'a> TSInterfaceBuilder<'a> {
                     .object_expression(SPAN, self.ast_builder.new_vec(), None)
             }
             TSType::TSLiteralType(literal_type) => {
-                let val = match &literal_type.literal {
-                    TSLiteral::StringLiteral(string_literal) => {
-                        let new_val = self
-                            .ast_builder
-                            .string_literal(SPAN, string_literal.value.as_str());
-                        self.ast_builder.literal_string_expression(new_val)
-                    }
-                    TSLiteral::NumericLiteral(numeric_literal) => {
-                        let new_val = self.ast_builder.number_literal(
-                            SPAN,
-                            numeric_literal.value,
-                            numeric_literal.raw,
-                            numeric_literal.base,
-                        );
-                        self.ast_builder.literal_number_expression(new_val)
-                    }
-                    TSLiteral::BooleanLiteral(boolean_literal) => {
-                        let new_val = self
-                            .ast_builder
-                            .boolean_literal(SPAN, boolean_literal.value);
-                        self.ast_builder.literal_boolean_expression(new_val)
-                    }
-                    TSLiteral::NullLiteral(_) => {
-                        let new_val = NullLiteral::new(SPAN);
-                        self.ast_builder.literal_null_expression(new_val)
-                    }
-                    _ => {
-                        let new_val = self
-                            .ast_builder
-                            .string_literal(SPAN, "default_val(unimplemented)");
-                        self.ast_builder.literal_string_expression(new_val)
-                    }
-                };
-                val
+                test_data_factory::get_expr_with_ts_literal_type(
+                    &self.ast_builder,
+                    &literal_type.literal,
+                )
             }
-
             TSType::JSDocNullableType(_) => {
                 // TODO
                 self.ast_builder

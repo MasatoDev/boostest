@@ -1,11 +1,11 @@
 export function boostestAnoExportDefaultClass<T extends abstract new (...args: any) => any>(ExportDefaultClass): T {
-	return new ExportDefaultClass('string_val', chips_boostestAnoExportDefaultClass());
+	return new ExportDefaultClass('test string data', chips_boostestAnoExportDefaultClass());
 }
 
 export function chips_boostestAnoExportDefaultClass<T>(args?: Partial<T>): T {
 	return ({
-		'name':'test data string',
-		'age':42,
+		'name':'test string data',
+		'age':10,
 		'sex':1,
 		'short_name':'john',
 		'favorite':favorite_boostestAnoExportDefaultClass(),
@@ -15,9 +15,9 @@ export function chips_boostestAnoExportDefaultClass<T>(args?: Partial<T>): T {
 		'undefinedKey':undefined,
 		'anyKey':'any',
 		'nullKey':null,
-		'optionalKey':'test data string',
+		'optionalKey':'test string data',
 		'unknownKey':undefined,
-		'thisKey':'ThisType',
+		'thisKey':{},
 		'conditionalKey':conditionalKey_boostestAnoExportDefaultClass(),
 		'objectKey':{},
 		'voidKey':null,
@@ -54,7 +54,7 @@ export function conditionalKey_boostestAnoExportDefaultClass<T>(args?: Partial<T
 
 export function boostestAnoExportDefaultInterface<T>(args?: Partial<T>): T {
 	return ({
-		'name':'test data string',
+		'name':'test string data',
 		'chips':chips_boostestAnoExportDefaultInterface(),
 		...args
 	} as T);
@@ -62,8 +62,8 @@ export function boostestAnoExportDefaultInterface<T>(args?: Partial<T>): T {
 
 export function chips_boostestAnoExportDefaultInterface<T>(args?: Partial<T>): T {
 	return ({
-		'name':'test data string',
-		'age':42,
+		'name':'test string data',
+		'age':10,
 		'sex':1,
 		'short_name':'john',
 		'favorite':favorite_boostestAnoExportDefaultInterface(),
@@ -73,9 +73,9 @@ export function chips_boostestAnoExportDefaultInterface<T>(args?: Partial<T>): T
 		'undefinedKey':undefined,
 		'anyKey':'any',
 		'nullKey':null,
-		'optionalKey':'test data string',
+		'optionalKey':'test string data',
 		'unknownKey':undefined,
-		'thisKey':'ThisType',
+		'thisKey':{},
 		'conditionalKey':conditionalKey_boostestAnoExportDefaultInterface(),
 		'objectKey':{},
 		'voidKey':null,
@@ -111,13 +111,13 @@ export function conditionalKey_boostestAnoExportDefaultInterface<T>(args?: Parti
 }
 
 export function boostestAnoExportNamedDeclClass<T extends abstract new (...args: any) => any>(ExportNamedDeclClass): T {
-	return new ExportNamedDeclClass('string_val', chips_boostestAnoExportNamedDeclClass());
+	return new ExportNamedDeclClass('test string data', chips_boostestAnoExportNamedDeclClass());
 }
 
 export function chips_boostestAnoExportNamedDeclClass<T>(args?: Partial<T>): T {
 	return ({
-		'name':'test data string',
-		'age':42,
+		'name':'test string data',
+		'age':10,
 		'sex':1,
 		'short_name':'john',
 		'favorite':favorite_boostestAnoExportNamedDeclClass(),
@@ -127,9 +127,9 @@ export function chips_boostestAnoExportNamedDeclClass<T>(args?: Partial<T>): T {
 		'undefinedKey':undefined,
 		'anyKey':'any',
 		'nullKey':null,
-		'optionalKey':'test data string',
+		'optionalKey':'test string data',
 		'unknownKey':undefined,
-		'thisKey':'ThisType',
+		'thisKey':{},
 		'conditionalKey':conditionalKey_boostestAnoExportNamedDeclClass(),
 		'objectKey':{},
 		'voidKey':null,
@@ -166,7 +166,7 @@ export function conditionalKey_boostestAnoExportNamedDeclClass<T>(args?: Partial
 
 export function boostestAnoMixInterface<T>(args?: Partial<T>): T {
 	return ({
-		'name':'test data string',
+		'name':'test string data',
 		'chips':chips_boostestAnoMixInterface(),
 		...args
 	} as T);
@@ -174,8 +174,8 @@ export function boostestAnoMixInterface<T>(args?: Partial<T>): T {
 
 export function chips_boostestAnoMixInterface<T>(args?: Partial<T>): T {
 	return ({
-		'name':'test data string',
-		'age':42,
+		'name':'test string data',
+		'age':10,
 		'sex':1,
 		'short_name':'john',
 		'favorite':favorite_boostestAnoMixInterface(),
@@ -185,9 +185,9 @@ export function chips_boostestAnoMixInterface<T>(args?: Partial<T>): T {
 		'undefinedKey':undefined,
 		'anyKey':'any',
 		'nullKey':null,
-		'optionalKey':'test data string',
+		'optionalKey':'test string data',
 		'unknownKey':undefined,
-		'thisKey':'ThisType',
+		'thisKey':{},
 		'conditionalKey':conditionalKey_boostestAnoMixInterface(),
 		'objectKey':{},
 		'voidKey':null,
@@ -223,13 +223,13 @@ export function conditionalKey_boostestAnoMixInterface<T>(args?: Partial<T>): T 
 }
 
 export function boostestExportDefaultClass<T extends abstract new (...args: any) => any>(ExportDefaultClass): T {
-	return new ExportDefaultClass('string_val', chips_boostestExportDefaultClass());
+	return new ExportDefaultClass('test string data', chips_boostestExportDefaultClass());
 }
 
 export function chips_boostestExportDefaultClass<T>(args?: Partial<T>): T {
 	return ({
-		'name':'test data string',
-		'age':42,
+		'name':'test string data',
+		'age':10,
 		'sex':1,
 		'short_name':'john',
 		'favorite':favorite_boostestExportDefaultClass(),
@@ -239,9 +239,9 @@ export function chips_boostestExportDefaultClass<T>(args?: Partial<T>): T {
 		'undefinedKey':undefined,
 		'anyKey':'any',
 		'nullKey':null,
-		'optionalKey':'test data string',
+		'optionalKey':'test string data',
 		'unknownKey':undefined,
-		'thisKey':'ThisType',
+		'thisKey':{},
 		'conditionalKey':conditionalKey_boostestExportDefaultClass(),
 		'objectKey':{},
 		'voidKey':null,
@@ -277,13 +277,13 @@ export function conditionalKey_boostestExportDefaultClass<T>(args?: Partial<T>):
 }
 
 export function boostestExportDefaultClassWithDecl<T extends abstract new (...args: any) => any>(ExportDefaultClassWithDecl): T {
-	return new ExportDefaultClassWithDecl('string_val', chips_boostestExportDefaultClassWithDecl());
+	return new ExportDefaultClassWithDecl('test string data', chips_boostestExportDefaultClassWithDecl());
 }
 
 export function chips_boostestExportDefaultClassWithDecl<T>(args?: Partial<T>): T {
 	return ({
-		'name':'test data string',
-		'age':42,
+		'name':'test string data',
+		'age':10,
 		'sex':1,
 		'short_name':'john',
 		'favorite':favorite_boostestExportDefaultClassWithDecl(),
@@ -293,9 +293,9 @@ export function chips_boostestExportDefaultClassWithDecl<T>(args?: Partial<T>): 
 		'undefinedKey':undefined,
 		'anyKey':'any',
 		'nullKey':null,
-		'optionalKey':'test data string',
+		'optionalKey':'test string data',
 		'unknownKey':undefined,
-		'thisKey':'ThisType',
+		'thisKey':{},
 		'conditionalKey':conditionalKey_boostestExportDefaultClassWithDecl(),
 		'objectKey':{},
 		'voidKey':null,
@@ -332,7 +332,7 @@ export function conditionalKey_boostestExportDefaultClassWithDecl<T>(args?: Part
 
 export function boostestExportDefaultNamedDecl<T>(args?: Partial<T>): T {
 	return ({
-		'name':'test data string',
+		'name':'test string data',
 		'chips':chips_boostestExportDefaultNamedDecl(),
 		...args
 	} as T);
@@ -340,8 +340,8 @@ export function boostestExportDefaultNamedDecl<T>(args?: Partial<T>): T {
 
 export function chips_boostestExportDefaultNamedDecl<T>(args?: Partial<T>): T {
 	return ({
-		'name':'test data string',
-		'age':42,
+		'name':'test string data',
+		'age':10,
 		'sex':1,
 		'short_name':'john',
 		'favorite':favorite_boostestExportDefaultNamedDecl(),
@@ -351,9 +351,9 @@ export function chips_boostestExportDefaultNamedDecl<T>(args?: Partial<T>): T {
 		'undefinedKey':undefined,
 		'anyKey':'any',
 		'nullKey':null,
-		'optionalKey':'test data string',
+		'optionalKey':'test string data',
 		'unknownKey':undefined,
-		'thisKey':'ThisType',
+		'thisKey':{},
 		'conditionalKey':conditionalKey_boostestExportDefaultNamedDecl(),
 		'objectKey':{},
 		'voidKey':null,
@@ -390,8 +390,8 @@ export function conditionalKey_boostestExportDefaultNamedDecl<T>(args?: Partial<
 
 export function boostestExportNamedDecl<T>(args?: Partial<T>): T {
 	return ({
-		'name':'test data string',
-		'age':42,
+		'name':'test string data',
+		'age':10,
 		'sex':1,
 		'short_name':'john',
 		'favorite':favorite_boostestExportNamedDecl(),
@@ -401,9 +401,9 @@ export function boostestExportNamedDecl<T>(args?: Partial<T>): T {
 		'undefinedKey':undefined,
 		'anyKey':'any',
 		'nullKey':null,
-		'optionalKey':'test data string',
+		'optionalKey':'test string data',
 		'unknownKey':undefined,
-		'thisKey':'ThisType',
+		'thisKey':{},
 		'conditionalKey':conditionalKey_boostestExportNamedDecl(),
 		'objectKey':{},
 		'voidKey':null,
@@ -440,7 +440,7 @@ export function conditionalKey_boostestExportNamedDecl<T>(args?: Partial<T>): T 
 
 export function boostestExportNamedDeclInterface<T>(args?: Partial<T>): T {
 	return ({
-		'name':'test data string',
+		'name':'test string data',
 		'chips':chips_boostestExportNamedDeclInterface(),
 		...args
 	} as T);
@@ -448,8 +448,8 @@ export function boostestExportNamedDeclInterface<T>(args?: Partial<T>): T {
 
 export function chips_boostestExportNamedDeclInterface<T>(args?: Partial<T>): T {
 	return ({
-		'name':'test data string',
-		'age':42,
+		'name':'test string data',
+		'age':10,
 		'sex':1,
 		'short_name':'john',
 		'favorite':favorite_boostestExportNamedDeclInterface(),
@@ -459,9 +459,9 @@ export function chips_boostestExportNamedDeclInterface<T>(args?: Partial<T>): T 
 		'undefinedKey':undefined,
 		'anyKey':'any',
 		'nullKey':null,
-		'optionalKey':'test data string',
+		'optionalKey':'test string data',
 		'unknownKey':undefined,
-		'thisKey':'ThisType',
+		'thisKey':{},
 		'conditionalKey':conditionalKey_boostestExportNamedDeclInterface(),
 		'objectKey':{},
 		'voidKey':null,
@@ -496,10 +496,51 @@ export function conditionalKey_boostestExportNamedDeclInterface<T>(args?: Partia
 	} as T);
 }
 
+export function boostestLiteralType<T>(args?: Partial<T>): T {
+	return ({
+		'stringLiteral':'test string data',
+		'numberLiteral':10,
+		'bigintLiteral':9007199254740991,
+		'booleanLiteral':true,
+		'nullLiteral':null,
+		'undefinedId':undefined,
+		'anyLiteral':'any',
+		'unknownLiteral':undefined,
+		'neverLiteral':null,
+		'objectLiteral':{},
+		'voidLiteral':null,
+		'functionLiteral':() => {
+		},
+		'arrayLiteral':[],
+		'referenceLiteral':referenceLiteral_boostestLiteralType(),
+		'thisType':{},
+		'unionType':'test string data',
+		'conditionalType':true,
+		'tsLiteralString':'string',
+		'tsLiteralNumber':20,
+		'tsLiteralBoolean':true,
+		'tsNullLiteral':null,
+		...args
+	} as T);
+}
+
+export function referenceLiteral_boostestLiteralType<T>(args?: Partial<T>): T {
+	return ({
+		'name':'test string data',
+		'ver':10,
+		...args
+	} as T);
+}
+
+export function boostestLiteralTypeClass<T extends abstract new (...args: any) => any>(LiteralTypeClass): T {
+	return new LiteralTypeClass('test string data', 10, 9007199254740991, true, null, undefined, 'any', undefined, null, {}, null, () => {
+	}, [], referenceLiteral_boostestLiteralTypeClass(), {});
+}
+
 export function boostestMixCompTSAlias<T>(args?: Partial<T>): T {
 	return ({
-		'name':'test data string',
-		'age':42,
+		'name':'test string data',
+		'age':10,
 		'sex':1,
 		'short_name':'john',
 		'favorite':favorite_boostestMixCompTSAlias(),
@@ -509,9 +550,9 @@ export function boostestMixCompTSAlias<T>(args?: Partial<T>): T {
 		'undefinedKey':undefined,
 		'anyKey':'any',
 		'nullKey':null,
-		'optionalKey':'test data string',
+		'optionalKey':'test string data',
 		'unknownKey':undefined,
-		'thisKey':'ThisType',
+		'thisKey':{},
 		'conditionalKey':conditionalKey_boostestMixCompTSAlias(),
 		'objectKey':{},
 		'voidKey':null,
@@ -542,46 +583,6 @@ export function conditionalKey_boostestMixCompTSAlias<T>(args?: Partial<T>): T {
 	return ({
 		'name':'Kettle Brand Sea Salt & Vinegar',
 		'price':250,
-		...args
-	} as T);
-}
-
-export function boostestTSAliasMixUnionObjType<T>(args?: Partial<T>): T {
-	return ({
-		'ref_type':ref_type_boostestTSAliasMixUnionObjType(),
-		'type':50000,
-		...args
-	} as T);
-}
-
-export function ref_type_boostestTSAliasMixUnionObjType<T>(args?: Partial<T>): T {
-	return ({
-		...args
-	} as T);
-}
-
-export function boostestTSAliasMixUnionType<T>(args?: Partial<T>): T {
-	return ({
-		...args
-	} as T);
-}
-
-export function boostestTSAliasStringUnionType<T>(args?: Partial<T>): T {
-	return ({
-		...args
-	} as T);
-}
-
-export function boostestTSInterfaceMixUnionType<T>(args?: Partial<T>): T {
-	return ({
-		'type':50000,
-		...args
-	} as T);
-}
-
-export function boostestTSInterfaceStringUnionType<T>(args?: Partial<T>): T {
-	return ({
-		'type':'A',
 		...args
 	} as T);
 }
