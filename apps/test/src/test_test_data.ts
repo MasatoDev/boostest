@@ -551,6 +551,14 @@ export function boostestLiteralTypeClass<T extends abstract new (...args: any) =
 	}, [], referenceLiteral_boostestLiteralTypeClass(), {}, {}, [], {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {});
 }
 
+export function referenceLiteral_boostestLiteralTypeClass<T>(args?: Partial<T>): T {
+	return ({
+		'name':'test string data',
+		'ver':10,
+		...args
+	} as T);
+}
+
 export function boostestMixCompTSAlias<T>(args?: Partial<T>): T {
 	return ({
 		'name':'test string data',

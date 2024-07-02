@@ -6,9 +6,10 @@ use oxc::ast::ast::{
     TSTypeName, VariableDeclaration,
 };
 use oxc::ast::ast::{
-    Class, ClassBody, ExportDefaultDeclaration, ExportDefaultDeclarationKind,
-    ExportNamedDeclaration, PropertyDefinition, TSInterfaceDeclaration, TSModuleReference,
-    TSSignature, TSType, TSTypeAliasDeclaration, TSTypeParameterInstantiation, VariableDeclarator,
+    BindingPatternKind, Class, ClassBody, ExportDefaultDeclaration, ExportDefaultDeclarationKind,
+    ExportNamedDeclaration, MethodDefinition, PropertyDefinition, TSInterfaceDeclaration,
+    TSModuleReference, TSSignature, TSType, TSTypeAliasDeclaration, TSTypeParameterInstantiation,
+    VariableDeclarator,
 };
 use oxc::ast::VisitMut;
 
@@ -172,15 +173,77 @@ impl<'a> VisitMut<'a> for MockAstLoader {
     fn visit_class_body(&mut self, body: &mut ClassBody<'a>) {
         body.body.iter_mut().for_each(|element| match element {
             // TODO: cover method definition
-
-            // oxc::ast::ast::ClassElement::MethodDefinition(method) => {
-            //     self.visit_method_definition(method);
-            // }
-            oxc::ast::ast::ClassElement::PropertyDefinition(property) => {
-                self.visit_property_definition(property);
+            oxc::ast::ast::ClassElement::MethodDefinition(method) => {
+                self.visit_method_definition(method);
             }
+            // oxc::ast::ast::ClassElement::PropertyDefinition(property) => {
+            //     self.visit_property_definition(property);
+            // }
             _ => {}
         });
+    }
+
+    fn visit_method_definition(&mut self, method: &mut MethodDefinition<'a>) {
+        if let Some(key_name) = method.key.name() {
+            if key_name == "constructor" {
+                for formal_parameter in method.value.params.items.iter_mut() {
+                    match &formal_parameter.pattern.kind {
+                        // TODO: follow another BindingPatternKind pattern
+                        BindingPatternKind::BindingIdentifier(id) => {
+                            if let Some(ts_type) = &formal_parameter.pattern.type_annotation {
+                                match &ts_type.type_annotation {
+                                    TSType::TSTypeReference(ty_ref) => {
+                                        if let TSTypeName::IdentifierReference(identifier) =
+                                            &ty_ref.type_name
+                                        {
+                                            self.add_property_ts_type(
+                                                identifier.name.clone().into_string(),
+                                                id.name.to_string(),
+                                            );
+                                        }
+                                    }
+                                    TSType::TSConditionalType(ts_condition_type) => {
+                                        if let TSType::TSTypeReference(ty_ref) =
+                                            &ts_condition_type.true_type
+                                        {
+                                            if let TSTypeName::IdentifierReference(identifier) =
+                                                &ty_ref.type_name
+                                            {
+                                                self.add_property_ts_type(
+                                                    identifier.name.clone().into_string(),
+                                                    id.name.to_string(),
+                                                );
+                                            }
+                                        }
+                                    }
+                                    TSType::TSUnionType(ts_union_type) => {
+                                        if let Some(first_union_type) = ts_union_type.types.first()
+                                        {
+                                            if let TSType::TSTypeReference(ty_ref) =
+                                                first_union_type
+                                            {
+                                                if let TSTypeName::IdentifierReference(identifier) =
+                                                    &ty_ref.type_name
+                                                {
+                                                    self.add_property_ts_type(
+                                                        identifier.name.clone().into_string(),
+                                                        id.name.to_string(),
+                                                    );
+                                                }
+                                            }
+                                        }
+                                    }
+                                    _ => {
+                                        // println!("Another Type {:?}", annotation);
+                                    }
+                                }
+                            }
+                        }
+                        _ => {}
+                    }
+                }
+            }
+        }
     }
 
     fn visit_property_definition(&mut self, def: &mut PropertyDefinition<'a>) {
