@@ -15,6 +15,10 @@ debug:
   just debug_build
   pnpm --filter example start:boostest
 
+test_debug:
+  just debug_build
+  pnpm --filter test boostest
+
 update_snapshot:
   just debug_build
   pnpm --filter test snapshot  
