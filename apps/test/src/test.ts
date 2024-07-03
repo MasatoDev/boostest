@@ -1,5 +1,6 @@
-import { LiteralType, LiteralTypeClass } from '@/ts_types/literal';
-let _ = boostestLiteralType<LiteralType>();
+import { LiteralTypeAlias, LiteralTypeClass, LiteralTypeInterface } from './types/ts_types/literal';
+let _ = boostestLiteralAliasType<LiteralTypeAlias>();
+let _ = boostestLiteralInterfaceType<LiteralTypeInterface>();
 let _ = boostestLiteralTypeClass<typeof LiteralTypeClass>(LiteralTypeClass);
 
 import AnoExportDefaultInterface from './types/export_default_interface';

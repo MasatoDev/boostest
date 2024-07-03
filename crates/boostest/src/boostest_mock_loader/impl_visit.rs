@@ -14,6 +14,7 @@ use oxc::ast::ast::{
 use oxc::ast::VisitMut;
 
 use crate::boostest_mock_loader::mock_loader::MockLoader;
+use crate::boostest_utils;
 
 use super::mock_ast_loader::MockAstLoader;
 
@@ -192,6 +193,10 @@ impl<'a> VisitMut<'a> for MockAstLoader {
                         BindingPatternKind::BindingIdentifier(id) => {
                             if let Some(ts_type) = &formal_parameter.pattern.type_annotation {
                                 match &ts_type.type_annotation {
+                                    TSType::TSTypeReference(ty_ref)
+                                        if boostest_utils::ast_utils::is_defined_type(&ty_ref) => {}
+                                    TSType::TSTypeReference(ty_ref)
+                                        if boostest_utils::ast_utils::is_array_type(&ty_ref) => {}
                                     TSType::TSTypeReference(ty_ref) => {
                                         if let TSTypeName::IdentifierReference(identifier) =
                                             &ty_ref.type_name
@@ -249,6 +254,10 @@ impl<'a> VisitMut<'a> for MockAstLoader {
     fn visit_property_definition(&mut self, def: &mut PropertyDefinition<'a>) {
         for annotation in def.type_annotation.iter_mut() {
             match &annotation.type_annotation {
+                TSType::TSTypeReference(ty_ref)
+                    if boostest_utils::ast_utils::is_defined_type(&ty_ref) => {}
+                TSType::TSTypeReference(ty_ref)
+                    if boostest_utils::ast_utils::is_array_type(&ty_ref) => {}
                 TSType::TSTypeReference(ty_ref) => {
                     if let TSTypeName::IdentifierReference(identifier) = &ty_ref.type_name {
                         if let Some(key_name) = def.key.name() {
@@ -297,6 +306,10 @@ impl<'a> VisitMut<'a> for MockAstLoader {
             TSSignature::TSPropertySignature(ts_prop_signature) => {
                 for annotation in ts_prop_signature.type_annotation.iter() {
                     match &annotation.type_annotation {
+                        TSType::TSTypeReference(ty_ref)
+                            if boostest_utils::ast_utils::is_defined_type(&ty_ref) => {}
+                        TSType::TSTypeReference(ty_ref)
+                            if boostest_utils::ast_utils::is_array_type(&ty_ref) => {}
                         TSType::TSTypeReference(ty_ref) => {
                             if let TSTypeName::IdentifierReference(identifier) = &ty_ref.type_name {
                                 if let Some(key_name) = ts_prop_signature.key.name() {
