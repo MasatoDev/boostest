@@ -1,4 +1,4 @@
-import { RefType } from './utils';
+import { RefType } from '@/ts_types/utils';
 
 interface RefTypeInterface {
   name: string;
