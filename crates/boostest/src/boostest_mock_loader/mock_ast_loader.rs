@@ -137,6 +137,15 @@ impl MockAstLoader {
         self.code = Some(code);
     }
 
+    pub fn generate_fallback_code(&self) -> String {
+        let mut mock_builder = MockBuilder::new();
+
+        let code = mock_builder
+            .generate_fallback_func_code(self.mock_func_name.clone(), self.prop_key_name.clone());
+        // self.code = Some(code.clone());
+        code
+    }
+
     // import {Hoge(imported) as Huga(local)} from '...'
     pub fn get_decl_name_for_resolve(&self) -> Option<&String> {
         if let Some(last) = self.import.last() {

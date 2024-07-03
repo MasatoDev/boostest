@@ -1,7 +1,11 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`boostest output correctly 1`] = `
-"export function boostestAnoExportDefaultClass<T extends abstract new (...args: any) => any>(ExportDefaultClass): T {
+"export function boostestAccessorClass<T extends abstract new (...args: any) => any>(AccessorClass): T {
+	return new AccessorClass('test string data', 10, 10);
+}
+
+export function boostestAnoExportDefaultClass<T extends abstract new (...args: any) => any>(ExportDefaultClass): T {
 	return new ExportDefaultClass('test string data', chips_boostestAnoExportDefaultClass());
 }
 
@@ -499,7 +503,7 @@ export function conditionalKey_boostestExportNamedDeclInterface<T>(args?: Partia
 	} as T);
 }
 
-export function boostestLiteralType<T>(args?: Partial<T>): T {
+export function boostestLiteralAliasType<T>(args?: Partial<T>): T {
 	return ({
 		'stringLiteral':'test string data',
 		'numberLiteral':10,
@@ -515,7 +519,7 @@ export function boostestLiteralType<T>(args?: Partial<T>): T {
 		'functionLiteral':() => {
 		},
 		'arrayLiteral':[],
-		'referenceLiteral':referenceLiteral_boostestLiteralType(),
+		'referenceLiteral':referenceLiteral_boostestLiteralAliasType(),
 		'thisType':{},
 		'unionType':'test string data',
 		'conditionalType':true,
@@ -537,11 +541,81 @@ export function boostestLiteralType<T>(args?: Partial<T>): T {
 		'returnType':{},
 		'instanceType':{},
 		'promise':{},
+		'classType':{},
+		'refTypeInterface':refTypeInterface_boostestLiteralAliasType(),
 		...args
 	} as T);
 }
 
-export function referenceLiteral_boostestLiteralType<T>(args?: Partial<T>): T {
+export function referenceLiteral_boostestLiteralAliasType<T>(args?: Partial<T>): T {
+	return ({
+		'name':'test string data',
+		'ver':10,
+		...args
+	} as T);
+}
+
+export function refTypeInterface_boostestLiteralAliasType<T>(args?: Partial<T>): T {
+	return ({
+		'name':'test string data',
+		'ver':10,
+		...args
+	} as T);
+}
+
+export function boostestLiteralInterfaceType<T>(args?: Partial<T>): T {
+	return ({
+		'stringLiteral':'test string data',
+		'numberLiteral':10,
+		'bigintLiteral':9007199254740991,
+		'booleanLiteral':true,
+		'nullLiteral':null,
+		'undefinedId':undefined,
+		'anyLiteral':'any',
+		'unknownLiteral':undefined,
+		'neverLiteral':null,
+		'objectLiteral':{},
+		'voidLiteral':null,
+		'functionLiteral':() => {
+		},
+		'arrayLiteral':[],
+		'referenceLiteral':referenceLiteral_boostestLiteralInterfaceType(),
+		'thisType':{},
+		'unionType':'test string data',
+		'conditionalType':true,
+		'tsLiteralString':'string',
+		'tsLiteralNumber':20,
+		'tsLiteralBoolean':true,
+		'tsNullLiteral':null,
+		'array':[],
+		'partial':{},
+		'required':{},
+		'readonly':{},
+		'pick':{},
+		'omit':{},
+		'extract':{},
+		'exclude':{},
+		'nonNullable':{},
+		'parameters':{},
+		'constructorParameters':{},
+		'returnType':{},
+		'instanceType':{},
+		'promise':{},
+		'classType':{},
+		'refTypeInterface':refTypeInterface_boostestLiteralInterfaceType(),
+		...args
+	} as T);
+}
+
+export function referenceLiteral_boostestLiteralInterfaceType<T>(args?: Partial<T>): T {
+	return ({
+		'name':'test string data',
+		'ver':10,
+		...args
+	} as T);
+}
+
+export function refTypeInterface_boostestLiteralInterfaceType<T>(args?: Partial<T>): T {
 	return ({
 		'name':'test string data',
 		'ver':10,
@@ -551,7 +625,23 @@ export function referenceLiteral_boostestLiteralType<T>(args?: Partial<T>): T {
 
 export function boostestLiteralTypeClass<T extends abstract new (...args: any) => any>(LiteralTypeClass): T {
 	return new LiteralTypeClass('test string data', 10, 9007199254740991, true, null, undefined, 'any', undefined, null, {}, null, () => {
-	}, [], referenceLiteral_boostestLiteralTypeClass(), {}, {}, [], {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {});
+	}, [], referenceLiteral_boostestLiteralTypeClass(), {}, {}, [], {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, refTypeInterface_boostestLiteralTypeClass());
+}
+
+export function referenceLiteral_boostestLiteralTypeClass<T>(args?: Partial<T>): T {
+	return ({
+		'name':'test string data',
+		'ver':10,
+		...args
+	} as T);
+}
+
+export function refTypeInterface_boostestLiteralTypeClass<T>(args?: Partial<T>): T {
+	return ({
+		'name':'test string data',
+		'ver':10,
+		...args
+	} as T);
 }
 
 export function boostestMixCompTSAlias<T>(args?: Partial<T>): T {

@@ -200,6 +200,11 @@ pub fn write_ref_properties(prop: &MockAstLoader, f: &mut File) -> Result<()> {
         if let Some(code) = &prop.code {
             f.write_all(code.as_bytes())?;
             f.write_all(b"\n")?;
+        } else {
+            let fallback_code = &prop.generate_fallback_code();
+
+            f.write_all(fallback_code.as_bytes())?;
+            f.write_all(b"\n")?;
         }
 
         write_ref_properties(prop, f)?;
@@ -227,7 +232,7 @@ pub fn call_boostest(path: &Path) {
         let parser = Parser::new(&allocator, &file, source_type);
         let mut program = parser.parse().program;
 
-        boostest_utils::load_mock(&mut mock_loader, &mut program, path, &setting.tsconfig);
+        boostest_utils::utils::load_mock(&mut mock_loader, &mut program, path, &setting.tsconfig);
         handle_main_task(&mut mock_loader, path, &out_file_name).expect("error main task");
 
         return;
@@ -261,7 +266,7 @@ pub fn call_boostest(path: &Path) {
         let parser = Parser::new(&allocator, &file, source_type);
         let mut program = parser.parse().program;
 
-        boostest_utils::load_mock(&mut mock_loader, &mut program, path, &setting.tsconfig);
+        boostest_utils::utils::load_mock(&mut mock_loader, &mut program, path, &setting.tsconfig);
         handle_main_task(&mut mock_loader, path, &out_file_name).expect("error main task");
 
         pb.inc(1);

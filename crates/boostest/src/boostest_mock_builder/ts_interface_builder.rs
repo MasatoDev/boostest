@@ -14,7 +14,9 @@ use oxc::{
 
 use oxc::allocator;
 
-use super::{mock_builder::MockBuilder, test_data_factory};
+use crate::boostest_utils;
+
+use super::test_data_factory;
 
 const SPAN: Span = Span::new(0, 0);
 
@@ -75,11 +77,15 @@ impl<'a> TSInterfaceBuilder<'a> {
 
     pub fn get_expression(&self, type_annotation: TSType<'a>, key_name: &str) -> Expression<'a> {
         let val = match type_annotation {
-            TSType::TSTypeReference(ts_type_ref) if MockBuilder::is_defined_type(&ts_type_ref) => {
+            TSType::TSTypeReference(ts_type_ref)
+                if boostest_utils::ast_utils::is_defined_type(&ts_type_ref) =>
+            {
                 // TODO: Defined type
                 test_data_factory::object_expr(&self.ast_builder)
             }
-            TSType::TSTypeReference(ts_type_ref) if MockBuilder::is_array_type(&ts_type_ref) => {
+            TSType::TSTypeReference(ts_type_ref)
+                if boostest_utils::ast_utils::is_array_type(&ts_type_ref) =>
+            {
                 // TODO: Array
                 test_data_factory::array_expr(&self.ast_builder)
             }

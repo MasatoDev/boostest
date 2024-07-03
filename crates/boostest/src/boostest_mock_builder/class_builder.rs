@@ -14,7 +14,9 @@ use oxc::{
 
 use oxc::allocator;
 
-use super::{mock_builder::MockBuilder, test_data_factory};
+use crate::boostest_utils;
+
+use super::test_data_factory;
 
 const SPAN: Span = Span::new(0, 0);
 
@@ -112,15 +114,15 @@ impl<'a> ClassBuilder<'a> {
                 TSType::TSNumberKeyword(_) => test_data_factory::number_arg(&self.ast_builder),
                 TSType::TSStringKeyword(_) => test_data_factory::string_arg(&self.ast_builder),
                 TSType::TSTypeReference(ts_type_ref)
-                    if MockBuilder::is_defined_type(&ts_type_ref) =>
+                    if boostest_utils::ast_utils::is_defined_type(&ts_type_ref) =>
                 {
-                    // TODO: ThisType
+                    // TODO
                     test_data_factory::object_arg(&self.ast_builder)
                 }
                 TSType::TSTypeReference(ts_type_ref)
-                    if MockBuilder::is_array_type(&ts_type_ref) =>
+                    if boostest_utils::ast_utils::is_array_type(&ts_type_ref) =>
                 {
-                // TODO: Array
+                    // TODO: Array
                     test_data_factory::array_arg(&self.ast_builder)
                 }
                 TSType::TSTypeReference(_) => test_data_factory::ref_arg(
