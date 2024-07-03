@@ -40,6 +40,14 @@ build:
   pnpm --filter boostest build
   pnpm --filter boostest bin:build
 
+build_release:
+  pnpm --filter boostest build --target x86_64-apple-darwin
+  pnpm --filter boostest build --target aarch64-apple-darwin
+  pnpm --filter boostest build --target x86_64-pc-windows-msvc
+  pnpm --filter boostest build --target x86_64-unknown-linux-gnu
+  pnpm --filter boostest build --target riscv64gc-unknown-linux-gnu
+  pnpm --filter boostest bin:build
+
 pre_release_boostest:
   # cd packages/boostest
   npm version patch
@@ -48,13 +56,6 @@ pre_release_boostest:
   # npm version preminor
   # npm version prerelease
 
-build_release:
-  pnpm --filter boostest build --target x86_64-apple-darwin
-  pnpm --filter boostest build --target aarch64-apple-darwin
-  pnpm --filter boostest build --target x86_64-pc-windows-msvc
-  pnpm --filter boostest build --target x86_64-unknown-linux-gnu
-  pnpm --filter boostest build --target riscv64gc-unknown-linux-gnu
-  pnpm --filter boostest bin:build
   
 
   # failed now
