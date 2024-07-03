@@ -1,14 +1,14 @@
-import { LiteralTypeAlias, LiteralTypeClass, LiteralTypeInterface } from './types/ts_types/literal';
+import { LiteralTypeAlias, LiteralTypeClass, LiteralTypeInterface } from '@/ts_types/literal';
 let _ = boostestLiteralAliasType<LiteralTypeAlias>();
 let _ = boostestLiteralInterfaceType<LiteralTypeInterface>();
 let _ = boostestLiteralTypeClass<typeof LiteralTypeClass>(LiteralTypeClass);
 
-import AnoExportDefaultInterface from './types/export_default_interface';
+import AnoExportDefaultInterface from '@/export_default_interface';
 let a = boostestAnoExportDefaultInterface<AnoExportDefaultInterface>({
   name: 'overridden',
 });
 
-import AnoExportDefaultClass from './types/export_default_class';
+import AnoExportDefaultClass from '@/export_default_class';
 let b = boostestAnoExportDefaultClass<typeof AnoExportDefaultClass>(AnoExportDefaultClass);
 
 import ExportDefaultClass from './types/export_default_class';

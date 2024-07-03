@@ -81,12 +81,34 @@ struct Setting {
     out_file_name: Option<String>,
 }
 
+fn normalize_and_resolve_path(parent: &Path, relative: &Path) -> Result<PathBuf, String> {
+    let combined_path = parent.join(relative);
+    let resolved_path = combined_path
+        .components()
+        .fold(PathBuf::new(), |mut acc, comp| {
+            match comp {
+                std::path::Component::ParentDir => {
+                    acc.pop();
+                }
+                std::path::Component::CurDir => {}
+                other => acc.push(other),
+            }
+            acc
+        });
+
+    if resolved_path.is_absolute() {
+        Ok(resolved_path)
+    } else {
+        Err("The resolved path is not absolute.".to_string())
+    }
+}
+
 fn get_setting() -> anyhow::Result<Setting> {
     let cur_dir = std::env::current_dir()?;
 
     let config_path = find_boostest_json_recursive(cur_dir)?;
 
-    let file = File::open(config_path)?;
+    let file = File::open(&config_path)?;
     let reader = BufReader::new(file);
     let json: serde_json::Value = serde_json::from_reader(reader)?;
 
@@ -126,7 +148,13 @@ fn get_setting() -> anyhow::Result<Setting> {
             "tsconfig" => {
                 if let serde_json::Value::String(val) = value {
                     let ps = PathBuf::from(val);
-                    setting.tsconfig = Some(ps);
+
+                    if let Some(parent) = &config_path.parent() {
+                        let result = normalize_and_resolve_path(parent, &ps).unwrap_or(ps.clone());
+                        setting.tsconfig = Some(result);
+                    } else {
+                        setting.tsconfig = Some(ps);
+                    }
                 }
             }
 
