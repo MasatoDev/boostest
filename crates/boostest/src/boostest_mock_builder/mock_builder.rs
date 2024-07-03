@@ -1,14 +1,12 @@
 use oxc::{
-    allocator::{self, Allocator},
-    ast::ast::{
-        Class, TSInterfaceDeclaration, TSTypeAliasDeclaration, TSTypeName, TSTypeReference,
-    },
+    allocator::Allocator,
+    ast::ast::{Class, TSInterfaceDeclaration, TSTypeAliasDeclaration},
     span::SourceType,
 };
 
 use super::{
-    class_builder::ClassBuilder, ts_interface_builder::TSInterfaceBuilder,
-    ts_type_alias_builder::TSTypeAliasBuilder,
+    class_builder::ClassBuilder, fallback_func_builder::FallbackFuncBuilder,
+    ts_interface_builder::TSInterfaceBuilder, ts_type_alias_builder::TSTypeAliasBuilder,
 };
 
 pub struct MockBuilder {
@@ -65,13 +63,15 @@ impl MockBuilder {
         ts_interface_builder.generate_code(self.source_type)
     }
 
-    // common functions
-    pub fn is_this_type<'a>(ts_type_ref: &allocator::Box<'a, TSTypeReference<'a>>) -> bool {
-        if let TSTypeName::IdentifierReference(id) = &ts_type_ref.type_name {
-            if id.name.to_string() == "ThisType" {
-                return true;
-            }
-        }
-        false
+    pub fn generate_fallback_func_code(
+        &mut self,
+        mock_func_name: String,
+        key_name: Option<String>,
+    ) -> String {
+        let allocator = Allocator::default();
+        let mut fallback_func_builder =
+            FallbackFuncBuilder::new(&allocator, mock_func_name, key_name);
+
+        fallback_func_builder.generate_code(self.source_type)
     }
 }

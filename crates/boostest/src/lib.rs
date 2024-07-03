@@ -81,12 +81,34 @@ struct Setting {
     out_file_name: Option<String>,
 }
 
+fn normalize_and_resolve_path(parent: &Path, relative: &Path) -> Result<PathBuf, String> {
+    let combined_path = parent.join(relative);
+    let resolved_path = combined_path
+        .components()
+        .fold(PathBuf::new(), |mut acc, comp| {
+            match comp {
+                std::path::Component::ParentDir => {
+                    acc.pop();
+                }
+                std::path::Component::CurDir => {}
+                other => acc.push(other),
+            }
+            acc
+        });
+
+    if resolved_path.is_absolute() {
+        Ok(resolved_path)
+    } else {
+        Err("The resolved path is not absolute.".to_string())
+    }
+}
+
 fn get_setting() -> anyhow::Result<Setting> {
     let cur_dir = std::env::current_dir()?;
 
     let config_path = find_boostest_json_recursive(cur_dir)?;
 
-    let file = File::open(config_path)?;
+    let file = File::open(&config_path)?;
     let reader = BufReader::new(file);
     let json: serde_json::Value = serde_json::from_reader(reader)?;
 
@@ -126,7 +148,13 @@ fn get_setting() -> anyhow::Result<Setting> {
             "tsconfig" => {
                 if let serde_json::Value::String(val) = value {
                     let ps = PathBuf::from(val);
-                    setting.tsconfig = Some(ps);
+
+                    if let Some(parent) = &config_path.parent() {
+                        let result = normalize_and_resolve_path(parent, &ps).unwrap_or(ps.clone());
+                        setting.tsconfig = Some(result);
+                    } else {
+                        setting.tsconfig = Some(ps);
+                    }
                 }
             }
 
@@ -200,6 +228,11 @@ pub fn write_ref_properties(prop: &MockAstLoader, f: &mut File) -> Result<()> {
         if let Some(code) = &prop.code {
             f.write_all(code.as_bytes())?;
             f.write_all(b"\n")?;
+        } else {
+            let fallback_code = &prop.generate_fallback_code();
+
+            f.write_all(fallback_code.as_bytes())?;
+            f.write_all(b"\n")?;
         }
 
         write_ref_properties(prop, f)?;
@@ -208,11 +241,13 @@ pub fn write_ref_properties(prop: &MockAstLoader, f: &mut File) -> Result<()> {
 }
 
 pub fn call_boostest(path: &Path) {
-    let setting = get_setting().expect("error get_setting");
+    let setting = get_setting().unwrap_or(Setting {
+        target: None,
+        name: None,
+        tsconfig: None,
+        out_file_name: None,
+    });
     let out_file_name = setting.out_file_name.unwrap_or(String::from("boostest"));
-
-    let target = setting.target.expect("error target");
-    let contents = read_matching_files(target, &out_file_name).expect("error read_matching_files");
 
     let source_type = SourceType::default()
         .with_always_strict(true)
@@ -225,11 +260,14 @@ pub fn call_boostest(path: &Path) {
         let parser = Parser::new(&allocator, &file, source_type);
         let mut program = parser.parse().program;
 
-        boostest_utils::load_mock(&mut mock_loader, &mut program, path, &setting.tsconfig);
+        boostest_utils::utils::load_mock(&mut mock_loader, &mut program, path, &setting.tsconfig);
         handle_main_task(&mut mock_loader, path, &out_file_name).expect("error main task");
 
         return;
     }
+
+    let target = setting.target.expect("target file is not found");
+    let contents = read_matching_files(target, &out_file_name).expect("error read_matching_files");
 
     if contents.is_empty() {
         println!("{}", "Not found target files".red());
@@ -256,7 +294,7 @@ pub fn call_boostest(path: &Path) {
         let parser = Parser::new(&allocator, &file, source_type);
         let mut program = parser.parse().program;
 
-        boostest_utils::load_mock(&mut mock_loader, &mut program, path, &setting.tsconfig);
+        boostest_utils::utils::load_mock(&mut mock_loader, &mut program, path, &setting.tsconfig);
         handle_main_task(&mut mock_loader, path, &out_file_name).expect("error main task");
 
         pb.inc(1);

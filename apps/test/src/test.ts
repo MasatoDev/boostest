@@ -1,14 +1,15 @@
-// import { LiteralType, LiteralTypeClass } from './types/ts_types/literal';
-// let _ = boostestLiteralType<LiteralType>();
-// let _ = boostestLiteralTypeClass<typeof LiteralTypeClass>(LiteralTypeClass);
+import { LiteralTypeAlias, LiteralTypeClass, LiteralTypeInterface } from '@/ts_types/literal';
+let _ = boostestLiteralAliasType<LiteralTypeAlias>();
+let _ = boostestLiteralInterfaceType<LiteralTypeInterface>();
+let _ = boostestLiteralTypeClass<typeof LiteralTypeClass>(LiteralTypeClass);
 
-// import AnoExportDefaultInterface from './types/export_default_interface';
-// let a = boostestAnoExportDefaultInterface<AnoExportDefaultInterface>({
-//   name: 'overridden',
-// });
+import AnoExportDefaultInterface from '@/export_default_interface';
+let a = boostestAnoExportDefaultInterface<AnoExportDefaultInterface>({
+  name: 'overridden',
+});
 
-// import AnoExportDefaultClass from './types/export_default_class';
-// let b = boostestAnoExportDefaultClass<typeof AnoExportDefaultClass>(AnoExportDefaultClass);
+import AnoExportDefaultClass from '@/export_default_class';
+let b = boostestAnoExportDefaultClass<typeof AnoExportDefaultClass>(AnoExportDefaultClass);
 
 // import ExportDefaultClass from './types/export_default_class';
 // let c = boostestExportDefaultClass<typeof ExportDefaultClass>(ExportDefaultClass);
@@ -32,6 +33,9 @@
 // let i = boostestAnoMixInterface<Mix>({ name: 'mix' });
 // let j = boostestMixCompTSAlias<MixCompTSAlias>({ name: 'mixCompTSAlias' });
 
+import { AccessorClass } from './types/pattern/accessor_class';
+let _ = boostestAccessorClass<typeof AccessorClass>(AccessorClass);
+
 // TODO
 // import ClassObj from './types/class_obj';
 // let k = boostestClassObj<typeof ClassObj>(ClassObj);
@@ -42,3 +46,7 @@ let l = boostestTSAliasStringUnionType<TSAliasStringUnionType>('A');
 // let m = boostestTSInterfaceMixUnionType<TSInterfaceMixUnionType>({ type: 'A' });
 // let n = boostestTSInterfaceStringUnionType<TSInterfaceStringUnionType>({ type: 'A' });
 // let o = boostestTSAliasMixUnionObjType<TSAliasMixUnionObjType>({ ref_type: 'A', type: 'A' });
+
+// TODO
+// import { ArgObjClass } from './types/pattern/arg_obj_class';
+// let _ = boostestArgObjClass<typeof ArgObjClass>(ArgObjClass);
