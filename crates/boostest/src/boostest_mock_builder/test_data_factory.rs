@@ -334,6 +334,12 @@ pub fn get_expression<'a>(
             object_expr(ast_builder)
         }
         TSType::TSTypeReference(ts_type_ref)
+            if boostest_utils::ast_utils::is_function_type(&ts_type_ref) =>
+        {
+            // TODO: Array
+            function_expr(ast_builder)
+        }
+        TSType::TSTypeReference(ts_type_ref)
             if boostest_utils::ast_utils::is_array_type(&ts_type_ref) =>
         {
             // TODO: Array
@@ -499,6 +505,12 @@ pub fn get_arg<'a>(
         {
             // TODO
             object_arg(ast_builder)
+        }
+        TSType::TSTypeReference(ts_type_ref)
+            if boostest_utils::ast_utils::is_function_type(&ts_type_ref) =>
+        {
+            // TODO: Array
+            function_arg(ast_builder)
         }
         TSType::TSTypeReference(ts_type_ref)
             if boostest_utils::ast_utils::is_array_type(&ts_type_ref) =>

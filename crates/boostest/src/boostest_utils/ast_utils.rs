@@ -13,6 +13,15 @@ pub fn is_array_type<'a>(ts_type_ref: &allocator::Box<'a, TSTypeReference<'a>>) 
     false
 }
 
+pub fn is_function_type<'a>(ts_type_ref: &allocator::Box<'a, TSTypeReference<'a>>) -> bool {
+    if let TSTypeName::IdentifierReference(id) = &ts_type_ref.type_name {
+        if id.name.to_string() == "Function" {
+            return true;
+        }
+    }
+    false
+}
+
 // TODO: handle correctly
 pub fn is_defined_type<'a>(ts_type_ref: &allocator::Box<'a, TSTypeReference<'a>>) -> bool {
     is_partial_type(ts_type_ref)

@@ -697,49 +697,50 @@ export function conditionalKey_boostestMixCompTSAlias<T>(args?: Partial<T>): T {
 	} as T);
 }
 
-export function boostestTsLiteralArrayUnionType<T>(args?: Partial<T>): T {
+export function boostestTsLiteralArrayUnionType() {
 	return [];
 }
 
-export function boostestTsLiteralFunctionUnionType<T>(args?: Partial<T>): T {
+export function boostestTsLiteralFunctionUnionType() {
 	return () => {
 	};
 }
 
-export function boostestTsLiteralNumberUnionType<T>(args?: Partial<T>): T {
+export function boostestTsLiteralNumberUnionType() {
 	return 1;
 }
 
-export function boostestTsLiteralObjectUnionType<T>(args?: Partial<T>): T {
+export function boostestTsLiteralObjectUnionType() {
 	return {};
 }
 
-export function boostestTsLiteralTypeStringUnionType<T>(args?: Partial<T>): T {
+export function boostestTsLiteralTypeStringUnionType() {
 	return 'A';
 }
 
-export function boostestTsTypeLiteralArray<T>(args?: Partial<T>): T {
+export function boostestTsTypeLiteralArray() {
 	return [];
 }
 
-export function boostestTsTypeLiteralBoolean<T>(args?: Partial<T>): T {
+export function boostestTsTypeLiteralBoolean() {
 	return true;
 }
 
-export function boostestTsTypeLiteralFunction<T>(args?: Partial<T>): T {
-	return key_name_boostestTsTypeLiteralFunction();
-}
-
-export function boostestTsTypeLiteralLiteralArrayType<T>(args?: Partial<T>): T {
-	return [];
-}
-
-export function boostestTsTypeLiteralLiteralFunctionType<T>(args?: Partial<T>): T {
+export function boostestTsTypeLiteralFunction() {
 	return () => {
 	};
 }
 
-export function boostestTsTypeLiteralLiteralNumberType<T>(args?: Partial<T>): T {
+export function boostestTsTypeLiteralLiteralArrayType() {
+	return [];
+}
+
+export function boostestTsTypeLiteralLiteralFunctionType() {
+	return () => {
+	};
+}
+
+export function boostestTsTypeLiteralLiteralNumberType() {
 	return 42;
 }
 
@@ -751,35 +752,35 @@ export function boostestTsTypeLiteralLiteralObjectType<T>(args?: Partial<T>): T 
 	} as T);
 }
 
-export function boostestTsTypeLiteralLiteralSymbolType<T>(args?: Partial<T>): T {
+export function boostestTsTypeLiteralLiteralSymbolType() {
 	return {};
 }
 
-export function boostestTsTypeLiteralLiteralTypeString<T>(args?: Partial<T>): T {
+export function boostestTsTypeLiteralLiteralTypeString() {
 	return 'string';
 }
 
-export function boostestTsTypeLiteralNull<T>(args?: Partial<T>): T {
+export function boostestTsTypeLiteralNull() {
 	return null;
 }
 
-export function boostestTsTypeLiteralNumber<T>(args?: Partial<T>): T {
+export function boostestTsTypeLiteralNumber() {
 	return 10;
 }
 
-export function boostestTsTypeLiteralObject<T>(args?: Partial<T>): T {
+export function boostestTsTypeLiteralObject() {
 	return {};
 }
 
-export function boostestTsTypeLiteralString<T>(args?: Partial<T>): T {
+export function boostestTsTypeLiteralString() {
 	return 'test string data';
 }
 
-export function boostestTsTypeLiteralSymbol<T>(args?: Partial<T>): T {
+export function boostestTsTypeLiteralSymbol() {
 	return {};
 }
 
-export function boostestTsTypeLiteralUndefined<T>(args?: Partial<T>): T {
+export function boostestTsTypeLiteralUndefined() {
 	return undefined;
 }
 
@@ -814,63 +815,63 @@ export function boostestUseTSTypeLiteralAlias<T>(args?: Partial<T>): T {
 	} as T);
 }
 
-export function literalString_boostestUseTSTypeLiteralAlias<T>(args?: Partial<T>): T {
+export function literalString_boostestUseTSTypeLiteralAlias() {
 	return 'test string data';
 }
 
-export function literalLiteralString_boostestUseTSTypeLiteralAlias<T>(args?: Partial<T>): T {
+export function literalLiteralString_boostestUseTSTypeLiteralAlias() {
 	return 'string';
 }
 
-export function literalStringUnion_boostestUseTSTypeLiteralAlias<T>(args?: Partial<T>): T {
+export function literalStringUnion_boostestUseTSTypeLiteralAlias() {
 	return 'A';
 }
 
-export function literalNumber_boostestUseTSTypeLiteralAlias<T>(args?: Partial<T>): T {
+export function literalNumber_boostestUseTSTypeLiteralAlias() {
 	return 10;
 }
 
-export function literalLiteralNumber_boostestUseTSTypeLiteralAlias<T>(args?: Partial<T>): T {
+export function literalLiteralNumber_boostestUseTSTypeLiteralAlias() {
 	return 42;
 }
 
-export function literalNumberUnion_boostestUseTSTypeLiteralAlias<T>(args?: Partial<T>): T {
+export function literalNumberUnion_boostestUseTSTypeLiteralAlias() {
 	return 1;
 }
 
-export function literalBoolean_boostestUseTSTypeLiteralAlias<T>(args?: Partial<T>): T {
+export function literalBoolean_boostestUseTSTypeLiteralAlias() {
 	return true;
 }
 
-export function literalLiteralBoolean_boostestUseTSTypeLiteralAlias<T>(args?: Partial<T>): T {
+export function literalLiteralBoolean_boostestUseTSTypeLiteralAlias() {
 	return true;
 }
 
-export function literalBooleanUnion_boostestUseTSTypeLiteralAlias<T>(args?: Partial<T>): T {
+export function literalBooleanUnion_boostestUseTSTypeLiteralAlias() {
 	return true;
 }
 
-export function literalNull_boostestUseTSTypeLiteralAlias<T>(args?: Partial<T>): T {
+export function literalNull_boostestUseTSTypeLiteralAlias() {
 	return null;
 }
 
-export function literalUndefined_boostestUseTSTypeLiteralAlias<T>(args?: Partial<T>): T {
+export function literalUndefined_boostestUseTSTypeLiteralAlias() {
 	return undefined;
 }
 
-export function literalArray_boostestUseTSTypeLiteralAlias<T>(args?: Partial<T>): T {
+export function literalArray_boostestUseTSTypeLiteralAlias() {
 	return [];
 }
 
-export function literalLiteralArray_boostestUseTSTypeLiteralAlias<T>(args?: Partial<T>): T {
+export function literalLiteralArray_boostestUseTSTypeLiteralAlias() {
 	return [];
 }
 
-export function literalArrayUnion_boostestUseTSTypeLiteralAlias<T>(args?: Partial<T>): T {
+export function literalArrayUnion_boostestUseTSTypeLiteralAlias() {
 	return [];
 }
 
-export function literalObject_boostestUseTSTypeLiteralAlias<T>(args?: Partial<T>): T {
+export function literalObject_boostestUseTSTypeLiteralAlias() {
 	return {};
 }
 
@@ -882,41 +883,42 @@ export function literalLiteralObject_boostestUseTSTypeLiteralAlias<T>(args?: Par
 	} as T);
 }
 
-export function literalObjectUnion_boostestUseTSTypeLiteralAlias<T>(args?: Partial<T>): T {
+export function literalObjectUnion_boostestUseTSTypeLiteralAlias() {
 	return {};
 }
 
-export function literalFunction_boostestUseTSTypeLiteralAlias<T>(args?: Partial<T>): T {
-	return key_name_boostestUseTSTypeLiteralAlias();
-}
-
-export function literalLiteralFunction_boostestUseTSTypeLiteralAlias<T>(args?: Partial<T>): T {
+export function literalFunction_boostestUseTSTypeLiteralAlias() {
 	return () => {
 	};
 }
 
-export function literalFunctionUnion_boostestUseTSTypeLiteralAlias<T>(args?: Partial<T>): T {
+export function literalLiteralFunction_boostestUseTSTypeLiteralAlias() {
 	return () => {
 	};
 }
 
-export function literalBigInt_boostestUseTSTypeLiteralAlias<T>(args?: Partial<T>): T {
+export function literalFunctionUnion_boostestUseTSTypeLiteralAlias() {
+	return () => {
+	};
+}
+
+export function literalBigInt_boostestUseTSTypeLiteralAlias() {
 	return 9007199254740991;
 }
 
-export function literalLiteralBigInt_boostestUseTSTypeLiteralAlias<T>(args?: Partial<T>): T {
+export function literalLiteralBigInt_boostestUseTSTypeLiteralAlias() {
 	return 123n;
 }
 
-export function literalBigIntUnion_boostestUseTSTypeLiteralAlias<T>(args?: Partial<T>): T {
+export function literalBigIntUnion_boostestUseTSTypeLiteralAlias() {
 	return 1n;
 }
 
-export function literalSymbol_boostestUseTSTypeLiteralAlias<T>(args?: Partial<T>): T {
+export function literalSymbol_boostestUseTSTypeLiteralAlias() {
 	return {};
 }
 
-export function literalLiteralSymbol_boostestUseTSTypeLiteralAlias<T>(args?: Partial<T>): T {
+export function literalLiteralSymbol_boostestUseTSTypeLiteralAlias() {
 	return {};
 }
 
@@ -951,63 +953,63 @@ export function boostestUseTSTypeLiteralInterface<T>(args?: Partial<T>): T {
 	} as T);
 }
 
-export function literalString_boostestUseTSTypeLiteralInterface<T>(args?: Partial<T>): T {
+export function literalString_boostestUseTSTypeLiteralInterface() {
 	return 'test string data';
 }
 
-export function literalLiteralString_boostestUseTSTypeLiteralInterface<T>(args?: Partial<T>): T {
+export function literalLiteralString_boostestUseTSTypeLiteralInterface() {
 	return 'string';
 }
 
-export function literalStringUnion_boostestUseTSTypeLiteralInterface<T>(args?: Partial<T>): T {
+export function literalStringUnion_boostestUseTSTypeLiteralInterface() {
 	return 'A';
 }
 
-export function literalNumber_boostestUseTSTypeLiteralInterface<T>(args?: Partial<T>): T {
+export function literalNumber_boostestUseTSTypeLiteralInterface() {
 	return 10;
 }
 
-export function literalLiteralNumber_boostestUseTSTypeLiteralInterface<T>(args?: Partial<T>): T {
+export function literalLiteralNumber_boostestUseTSTypeLiteralInterface() {
 	return 42;
 }
 
-export function literalNumberUnion_boostestUseTSTypeLiteralInterface<T>(args?: Partial<T>): T {
+export function literalNumberUnion_boostestUseTSTypeLiteralInterface() {
 	return 1;
 }
 
-export function literalBoolean_boostestUseTSTypeLiteralInterface<T>(args?: Partial<T>): T {
+export function literalBoolean_boostestUseTSTypeLiteralInterface() {
 	return true;
 }
 
-export function literalLiteralBoolean_boostestUseTSTypeLiteralInterface<T>(args?: Partial<T>): T {
+export function literalLiteralBoolean_boostestUseTSTypeLiteralInterface() {
 	return true;
 }
 
-export function literalBooleanUnion_boostestUseTSTypeLiteralInterface<T>(args?: Partial<T>): T {
+export function literalBooleanUnion_boostestUseTSTypeLiteralInterface() {
 	return true;
 }
 
-export function literalNull_boostestUseTSTypeLiteralInterface<T>(args?: Partial<T>): T {
+export function literalNull_boostestUseTSTypeLiteralInterface() {
 	return null;
 }
 
-export function literalUndefined_boostestUseTSTypeLiteralInterface<T>(args?: Partial<T>): T {
+export function literalUndefined_boostestUseTSTypeLiteralInterface() {
 	return undefined;
 }
 
-export function literalArray_boostestUseTSTypeLiteralInterface<T>(args?: Partial<T>): T {
+export function literalArray_boostestUseTSTypeLiteralInterface() {
 	return [];
 }
 
-export function literalLiteralArray_boostestUseTSTypeLiteralInterface<T>(args?: Partial<T>): T {
+export function literalLiteralArray_boostestUseTSTypeLiteralInterface() {
 	return [];
 }
 
-export function literalArrayUnion_boostestUseTSTypeLiteralInterface<T>(args?: Partial<T>): T {
+export function literalArrayUnion_boostestUseTSTypeLiteralInterface() {
 	return [];
 }
 
-export function literalObject_boostestUseTSTypeLiteralInterface<T>(args?: Partial<T>): T {
+export function literalObject_boostestUseTSTypeLiteralInterface() {
 	return {};
 }
 
@@ -1019,41 +1021,42 @@ export function literalLiteralObject_boostestUseTSTypeLiteralInterface<T>(args?:
 	} as T);
 }
 
-export function literalObjectUnion_boostestUseTSTypeLiteralInterface<T>(args?: Partial<T>): T {
+export function literalObjectUnion_boostestUseTSTypeLiteralInterface() {
 	return {};
 }
 
-export function literalFunction_boostestUseTSTypeLiteralInterface<T>(args?: Partial<T>): T {
-	return key_name_boostestUseTSTypeLiteralInterface();
-}
-
-export function literalLiteralFunction_boostestUseTSTypeLiteralInterface<T>(args?: Partial<T>): T {
+export function literalFunction_boostestUseTSTypeLiteralInterface() {
 	return () => {
 	};
 }
 
-export function literalFunctionUnion_boostestUseTSTypeLiteralInterface<T>(args?: Partial<T>): T {
+export function literalLiteralFunction_boostestUseTSTypeLiteralInterface() {
 	return () => {
 	};
 }
 
-export function literalBigInt_boostestUseTSTypeLiteralInterface<T>(args?: Partial<T>): T {
+export function literalFunctionUnion_boostestUseTSTypeLiteralInterface() {
+	return () => {
+	};
+}
+
+export function literalBigInt_boostestUseTSTypeLiteralInterface() {
 	return 9007199254740991;
 }
 
-export function literalLiteralBigInt_boostestUseTSTypeLiteralInterface<T>(args?: Partial<T>): T {
+export function literalLiteralBigInt_boostestUseTSTypeLiteralInterface() {
 	return 123n;
 }
 
-export function literalBigIntUnion_boostestUseTSTypeLiteralInterface<T>(args?: Partial<T>): T {
+export function literalBigIntUnion_boostestUseTSTypeLiteralInterface() {
 	return 1n;
 }
 
-export function literalSymbol_boostestUseTSTypeLiteralInterface<T>(args?: Partial<T>): T {
+export function literalSymbol_boostestUseTSTypeLiteralInterface() {
 	return {};
 }
 
-export function literalLiteralSymbol_boostestUseTSTypeLiteralInterface<T>(args?: Partial<T>): T {
+export function literalLiteralSymbol_boostestUseTSTypeLiteralInterface() {
 	return {};
 }
 

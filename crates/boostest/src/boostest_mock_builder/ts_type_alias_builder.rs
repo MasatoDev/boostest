@@ -58,8 +58,16 @@ impl<'a> TSTypeAliasBuilder<'a> {
     }
 
     pub fn generate_code(&mut self, source_type: SourceType) -> String {
-        let bytes = include_bytes!("./template/tsTypeAlias.ts");
-        let source_code = std::str::from_utf8(bytes).unwrap();
+        let source_code: &str;
+
+        if self.is_ts_type_literal() {
+            let bytes = include_bytes!("./template/tsTypeLiteralAlias.ts");
+            source_code = std::str::from_utf8(bytes).unwrap();
+        } else {
+            let bytes = include_bytes!("./template/tsTypeAlias.ts");
+            source_code = std::str::from_utf8(bytes).unwrap();
+        };
+
         let parser = Parser::new(self.ast_builder.allocator, source_code, source_type);
         let program = &mut parser.parse().program;
 
