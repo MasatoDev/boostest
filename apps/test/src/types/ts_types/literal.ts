@@ -28,16 +28,17 @@ export type LiteralTypeAlias = {
   functionLiteral: () => void;
   arrayLiteral: string[];
   referenceLiteral: RefType;
-  thisType: ThisType<string>;
   unionType: string | number;
   conditionalType: string extends number ? true : false;
 
+  // TODO: literal
   tsLiteralString: 'string';
   tsLiteralNumber: 20;
   tsLiteralBoolean: true;
   tsNullLiteral: null;
 
   // TODO
+  thisType: ThisType<string>;
   array: Array<string>;
   partial: Partial<RefType>;
   required: Required<RefType>;
@@ -53,6 +54,7 @@ export type LiteralTypeAlias = {
   instanceType: InstanceType<typeof LiteralTypeClass>;
   promise: Promise<RefType>;
 
+  // TODO
   classType: typeof Hoge;
   refTypeInterface: RefTypeInterface;
 };
@@ -72,16 +74,17 @@ export type LiteralTypeInterface = {
   functionLiteral: () => void;
   arrayLiteral: string[];
   referenceLiteral: RefType;
-  thisType: ThisType<string>;
   unionType: string | number;
   conditionalType: string extends number ? true : false;
 
+  // TODO: literal
   tsLiteralString: 'string';
   tsLiteralNumber: 20;
   tsLiteralBoolean: true;
   tsNullLiteral: null;
 
   // TODO
+  thisType: ThisType<string>;
   array: Array<string>;
   partial: Partial<RefType>;
   required: Required<RefType>;
@@ -97,6 +100,7 @@ export type LiteralTypeInterface = {
   instanceType: InstanceType<typeof LiteralTypeClass>;
   promise: Promise<RefType>;
 
+  // TODO: literal
   classType: typeof Hoge;
   refTypeInterface: RefTypeInterface;
 };
@@ -117,9 +121,15 @@ export class LiteralTypeClass {
     public functionLiteral: () => void,
     public arrayLiteral: string[],
     public referenceLiteral: RefType,
-    public thisType: ThisType<string>,
     public unionType: string | number,
 
+    // TODO
+    public tsLiteralString: 'string',
+    public tsLiteralNumber: 20,
+    public tsLiteralBoolean: true,
+
+    // TODO
+    public thisType: ThisType<string>,
     public array: Array<string>,
     public partial: Partial<RefType>,
     public required: Required<RefType>,
@@ -135,6 +145,7 @@ export class LiteralTypeClass {
     // public instanceType: InstanceType<typeof LiteralTypeClass>,
     public promise: Promise<RefType>,
 
+    // TODO
     public classType: typeof Hoge,
     public refTypeInterface: RefTypeInterface
   ) {}

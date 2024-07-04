@@ -11,28 +11,31 @@ let a = boostestAnoExportDefaultInterface<AnoExportDefaultInterface>({
 import AnoExportDefaultClass from '@/export_default_class';
 let b = boostestAnoExportDefaultClass<typeof AnoExportDefaultClass>(AnoExportDefaultClass);
 
-// import ExportDefaultClass from './types/export_default_class';
-// let c = boostestExportDefaultClass<typeof ExportDefaultClass>(ExportDefaultClass);
+import ExportDefaultClass from './types/export_default_class';
+let c = boostestExportDefaultClass<typeof ExportDefaultClass>(ExportDefaultClass);
 
-// import ExportDefaultClassWithDecl from './types/export_default_class_with_decl';
-// let d = boostestExportDefaultClassWithDecl<typeof ExportDefaultClassWithDecl>(ExportDefaultClassWithDecl);
+import ExportDefaultClassWithDecl from './types/export_default_class_with_decl';
+let d = boostestExportDefaultClassWithDecl<typeof ExportDefaultClassWithDecl>(ExportDefaultClassWithDecl);
 
-// import { ExportNamedDecl } from './types/export_named_decl';
-// let e = boostestExportNamedDecl<ExportNamedDecl>();
+import { ExportNamedDecl } from './types/export_named_decl';
+let e = boostestExportNamedDecl<ExportNamedDecl>();
 
-// import ExportDefaultNamedDecl from './types/export_default_named_decl';
-// let f = boostestExportDefaultNamedDecl<ExportDefaultNamedDecl>();
+import ExportDefaultNamedDecl from './types/export_default_named_decl';
+let f = boostestExportDefaultNamedDecl<ExportDefaultNamedDecl>();
 
-// import { AnoExportNamedDeclInterface } from './types/export_named_decl_interface';
-// let g = boostestExportNamedDeclInterface<AnoExportNamedDeclInterface>();
+import { AnoExportNamedDeclInterface } from './types/export_named_decl_interface';
+let g = boostestExportNamedDeclInterface<AnoExportNamedDeclInterface>();
 
-// import { AnoExportNamedDeclClass } from './types/export_named_decl_class';
-// let h = boostestAnoExportNamedDeclClass<typeof AnoExportNamedDeclClass>(AnoExportNamedDeclClass);
+import { AnoExportNamedDeclClass } from './types/export_named_decl_class';
+let h = boostestAnoExportNamedDeclClass<typeof AnoExportNamedDeclClass>(AnoExportNamedDeclClass);
 
-// import Mix, { MixCompTSAlias } from './types/mix';
-// let i = boostestAnoMixInterface<Mix>({ name: 'mix' });
-// let j = boostestMixCompTSAlias<MixCompTSAlias>({ name: 'mixCompTSAlias' });
+import Mix, { MixCompTSAlias } from './types/mix';
+let i = boostestAnoMixInterface<Mix>({ name: 'mix' });
+let j = boostestMixCompTSAlias<MixCompTSAlias>({ name: 'mixCompTSAlias' });
 
+/**
+ * constructor(public name: string, private age: number, protected readonly readonlyAge: number) {}
+ */
 import { AccessorClass } from './types/pattern/accessor_class';
 let _ = boostestAccessorClass<typeof AccessorClass>(AccessorClass);
 
@@ -40,13 +43,20 @@ let _ = boostestAccessorClass<typeof AccessorClass>(AccessorClass);
 // import ClassObj from './types/class_obj';
 // let k = boostestClassObj<typeof ClassObj>(ClassObj);
 
-import { TSAliasMixUnionType, TSAliasStringUnionType, TSAliasMixUnionObjType, TSInterfaceMixUnionType, TSInterfaceStringUnionType } from './types/ts_types/union';
-let k = boostestTSAliasMixUnionType<TSAliasMixUnionType>('A');
-let l = boostestTSAliasStringUnionType<TSAliasStringUnionType>('A');
+/**
+ * Union type
+ */
+// import { TSAliasMixUnionType, TSAliasStringUnionType, TSAliasMixUnionObjType, TSInterfaceMixUnionType, TSInterfaceStringUnionType } from './types/ts_types/union';
+// let k = boostestTSAliasMixUnionType<TSAliasMixUnionType>('A');
+// let l = boostestTSAliasStringUnionType<TSAliasStringUnionType>('A');
 // let m = boostestTSInterfaceMixUnionType<TSInterfaceMixUnionType>({ type: 'A' });
 // let n = boostestTSInterfaceStringUnionType<TSInterfaceStringUnionType>({ type: 'A' });
 // let o = boostestTSAliasMixUnionObjType<TSAliasMixUnionObjType>({ ref_type: 'A', type: 'A' });
 
 // TODO
+/**
+ * this case is a argument of class is object
+ * constructor({ name, age }: { name: string; age: number })
+ */
 // import { ArgObjClass } from './types/pattern/arg_obj_class';
 // let _ = boostestArgObjClass<typeof ArgObjClass>(ArgObjClass);
