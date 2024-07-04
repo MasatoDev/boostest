@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`boostest output correctly 1`] = `
+exports[`boostest main file output correctly 1`] = `
 "export function boostestAccessorClass<T extends abstract new (...args: any) => any>(AccessorClass): T {
 	return new AccessorClass('test string data', 10, 10);
 }

@@ -11,21 +11,26 @@ setup:
 debug_build:
   pnpm --filter boostest build:debug
 
-debug:
-  just debug_build
-  pnpm --filter example start:boostest
+# debug:
+#   just debug_build
+#   pnpm --filter example start:boostest
 
 test_debug:
   just debug_build
   pnpm --filter test boostest
+  pnpm --filter test boostest:direct
 
-update_snapshot:
+snapshot:
   just debug_build
+  pnpm --filter test boostest
+  pnpm --filter test boostest:direct
   pnpm --filter test snapshot  
 
 test:
   just debug_build
-  pnpm --filter test test:out
+  pnpm --filter test boostest
+  pnpm --filter test boostest:direct
+  pnpm --filter test test
   
 example_demo:
   pnpm --filter boostest build:debug
