@@ -223,14 +223,38 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
     }
 
     fn visit_expression(&mut self, expr: &mut Expression<'a>) {
-        // if !self.is_ts_type_literal() {
-        //     let ts_annotation = self.ast_builder.copy(&self.ts_type_alias.type_annotation);
-        //     let new_expr = self.get_expression(ts_annotation, "key_name");
+        /*
+        * early handle type Hoge = string
 
-        //     let _ = std::mem::replace(expr, new_expr);
-        //     return;
-        // }
+           type JOB = {
+             name: string;
+             salary: number;
+           };
 
+           type Hoge = string; < -- early handle
+        */
+        if !self.is_ts_type_literal() {
+            let ts_annotation = self.ast_builder.copy(&self.ts_type_alias.type_annotation);
+            let new_expr = test_data_factory::get_expression(
+                &self.ast_builder,
+                ts_annotation,
+                "key_name",
+                &self.mock_data.mock_func_name,
+            );
+
+            let _ = std::mem::replace(expr, new_expr);
+            return;
+        }
+
+        /*
+        * handle type_literal as bellow
+
+           type JOB = {
+             name: string;
+             salary: number;
+           };
+
+        */
         let mut temp_obj_expr = self.ast_builder.move_expression(expr);
 
         match &mut temp_obj_expr {
