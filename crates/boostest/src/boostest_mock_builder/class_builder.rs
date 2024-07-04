@@ -91,8 +91,8 @@ impl<'a> ClassBuilder<'a> {
                         match &formal_parameter.pattern.kind {
                             BindingPatternKind::BindingIdentifier(id) => {
                                 if let Some(item) = &formal_parameter.pattern.type_annotation {
-                                    target_data_vec
-                                        .push((id.name.to_string(), &item.type_annotation));
+                                    let ts_type = self.ast_builder.copy(&item.type_annotation);
+                                    target_data_vec.push((id.name.to_string(), ts_type));
                                 }
                             }
                             _ => {}
@@ -103,11 +103,11 @@ impl<'a> ClassBuilder<'a> {
             }
         }
 
-        for (key_name, ts_type) in &mut target_data_vec {
+        for (key_name, ts_type) in target_data_vec {
             let argument = test_data_factory::get_arg(
                 &self.ast_builder,
                 ts_type,
-                key_name,
+                key_name.as_str(),
                 &self.mock_data.mock_func_name,
             );
 

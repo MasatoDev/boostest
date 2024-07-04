@@ -521,8 +521,11 @@ export function boostestLiteralAliasType<T>(args?: Partial<T>): T {
 		'conditionalType':true,
 		'tsLiteralString':'string',
 		'tsLiteralNumber':20,
+		'tsBigInt':10000000000000n,
 		'tsLiteralBoolean':true,
 		'tsNullLiteral':null,
+		'tsObject':{},
+		'tsArray':[],
 		'thisType':{},
 		'array':[],
 		'partial':{},
@@ -581,8 +584,11 @@ export function boostestLiteralInterfaceType<T>(args?: Partial<T>): T {
 		'conditionalType':true,
 		'tsLiteralString':'string',
 		'tsLiteralNumber':20,
+		'tsBigInt':10000000000000n,
 		'tsLiteralBoolean':true,
 		'tsNullLiteral':null,
+		'tsObject':{},
+		'tsArray':[],
 		'thisType':{},
 		'array':[],
 		'partial':{},
@@ -622,7 +628,7 @@ export function refTypeInterface_boostestLiteralInterfaceType<T>(args?: Partial<
 
 export function boostestLiteralTypeClass<T extends abstract new (...args: any) => any>(LiteralTypeClass): T {
 	return new LiteralTypeClass('test string data', 10, 9007199254740991, true, null, undefined, 'any', undefined, null, {}, null, () => {
-	}, [], referenceLiteral_boostestLiteralTypeClass(), {}, {}, {}, {}, {}, [], {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, refTypeInterface_boostestLiteralTypeClass());
+	}, [], referenceLiteral_boostestLiteralTypeClass(), {}, 'string', 20, 10000000000000n, true, null, {}, [], {}, [], {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, refTypeInterface_boostestLiteralTypeClass());
 }
 
 export function referenceLiteral_boostestLiteralTypeClass<T>(args?: Partial<T>): T {

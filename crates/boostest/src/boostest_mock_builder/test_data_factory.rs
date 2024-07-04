@@ -11,7 +11,7 @@ use oxc::{
         },
         AstBuilder,
     },
-    span::Span,
+    span::{Atom, Span},
     syntax::number::{BigintBase, NumberBase},
 };
 
@@ -30,8 +30,8 @@ fn string_literal<'a>(
 pub fn string_expr<'a>(ast_builder: &AstBuilder<'a>, default_str: Option<&str>) -> Expression<'a> {
     ast_builder.literal_string_expression(string_literal(ast_builder, default_str))
 }
-pub fn string_arg<'a>(ast_builder: &AstBuilder<'a>) -> Argument<'a> {
-    let r = ast_builder.alloc(string_literal(ast_builder, None));
+pub fn string_arg<'a>(ast_builder: &AstBuilder<'a>, default_str: Option<&str>) -> Argument<'a> {
+    let r = ast_builder.alloc(string_literal(ast_builder, default_str));
     Argument::StringLiteral(r)
 }
 
@@ -56,24 +56,40 @@ pub fn number_expr<'a>(
 ) -> Expression<'a> {
     ast_builder.literal_number_expression(number_literal(ast_builder, value, raw, base))
 }
-pub fn number_arg<'a>(ast_builder: &AstBuilder<'a>) -> Argument<'a> {
-    let r = ast_builder.alloc(number_literal(ast_builder, None, None, None));
+pub fn number_arg<'a>(
+    ast_builder: &AstBuilder<'a>,
+    value: Option<f64>,
+    raw: Option<&'a str>,
+    base: Option<NumberBase>,
+) -> Argument<'a> {
+    let r = ast_builder.alloc(number_literal(ast_builder, value, raw, base));
     Argument::NumericLiteral(r)
 }
 
 // TSType::TSBigIntKeyword
-fn bigint_literal<'a>(ast_builder: &AstBuilder<'a>) -> BigIntLiteral<'a> {
-    ast_builder.bigint_literal(
-        SPAN,
-        ast_builder.new_atom("9007199254740991"),
-        BigintBase::Decimal,
-    )
+fn bigint_literal<'a>(
+    ast_builder: &AstBuilder<'a>,
+    raw: Option<&Atom<'a>>,
+    base: Option<BigintBase>,
+) -> BigIntLiteral<'a> {
+    let fallback_atom = ast_builder.new_atom("9007199254740991");
+    let r = raw.unwrap_or(&fallback_atom);
+    let b = base.unwrap_or(BigintBase::Decimal);
+    ast_builder.bigint_literal(SPAN, ast_builder.new_atom(r), b)
 }
-pub fn bigint_expr<'a>(ast_builder: &AstBuilder<'a>) -> Expression<'a> {
-    ast_builder.literal_bigint_expression(bigint_literal(ast_builder))
+pub fn bigint_expr<'a>(
+    ast_builder: &AstBuilder<'a>,
+    raw: Option<&Atom<'a>>,
+    base: Option<BigintBase>,
+) -> Expression<'a> {
+    ast_builder.literal_bigint_expression(bigint_literal(ast_builder, raw, base))
 }
-pub fn bigint_arg<'a>(ast_builder: &AstBuilder<'a>) -> Argument<'a> {
-    let r = ast_builder.alloc(bigint_literal(ast_builder));
+pub fn bigint_arg<'a>(
+    ast_builder: &AstBuilder<'a>,
+    raw: Option<&Atom<'a>>,
+    base: Option<BigintBase>,
+) -> Argument<'a> {
+    let r = ast_builder.alloc(bigint_literal(ast_builder, raw, base));
     Argument::BigintLiteral(r)
 }
 
@@ -85,8 +101,8 @@ fn boolean_literal<'a>(ast_builder: &AstBuilder<'a>, default_val: Option<bool>) 
 pub fn boolean_expr<'a>(ast_builder: &AstBuilder<'a>, default_val: Option<bool>) -> Expression<'a> {
     ast_builder.literal_boolean_expression(boolean_literal(ast_builder, default_val))
 }
-pub fn boolean_arg<'a>(ast_builder: &AstBuilder<'a>) -> Argument<'a> {
-    let r = ast_builder.alloc(boolean_literal(ast_builder, None));
+pub fn boolean_arg<'a>(ast_builder: &AstBuilder<'a>, default_val: Option<bool>) -> Argument<'a> {
+    let r = ast_builder.alloc(boolean_literal(ast_builder, default_val));
     Argument::BooleanLiteral(r)
 }
 
@@ -229,6 +245,13 @@ pub fn ref_arg<'a>(
     }))
 }
 
+/**
+ *
+ *
+ * expr with ts_literal_type
+ *
+ *
+ */
 pub fn get_expr_with_ts_literal_type<'a>(
     ast_builder: &AstBuilder<'a>,
     ts_literal: &TSLiteral<'a>,
@@ -247,7 +270,46 @@ pub fn get_expr_with_ts_literal_type<'a>(
             boolean_expr(ast_builder, Some(boolean_literal.value))
         }
         TSLiteral::NullLiteral(_) => null_expr(ast_builder),
+        TSLiteral::BigintLiteral(bigint_literal) => bigint_expr(
+            ast_builder,
+            Some(&bigint_literal.raw),
+            Some(bigint_literal.base),
+        ),
         _ => object_expr(ast_builder),
+    }
+}
+
+/**
+ *
+ *
+ * arg with ts_literal_type
+ *
+ *
+ */
+pub fn get_arg_with_ts_literal_type<'a>(
+    ast_builder: &AstBuilder<'a>,
+    ts_literal: &TSLiteral<'a>,
+) -> Argument<'a> {
+    match ts_literal {
+        TSLiteral::StringLiteral(string_literal) => {
+            string_arg(ast_builder, Some(string_literal.value.as_str()))
+        }
+        TSLiteral::NumericLiteral(numeric_literal) => number_arg(
+            ast_builder,
+            Some(numeric_literal.value),
+            Some(numeric_literal.raw),
+            Some(numeric_literal.base),
+        ),
+        TSLiteral::BooleanLiteral(boolean_literal) => {
+            boolean_arg(ast_builder, Some(boolean_literal.value))
+        }
+        TSLiteral::NullLiteral(_) => null_arg(ast_builder),
+        TSLiteral::BigintLiteral(bigint_literal) => bigint_arg(
+            ast_builder,
+            Some(&bigint_literal.raw),
+            Some(bigint_literal.base),
+        ),
+        _ => object_arg(ast_builder),
     }
 }
 
@@ -283,7 +345,7 @@ pub fn get_expression<'a>(
         TSType::TSBooleanKeyword(_) => boolean_expr(ast_builder, None),
         TSType::TSNullKeyword(_) => null_expr(ast_builder),
         TSType::TSNumberKeyword(_) => number_expr(ast_builder, None, None, None),
-        TSType::TSBigIntKeyword(_) => bigint_expr(ast_builder),
+        TSType::TSBigIntKeyword(_) => bigint_expr(ast_builder, None, None),
         TSType::TSObjectKeyword(_) => object_expr(ast_builder),
         TSType::TSVoidKeyword(_) => null_expr(ast_builder),
         TSType::TSFunctionType(_) => function_expr(ast_builder),
@@ -322,7 +384,8 @@ pub fn get_expression<'a>(
         TSType::TSTupleType(_) => {
             // [string, number]
             // TODO
-            ast_builder.object_expression(SPAN, ast_builder.new_vec(), None)
+
+            ast_builder.array_expression(SPAN, ast_builder.new_vec(), None)
         }
         TSType::TSNamedTupleMember(_) => {
             // [name: string, age: number]
@@ -420,17 +483,17 @@ pub fn get_expression<'a>(
 
 pub fn get_arg<'a>(
     ast_builder: &AstBuilder<'a>,
-    ts_type: &TSType,
+    ts_type: TSType<'a>,
     key_name: &str,
     mock_func_name: &str,
 ) -> Argument<'a> {
     match ts_type {
         TSType::TSAnyKeyword(_) => any_arg(ast_builder),
-        TSType::TSBigIntKeyword(_) => bigint_arg(ast_builder),
-        TSType::TSBooleanKeyword(_) => boolean_arg(ast_builder),
+        TSType::TSBigIntKeyword(_) => bigint_arg(ast_builder, None, None),
+        TSType::TSBooleanKeyword(_) => boolean_arg(ast_builder, None),
         TSType::TSNullKeyword(_) => null_arg(ast_builder),
-        TSType::TSNumberKeyword(_) => number_arg(ast_builder),
-        TSType::TSStringKeyword(_) => string_arg(ast_builder),
+        TSType::TSNumberKeyword(_) => number_arg(ast_builder, None, None, None),
+        TSType::TSStringKeyword(_) => string_arg(ast_builder, None),
         TSType::TSTypeReference(ts_type_ref)
             if boostest_utils::ast_utils::is_defined_type(&ts_type_ref) =>
         {
@@ -502,7 +565,7 @@ pub fn get_arg<'a>(
         TSType::TSTupleType(_) => {
             // [string, number]
             // TODO
-            object_arg(ast_builder)
+            array_arg(ast_builder)
         }
         TSType::TSNamedTupleMember(_) => {
             // [name: string, age: number]
@@ -566,44 +629,8 @@ pub fn get_arg<'a>(
             // println!("TSIntrsectionType {:?}", ts_intersection);
             object_arg(ast_builder)
         }
-        TSType::TSLiteralType(_literal_type) => {
-            // TODO
-            object_arg(ast_builder)
-
-            // let val = match &literal_type.literal {
-            //     TSLiteral::StringLiteral(string_literal) => {
-            //         let new_val = self
-            //             .ast_builder
-            //             .string_literal(SPAN, string_literal.value.as_str());
-            //         ast_builder.literal_string_expression(new_val)
-            //     }
-            //     TSLiteral::NumericLiteral(numeric_literal) => {
-            //         let new_val = ast_builder.number_literal(
-            //             SPAN,
-            //             numeric_literal.value,
-            //             numeric_literal.raw,
-            //             numeric_literal.base,
-            //         );
-            //         ast_builder.literal_number_expression(new_val)
-            //     }
-            //     TSLiteral::BooleanLiteral(boolean_literal) => {
-            //         let new_val = self
-            //             .ast_builder
-            //             .boolean_literal(SPAN, boolean_literal.value);
-            //         ast_builder.literal_boolean_expression(new_val)
-            //     }
-            //     TSLiteral::NullLiteral(_) => {
-            //         let new_val = NullLiteral::new(SPAN);
-            //         ast_builder.literal_null_expression(new_val)
-            //     }
-            //     _ => {
-            //         let new_val = self
-            //             .ast_builder
-            //             .string_literal(SPAN, "default_val(unimplemented)");
-            //         ast_builder.literal_string_expression(new_val)
-            //     }
-            // };
-            // val
+        TSType::TSLiteralType(literal_type) => {
+            get_arg_with_ts_literal_type(ast_builder, &literal_type.literal)
         }
 
         TSType::JSDocNullableType(_) => {
