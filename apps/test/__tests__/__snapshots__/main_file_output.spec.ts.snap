@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`boostest output correctly 1`] = `
+exports[`boostest main file output correctly 1`] = `
 "export function boostestAccessorClass<T extends abstract new (...args: any) => any>(AccessorClass): T {
 	return new AccessorClass('test string data', 10, 10);
 }
@@ -520,13 +520,16 @@ export function boostestLiteralAliasType<T>(args?: Partial<T>): T {
 		},
 		'arrayLiteral':[],
 		'referenceLiteral':referenceLiteral_boostestLiteralAliasType(),
-		'thisType':{},
 		'unionType':'test string data',
 		'conditionalType':true,
 		'tsLiteralString':'string',
 		'tsLiteralNumber':20,
+		'tsBigInt':10000000000000n,
 		'tsLiteralBoolean':true,
 		'tsNullLiteral':null,
+		'tsObject':{},
+		'tsArray':[],
+		'thisType':{},
 		'array':[],
 		'partial':{},
 		'required':{},
@@ -580,13 +583,16 @@ export function boostestLiteralInterfaceType<T>(args?: Partial<T>): T {
 		},
 		'arrayLiteral':[],
 		'referenceLiteral':referenceLiteral_boostestLiteralInterfaceType(),
-		'thisType':{},
 		'unionType':'test string data',
 		'conditionalType':true,
 		'tsLiteralString':'string',
 		'tsLiteralNumber':20,
+		'tsBigInt':10000000000000n,
 		'tsLiteralBoolean':true,
 		'tsNullLiteral':null,
+		'tsObject':{},
+		'tsArray':[],
+		'thisType':{},
 		'array':[],
 		'partial':{},
 		'required':{},
@@ -625,7 +631,7 @@ export function refTypeInterface_boostestLiteralInterfaceType<T>(args?: Partial<
 
 export function boostestLiteralTypeClass<T extends abstract new (...args: any) => any>(LiteralTypeClass): T {
 	return new LiteralTypeClass('test string data', 10, 9007199254740991, true, null, undefined, 'any', undefined, null, {}, null, () => {
-	}, [], referenceLiteral_boostestLiteralTypeClass(), {}, {}, [], {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, refTypeInterface_boostestLiteralTypeClass());
+	}, [], referenceLiteral_boostestLiteralTypeClass(), {}, 'string', 20, 10000000000000n, true, null, {}, [], {}, [], {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, refTypeInterface_boostestLiteralTypeClass());
 }
 
 export function referenceLiteral_boostestLiteralTypeClass<T>(args?: Partial<T>): T {
@@ -692,6 +698,369 @@ export function conditionalKey_boostestMixCompTSAlias<T>(args?: Partial<T>): T {
 		'price':250,
 		...args
 	} as T);
+}
+
+export function boostestTsLiteralArrayUnionType() {
+	return [];
+}
+
+export function boostestTsLiteralFunctionUnionType() {
+	return () => {
+	};
+}
+
+export function boostestTsLiteralNumberUnionType() {
+	return 1;
+}
+
+export function boostestTsLiteralObjectUnionType() {
+	return {};
+}
+
+export function boostestTsLiteralTypeStringUnionType() {
+	return 'A';
+}
+
+export function boostestTsTypeLiteralArray() {
+	return [];
+}
+
+export function boostestTsTypeLiteralBoolean() {
+	return true;
+}
+
+export function boostestTsTypeLiteralFunction() {
+	return () => {
+	};
+}
+
+export function boostestTsTypeLiteralLiteralArrayType() {
+	return [];
+}
+
+export function boostestTsTypeLiteralLiteralFunctionType() {
+	return () => {
+	};
+}
+
+export function boostestTsTypeLiteralLiteralNumberType() {
+	return 42;
+}
+
+export function boostestTsTypeLiteralLiteralObjectType<T>(args?: Partial<T>): T {
+	return ({
+		'name':'test string data',
+		'age':10,
+		...args
+	} as T);
+}
+
+export function boostestTsTypeLiteralLiteralSymbolType() {
+	return {};
+}
+
+export function boostestTsTypeLiteralLiteralTypeString() {
+	return 'string';
+}
+
+export function boostestTsTypeLiteralNull() {
+	return null;
+}
+
+export function boostestTsTypeLiteralNumber() {
+	return 10;
+}
+
+export function boostestTsTypeLiteralObject() {
+	return {};
+}
+
+export function boostestTsTypeLiteralString() {
+	return 'test string data';
+}
+
+export function boostestTsTypeLiteralSymbol() {
+	return {};
+}
+
+export function boostestTsTypeLiteralUndefined() {
+	return undefined;
+}
+
+export function boostestUseTSTypeLiteralAlias<T>(args?: Partial<T>): T {
+	return ({
+		'literalString':literalString_boostestUseTSTypeLiteralAlias(),
+		'literalLiteralString':literalLiteralString_boostestUseTSTypeLiteralAlias(),
+		'literalStringUnion':literalStringUnion_boostestUseTSTypeLiteralAlias(),
+		'literalNumber':literalNumber_boostestUseTSTypeLiteralAlias(),
+		'literalLiteralNumber':literalLiteralNumber_boostestUseTSTypeLiteralAlias(),
+		'literalNumberUnion':literalNumberUnion_boostestUseTSTypeLiteralAlias(),
+		'literalBoolean':literalBoolean_boostestUseTSTypeLiteralAlias(),
+		'literalLiteralBoolean':literalLiteralBoolean_boostestUseTSTypeLiteralAlias(),
+		'literalBooleanUnion':literalBooleanUnion_boostestUseTSTypeLiteralAlias(),
+		'literalNull':literalNull_boostestUseTSTypeLiteralAlias(),
+		'literalUndefined':literalUndefined_boostestUseTSTypeLiteralAlias(),
+		'literalArray':literalArray_boostestUseTSTypeLiteralAlias(),
+		'literalLiteralArray':literalLiteralArray_boostestUseTSTypeLiteralAlias(),
+		'literalArrayUnion':literalArrayUnion_boostestUseTSTypeLiteralAlias(),
+		'literalObject':literalObject_boostestUseTSTypeLiteralAlias(),
+		'literalLiteralObject':literalLiteralObject_boostestUseTSTypeLiteralAlias(),
+		'literalObjectUnion':literalObjectUnion_boostestUseTSTypeLiteralAlias(),
+		'literalFunction':literalFunction_boostestUseTSTypeLiteralAlias(),
+		'literalLiteralFunction':literalLiteralFunction_boostestUseTSTypeLiteralAlias(),
+		'literalFunctionUnion':literalFunctionUnion_boostestUseTSTypeLiteralAlias(),
+		'literalBigInt':literalBigInt_boostestUseTSTypeLiteralAlias(),
+		'literalLiteralBigInt':literalLiteralBigInt_boostestUseTSTypeLiteralAlias(),
+		'literalBigIntUnion':literalBigIntUnion_boostestUseTSTypeLiteralAlias(),
+		'literalSymbol':literalSymbol_boostestUseTSTypeLiteralAlias(),
+		'literalLiteralSymbol':literalLiteralSymbol_boostestUseTSTypeLiteralAlias(),
+		...args
+	} as T);
+}
+
+export function literalString_boostestUseTSTypeLiteralAlias() {
+	return 'test string data';
+}
+
+export function literalLiteralString_boostestUseTSTypeLiteralAlias() {
+	return 'string';
+}
+
+export function literalStringUnion_boostestUseTSTypeLiteralAlias() {
+	return 'A';
+}
+
+export function literalNumber_boostestUseTSTypeLiteralAlias() {
+	return 10;
+}
+
+export function literalLiteralNumber_boostestUseTSTypeLiteralAlias() {
+	return 42;
+}
+
+export function literalNumberUnion_boostestUseTSTypeLiteralAlias() {
+	return 1;
+}
+
+export function literalBoolean_boostestUseTSTypeLiteralAlias() {
+	return true;
+}
+
+export function literalLiteralBoolean_boostestUseTSTypeLiteralAlias() {
+	return true;
+}
+
+export function literalBooleanUnion_boostestUseTSTypeLiteralAlias() {
+	return true;
+}
+
+export function literalNull_boostestUseTSTypeLiteralAlias() {
+	return null;
+}
+
+export function literalUndefined_boostestUseTSTypeLiteralAlias() {
+	return undefined;
+}
+
+export function literalArray_boostestUseTSTypeLiteralAlias() {
+	return [];
+}
+
+export function literalLiteralArray_boostestUseTSTypeLiteralAlias() {
+	return [];
+}
+
+export function literalArrayUnion_boostestUseTSTypeLiteralAlias() {
+	return [];
+}
+
+export function literalObject_boostestUseTSTypeLiteralAlias() {
+	return {};
+}
+
+export function literalLiteralObject_boostestUseTSTypeLiteralAlias<T>(args?: Partial<T>): T {
+	return ({
+		'name':'test string data',
+		'age':10,
+		...args
+	} as T);
+}
+
+export function literalObjectUnion_boostestUseTSTypeLiteralAlias() {
+	return {};
+}
+
+export function literalFunction_boostestUseTSTypeLiteralAlias() {
+	return () => {
+	};
+}
+
+export function literalLiteralFunction_boostestUseTSTypeLiteralAlias() {
+	return () => {
+	};
+}
+
+export function literalFunctionUnion_boostestUseTSTypeLiteralAlias() {
+	return () => {
+	};
+}
+
+export function literalBigInt_boostestUseTSTypeLiteralAlias() {
+	return 9007199254740991;
+}
+
+export function literalLiteralBigInt_boostestUseTSTypeLiteralAlias() {
+	return 123n;
+}
+
+export function literalBigIntUnion_boostestUseTSTypeLiteralAlias() {
+	return 1n;
+}
+
+export function literalSymbol_boostestUseTSTypeLiteralAlias() {
+	return {};
+}
+
+export function literalLiteralSymbol_boostestUseTSTypeLiteralAlias() {
+	return {};
+}
+
+export function boostestUseTSTypeLiteralInterface<T>(args?: Partial<T>): T {
+	return ({
+		'literalString':literalString_boostestUseTSTypeLiteralInterface(),
+		'literalLiteralString':literalLiteralString_boostestUseTSTypeLiteralInterface(),
+		'literalStringUnion':literalStringUnion_boostestUseTSTypeLiteralInterface(),
+		'literalNumber':literalNumber_boostestUseTSTypeLiteralInterface(),
+		'literalLiteralNumber':literalLiteralNumber_boostestUseTSTypeLiteralInterface(),
+		'literalNumberUnion':literalNumberUnion_boostestUseTSTypeLiteralInterface(),
+		'literalBoolean':literalBoolean_boostestUseTSTypeLiteralInterface(),
+		'literalLiteralBoolean':literalLiteralBoolean_boostestUseTSTypeLiteralInterface(),
+		'literalBooleanUnion':literalBooleanUnion_boostestUseTSTypeLiteralInterface(),
+		'literalNull':literalNull_boostestUseTSTypeLiteralInterface(),
+		'literalUndefined':literalUndefined_boostestUseTSTypeLiteralInterface(),
+		'literalArray':literalArray_boostestUseTSTypeLiteralInterface(),
+		'literalLiteralArray':literalLiteralArray_boostestUseTSTypeLiteralInterface(),
+		'literalArrayUnion':literalArrayUnion_boostestUseTSTypeLiteralInterface(),
+		'literalObject':literalObject_boostestUseTSTypeLiteralInterface(),
+		'literalLiteralObject':literalLiteralObject_boostestUseTSTypeLiteralInterface(),
+		'literalObjectUnion':literalObjectUnion_boostestUseTSTypeLiteralInterface(),
+		'literalFunction':literalFunction_boostestUseTSTypeLiteralInterface(),
+		'literalLiteralFunction':literalLiteralFunction_boostestUseTSTypeLiteralInterface(),
+		'literalFunctionUnion':literalFunctionUnion_boostestUseTSTypeLiteralInterface(),
+		'literalBigInt':literalBigInt_boostestUseTSTypeLiteralInterface(),
+		'literalLiteralBigInt':literalLiteralBigInt_boostestUseTSTypeLiteralInterface(),
+		'literalBigIntUnion':literalBigIntUnion_boostestUseTSTypeLiteralInterface(),
+		'literalSymbol':literalSymbol_boostestUseTSTypeLiteralInterface(),
+		'literalLiteralSymbol':literalLiteralSymbol_boostestUseTSTypeLiteralInterface(),
+		...args
+	} as T);
+}
+
+export function literalString_boostestUseTSTypeLiteralInterface() {
+	return 'test string data';
+}
+
+export function literalLiteralString_boostestUseTSTypeLiteralInterface() {
+	return 'string';
+}
+
+export function literalStringUnion_boostestUseTSTypeLiteralInterface() {
+	return 'A';
+}
+
+export function literalNumber_boostestUseTSTypeLiteralInterface() {
+	return 10;
+}
+
+export function literalLiteralNumber_boostestUseTSTypeLiteralInterface() {
+	return 42;
+}
+
+export function literalNumberUnion_boostestUseTSTypeLiteralInterface() {
+	return 1;
+}
+
+export function literalBoolean_boostestUseTSTypeLiteralInterface() {
+	return true;
+}
+
+export function literalLiteralBoolean_boostestUseTSTypeLiteralInterface() {
+	return true;
+}
+
+export function literalBooleanUnion_boostestUseTSTypeLiteralInterface() {
+	return true;
+}
+
+export function literalNull_boostestUseTSTypeLiteralInterface() {
+	return null;
+}
+
+export function literalUndefined_boostestUseTSTypeLiteralInterface() {
+	return undefined;
+}
+
+export function literalArray_boostestUseTSTypeLiteralInterface() {
+	return [];
+}
+
+export function literalLiteralArray_boostestUseTSTypeLiteralInterface() {
+	return [];
+}
+
+export function literalArrayUnion_boostestUseTSTypeLiteralInterface() {
+	return [];
+}
+
+export function literalObject_boostestUseTSTypeLiteralInterface() {
+	return {};
+}
+
+export function literalLiteralObject_boostestUseTSTypeLiteralInterface<T>(args?: Partial<T>): T {
+	return ({
+		'name':'test string data',
+		'age':10,
+		...args
+	} as T);
+}
+
+export function literalObjectUnion_boostestUseTSTypeLiteralInterface() {
+	return {};
+}
+
+export function literalFunction_boostestUseTSTypeLiteralInterface() {
+	return () => {
+	};
+}
+
+export function literalLiteralFunction_boostestUseTSTypeLiteralInterface() {
+	return () => {
+	};
+}
+
+export function literalFunctionUnion_boostestUseTSTypeLiteralInterface() {
+	return () => {
+	};
+}
+
+export function literalBigInt_boostestUseTSTypeLiteralInterface() {
+	return 9007199254740991;
+}
+
+export function literalLiteralBigInt_boostestUseTSTypeLiteralInterface() {
+	return 123n;
+}
+
+export function literalBigIntUnion_boostestUseTSTypeLiteralInterface() {
+	return 1n;
+}
+
+export function literalSymbol_boostestUseTSTypeLiteralInterface() {
+	return {};
+}
+
+export function literalLiteralSymbol_boostestUseTSTypeLiteralInterface() {
+	return {};
 }
 
 "

@@ -1,6 +1,5 @@
-export function boostestTSTypeAliasTemplate<T>(args?: Partial<T>): T {
+export function boostestTSTypeAliasTemplate() {
   return {
     boostestKey: 'boostestValue',
-    ...args,
-  } as T;
+  };
 }

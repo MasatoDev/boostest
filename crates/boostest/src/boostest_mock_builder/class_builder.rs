@@ -3,7 +3,7 @@ use oxc::{
     ast::{
         ast::{
             Argument, BindingIdentifier, BindingPattern, BindingPatternKind, Class, ClassElement,
-            Declaration, Expression, FunctionBody, ObjectExpression, Program, Statement, TSType,
+            Declaration, Expression, FunctionBody, Program, Statement,
         },
         AstBuilder, VisitMut,
     },
@@ -13,8 +13,6 @@ use oxc::{
 };
 
 use oxc::allocator;
-
-use crate::boostest_utils;
 
 use super::test_data_factory;
 
@@ -93,8 +91,8 @@ impl<'a> ClassBuilder<'a> {
                         match &formal_parameter.pattern.kind {
                             BindingPatternKind::BindingIdentifier(id) => {
                                 if let Some(item) = &formal_parameter.pattern.type_annotation {
-                                    target_data_vec
-                                        .push((id.name.to_string(), &item.type_annotation));
+                                    let ts_type = self.ast_builder.copy(&item.type_annotation);
+                                    target_data_vec.push((id.name.to_string(), ts_type));
                                 }
                             }
                             _ => {}
@@ -105,212 +103,13 @@ impl<'a> ClassBuilder<'a> {
             }
         }
 
-        for (key_name, ts_type) in &mut target_data_vec {
-            let argument = match ts_type {
-                TSType::TSAnyKeyword(_) => test_data_factory::any_arg(&self.ast_builder),
-                TSType::TSBigIntKeyword(_) => test_data_factory::bigint_arg(&self.ast_builder),
-                TSType::TSBooleanKeyword(_) => test_data_factory::boolean_arg(&self.ast_builder),
-                TSType::TSNullKeyword(_) => test_data_factory::null_arg(&self.ast_builder),
-                TSType::TSNumberKeyword(_) => test_data_factory::number_arg(&self.ast_builder),
-                TSType::TSStringKeyword(_) => test_data_factory::string_arg(&self.ast_builder),
-                TSType::TSTypeReference(ts_type_ref)
-                    if boostest_utils::ast_utils::is_defined_type(&ts_type_ref) =>
-                {
-                    // TODO
-                    test_data_factory::object_arg(&self.ast_builder)
-                }
-                TSType::TSTypeReference(ts_type_ref)
-                    if boostest_utils::ast_utils::is_array_type(&ts_type_ref) =>
-                {
-                    // TODO: Array
-                    test_data_factory::array_arg(&self.ast_builder)
-                }
-                TSType::TSTypeReference(_) => test_data_factory::ref_arg(
-                    &self.ast_builder,
-                    key_name,
-                    &self.mock_data.mock_func_name,
-                ),
-                TSType::TSObjectKeyword(_) => test_data_factory::object_arg(&self.ast_builder),
-                TSType::TSVoidKeyword(_) => test_data_factory::null_arg(&self.ast_builder),
-                TSType::TSFunctionType(_) => test_data_factory::function_arg(&self.ast_builder),
-                TSType::TSUndefinedKeyword(_) => {
-                    test_data_factory::undefined_arg(&self.ast_builder)
-                }
-                TSType::TSUnknownKeyword(_) => test_data_factory::undefined_arg(&self.ast_builder),
-                TSType::TSConditionalType(_ts_conditional_type) => {
-                    // TODO
-                    let object_expr = ObjectExpression {
-                        span: SPAN,
-                        properties: self.ast_builder.new_vec(),
-                        trailing_comma: None,
-                    };
-                    let argument_item = self.ast_builder.alloc(object_expr);
-                    Argument::ObjectExpression(argument_item)
-
-                    // let ts_type = self.ast_builder.copy(&ts_conditional_type.true_type);
-                    // let new = self.get_expression(ts_type, key_name);
-                    // return new;
-                }
-                TSType::TSUnionType(_box_ts_union_type) => {
-                    // TODO
-                    let object_expr = ObjectExpression {
-                        span: SPAN,
-                        properties: self.ast_builder.new_vec(),
-                        trailing_comma: None,
-                    };
-                    let argument_item = self.ast_builder.alloc(object_expr);
-                    Argument::ObjectExpression(argument_item)
-
-                    // let ts_union_type = &mut box_ts_union_type.unbox();
-                    // let first_union_type = ts_union_type.types.first_mut();
-
-                    // if let Some(first_type) = first_union_type {
-                    //     let ts_type = self.ast_builder.copy(first_type);
-                    //     let new = self.get_expression(ts_type, key_name);
-                    //     return new;
-                    // }
-
-                    // let new_val = self
-                    //     .ast_builder
-                    //     .string_literal(SPAN, "default_val(unimplemented)");
-                    // self.ast_builder.literal_string_expression(new_val)
-                }
-                TSType::TSNeverKeyword(_) => test_data_factory::null_arg(&self.ast_builder),
-                TSType::TSArrayType(_) => test_data_factory::array_arg(&self.ast_builder),
-                TSType::TSThisType(_) => {
-                    // TODO
-                    // error
-                    test_data_factory::object_arg(&self.ast_builder)
-                }
-                TSType::TSMappedType(_) => {
-                    // {[K in keyof T]: T[K]}
-                    // TODO
-                    test_data_factory::object_arg(&self.ast_builder)
-                }
-                TSType::TSTupleType(_) => {
-                    // [string, number]
-                    // TODO
-                    test_data_factory::object_arg(&self.ast_builder)
-                }
-                TSType::TSNamedTupleMember(_) => {
-                    // [name: string, age: number]
-                    // TODO
-                    test_data_factory::object_arg(&self.ast_builder)
-                }
-                TSType::TSQualifiedName(_) => {
-                    // TODO
-                    // Namespace.MyType
-                    test_data_factory::object_arg(&self.ast_builder)
-                }
-                TSType::TSTypeLiteral(_) => {
-                    // {name: string, age: number}
-                    // { x: number; y: number; }`
-                    // TODO
-                    test_data_factory::object_arg(&self.ast_builder)
-                }
-                TSType::TSTypeOperatorType(_) => {
-                    // keyof T
-                    // TODO
-                    test_data_factory::object_arg(&self.ast_builder)
-                }
-                TSType::TSTypePredicate(_) => {
-                    // x is string
-                    // TODO
-                    test_data_factory::object_arg(&self.ast_builder)
-                }
-                TSType::TSTypeQuery(_) => {
-                    // typeof x
-                    // TODO
-                    test_data_factory::object_arg(&self.ast_builder)
-                }
-                TSType::TSTemplateLiteralType(_) => {
-                    // `${string}`, \`hello ${string}\`
-                    // TODO
-                    test_data_factory::object_arg(&self.ast_builder)
-                }
-                TSType::TSConstructorType(_) => {
-                    // TODO
-                    test_data_factory::object_arg(&self.ast_builder)
-                }
-                TSType::TSIndexedAccessType(_) => {
-                    // person["name"]
-                    // TODO
-                    test_data_factory::object_arg(&self.ast_builder)
-                }
-                TSType::TSInferType(_) => {
-                    // infer R ? R : never
-                    // TODO
-                    test_data_factory::object_arg(&self.ast_builder)
-                }
-                TSType::TSIntersectionType(_ts_intersection_type) => {
-                    // TODO
-                    // for ts_type in ts_intersection_type.types.iter() {
-                    //     let new_ts_type = self.ast_builder.copy(ts_type);
-                    //     println!("TSIntersectionType {:?}", new_ts_type);
-                    //     let expr = self.get_expression(new_ts_type, key_name);
-                    //     println!("TSIntersectionType {:?}", expr);
-                    // }
-
-                    // println!("TSIntrsectionType {:?}", ts_intersection);
-                    test_data_factory::object_arg(&self.ast_builder)
-                }
-                TSType::TSLiteralType(_literal_type) => {
-                    // TODO
-                    test_data_factory::object_arg(&self.ast_builder)
-
-                    // let val = match &literal_type.literal {
-                    //     TSLiteral::StringLiteral(string_literal) => {
-                    //         let new_val = self
-                    //             .ast_builder
-                    //             .string_literal(SPAN, string_literal.value.as_str());
-                    //         self.ast_builder.literal_string_expression(new_val)
-                    //     }
-                    //     TSLiteral::NumericLiteral(numeric_literal) => {
-                    //         let new_val = self.ast_builder.number_literal(
-                    //             SPAN,
-                    //             numeric_literal.value,
-                    //             numeric_literal.raw,
-                    //             numeric_literal.base,
-                    //         );
-                    //         self.ast_builder.literal_number_expression(new_val)
-                    //     }
-                    //     TSLiteral::BooleanLiteral(boolean_literal) => {
-                    //         let new_val = self
-                    //             .ast_builder
-                    //             .boolean_literal(SPAN, boolean_literal.value);
-                    //         self.ast_builder.literal_boolean_expression(new_val)
-                    //     }
-                    //     TSLiteral::NullLiteral(_) => {
-                    //         let new_val = NullLiteral::new(SPAN);
-                    //         self.ast_builder.literal_null_expression(new_val)
-                    //     }
-                    //     _ => {
-                    //         let new_val = self
-                    //             .ast_builder
-                    //             .string_literal(SPAN, "default_val(unimplemented)");
-                    //         self.ast_builder.literal_string_expression(new_val)
-                    //     }
-                    // };
-                    // val
-                }
-
-                TSType::JSDocNullableType(_) => {
-                    // TODO
-                    test_data_factory::object_arg(&self.ast_builder)
-                }
-                TSType::JSDocUnknownType(_) => {
-                    // TODO
-                    test_data_factory::object_arg(&self.ast_builder)
-                }
-                TSType::TSSymbolKeyword(_) => {
-                    // TODO
-                    test_data_factory::object_arg(&self.ast_builder)
-                }
-                TSType::TSImportType(_) => {
-                    // TODO
-                    test_data_factory::object_arg(&self.ast_builder)
-                }
-            };
+        for (key_name, ts_type) in target_data_vec {
+            let argument = test_data_factory::get_arg(
+                &self.ast_builder,
+                ts_type,
+                key_name.as_str(),
+                &self.mock_data.mock_func_name,
+            );
 
             args.push(argument);
         }

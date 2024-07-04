@@ -7,13 +7,15 @@ use oxc::{
             Argument, ArrayExpression, ArrowFunctionExpression, BigIntLiteral, BooleanLiteral,
             CallExpression, Expression, FormalParameterKind, FormalParameters, FunctionBody,
             IdentifierReference, NullLiteral, NumericLiteral, ObjectExpression, StringLiteral,
-            TSLiteral,
+            TSLiteral, TSType,
         },
         AstBuilder,
     },
-    span::Span,
+    span::{Atom, Span},
     syntax::number::{BigintBase, NumberBase},
 };
+
+use crate::boostest_utils;
 
 const SPAN: Span = Span::new(0, 0);
 
@@ -28,8 +30,8 @@ fn string_literal<'a>(
 pub fn string_expr<'a>(ast_builder: &AstBuilder<'a>, default_str: Option<&str>) -> Expression<'a> {
     ast_builder.literal_string_expression(string_literal(ast_builder, default_str))
 }
-pub fn string_arg<'a>(ast_builder: &AstBuilder<'a>) -> Argument<'a> {
-    let r = ast_builder.alloc(string_literal(ast_builder, None));
+pub fn string_arg<'a>(ast_builder: &AstBuilder<'a>, default_str: Option<&str>) -> Argument<'a> {
+    let r = ast_builder.alloc(string_literal(ast_builder, default_str));
     Argument::StringLiteral(r)
 }
 
@@ -54,24 +56,40 @@ pub fn number_expr<'a>(
 ) -> Expression<'a> {
     ast_builder.literal_number_expression(number_literal(ast_builder, value, raw, base))
 }
-pub fn number_arg<'a>(ast_builder: &AstBuilder<'a>) -> Argument<'a> {
-    let r = ast_builder.alloc(number_literal(ast_builder, None, None, None));
+pub fn number_arg<'a>(
+    ast_builder: &AstBuilder<'a>,
+    value: Option<f64>,
+    raw: Option<&'a str>,
+    base: Option<NumberBase>,
+) -> Argument<'a> {
+    let r = ast_builder.alloc(number_literal(ast_builder, value, raw, base));
     Argument::NumericLiteral(r)
 }
 
 // TSType::TSBigIntKeyword
-fn bigint_literal<'a>(ast_builder: &AstBuilder<'a>) -> BigIntLiteral<'a> {
-    ast_builder.bigint_literal(
-        SPAN,
-        ast_builder.new_atom("9007199254740991"),
-        BigintBase::Decimal,
-    )
+fn bigint_literal<'a>(
+    ast_builder: &AstBuilder<'a>,
+    raw: Option<&Atom<'a>>,
+    base: Option<BigintBase>,
+) -> BigIntLiteral<'a> {
+    let fallback_atom = ast_builder.new_atom("9007199254740991");
+    let r = raw.unwrap_or(&fallback_atom);
+    let b = base.unwrap_or(BigintBase::Decimal);
+    ast_builder.bigint_literal(SPAN, ast_builder.new_atom(r), b)
 }
-pub fn bigint_expr<'a>(ast_builder: &AstBuilder<'a>) -> Expression<'a> {
-    ast_builder.literal_bigint_expression(bigint_literal(ast_builder))
+pub fn bigint_expr<'a>(
+    ast_builder: &AstBuilder<'a>,
+    raw: Option<&Atom<'a>>,
+    base: Option<BigintBase>,
+) -> Expression<'a> {
+    ast_builder.literal_bigint_expression(bigint_literal(ast_builder, raw, base))
 }
-pub fn bigint_arg<'a>(ast_builder: &AstBuilder<'a>) -> Argument<'a> {
-    let r = ast_builder.alloc(bigint_literal(ast_builder));
+pub fn bigint_arg<'a>(
+    ast_builder: &AstBuilder<'a>,
+    raw: Option<&Atom<'a>>,
+    base: Option<BigintBase>,
+) -> Argument<'a> {
+    let r = ast_builder.alloc(bigint_literal(ast_builder, raw, base));
     Argument::BigintLiteral(r)
 }
 
@@ -83,8 +101,8 @@ fn boolean_literal<'a>(ast_builder: &AstBuilder<'a>, default_val: Option<bool>) 
 pub fn boolean_expr<'a>(ast_builder: &AstBuilder<'a>, default_val: Option<bool>) -> Expression<'a> {
     ast_builder.literal_boolean_expression(boolean_literal(ast_builder, default_val))
 }
-pub fn boolean_arg<'a>(ast_builder: &AstBuilder<'a>) -> Argument<'a> {
-    let r = ast_builder.alloc(boolean_literal(ast_builder, None));
+pub fn boolean_arg<'a>(ast_builder: &AstBuilder<'a>, default_val: Option<bool>) -> Argument<'a> {
+    let r = ast_builder.alloc(boolean_literal(ast_builder, default_val));
     Argument::BooleanLiteral(r)
 }
 
@@ -227,6 +245,13 @@ pub fn ref_arg<'a>(
     }))
 }
 
+/**
+ *
+ *
+ * expr with ts_literal_type
+ *
+ *
+ */
 pub fn get_expr_with_ts_literal_type<'a>(
     ast_builder: &AstBuilder<'a>,
     ts_literal: &TSLiteral<'a>,
@@ -245,6 +270,396 @@ pub fn get_expr_with_ts_literal_type<'a>(
             boolean_expr(ast_builder, Some(boolean_literal.value))
         }
         TSLiteral::NullLiteral(_) => null_expr(ast_builder),
+        TSLiteral::BigintLiteral(bigint_literal) => bigint_expr(
+            ast_builder,
+            Some(&bigint_literal.raw),
+            Some(bigint_literal.base),
+        ),
         _ => object_expr(ast_builder),
+    }
+}
+
+/**
+ *
+ *
+ * arg with ts_literal_type
+ *
+ *
+ */
+pub fn get_arg_with_ts_literal_type<'a>(
+    ast_builder: &AstBuilder<'a>,
+    ts_literal: &TSLiteral<'a>,
+) -> Argument<'a> {
+    match ts_literal {
+        TSLiteral::StringLiteral(string_literal) => {
+            string_arg(ast_builder, Some(string_literal.value.as_str()))
+        }
+        TSLiteral::NumericLiteral(numeric_literal) => number_arg(
+            ast_builder,
+            Some(numeric_literal.value),
+            Some(numeric_literal.raw),
+            Some(numeric_literal.base),
+        ),
+        TSLiteral::BooleanLiteral(boolean_literal) => {
+            boolean_arg(ast_builder, Some(boolean_literal.value))
+        }
+        TSLiteral::NullLiteral(_) => null_arg(ast_builder),
+        TSLiteral::BigintLiteral(bigint_literal) => bigint_arg(
+            ast_builder,
+            Some(&bigint_literal.raw),
+            Some(bigint_literal.base),
+        ),
+        _ => object_arg(ast_builder),
+    }
+}
+
+/**
+ *
+ *
+ * get_expression
+ *
+ *
+ */
+pub fn get_expression<'a>(
+    ast_builder: &AstBuilder<'a>,
+    type_annotation: TSType<'a>,
+    key_name: &str,
+    mock_func_name: &str,
+) -> Expression<'a> {
+    let val = match type_annotation {
+        TSType::TSTypeReference(ts_type_ref)
+            if boostest_utils::ast_utils::is_defined_type(&ts_type_ref) =>
+        {
+            // TODO: Defined type
+            object_expr(ast_builder)
+        }
+        TSType::TSTypeReference(ts_type_ref)
+            if boostest_utils::ast_utils::is_function_type(&ts_type_ref) =>
+        {
+            // TODO: Array
+            function_expr(ast_builder)
+        }
+        TSType::TSTypeReference(ts_type_ref)
+            if boostest_utils::ast_utils::is_array_type(&ts_type_ref) =>
+        {
+            // TODO: Array
+            array_expr(ast_builder)
+        }
+        TSType::TSTypeReference(_) => ref_expr(ast_builder, key_name, mock_func_name),
+        TSType::TSStringKeyword(_) => string_expr(ast_builder, None),
+        TSType::TSAnyKeyword(_) => any_expr(ast_builder),
+        TSType::TSBooleanKeyword(_) => boolean_expr(ast_builder, None),
+        TSType::TSNullKeyword(_) => null_expr(ast_builder),
+        TSType::TSNumberKeyword(_) => number_expr(ast_builder, None, None, None),
+        TSType::TSBigIntKeyword(_) => bigint_expr(ast_builder, None, None),
+        TSType::TSObjectKeyword(_) => object_expr(ast_builder),
+        TSType::TSVoidKeyword(_) => null_expr(ast_builder),
+        TSType::TSFunctionType(_) => function_expr(ast_builder),
+        TSType::TSUndefinedKeyword(_) => undefined_expr(ast_builder),
+        TSType::TSUnknownKeyword(_) => undefined_expr(ast_builder),
+        TSType::TSConditionalType(ts_conditional_type) => {
+            let ts_type = ast_builder.copy(&ts_conditional_type.true_type);
+            let new = get_expression(ast_builder, ts_type, key_name, mock_func_name);
+            return new;
+        }
+        TSType::TSUnionType(box_ts_union_type) => {
+            let ts_union_type = &mut box_ts_union_type.unbox();
+            let first_union_type = ts_union_type.types.first_mut();
+
+            if let Some(first_type) = first_union_type {
+                let ts_type = ast_builder.copy(first_type);
+                let new = get_expression(ast_builder, ts_type, key_name, mock_func_name);
+                return new;
+            }
+
+            // fallback
+            null_expr(ast_builder)
+        }
+        TSType::TSNeverKeyword(_) => null_expr(ast_builder),
+        TSType::TSArrayType(_) => array_expr(ast_builder),
+        TSType::TSThisType(_) => {
+            // TODO
+            // error
+            ast_builder.object_expression(SPAN, ast_builder.new_vec(), None)
+        }
+        TSType::TSMappedType(_) => {
+            // {[K in keyof T]: T[K]}
+            // TODO
+            ast_builder.object_expression(SPAN, ast_builder.new_vec(), None)
+        }
+        TSType::TSTupleType(_) => {
+            // [string, number]
+            // TODO
+
+            ast_builder.array_expression(SPAN, ast_builder.new_vec(), None)
+        }
+        TSType::TSNamedTupleMember(_) => {
+            // [name: string, age: number]
+            // TODO
+            ast_builder.object_expression(SPAN, ast_builder.new_vec(), None)
+        }
+        TSType::TSQualifiedName(_) => {
+            // TODO
+            // Namespace.MyType
+            ast_builder.object_expression(SPAN, ast_builder.new_vec(), None)
+        }
+        TSType::TSTypeLiteral(_) => {
+            // {name: string, age: number}
+            // { x: number; y: number; }`
+            // TODO
+            ast_builder.object_expression(SPAN, ast_builder.new_vec(), None)
+        }
+        TSType::TSTypeOperatorType(_) => {
+            // keyof T
+            // TODO
+            ast_builder.object_expression(SPAN, ast_builder.new_vec(), None)
+        }
+        TSType::TSTypePredicate(_) => {
+            // x is string
+            // TODO
+            ast_builder.object_expression(SPAN, ast_builder.new_vec(), None)
+        }
+        TSType::TSTypeQuery(_) => {
+            // typeof x
+            // TODO
+            ast_builder.object_expression(SPAN, ast_builder.new_vec(), None)
+        }
+        TSType::TSTemplateLiteralType(_) => {
+            // `${string}`, \`hello ${string}\`
+            // TODO
+            ast_builder.object_expression(SPAN, ast_builder.new_vec(), None)
+        }
+        TSType::TSConstructorType(_) => {
+            // TODO
+            ast_builder.object_expression(SPAN, ast_builder.new_vec(), None)
+        }
+        TSType::TSIndexedAccessType(_) => {
+            // person["name"]
+            // TODO
+            ast_builder.object_expression(SPAN, ast_builder.new_vec(), None)
+        }
+        TSType::TSInferType(_) => {
+            // infer R ? R : never
+            // TODO
+            ast_builder.object_expression(SPAN, ast_builder.new_vec(), None)
+        }
+        TSType::TSIntersectionType(_ts_intersection_type) => {
+            // TODO
+            // for ts_type in ts_intersection_type.types.iter() {
+            //     let new_ts_type = ast_builder.copy(ts_type);
+            //     println!("TSIntersectionType {:?}", new_ts_type);
+            //     let expr = get_expression(new_ts_type, key_name);
+            //     println!("TSIntersectionType {:?}", expr);
+            // }
+
+            // println!("TSIntrsectionType {:?}", ts_intersection);
+            ast_builder.object_expression(SPAN, ast_builder.new_vec(), None)
+        }
+        TSType::TSLiteralType(literal_type) => {
+            get_expr_with_ts_literal_type(ast_builder, &literal_type.literal)
+        }
+        TSType::JSDocNullableType(_) => {
+            // TODO
+            ast_builder.object_expression(SPAN, ast_builder.new_vec(), None)
+        }
+        TSType::JSDocUnknownType(_) => {
+            // TODO
+            ast_builder.object_expression(SPAN, ast_builder.new_vec(), None)
+        }
+        TSType::TSSymbolKeyword(_) => {
+            // TODO
+            ast_builder.object_expression(SPAN, ast_builder.new_vec(), None)
+        }
+        TSType::TSImportType(_) => {
+            // TODO
+            ast_builder.object_expression(SPAN, ast_builder.new_vec(), None)
+        }
+    };
+
+    val
+}
+
+/**
+ *
+ *
+ *
+ *
+ *
+ */
+
+pub fn get_arg<'a>(
+    ast_builder: &AstBuilder<'a>,
+    ts_type: TSType<'a>,
+    key_name: &str,
+    mock_func_name: &str,
+) -> Argument<'a> {
+    match ts_type {
+        TSType::TSAnyKeyword(_) => any_arg(ast_builder),
+        TSType::TSBigIntKeyword(_) => bigint_arg(ast_builder, None, None),
+        TSType::TSBooleanKeyword(_) => boolean_arg(ast_builder, None),
+        TSType::TSNullKeyword(_) => null_arg(ast_builder),
+        TSType::TSNumberKeyword(_) => number_arg(ast_builder, None, None, None),
+        TSType::TSStringKeyword(_) => string_arg(ast_builder, None),
+        TSType::TSTypeReference(ts_type_ref)
+            if boostest_utils::ast_utils::is_defined_type(&ts_type_ref) =>
+        {
+            // TODO
+            object_arg(ast_builder)
+        }
+        TSType::TSTypeReference(ts_type_ref)
+            if boostest_utils::ast_utils::is_function_type(&ts_type_ref) =>
+        {
+            // TODO: Array
+            function_arg(ast_builder)
+        }
+        TSType::TSTypeReference(ts_type_ref)
+            if boostest_utils::ast_utils::is_array_type(&ts_type_ref) =>
+        {
+            // TODO: Array
+            array_arg(ast_builder)
+        }
+        TSType::TSTypeReference(_) => ref_arg(ast_builder, key_name, mock_func_name),
+        TSType::TSObjectKeyword(_) => object_arg(ast_builder),
+        TSType::TSVoidKeyword(_) => null_arg(ast_builder),
+        TSType::TSFunctionType(_) => function_arg(ast_builder),
+        TSType::TSUndefinedKeyword(_) => undefined_arg(ast_builder),
+        TSType::TSUnknownKeyword(_) => undefined_arg(ast_builder),
+        TSType::TSConditionalType(_ts_conditional_type) => {
+            // TODO
+            let object_expr = ObjectExpression {
+                span: SPAN,
+                properties: ast_builder.new_vec(),
+                trailing_comma: None,
+            };
+            let argument_item = ast_builder.alloc(object_expr);
+            Argument::ObjectExpression(argument_item)
+
+            // let ts_type = ast_builder.copy(&ts_conditional_type.true_type);
+            // let new = get_expression(ts_type, key_name);
+            // return new;
+        }
+        TSType::TSUnionType(_box_ts_union_type) => {
+            // TODO
+            let object_expr = ObjectExpression {
+                span: SPAN,
+                properties: ast_builder.new_vec(),
+                trailing_comma: None,
+            };
+            let argument_item = ast_builder.alloc(object_expr);
+            Argument::ObjectExpression(argument_item)
+
+            // let ts_union_type = &mut box_ts_union_type.unbox();
+            // let first_union_type = ts_union_type.types.first_mut();
+
+            // if let Some(first_type) = first_union_type {
+            //     let ts_type = ast_builder.copy(first_type);
+            //     let new = get_expression(ts_type, key_name);
+            //     return new;
+            // }
+
+            // let new_val = self
+            //     .ast_builder
+            //     .string_literal(SPAN, "default_val(unimplemented)");
+            // ast_builder.literal_string_expression(new_val)
+        }
+        TSType::TSNeverKeyword(_) => null_arg(ast_builder),
+        TSType::TSArrayType(_) => array_arg(ast_builder),
+        TSType::TSThisType(_) => {
+            // TODO
+            // error
+            object_arg(ast_builder)
+        }
+        TSType::TSMappedType(_) => {
+            // {[K in keyof T]: T[K]}
+            // TODO
+            object_arg(ast_builder)
+        }
+        TSType::TSTupleType(_) => {
+            // [string, number]
+            // TODO
+            array_arg(ast_builder)
+        }
+        TSType::TSNamedTupleMember(_) => {
+            // [name: string, age: number]
+            // TODO
+            object_arg(ast_builder)
+        }
+        TSType::TSQualifiedName(_) => {
+            // TODO
+            // Namespace.MyType
+            object_arg(ast_builder)
+        }
+        TSType::TSTypeLiteral(_) => {
+            // {name: string, age: number}
+            // { x: number; y: number; }`
+            // TODO
+            object_arg(ast_builder)
+        }
+        TSType::TSTypeOperatorType(_) => {
+            // keyof T
+            // TODO
+            object_arg(ast_builder)
+        }
+        TSType::TSTypePredicate(_) => {
+            // x is string
+            // TODO
+            object_arg(ast_builder)
+        }
+        TSType::TSTypeQuery(_) => {
+            // typeof x
+            // TODO
+            object_arg(ast_builder)
+        }
+        TSType::TSTemplateLiteralType(_) => {
+            // `${string}`, \`hello ${string}\`
+            // TODO
+            object_arg(ast_builder)
+        }
+        TSType::TSConstructorType(_) => {
+            // TODO
+            object_arg(ast_builder)
+        }
+        TSType::TSIndexedAccessType(_) => {
+            // person["name"]
+            // TODO
+            object_arg(ast_builder)
+        }
+        TSType::TSInferType(_) => {
+            // infer R ? R : never
+            // TODO
+            object_arg(ast_builder)
+        }
+        TSType::TSIntersectionType(_ts_intersection_type) => {
+            // TODO
+            // for ts_type in ts_intersection_type.types.iter() {
+            //     let new_ts_type = ast_builder.copy(ts_type);
+            //     println!("TSIntersectionType {:?}", new_ts_type);
+            //     let expr = get_expression(new_ts_type, key_name);
+            //     println!("TSIntersectionType {:?}", expr);
+            // }
+
+            // println!("TSIntrsectionType {:?}", ts_intersection);
+            object_arg(ast_builder)
+        }
+        TSType::TSLiteralType(literal_type) => {
+            get_arg_with_ts_literal_type(ast_builder, &literal_type.literal)
+        }
+
+        TSType::JSDocNullableType(_) => {
+            // TODO
+            object_arg(ast_builder)
+        }
+        TSType::JSDocUnknownType(_) => {
+            // TODO
+            object_arg(ast_builder)
+        }
+        TSType::TSSymbolKeyword(_) => {
+            // TODO
+            object_arg(ast_builder)
+        }
+        TSType::TSImportType(_) => {
+            // TODO
+            object_arg(ast_builder)
+        }
     }
 }

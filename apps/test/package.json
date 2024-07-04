@@ -5,9 +5,10 @@
   "type": "module",
   "main": "index.js",
   "scripts": {
-    "test:out": "boostest && jest --config ./jest.config.js",
-    "snapshot": "boostest && jest --config ./jest.config.js --updateSnapshot",
-    "boostest": "boostest"
+    "boostest": "boostest",
+    "boostest:direct": "boostest ./src/direct_path/direct_path.ts",
+    "test": "jest --config ./jest.config.js",
+    "snapshot": "jest --config ./jest.config.js --updateSnapshot"
   },
   "keywords": [],
   "author": "",
