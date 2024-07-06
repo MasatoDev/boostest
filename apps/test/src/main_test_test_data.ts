@@ -647,6 +647,22 @@ export function refTypeInterface_boostestLiteralTypeClass<T>(args?: Partial<T>):
 	} as T);
 }
 
+export function boostestMixClassFirst<T extends abstract new (...args: any) => any>(MixClassFirst): T {
+	return new MixClassFirst('test string data');
+}
+
+export function boostestMixClassFirst2<T extends abstract new (...args: any) => any>(MixClassFirst2): T {
+	return new MixClassFirst2('test string data');
+}
+
+export function boostestMixClassSecond<T extends abstract new (...args: any) => any>(MixClassSecond): T {
+	return new MixClassSecond('test string data');
+}
+
+export function boostestMixClassSecond2<T extends abstract new (...args: any) => any>(MixClassSecond2): T {
+	return new MixClassSecond2('test string data');
+}
+
 export function boostestMixCompTSAlias<T>(args?: Partial<T>): T {
 	return ({
 		'name':'test string data',
@@ -697,6 +713,256 @@ export function conditionalKey_boostestMixCompTSAlias<T>(args?: Partial<T>): T {
 	} as T);
 }
 
+export function boostestMixInterfaceFirst<T>(args?: Partial<T>): T {
+	return ({
+		'name':'MixInterfaceFirst',
+		...args
+	} as T);
+}
+
+export function boostestMixInterfaceFirst2<T>(args?: Partial<T>): T {
+	return ({
+		'name':'MixInterfaceFirst2',
+		...args
+	} as T);
+}
+
+export function boostestMixInterfaceSecond<T>(args?: Partial<T>): T {
+	return ({
+		'name':'MixInterfaceSecond',
+		...args
+	} as T);
+}
+
+export function boostestMixInterfaceSecond2<T>(args?: Partial<T>): T {
+	return ({
+		'name':'MixInterfaceSecond2',
+		...args
+	} as T);
+}
+
+export function boostestMixTSAliasFirst<T>(args?: Partial<T>): T {
+	return ({
+		'name':'MixTSAliasFirst',
+		...args
+	} as T);
+}
+
+export function boostestMixTSAliasFirst2<T>(args?: Partial<T>): T {
+	return ({
+		'name':'MixTSAliasFirst2',
+		...args
+	} as T);
+}
+
+export function boostestMixTSAliasSecond<T>(args?: Partial<T>): T {
+	return ({
+		'name':'MixTsAliasSecond',
+		...args
+	} as T);
+}
+
+export function boostestMixTSAliasSecond2<T>(args?: Partial<T>): T {
+	return ({
+		'name':'MixTSAliasSecond2',
+		...args
+	} as T);
+}
+
+export function boostestNestedInterface<T>(args?: Partial<T>): T {
+	return ({
+		'a':10,
+		'b':'test string data',
+		'c':{
+			'd':true,
+			'e':{
+				'f':10,
+				'g':'test string data',
+				'h':{
+					'i':10,
+					'j':{
+						'k':true,
+						'l':[]
+					}
+				}
+			},
+			'm':{
+				'n':[],
+				'o':'test string data'
+			}
+		},
+		'p':{
+			'q':{
+				'r':10
+			},
+			's':{
+				't':true,
+				'u':{
+					'v':10,
+					'w':'test string data'
+				}
+			}
+		},
+		'x':[],
+		'y':{},
+		'literalType':'option1',
+		'mixedType':{},
+		'conditionalType':'active',
+		'extended':{
+			'id':10,
+			'info':{
+				'description':'test string data',
+				'tags':[],
+				'settings':{
+					'mode':'auto',
+					'level':1,
+					'extras':{
+						'feature':true,
+						'nestedRef':extended_info_settings_extras_nestedRef_boostestNestedInterface()
+					}
+				}
+			}
+		},
+		...args
+	} as T);
+}
+
+export function extended_info_settings_extras_nestedRef_boostestNestedInterface<T>(args?: Partial<T>): T {
+	return ({
+		'name':'NestedRefType',
+		...args
+	} as T);
+}
+
+export function boostestNestedPropClass<T extends abstract new (...args: any) => any>(NestedPropClass): T {
+	return new NestedPropClass({
+		'a':10,
+		'b':'test string data',
+		'c':{
+			'd':true,
+			'e':{
+				'f':10,
+				'g':'test string data',
+				'h':{
+					'i':10,
+					'j':{
+						'k':true,
+						'l':[]
+					}
+				}
+			},
+			'm':{
+				'n':[],
+				'o':'test string data'
+			}
+		},
+		'p':{
+			'q':{
+				'r':10
+			},
+			's':{
+				't':true,
+				'u':{
+					'v':10,
+					'w':'test string data'
+				}
+			}
+		},
+		'x':[],
+		'y':{},
+		'literalType':'option1',
+		'mixedType':{},
+		'conditionalType':'active',
+		'extended':{
+			'id':10,
+			'info':{
+				'description':'test string data',
+				'tags':[],
+				'settings':{
+					'mode':'auto',
+					'level':1,
+					'extras':{
+						'feature':true,
+						'nestedRef':huga_extended_info_settings_extras_nestedRef_boostestNestedPropClass()
+					}
+				}
+			}
+		}
+	});
+}
+
+export function huga_extended_info_settings_extras_nestedRef_boostestNestedPropClass<T>(args?: Partial<T>): T {
+	return ({
+		'name':'NestedRefType',
+		...args
+	} as T);
+}
+
+export function boostestNestedType<T>(args?: Partial<T>): T {
+	return ({
+		'a':10,
+		'b':'test string data',
+		'c':{
+			'd':true,
+			'e':{
+				'f':10,
+				'g':'test string data',
+				'h':{
+					'i':10,
+					'j':{
+						'k':true,
+						'l':[]
+					}
+				}
+			},
+			'm':{
+				'n':[],
+				'o':'test string data'
+			}
+		},
+		'p':{
+			'q':{
+				'r':10
+			},
+			's':{
+				't':true,
+				'u':{
+					'v':10,
+					'w':'test string data'
+				}
+			}
+		},
+		'x':[],
+		'y':{},
+		'literalType':'option1',
+		'mixedType':{},
+		'conditionalType':'active',
+		'extended':{
+			'id':10,
+			'info':{
+				'description':'test string data',
+				'tags':[],
+				'settings':{
+					'mode':'auto',
+					'level':1,
+					'extras':{
+						'feature':true,
+						'nestedRef':extended_info_settings_extras_nestedRef_boostestNestedType()
+					}
+				}
+			}
+		},
+		...args
+	} as T);
+}
+
+export function extended_info_settings_extras_nestedRef_boostestNestedType<T>(args?: Partial<T>): T {
+	return ({
+		'name':'NestedRefType',
+		...args
+	} as T);
+}
+
 export function boostestTsLiteralArrayUnionType() {
 	return [];
 }
@@ -711,7 +977,9 @@ export function boostestTsLiteralNumberUnionType() {
 }
 
 export function boostestTsLiteralObjectUnionType() {
-	return {};
+	return {
+		'type':'A'
+	};
 }
 
 export function boostestTsLiteralTypeStringUnionType() {
@@ -884,7 +1152,9 @@ export function literalLiteralObject_boostestUseTSTypeLiteralAlias<T>(args?: Par
 }
 
 export function literalObjectUnion_boostestUseTSTypeLiteralAlias() {
-	return {};
+	return {
+		'type':'A'
+	};
 }
 
 export function literalFunction_boostestUseTSTypeLiteralAlias() {
@@ -1022,7 +1292,9 @@ export function literalLiteralObject_boostestUseTSTypeLiteralInterface<T>(args?:
 }
 
 export function literalObjectUnion_boostestUseTSTypeLiteralInterface() {
-	return {};
+	return {
+		'type':'A'
+	};
 }
 
 export function literalFunction_boostestUseTSTypeLiteralInterface() {

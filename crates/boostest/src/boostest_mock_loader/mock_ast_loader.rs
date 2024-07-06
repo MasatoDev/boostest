@@ -203,6 +203,14 @@ impl MockAstLoader {
                 target_name = &import.local;
             }
 
+            /*
+            export type {Huga as AnotherHuga}
+
+            export is AnotherHuga.
+            local is Huga.
+            If target_name matches exported, local Huga is the original name.
+            The original_name is the highest priority in finding the target.
+             */
             if target_name == exported {
                 import.original_name = Some(local.clone());
 
