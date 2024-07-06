@@ -2,60 +2,6 @@ export function boostestAccessorClass<T extends abstract new (...args: any) => a
 	return new AccessorClass('test string data', 10, 10);
 }
 
-export function boostestAnoExportDefaultClass<T extends abstract new (...args: any) => any>(ExportDefaultClass): T {
-	return new ExportDefaultClass('test string data', chips_boostestAnoExportDefaultClass());
-}
-
-export function chips_boostestAnoExportDefaultClass<T>(args?: Partial<T>): T {
-	return ({
-		'name':'test string data',
-		'age':10,
-		'sex':1,
-		'short_name':'john',
-		'favorite':favorite_boostestAnoExportDefaultClass(),
-		'mostFav':mostFav_boostestAnoExportDefaultClass(),
-		'func':() => {
-		},
-		'undefinedKey':undefined,
-		'anyKey':'any',
-		'nullKey':null,
-		'optionalKey':'test string data',
-		'unknownKey':undefined,
-		'thisKey':{},
-		'conditionalKey':conditionalKey_boostestAnoExportDefaultClass(),
-		'objectKey':{},
-		'voidKey':null,
-		'indexedKey':{},
-		'intersectionKey':{},
-		'arrayKey':[],
-		...args
-	} as T);
-}
-
-export function favorite_boostestAnoExportDefaultClass<T>(args?: Partial<T>): T {
-	return ({
-		'name':'Calbee Lightly Salted',
-		'price':120,
-		...args
-	} as T);
-}
-
-export function mostFav_boostestAnoExportDefaultClass<T>(args?: Partial<T>): T {
-	return ({
-		'name':'Pringles Sour Cream & Onion',
-		'price':200,
-		...args
-	} as T);
-}
-
-export function conditionalKey_boostestAnoExportDefaultClass<T>(args?: Partial<T>): T {
-	return ({
-		'name':'Kettle Brand Sea Salt & Vinegar',
-		'price':250,
-		...args
-	} as T);
-}
-
 export function boostestAnoExportDefaultInterface<T>(args?: Partial<T>): T {
 	return ({
 		'name':'test string data',
@@ -647,6 +593,22 @@ export function refTypeInterface_boostestLiteralTypeClass<T>(args?: Partial<T>):
 	} as T);
 }
 
+export function boostestMixClassFirst<T extends abstract new (...args: any) => any>(MixClassFirst): T {
+	return new MixClassFirst('test string data');
+}
+
+export function boostestMixClassFirst2<T extends abstract new (...args: any) => any>(MixClassFirst2): T {
+	return new MixClassFirst2('test string data');
+}
+
+export function boostestMixClassSecond<T extends abstract new (...args: any) => any>(MixClassSecond): T {
+	return new MixClassSecond('test string data');
+}
+
+export function boostestMixClassSecond2<T extends abstract new (...args: any) => any>(MixClassSecond2): T {
+	return new MixClassSecond2('test string data');
+}
+
 export function boostestMixCompTSAlias<T>(args?: Partial<T>): T {
 	return ({
 		'name':'test string data',
@@ -697,6 +659,256 @@ export function conditionalKey_boostestMixCompTSAlias<T>(args?: Partial<T>): T {
 	} as T);
 }
 
+export function boostestMixInterfaceFirst<T>(args?: Partial<T>): T {
+	return ({
+		'name':'MixInterfaceFirst',
+		...args
+	} as T);
+}
+
+export function boostestMixInterfaceFirst2<T>(args?: Partial<T>): T {
+	return ({
+		'name':'MixInterfaceSecond2',
+		...args
+	} as T);
+}
+
+export function boostestMixInterfaceSecond<T>(args?: Partial<T>): T {
+	return ({
+		'name':'MixInterfaceSecond',
+		...args
+	} as T);
+}
+
+export function boostestMixInterfaceSecond2<T>(args?: Partial<T>): T {
+	return ({
+		'name':'MixInterfaceSecond2',
+		...args
+	} as T);
+}
+
+export function boostestMixTSAliasFirst<T>(args?: Partial<T>): T {
+	return ({
+		'name':'MixTSAliasFirst',
+		...args
+	} as T);
+}
+
+export function boostestMixTSAliasFirst2<T>(args?: Partial<T>): T {
+	return ({
+		'name':'MixTSAliasFirst2',
+		...args
+	} as T);
+}
+
+export function boostestMixTSAliasSecond<T>(args?: Partial<T>): T {
+	return ({
+		'name':'MixTsAliasSecond',
+		...args
+	} as T);
+}
+
+export function boostestMixTSAliasSecond2<T>(args?: Partial<T>): T {
+	return ({
+		'name':'MixTSAliasSecond2',
+		...args
+	} as T);
+}
+
+export function boostestNestedInterface<T>(args?: Partial<T>): T {
+	return ({
+		'a':10,
+		'b':'test string data',
+		'c':{
+			'd':true,
+			'e':{
+				'f':10,
+				'g':'test string data',
+				'h':{
+					'i':10,
+					'j':{
+						'k':true,
+						'l':[]
+					}
+				}
+			},
+			'm':{
+				'n':[],
+				'o':'test string data'
+			}
+		},
+		'p':{
+			'q':{
+				'r':10
+			},
+			's':{
+				't':true,
+				'u':{
+					'v':10,
+					'w':'test string data'
+				}
+			}
+		},
+		'x':[],
+		'y':{},
+		'literalType':'option1',
+		'mixedType':{},
+		'conditionalType':'active',
+		'extended':{
+			'id':10,
+			'info':{
+				'description':'test string data',
+				'tags':[],
+				'settings':{
+					'mode':'auto',
+					'level':1,
+					'extras':{
+						'feature':true,
+						'nestedRef':extended_info_settings_extras_nestedRef_boostestNestedInterface()
+					}
+				}
+			}
+		},
+		...args
+	} as T);
+}
+
+export function extended_info_settings_extras_nestedRef_boostestNestedInterface<T>(args?: Partial<T>): T {
+	return ({
+		'name':'NestedRefType',
+		...args
+	} as T);
+}
+
+export function boostestNestedPropClass<T extends abstract new (...args: any) => any>(NestedPropClass): T {
+	return new NestedPropClass({
+		'a':10,
+		'b':'test string data',
+		'c':{
+			'd':true,
+			'e':{
+				'f':10,
+				'g':'test string data',
+				'h':{
+					'i':10,
+					'j':{
+						'k':true,
+						'l':[]
+					}
+				}
+			},
+			'm':{
+				'n':[],
+				'o':'test string data'
+			}
+		},
+		'p':{
+			'q':{
+				'r':10
+			},
+			's':{
+				't':true,
+				'u':{
+					'v':10,
+					'w':'test string data'
+				}
+			}
+		},
+		'x':[],
+		'y':{},
+		'literalType':'option1',
+		'mixedType':{},
+		'conditionalType':'active',
+		'extended':{
+			'id':10,
+			'info':{
+				'description':'test string data',
+				'tags':[],
+				'settings':{
+					'mode':'auto',
+					'level':1,
+					'extras':{
+						'feature':true,
+						'nestedRef':huga_extended_info_settings_extras_nestedRef_boostestNestedPropClass()
+					}
+				}
+			}
+		}
+	});
+}
+
+export function huga_extended_info_settings_extras_nestedRef_boostestNestedPropClass<T>(args?: Partial<T>): T {
+	return ({
+		'name':'NestedRefType',
+		...args
+	} as T);
+}
+
+export function boostestNestedType<T>(args?: Partial<T>): T {
+	return ({
+		'a':10,
+		'b':'test string data',
+		'c':{
+			'd':true,
+			'e':{
+				'f':10,
+				'g':'test string data',
+				'h':{
+					'i':10,
+					'j':{
+						'k':true,
+						'l':[]
+					}
+				}
+			},
+			'm':{
+				'n':[],
+				'o':'test string data'
+			}
+		},
+		'p':{
+			'q':{
+				'r':10
+			},
+			's':{
+				't':true,
+				'u':{
+					'v':10,
+					'w':'test string data'
+				}
+			}
+		},
+		'x':[],
+		'y':{},
+		'literalType':'option1',
+		'mixedType':{},
+		'conditionalType':'active',
+		'extended':{
+			'id':10,
+			'info':{
+				'description':'test string data',
+				'tags':[],
+				'settings':{
+					'mode':'auto',
+					'level':1,
+					'extras':{
+						'feature':true,
+						'nestedRef':extended_info_settings_extras_nestedRef_boostestNestedType()
+					}
+				}
+			}
+		},
+		...args
+	} as T);
+}
+
+export function extended_info_settings_extras_nestedRef_boostestNestedType<T>(args?: Partial<T>): T {
+	return ({
+		'name':'NestedRefType',
+		...args
+	} as T);
+}
+
 export function boostestTsLiteralArrayUnionType() {
 	return [];
 }
@@ -711,7 +923,9 @@ export function boostestTsLiteralNumberUnionType() {
 }
 
 export function boostestTsLiteralObjectUnionType() {
-	return {};
+	return {
+		'type':'A'
+	};
 }
 
 export function boostestTsLiteralTypeStringUnionType() {
@@ -884,7 +1098,9 @@ export function literalLiteralObject_boostestUseTSTypeLiteralAlias<T>(args?: Par
 }
 
 export function literalObjectUnion_boostestUseTSTypeLiteralAlias() {
-	return {};
+	return {
+		'type':'A'
+	};
 }
 
 export function literalFunction_boostestUseTSTypeLiteralAlias() {
@@ -1022,7 +1238,9 @@ export function literalLiteralObject_boostestUseTSTypeLiteralInterface<T>(args?:
 }
 
 export function literalObjectUnion_boostestUseTSTypeLiteralInterface() {
-	return {};
+	return {
+		'type':'A'
+	};
 }
 
 export function literalFunction_boostestUseTSTypeLiteralInterface() {

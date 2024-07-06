@@ -13,8 +13,8 @@ use oxc::ast::ast::{
 };
 use oxc::ast::VisitMut;
 
+use crate::boostest_mock_builder::test_data_assignment;
 use crate::boostest_mock_loader::mock_loader::MockLoader;
-use crate::boostest_utils;
 
 use super::mock_ast_loader::MockAstLoader;
 
@@ -158,11 +158,7 @@ impl<'a> VisitMut<'a> for MockAstLoader {
     // handle mock target is class
     fn visit_class(&mut self, class: &mut Class<'a>) {
         if let Some(identifier) = &class.id {
-            // export default is not named
-            if self.is_default_import() {
-                self.add_class(class);
-                self.visit_class_body(&mut class.body);
-            } else if let Some(target_name) = self.get_decl_name_for_resolve() {
+            if let Some(target_name) = self.get_decl_name_for_resolve() {
                 if identifier.name.to_string() == *target_name {
                     self.add_class(class);
                     self.visit_class_body(&mut class.body);
@@ -192,56 +188,11 @@ impl<'a> VisitMut<'a> for MockAstLoader {
                         // TODO: follow another BindingPatternKind pattern
                         BindingPatternKind::BindingIdentifier(id) => {
                             if let Some(ts_type) = &formal_parameter.pattern.type_annotation {
-                                match &ts_type.type_annotation {
-                                    TSType::TSTypeReference(ty_ref)
-                                        if boostest_utils::ast_utils::is_defined_type(&ty_ref) => {}
-                                    TSType::TSTypeReference(ty_ref)
-                                        if boostest_utils::ast_utils::is_array_type(&ty_ref) => {}
-                                    TSType::TSTypeReference(ty_ref) => {
-                                        if let TSTypeName::IdentifierReference(identifier) =
-                                            &ty_ref.type_name
-                                        {
-                                            self.add_property_ts_type(
-                                                identifier.name.clone().into_string(),
-                                                id.name.to_string(),
-                                            );
-                                        }
-                                    }
-                                    TSType::TSConditionalType(ts_condition_type) => {
-                                        if let TSType::TSTypeReference(ty_ref) =
-                                            &ts_condition_type.true_type
-                                        {
-                                            if let TSTypeName::IdentifierReference(identifier) =
-                                                &ty_ref.type_name
-                                            {
-                                                self.add_property_ts_type(
-                                                    identifier.name.clone().into_string(),
-                                                    id.name.to_string(),
-                                                );
-                                            }
-                                        }
-                                    }
-                                    TSType::TSUnionType(ts_union_type) => {
-                                        if let Some(first_union_type) = ts_union_type.types.first()
-                                        {
-                                            if let TSType::TSTypeReference(ty_ref) =
-                                                first_union_type
-                                            {
-                                                if let TSTypeName::IdentifierReference(identifier) =
-                                                    &ty_ref.type_name
-                                                {
-                                                    self.add_property_ts_type(
-                                                        identifier.name.clone().into_string(),
-                                                        id.name.to_string(),
-                                                    );
-                                                }
-                                            }
-                                        }
-                                    }
-                                    _ => {
-                                        // println!("Another Type {:?}", annotation);
-                                    }
-                                }
+                                test_data_assignment::ts_type_assign_as_property(
+                                    self,
+                                    &ts_type.type_annotation,
+                                    id.name.to_string(),
+                                );
                             }
                         }
                         _ => {}
@@ -253,50 +204,12 @@ impl<'a> VisitMut<'a> for MockAstLoader {
 
     fn visit_property_definition(&mut self, def: &mut PropertyDefinition<'a>) {
         for annotation in def.type_annotation.iter_mut() {
-            match &annotation.type_annotation {
-                TSType::TSTypeReference(ty_ref)
-                    if boostest_utils::ast_utils::is_defined_type(&ty_ref) => {}
-                TSType::TSTypeReference(ty_ref)
-                    if boostest_utils::ast_utils::is_array_type(&ty_ref) => {}
-                TSType::TSTypeReference(ty_ref) => {
-                    if let TSTypeName::IdentifierReference(identifier) = &ty_ref.type_name {
-                        if let Some(key_name) = def.key.name() {
-                            self.add_property_ts_type(
-                                identifier.name.clone().into_string(),
-                                key_name.to_string(),
-                            );
-                        }
-                    }
-                }
-                TSType::TSConditionalType(ts_condition_type) => {
-                    if let TSType::TSTypeReference(ty_ref) = &ts_condition_type.true_type {
-                        if let TSTypeName::IdentifierReference(identifier) = &ty_ref.type_name {
-                            if let Some(key_name) = def.key.name() {
-                                self.add_property_ts_type(
-                                    identifier.name.clone().into_string(),
-                                    key_name.to_string(),
-                                );
-                            }
-                        }
-                    }
-                }
-                TSType::TSUnionType(ts_union_type) => {
-                    if let Some(first_union_type) = ts_union_type.types.first() {
-                        if let TSType::TSTypeReference(ty_ref) = first_union_type {
-                            if let TSTypeName::IdentifierReference(identifier) = &ty_ref.type_name {
-                                if let Some(key_name) = def.key.name() {
-                                    self.add_property_ts_type(
-                                        identifier.name.clone().into_string(),
-                                        key_name.to_string(),
-                                    );
-                                }
-                            }
-                        }
-                    }
-                }
-                _ => {
-                    // println!("Another Type {:?}", annotation);
-                }
+            if let Some(key_name) = def.key.name() {
+                test_data_assignment::ts_type_assign_as_property(
+                    self,
+                    &annotation.type_annotation,
+                    key_name.to_string(),
+                );
             }
         }
     }
@@ -305,56 +218,12 @@ impl<'a> VisitMut<'a> for MockAstLoader {
         match signature {
             TSSignature::TSPropertySignature(ts_prop_signature) => {
                 for annotation in ts_prop_signature.type_annotation.iter() {
-                    match &annotation.type_annotation {
-                        TSType::TSTypeReference(ty_ref)
-                            if boostest_utils::ast_utils::is_defined_type(&ty_ref) => {}
-                        TSType::TSTypeReference(ty_ref)
-                            if boostest_utils::ast_utils::is_array_type(&ty_ref) => {}
-                        TSType::TSTypeReference(ty_ref) => {
-                            if let TSTypeName::IdentifierReference(identifier) = &ty_ref.type_name {
-                                if let Some(key_name) = ts_prop_signature.key.name() {
-                                    self.add_property_ts_type(
-                                        identifier.name.clone().into_string(),
-                                        key_name.to_string(),
-                                    );
-                                }
-                            }
-                        }
-                        TSType::TSConditionalType(ts_condition_type) => {
-                            if let TSType::TSTypeReference(ty_ref) = &ts_condition_type.true_type {
-                                if let TSTypeName::IdentifierReference(identifier) =
-                                    &ty_ref.type_name
-                                {
-                                    if let Some(key_name) = ts_prop_signature.key.name() {
-                                        self.add_property_ts_type(
-                                            identifier.name.clone().into_string(),
-                                            key_name.to_string(),
-                                        );
-                                    }
-                                }
-                            }
-                        }
-
-                        TSType::TSUnionType(ts_union_type) => {
-                            if let Some(first_union_type) = ts_union_type.types.first() {
-                                if let TSType::TSTypeReference(ty_ref) = first_union_type {
-                                    if let TSTypeName::IdentifierReference(identifier) =
-                                        &ty_ref.type_name
-                                    {
-                                        if let Some(key_name) = ts_prop_signature.key.name() {
-                                            self.add_property_ts_type(
-                                                identifier.name.clone().into_string(),
-                                                key_name.to_string(),
-                                            );
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        _ => {
-                            // println!("Another Type {:?}", ts_prop_signature);
-                        }
+                    if let Some(key_name) = ts_prop_signature.key.name() {
+                        test_data_assignment::ts_type_assign_as_property(
+                            self,
+                            &annotation.type_annotation,
+                            key_name.to_string(),
+                        );
                     }
                 }
             }

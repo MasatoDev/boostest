@@ -84,6 +84,20 @@ let _ = boostestUseTSTypeLiteralInterface<UseTSTypeLiteralInterface>();
 /**
  *
  *
+ * Nested type
+ *
+ *
+ */
+import { NestedType, NestedInterface } from '@/ts_types/nested';
+let _ = boostestNestedType<NestedType>();
+let _ = boostestNestedInterface<NestedInterface>();
+
+import { NestedPropClass } from '@/nested_prop_class';
+let _ = boostestNestedPropClass<typeof NestedPropClass>(NestedPropClass);
+
+/**
+ *
+ *
  * Test various export methods
  *
  *
@@ -117,6 +131,30 @@ let h = boostestAnoExportNamedDeclClass<typeof AnoExportNamedDeclClass>(AnoExpor
 import Mix, { MixCompTSAlias } from './types/mix';
 let i = boostestAnoMixInterface<Mix>({ name: 'mix' });
 let j = boostestMixCompTSAlias<MixCompTSAlias>({ name: 'mixCompTSAlias' });
+
+import MixInterfaceSecond, { MixInterfaceFirst } from '@/mix_default_normal/mix_interface';
+let _ = boostestMixInterfaceFirst<MixInterfaceFirst>();
+let _ = boostestMixInterfaceSecond<MixInterfaceSecond>();
+
+import MixInterfaceFirst2, { MixInterfaceSecond2 } from '@/mix_default_normal/mix_interface2';
+let _ = boostestMixInterfaceFirst2<MixInterfaceFirst2>();
+let _ = boostestMixInterfaceSecond2<MixInterfaceSecond2>();
+
+import MixTSAliasSecond, { MixTSAliasFirst } from '@/mix_default_normal/mix_ts_alias';
+let _ = boostestMixTSAliasFirst<MixTSAliasFirst>();
+let _ = boostestMixTSAliasSecond<MixTSAliasSecond>();
+
+import MixTSAliasSecond2, { MixTSAliasFirst2 } from '@/mix_default_normal/mix_ts_alias2';
+let _ = boostestMixTSAliasFirst2<MixTSAliasFirst2>();
+let _ = boostestMixTSAliasSecond2<MixTSAliasSecond2>();
+
+import MixClassFirst, { MixClassSecond } from '@/mix_default_normal/mix_class';
+let _ = boostestMixClassFirst<typeof MixClassFirst>(MixClassFirst);
+let _ = boostestMixClassSecond<typeof MixClassSecond>(MixClassSecond);
+
+import MixClassFirst2, { MixClassSecond2 } from '@/mix_default_normal/mix_class2';
+let _ = boostestMixClassFirst2<typeof MixClassFirst2>(MixClassFirst2);
+let _ = boostestMixClassSecond2<typeof MixClassSecond2>(MixClassSecond2);
 
 /**
  *

@@ -1,3 +1,4 @@
+import ComplexClass from './deepfiles/lib/comp_class';
 import ComplexInterfaceChips from './deepfiles/lib/comp_interface';
 export type { ComplexChipsType as MixCompTSAlias } from './deepfiles/lib/comp_type_alias';
 

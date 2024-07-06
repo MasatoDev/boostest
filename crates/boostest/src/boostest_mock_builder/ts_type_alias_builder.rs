@@ -2,9 +2,8 @@ use oxc::{
     allocator::Allocator,
     ast::{
         ast::{
-            BindingIdentifier, Declaration, Expression, FunctionBody, ObjectPropertyKind, Program,
-            PropertyKind, Statement, TSAnyKeyword, TSPropertySignature, TSSignature, TSType,
-            TSTypeAliasDeclaration,
+            BindingIdentifier, Declaration, Expression, FunctionBody, Program, Statement,
+            TSAnyKeyword, TSPropertySignature, TSSignature, TSType, TSTypeAliasDeclaration,
         },
         AstBuilder, VisitMut,
     },
@@ -18,11 +17,6 @@ use oxc::allocator;
 use super::test_data_factory;
 
 const SPAN: Span = Span::new(0, 0);
-
-pub struct ClassArg {
-    pub key: String,
-    pub val: String,
-}
 
 pub struct TypeAliasMockData {
     pub mock_func_name: String,
@@ -108,66 +102,6 @@ impl<'a> TSTypeAliasBuilder<'a> {
             TSType::TSTypeLiteral(_) => true,
             _ => false,
         }
-    }
-
-    pub fn get_object_property_kind(&mut self) -> Vec<ObjectPropertyKind<'a>> {
-        let mut target_ts_types_vec = Vec::new();
-
-        let mut properties = match &mut self.ts_type_alias.type_annotation {
-            TSType::TSTypeLiteral(ts_type_literal) => {
-                let result: Vec<_> = ts_type_literal
-                    .members
-                    .iter_mut()
-                    .filter_map(|ts_signature| match ts_signature {
-                        TSSignature::TSPropertySignature(ts_prop_signature) => {
-                            Some(ts_prop_signature)
-                        }
-                        _ => None,
-                    })
-                    .collect();
-
-                result
-            }
-            _ => Vec::new(),
-        };
-
-        for property in properties.iter_mut() {
-            if let Some(key) = property.key.name() {
-                if let Some(val_type_annotation) = &mut property.type_annotation {
-                    let ts_type = self.ast_builder.copy(&val_type_annotation.type_annotation);
-                    let key_name = key.to_string();
-                    target_ts_types_vec.push((key_name, ts_type));
-                }
-            }
-        }
-
-        let mut temp_properties = Vec::new();
-
-        for (key, ts_type) in target_ts_types_vec {
-            let val = test_data_factory::get_expression(
-                &self.ast_builder,
-                ts_type,
-                key.as_str(),
-                &self.mock_data.mock_func_name,
-            );
-            let new_key = self.ast_builder.string_literal(SPAN, key.as_str());
-            let new_key_expr = self.ast_builder.literal_string_expression(new_key);
-            let new_prop_key = self.ast_builder.property_key_expression(new_key_expr);
-
-            let object_expr = self.ast_builder.object_property(
-                SPAN,
-                PropertyKind::Init,
-                new_prop_key,
-                val,
-                None,
-                false,
-                false,
-                false,
-            );
-            temp_properties.push(ObjectPropertyKind::ObjectProperty(object_expr));
-        }
-
-        temp_properties
     }
 }
 
@@ -267,37 +201,44 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
 
         match &mut temp_obj_expr {
             // It isn't used when use with TSAsExpression `as T`
-            Expression::ObjectExpression(obj_expr) => {
-                let mock_properties = self.get_object_property_kind();
 
-                if let Some(last) = obj_expr.properties.pop() {
-                    let mut properties = self.ast_builder.new_vec();
+            // Expression::ObjectExpression(obj_expr) => {
+            //     if let Some(last) = obj_expr.properties.pop() {
+            //         let vec = self.ast_builder.new_vec();
 
-                    for mock_prop in mock_properties {
-                        properties.push(mock_prop);
-                    }
-                    properties.push(last);
+            //         let ts_signatures = match &mut self.ts_type_alias.type_annotation {
+            //             TSType::TSTypeLiteral(ts_type_literal) => &ts_type_literal.members,
+            //             _ => &vec,
+            //         };
 
-                    let new_obj_expr = self.ast_builder.object_expression(SPAN, properties, None);
+            //         let new_obj_expr = test_data_factory::handle_ts_signatures(
+            //             &self.ast_builder,
+            //             &ts_signatures,
+            //             Some(last),
+            //             &self.mock_data.mock_func_name,
+            //         );
 
-                    let _ = std::mem::replace(expr, new_obj_expr);
-                }
-            }
+            //         let _ = std::mem::replace(expr, new_obj_expr);
+            //     }
+            // }
             Expression::TSAsExpression(ts_as_expr) => {
                 match &mut ts_as_expr.expression {
                     Expression::ObjectExpression(obj_expr) => {
-                        let mock_properties = self.get_object_property_kind();
-
                         if let Some(last) = obj_expr.properties.pop() {
-                            let mut properties = self.ast_builder.new_vec();
+                            let vec = self.ast_builder.new_vec();
 
-                            for mock_prop in mock_properties {
-                                properties.push(mock_prop);
-                            }
-                            properties.push(last);
+                            let ts_signatures = match &mut self.ts_type_alias.type_annotation {
+                                TSType::TSTypeLiteral(ts_type_literal) => &ts_type_literal.members,
+                                _ => &vec,
+                            };
 
-                            let new_obj_expr =
-                                self.ast_builder.object_expression(SPAN, properties, None);
+                            let new_obj_expr = test_data_factory::handle_ts_signatures(
+                                &self.ast_builder,
+                                &ts_signatures,
+                                Some(last),
+                                &self.mock_data.mock_func_name,
+                                None,
+                            );
 
                             // move_ts_annotation
                             let ts_any_keyword = TSAnyKeyword { span: SPAN };
