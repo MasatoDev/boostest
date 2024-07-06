@@ -17,7 +17,6 @@ debug_build:
 
 test_debug:
   just debug_build
-  pnpm --filter test boostest
   pnpm --filter test boostest:direct
 
 snapshot:

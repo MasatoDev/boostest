@@ -151,6 +151,14 @@ impl<'a> VisitMut<'a> for MockAstLoader {
             }
             ExportDefaultDeclarationKind::TSEnumDeclaration(_) => {}
             ExportDefaultDeclarationKind::FunctionDeclaration(_) => {}
+            ExportDefaultDeclarationKind::Identifier(id) => {
+                /*
+                 * export default ClassName;
+                 * exported: default
+                 * local: ClassName
+                 */
+                self.set_default_import_name(&decl.exported.to_string(), &id.name.to_string());
+            }
             _ => {}
         }
     }
@@ -251,14 +259,7 @@ impl<'a> VisitMut<'a> for MockAstLoader {
     }
 
     fn visit_ts_interface_declaration(&mut self, decl: &mut TSInterfaceDeclaration<'a>) {
-        // export default is not named
-        if self.is_default_import() {
-            self.add_ts_interface(decl);
-
-            for ts_signature in decl.body.body.iter_mut() {
-                self.visit_ts_signature(ts_signature);
-            }
-        } else if let Some(target_name) = self.get_decl_name_for_resolve() {
+        if let Some(target_name) = self.get_decl_name_for_resolve() {
             if decl.id.name.to_string() == *target_name {
                 self.add_ts_interface(decl);
 
@@ -336,10 +337,20 @@ impl<'a> VisitMut<'a> for MockAstLoader {
                 // export type {Huga(local) as Hoge(exported)} from '...'
                 self.set_temp_import_source(exported, full_path, Some(local), false);
             } else {
-                // export type {Huga as default};
+                /*
+                 * export type {Huga as default};
+                 *
+                 * exported: default
+                 * local: Huga
+                 */
                 self.set_default_import_name(&exported, &local);
 
-                // export type {Huga as AnotherHuga};
+                /*
+                 * export type {Huga as AnotherHuga};
+                 *
+                 * exported: AnotherHuga
+                 * local: Huga
+                 */
                 self.set_original_name(&exported, &local)
             }
         }
