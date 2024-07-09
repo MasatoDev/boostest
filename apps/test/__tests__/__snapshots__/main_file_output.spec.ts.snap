@@ -528,6 +528,15 @@ export function conditionalKey_boostestExportNamedDeclInterface<T>(args?: Partia
 	} as T);
 }
 
+export function boostestIndexSignature<T>(args?: Partial<T>): T {
+	return ({
+		'test string data':10,
+		10:10,
+		{}:true,
+		...args
+	} as T);
+}
+
 export function boostestLiteralAliasType<T>(args?: Partial<T>): T {
 	return ({
 		'stringLiteral':'test string data',

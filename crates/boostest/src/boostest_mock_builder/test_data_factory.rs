@@ -7,7 +7,7 @@ use oxc::{
             Argument, ArrayExpression, ArrowFunctionExpression, BigIntLiteral, BooleanLiteral,
             CallExpression, Expression, FormalParameterKind, FormalParameters, FunctionBody,
             IdentifierReference, NullLiteral, NumericLiteral, ObjectExpression, ObjectPropertyKind,
-            PropertyKind, StringLiteral, TSLiteral, TSSignature, TSType,
+            PropertyKey, PropertyKind, StringLiteral, TSLiteral, TSSignature, TSType,
         },
         AstBuilder,
     },
@@ -315,20 +315,16 @@ pub fn get_arg_with_ts_literal_type<'a>(
 
 pub fn get_obj_expr<'a>(
     ast_builder: &AstBuilder<'a>,
-    expressions: Vec<(String, Expression<'a>)>,
+    expressions: Vec<(PropertyKey<'a>, Expression<'a>)>,
     last: Option<ObjectPropertyKind<'a>>,
 ) -> Expression<'a> {
     let mut new_props = ast_builder.new_vec();
 
     for (key, expression) in expressions {
-        let new_key = ast_builder.string_literal(SPAN, key.as_str());
-        let new_key_expr = ast_builder.literal_string_expression(new_key);
-        let new_prop_key = ast_builder.property_key_expression(new_key_expr);
-
         let object_expr = ast_builder.object_property(
             SPAN,
             PropertyKind::Init,
-            new_prop_key,
+            key,
             expression,
             None,
             false,
@@ -350,7 +346,7 @@ pub fn handle_ts_signature<'a>(
     ts_signature: &TSSignature<'a>,
     mock_func_name: &str,
     parent_key_name: Option<String>,
-) -> Option<(String, Expression<'a>)> {
+) -> Option<(PropertyKey<'a>, Expression<'a>)> {
     match ts_signature {
         TSSignature::TSPropertySignature(ts_prop_signature) => {
             if let Some(ts_type_annotation) = &ts_prop_signature.type_annotation {
@@ -363,10 +359,14 @@ pub fn handle_ts_signature<'a>(
                         new_parent_key = prop_key.to_string();
                     }
 
+                    let new_key = ast_builder.string_literal(SPAN, prop_key.as_str());
+                    let new_key_expr = ast_builder.literal_string_expression(new_key);
+                    let new_prop_key = ast_builder.property_key_expression(new_key_expr);
+
                     match &ts_type_annotation.type_annotation {
                         TSType::TSTypeLiteral(ts_type_literal) => {
                             return Some((
-                                prop_key.to_string(),
+                                new_prop_key,
                                 handle_ts_signatures(
                                     ast_builder,
                                     &ts_type_literal.members,
@@ -380,7 +380,7 @@ pub fn handle_ts_signature<'a>(
                             let ts_type = ast_builder.copy(other);
 
                             Some((
-                                prop_key.to_string(),
+                                new_prop_key,
                                 get_expression(
                                     ast_builder,
                                     ts_type,
@@ -397,7 +397,35 @@ pub fn handle_ts_signature<'a>(
                 None
             }
         }
-        TSSignature::TSIndexSignature(_) => None,
+        TSSignature::TSIndexSignature(ts_index_signature) => {
+            if let Some(first) = ts_index_signature.parameters.first() {
+                let new_parent_key: String;
+
+                if let Some(p_key) = parent_key_name {
+                    new_parent_key = format!("{}_{}", p_key, first.name.as_str());
+                } else {
+                    new_parent_key = first.name.to_string();
+                }
+
+                let key_ts_type = ast_builder.copy(&first.type_annotation.type_annotation);
+                let ts_type = ast_builder.copy(&ts_index_signature.type_annotation.type_annotation);
+
+                let key = get_expression(
+                    ast_builder,
+                    key_ts_type,
+                    first.name.as_str(),
+                    mock_func_name,
+                );
+
+                let new_prop_key = ast_builder.property_key_expression(key);
+
+                return Some((
+                    new_prop_key,
+                    get_expression(ast_builder, ts_type, &new_parent_key, mock_func_name),
+                ));
+            }
+            None
+        }
         _ => None,
     }
 }
@@ -409,7 +437,7 @@ pub fn handle_ts_signatures<'a>(
     mock_func_name: &str,
     parent_key_name: Option<String>,
 ) -> Expression<'a> {
-    let mut props_expr: Vec<(String, Expression)> = Vec::new();
+    let mut props_expr: Vec<(PropertyKey, Expression)> = Vec::new();
 
     for member in ts_signatures {
         if let Some((key, expr)) = handle_ts_signature(
@@ -606,20 +634,16 @@ pub fn get_expression<'a>(
 
 pub fn get_obj_arg<'a>(
     ast_builder: &AstBuilder<'a>,
-    expressions: Vec<(String, Expression<'a>)>,
+    expressions: Vec<(PropertyKey<'a>, Expression<'a>)>,
     last: Option<ObjectPropertyKind<'a>>,
 ) -> ObjectExpression<'a> {
     let mut new_props = ast_builder.new_vec();
 
     for (key, expression) in expressions {
-        let new_key = ast_builder.string_literal(SPAN, key.as_str());
-        let new_key_expr = ast_builder.literal_string_expression(new_key);
-        let new_prop_key = ast_builder.property_key_expression(new_key_expr);
-
         let object_expr = ast_builder.object_property(
             SPAN,
             PropertyKind::Init,
-            new_prop_key,
+            key,
             expression,
             None,
             false,
@@ -647,7 +671,7 @@ pub fn handle_ts_signatures_with_args<'a>(
     mock_func_name: &str,
     parent_key: Option<String>,
 ) -> Argument<'a> {
-    let mut props_expr: Vec<(String, Expression)> = Vec::new();
+    let mut props_expr: Vec<(PropertyKey, Expression)> = Vec::new();
 
     for member in ts_signatures {
         if let Some((key, expr)) =

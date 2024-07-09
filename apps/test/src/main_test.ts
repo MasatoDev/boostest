@@ -191,3 +191,6 @@ let _ = boostestAccessorClass<typeof AccessorClass>(AccessorClass);
  */
 import { ArgObjClass } from './types/pattern/arg_obj_class';
 let _ = boostestArgObjClass<typeof ArgObjClass>(ArgObjClass);
+
+import { IndexSignature } from '@/ts_types/index_signature';
+let _ = boostestIndexSignature<IndexSignature>();
