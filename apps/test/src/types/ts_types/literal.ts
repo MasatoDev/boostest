@@ -31,7 +31,6 @@ export type LiteralTypeAlias = {
   unionType: string | number;
   conditionalType: string extends number ? true : false;
 
-  // TODO: TSLiteralType
   tsLiteralString: 'string';
   tsLiteralNumber: 20;
   tsBigInt: 10000000000000n;
@@ -80,7 +79,6 @@ export type LiteralTypeInterface = {
   unionType: string | number;
   conditionalType: string extends number ? true : false;
 
-  // TODO: TSLiteralType
   tsLiteralString: 'string';
   tsLiteralNumber: 20;
   tsBigInt: 10000000000000n;
@@ -129,7 +127,6 @@ export class LiteralTypeClass {
     public referenceLiteral: RefType,
     public unionType: string | number,
 
-    // TODO: TSLiteralType
     public tsLiteralString: 'string',
     public tsLiteralNumber: 20,
     public tsBigInt: 10000000000000n,
