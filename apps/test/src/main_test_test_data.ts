@@ -226,6 +226,31 @@ export function conditionalKey_boostestAnoMixInterface<T>(args?: Partial<T>): T 
 	} as T);
 }
 
+export function boostestArgObjClass<T extends abstract new (...args: any) => any>(ArgObjClass): T {
+	return new ArgObjClass({
+		'name':'test string data',
+		'age':10,
+		'obj_key':object_obj_key_boostestArgObjClass(),
+		'obj_key2':object_obj_key2_boostestArgObjClass()
+	});
+}
+
+export function object_obj_key_boostestArgObjClass<T>(args?: Partial<T>): T {
+	return ({
+		'obj_name':'test string data',
+		'obj_val':10,
+		...args
+	} as T);
+}
+
+export function object_obj_key2_boostestArgObjClass<T>(args?: Partial<T>): T {
+	return ({
+		'obj_name':'test string data',
+		'obj_val':10,
+		...args
+	} as T);
+}
+
 export function boostestExportDefaultClass<T extends abstract new (...args: any) => any>(ExportDefaultClass): T {
 	return new ExportDefaultClass('test string data', chips_boostestExportDefaultClass());
 }

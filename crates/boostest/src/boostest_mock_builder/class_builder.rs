@@ -95,6 +95,12 @@ impl<'a> ClassBuilder<'a> {
                                     target_data_vec.push((id.name.to_string(), ts_type));
                                 }
                             }
+                            BindingPatternKind::ObjectPattern(_) => {
+                                if let Some(item) = &formal_parameter.pattern.type_annotation {
+                                    let ts_type = self.ast_builder.copy(&item.type_annotation);
+                                    target_data_vec.push((String::from("object"), ts_type));
+                                }
+                            }
                             _ => {}
                         }
                     }

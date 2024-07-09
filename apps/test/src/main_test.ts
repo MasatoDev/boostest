@@ -166,10 +166,6 @@ let _ = boostestMixClassSecond2<typeof MixClassSecond2>(MixClassSecond2);
 import { AccessorClass } from './types/pattern/accessor_class';
 let _ = boostestAccessorClass<typeof AccessorClass>(AccessorClass);
 
-// TODO
-// import ClassObj from './types/class_obj';
-// let k = boostestClassObj<typeof ClassObj>(ClassObj);
-
 /**
  *
  *
@@ -193,5 +189,5 @@ let _ = boostestAccessorClass<typeof AccessorClass>(AccessorClass);
  *
  *
  */
-// import { ArgObjClass } from './types/pattern/arg_obj_class';
-// let _ = boostestArgObjClass<typeof ArgObjClass>(ArgObjClass);
+import { ArgObjClass } from './types/pattern/arg_obj_class';
+let _ = boostestArgObjClass<typeof ArgObjClass>(ArgObjClass);

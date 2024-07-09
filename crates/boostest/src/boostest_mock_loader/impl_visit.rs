@@ -177,13 +177,29 @@ impl<'a> VisitMut<'a> for MockAstLoader {
 
     fn visit_class_body(&mut self, body: &mut ClassBody<'a>) {
         body.body.iter_mut().for_each(|element| match element {
-            // TODO: cover method definition
             oxc::ast::ast::ClassElement::MethodDefinition(method) => {
                 self.visit_method_definition(method);
             }
-            // oxc::ast::ast::ClassElement::PropertyDefinition(property) => {
-            //     self.visit_property_definition(property);
-            // }
+
+            /*
+            class MyClass {
+              static staticProperty = 10; // StaticBlock
+              private _name: string; // PropertyDefinition
+              constructor(name: string) {
+                this._name = name;
+              }
+              get name(): string { // AccessorProperty (getter)
+                return this._name;
+              }
+              set name(newName: string) { // AccessorProperty (setter)
+                this._name = newName;
+              }
+              greet() { // MethodDefinition
+                console.log(`Hello, ${this.name}!`);
+              }
+              [index: number]: string; // TSIndexSignature
+            }
+            */
             _ => {}
         });
     }
@@ -193,13 +209,21 @@ impl<'a> VisitMut<'a> for MockAstLoader {
             if key_name == "constructor" {
                 for formal_parameter in method.value.params.items.iter_mut() {
                     match &formal_parameter.pattern.kind {
-                        // TODO: follow another BindingPatternKind pattern
                         BindingPatternKind::BindingIdentifier(id) => {
                             if let Some(ts_type) = &formal_parameter.pattern.type_annotation {
                                 test_data_assignment::ts_type_assign_as_property(
                                     self,
                                     &ts_type.type_annotation,
                                     id.name.to_string(),
+                                );
+                            }
+                        }
+                        BindingPatternKind::ObjectPattern(_) => {
+                            if let Some(ts_type) = &formal_parameter.pattern.type_annotation {
+                                test_data_assignment::ts_type_assign_as_property(
+                                    self,
+                                    &ts_type.type_annotation,
+                                    String::from("object"),
                                 );
                             }
                         }
@@ -235,6 +259,17 @@ impl<'a> VisitMut<'a> for MockAstLoader {
                     }
                 }
             }
+            // TODO
+            /*
+            type MyType = {
+              [key: string]: number; // TSIndexSignature
+              name: string;           // TSPropertySignature
+              sayHello(): void;       // TSMethodSignature
+              new (name: string): MyType; // TSConstructSignatureDeclaration
+              (message: string): string; // TSCallSignatureDeclaration
+            };
+            */
+            TSSignature::TSCallSignatureDeclaration(_) => {}
             _ => {}
         }
     }
