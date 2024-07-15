@@ -3,7 +3,7 @@ use oxc::{
     ast::{
         ast::{
             BindingIdentifier, Declaration, Expression, FunctionBody, Program, Statement,
-            TSAnyKeyword, TSPropertySignature, TSSignature, TSType, TSTypeAliasDeclaration,
+            TSPropertySignature, TSSignature, TSType, TSTypeAliasDeclaration,
         },
         AstBuilder, VisitMut,
     },
@@ -54,11 +54,14 @@ impl<'a> TSTypeAliasBuilder<'a> {
     pub fn generate_code(&mut self, source_type: SourceType) -> String {
         let source_code: &str;
 
-        if self.is_ts_type_literal() {
-            let bytes = include_bytes!("./template/tsTypeLiteralAlias.ts");
+        if !test_data_factory::is_ts_type_literal(&self.ts_type_alias.type_annotation) {
+            let bytes = include_bytes!("./template/tsTypeAlias.ts");
+            source_code = std::str::from_utf8(bytes).unwrap();
+        } else if test_data_factory::is_call_signature(&self.ts_type_alias.type_annotation) {
+            let bytes = include_bytes!("./template/tsTypeAlias.ts");
             source_code = std::str::from_utf8(bytes).unwrap();
         } else {
-            let bytes = include_bytes!("./template/tsTypeAlias.ts");
+            let bytes = include_bytes!("./template/tsTypeLiteralAlias.ts");
             source_code = std::str::from_utf8(bytes).unwrap();
         };
 
@@ -94,13 +97,6 @@ impl<'a> TSTypeAliasBuilder<'a> {
                 return result;
             }
             _ => Vec::new(),
-        }
-    }
-
-    pub fn is_ts_type_literal(&self) -> bool {
-        match &self.ts_type_alias.type_annotation {
-            TSType::TSTypeLiteral(_) => true,
-            _ => false,
         }
     }
 }
@@ -175,7 +171,8 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
 
            type Hoge = string; < -- early handle
         */
-        if !self.is_ts_type_literal() {
+
+        if !test_data_factory::is_ts_type_literal(&self.ts_type_alias.type_annotation) {
             let ts_annotation = self.ast_builder.copy(&self.ts_type_alias.type_annotation);
             let new_expr = test_data_factory::get_expression(
                 &self.ast_builder,
@@ -186,6 +183,20 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
 
             let _ = std::mem::replace(expr, new_expr);
             return;
+        }
+
+        if test_data_factory::is_call_signature(&self.ts_type_alias.type_annotation) {
+            let ts_annotation = self.ast_builder.copy(&self.ts_type_alias.type_annotation);
+
+            if let Some(call_signature_expr) = test_data_factory::get_first_call_signature(
+                &self.ast_builder,
+                ts_annotation,
+                "call_signature",
+                &self.mock_data.mock_func_name,
+            ) {
+                let _ = std::mem::replace(expr, call_signature_expr);
+                return;
+            }
         }
 
         /*
@@ -221,42 +232,31 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
             //         let _ = std::mem::replace(expr, new_obj_expr);
             //     }
             // }
-            Expression::TSAsExpression(ts_as_expr) => {
-                match &mut ts_as_expr.expression {
-                    Expression::ObjectExpression(obj_expr) => {
-                        if let Some(last) = obj_expr.properties.pop() {
-                            let vec = self.ast_builder.new_vec();
+            Expression::TSAsExpression(ts_as_expr) => match &mut ts_as_expr.expression {
+                Expression::ObjectExpression(obj_expr) => {
+                    if let Some(last) = obj_expr.properties.pop() {
+                        let vec = self.ast_builder.new_vec();
 
-                            let ts_signatures = match &mut self.ts_type_alias.type_annotation {
-                                TSType::TSTypeLiteral(ts_type_literal) => &ts_type_literal.members,
-                                _ => &vec,
-                            };
+                        let ts_signatures = match &mut self.ts_type_alias.type_annotation {
+                            TSType::TSTypeLiteral(ts_type_literal) => &ts_type_literal.members,
+                            _ => &vec,
+                        };
 
-                            let new_obj_expr = test_data_factory::handle_ts_signatures(
-                                &self.ast_builder,
-                                &ts_signatures,
-                                Some(last),
-                                &self.mock_data.mock_func_name,
-                                None,
-                            );
+                        let new_obj_expr = test_data_factory::handle_ts_signatures(
+                            &self.ast_builder,
+                            &ts_signatures,
+                            Some(last),
+                            &self.mock_data.mock_func_name,
+                            None,
+                        );
 
-                            // move_ts_annotation
-                            let ts_any_keyword = TSAnyKeyword { span: SPAN };
-                            let allocated = self.ast_builder.alloc(ts_any_keyword);
-                            let ts_any_ts_type = TSType::TSAnyKeyword(allocated);
-                            let new_ts_type =
-                                std::mem::replace(&mut ts_as_expr.type_annotation, ts_any_ts_type);
-
-                            let new_ts_as_expr =
-                                self.ast_builder
-                                    .ts_as_expression(SPAN, new_obj_expr, new_ts_type);
-
-                            let _ = std::mem::replace(expr, new_ts_as_expr);
-                        }
+                        let new_ts_as_expr =
+                            test_data_factory::add_ts_as_expr(&self.ast_builder, new_obj_expr);
+                        let _ = std::mem::replace(expr, new_ts_as_expr);
                     }
-                    _ => {}
                 }
-            }
+                _ => {}
+            },
             _ => {}
         }
     }

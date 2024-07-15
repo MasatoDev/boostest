@@ -251,6 +251,11 @@ export function object_obj_key2_boostestArgObjClass<T>(args?: Partial<T>): T {
 	} as T);
 }
 
+export function boostestCallSignature<T>() {
+	return (name: string, age: number) => {
+	};
+}
+
 export function boostestExportDefaultClass<T extends abstract new (...args: any) => any>(ExportDefaultClass): T {
 	return new ExportDefaultClass('test string data', chips_boostestExportDefaultClass());
 }
@@ -681,6 +686,18 @@ export function refTypeInterface_boostestLiteralTypeClass<T>(args?: Partial<T>):
 	} as T);
 }
 
+export function boostestMathOperations<T>(args?: Partial<T>): T {
+	return ({
+		'add':(a: number, b: number) => {
+			return 10;
+		},
+		'multiply':(a: number, b: number) => {
+			return 10;
+		},
+		...args
+	} as T);
+}
+
 export function boostestMixClassFirst<T extends abstract new (...args: any) => any>(MixClassFirst): T {
 	return new MixClassFirst('test string data');
 }
@@ -997,52 +1014,59 @@ export function extended_info_settings_extras_nestedRef_boostestNestedType<T>(ar
 	} as T);
 }
 
-export function boostestTsLiteralArrayUnionType() {
-	return [];
-}
-
-export function boostestTsLiteralFunctionUnionType() {
-	return () => {
+export function boostestSingleCallSignature<T>() {
+	return (name: string, age: number) => {
+		return null;
 	};
 }
 
-export function boostestTsLiteralNumberUnionType() {
+export function boostestTsLiteralArrayUnionType<T>() {
+	return [];
+}
+
+export function boostestTsLiteralFunctionUnionType<T>() {
+	return (x: number) => {
+		return 10;
+	};
+}
+
+export function boostestTsLiteralNumberUnionType<T>() {
 	return 1;
 }
 
-export function boostestTsLiteralObjectUnionType() {
+export function boostestTsLiteralObjectUnionType<T>() {
 	return {
 		'type':'A'
 	};
 }
 
-export function boostestTsLiteralTypeStringUnionType() {
+export function boostestTsLiteralTypeStringUnionType<T>() {
 	return 'A';
 }
 
-export function boostestTsTypeLiteralArray() {
+export function boostestTsTypeLiteralArray<T>() {
 	return [];
 }
 
-export function boostestTsTypeLiteralBoolean() {
+export function boostestTsTypeLiteralBoolean<T>() {
 	return true;
 }
 
-export function boostestTsTypeLiteralFunction() {
+export function boostestTsTypeLiteralFunction<T>() {
 	return () => {
 	};
 }
 
-export function boostestTsTypeLiteralLiteralArrayType() {
+export function boostestTsTypeLiteralLiteralArrayType<T>() {
 	return [];
 }
 
-export function boostestTsTypeLiteralLiteralFunctionType() {
+export function boostestTsTypeLiteralLiteralFunctionType<T>() {
 	return () => {
 	};
 }
 
-export function boostestTsTypeLiteralLiteralNumberType() {
+export function boostestTsTypeLiteralLiteralNumberType<T>() {
 	return 42;
 }
 
@@ -1054,35 +1078,35 @@ export function boostestTsTypeLiteralLiteralObjectType<T>(args?: Partial<T>): T 
 	} as T);
 }
 
-export function boostestTsTypeLiteralLiteralSymbolType() {
+export function boostestTsTypeLiteralLiteralSymbolType<T>() {
 	return {};
 }
 
-export function boostestTsTypeLiteralLiteralTypeString() {
+export function boostestTsTypeLiteralLiteralTypeString<T>() {
 	return 'string';
 }
 
-export function boostestTsTypeLiteralNull() {
+export function boostestTsTypeLiteralNull<T>() {
 	return null;
 }
 
-export function boostestTsTypeLiteralNumber() {
+export function boostestTsTypeLiteralNumber<T>() {
 	return 10;
 }
 
-export function boostestTsTypeLiteralObject() {
+export function boostestTsTypeLiteralObject<T>() {
 	return {};
 }
 
-export function boostestTsTypeLiteralString() {
+export function boostestTsTypeLiteralString<T>() {
 	return 'test string data';
 }
 
-export function boostestTsTypeLiteralSymbol() {
+export function boostestTsTypeLiteralSymbol<T>() {
 	return {};
 }
 
-export function boostestTsTypeLiteralUndefined() {
+export function boostestTsTypeLiteralUndefined<T>() {
 	return undefined;
 }
 
@@ -1117,63 +1141,63 @@ export function boostestUseTSTypeLiteralAlias<T>(args?: Partial<T>): T {
 	} as T);
 }
 
-export function literalString_boostestUseTSTypeLiteralAlias() {
+export function literalString_boostestUseTSTypeLiteralAlias<T>() {
 	return 'test string data';
 }
 
-export function literalLiteralString_boostestUseTSTypeLiteralAlias() {
+export function literalLiteralString_boostestUseTSTypeLiteralAlias<T>() {
 	return 'string';
 }
 
-export function literalStringUnion_boostestUseTSTypeLiteralAlias() {
+export function literalStringUnion_boostestUseTSTypeLiteralAlias<T>() {
 	return 'A';
 }
 
-export function literalNumber_boostestUseTSTypeLiteralAlias() {
+export function literalNumber_boostestUseTSTypeLiteralAlias<T>() {
 	return 10;
 }
 
-export function literalLiteralNumber_boostestUseTSTypeLiteralAlias() {
+export function literalLiteralNumber_boostestUseTSTypeLiteralAlias<T>() {
 	return 42;
 }
 
-export function literalNumberUnion_boostestUseTSTypeLiteralAlias() {
+export function literalNumberUnion_boostestUseTSTypeLiteralAlias<T>() {
 	return 1;
 }
 
-export function literalBoolean_boostestUseTSTypeLiteralAlias() {
+export function literalBoolean_boostestUseTSTypeLiteralAlias<T>() {
 	return true;
 }
 
-export function literalLiteralBoolean_boostestUseTSTypeLiteralAlias() {
+export function literalLiteralBoolean_boostestUseTSTypeLiteralAlias<T>() {
 	return true;
 }
 
-export function literalBooleanUnion_boostestUseTSTypeLiteralAlias() {
+export function literalBooleanUnion_boostestUseTSTypeLiteralAlias<T>() {
 	return true;
 }
 
-export function literalNull_boostestUseTSTypeLiteralAlias() {
+export function literalNull_boostestUseTSTypeLiteralAlias<T>() {
 	return null;
 }
 
-export function literalUndefined_boostestUseTSTypeLiteralAlias() {
+export function literalUndefined_boostestUseTSTypeLiteralAlias<T>() {
 	return undefined;
 }
 
-export function literalArray_boostestUseTSTypeLiteralAlias() {
+export function literalArray_boostestUseTSTypeLiteralAlias<T>() {
 	return [];
 }
 
-export function literalLiteralArray_boostestUseTSTypeLiteralAlias() {
+export function literalLiteralArray_boostestUseTSTypeLiteralAlias<T>() {
 	return [];
 }
 
-export function literalArrayUnion_boostestUseTSTypeLiteralAlias() {
+export function literalArrayUnion_boostestUseTSTypeLiteralAlias<T>() {
 	return [];
 }
 
-export function literalObject_boostestUseTSTypeLiteralAlias() {
+export function literalObject_boostestUseTSTypeLiteralAlias<T>() {
 	return {};
 }
 
@@ -1185,44 +1209,45 @@ export function literalLiteralObject_boostestUseTSTypeLiteralAlias<T>(args?: Par
 	} as T);
 }
 
-export function literalObjectUnion_boostestUseTSTypeLiteralAlias() {
+export function literalObjectUnion_boostestUseTSTypeLiteralAlias<T>() {
 	return {
 		'type':'A'
 	};
 }
 
-export function literalFunction_boostestUseTSTypeLiteralAlias() {
+export function literalFunction_boostestUseTSTypeLiteralAlias<T>() {
 	return () => {
 	};
 }
 
-export function literalLiteralFunction_boostestUseTSTypeLiteralAlias() {
+export function literalLiteralFunction_boostestUseTSTypeLiteralAlias<T>() {
 	return () => {
 	};
 }
 
-export function literalFunctionUnion_boostestUseTSTypeLiteralAlias() {
-	return () => {
+export function literalFunctionUnion_boostestUseTSTypeLiteralAlias<T>() {
+	return (x: number) => {
+		return 10;
 	};
 }
 
-export function literalBigInt_boostestUseTSTypeLiteralAlias() {
+export function literalBigInt_boostestUseTSTypeLiteralAlias<T>() {
 	return 9007199254740991;
 }
 
-export function literalLiteralBigInt_boostestUseTSTypeLiteralAlias() {
+export function literalLiteralBigInt_boostestUseTSTypeLiteralAlias<T>() {
 	return 123n;
 }
 
-export function literalBigIntUnion_boostestUseTSTypeLiteralAlias() {
+export function literalBigIntUnion_boostestUseTSTypeLiteralAlias<T>() {
 	return 1n;
 }
 
-export function literalSymbol_boostestUseTSTypeLiteralAlias() {
+export function literalSymbol_boostestUseTSTypeLiteralAlias<T>() {
 	return {};
 }
 
-export function literalLiteralSymbol_boostestUseTSTypeLiteralAlias() {
+export function literalLiteralSymbol_boostestUseTSTypeLiteralAlias<T>() {
 	return {};
 }
 
@@ -1257,63 +1282,63 @@ export function boostestUseTSTypeLiteralInterface<T>(args?: Partial<T>): T {
 	} as T);
 }
 
-export function literalString_boostestUseTSTypeLiteralInterface() {
+export function literalString_boostestUseTSTypeLiteralInterface<T>() {
 	return 'test string data';
 }
 
-export function literalLiteralString_boostestUseTSTypeLiteralInterface() {
+export function literalLiteralString_boostestUseTSTypeLiteralInterface<T>() {
 	return 'string';
 }
 
-export function literalStringUnion_boostestUseTSTypeLiteralInterface() {
+export function literalStringUnion_boostestUseTSTypeLiteralInterface<T>() {
 	return 'A';
 }
 
-export function literalNumber_boostestUseTSTypeLiteralInterface() {
+export function literalNumber_boostestUseTSTypeLiteralInterface<T>() {
 	return 10;
 }
 
-export function literalLiteralNumber_boostestUseTSTypeLiteralInterface() {
+export function literalLiteralNumber_boostestUseTSTypeLiteralInterface<T>() {
 	return 42;
 }
 
-export function literalNumberUnion_boostestUseTSTypeLiteralInterface() {
+export function literalNumberUnion_boostestUseTSTypeLiteralInterface<T>() {
 	return 1;
 }
 
-export function literalBoolean_boostestUseTSTypeLiteralInterface() {
+export function literalBoolean_boostestUseTSTypeLiteralInterface<T>() {
 	return true;
 }
 
-export function literalLiteralBoolean_boostestUseTSTypeLiteralInterface() {
+export function literalLiteralBoolean_boostestUseTSTypeLiteralInterface<T>() {
 	return true;
 }
 
-export function literalBooleanUnion_boostestUseTSTypeLiteralInterface() {
+export function literalBooleanUnion_boostestUseTSTypeLiteralInterface<T>() {
 	return true;
 }
 
-export function literalNull_boostestUseTSTypeLiteralInterface() {
+export function literalNull_boostestUseTSTypeLiteralInterface<T>() {
 	return null;
 }
 
-export function literalUndefined_boostestUseTSTypeLiteralInterface() {
+export function literalUndefined_boostestUseTSTypeLiteralInterface<T>() {
 	return undefined;
 }
 
-export function literalArray_boostestUseTSTypeLiteralInterface() {
+export function literalArray_boostestUseTSTypeLiteralInterface<T>() {
 	return [];
 }
 
-export function literalLiteralArray_boostestUseTSTypeLiteralInterface() {
+export function literalLiteralArray_boostestUseTSTypeLiteralInterface<T>() {
 	return [];
 }
 
-export function literalArrayUnion_boostestUseTSTypeLiteralInterface() {
+export function literalArrayUnion_boostestUseTSTypeLiteralInterface<T>() {
 	return [];
 }
 
-export function literalObject_boostestUseTSTypeLiteralInterface() {
+export function literalObject_boostestUseTSTypeLiteralInterface<T>() {
 	return {};
 }
 
@@ -1325,44 +1350,45 @@ export function literalLiteralObject_boostestUseTSTypeLiteralInterface<T>(args?:
 	} as T);
 }
 
-export function literalObjectUnion_boostestUseTSTypeLiteralInterface() {
+export function literalObjectUnion_boostestUseTSTypeLiteralInterface<T>() {
 	return {
 		'type':'A'
 	};
 }
 
-export function literalFunction_boostestUseTSTypeLiteralInterface() {
+export function literalFunction_boostestUseTSTypeLiteralInterface<T>() {
 	return () => {
 	};
 }
 
-export function literalLiteralFunction_boostestUseTSTypeLiteralInterface() {
+export function literalLiteralFunction_boostestUseTSTypeLiteralInterface<T>() {
 	return () => {
 	};
 }
 
-export function literalFunctionUnion_boostestUseTSTypeLiteralInterface() {
-	return () => {
+export function literalFunctionUnion_boostestUseTSTypeLiteralInterface<T>() {
+	return (x: number) => {
+		return 10;
 	};
 }
 
-export function literalBigInt_boostestUseTSTypeLiteralInterface() {
+export function literalBigInt_boostestUseTSTypeLiteralInterface<T>() {
 	return 9007199254740991;
 }
 
-export function literalLiteralBigInt_boostestUseTSTypeLiteralInterface() {
+export function literalLiteralBigInt_boostestUseTSTypeLiteralInterface<T>() {
 	return 123n;
 }
 
-export function literalBigIntUnion_boostestUseTSTypeLiteralInterface() {
+export function literalBigIntUnion_boostestUseTSTypeLiteralInterface<T>() {
 	return 1n;
 }
 
-export function literalSymbol_boostestUseTSTypeLiteralInterface() {
+export function literalSymbol_boostestUseTSTypeLiteralInterface<T>() {
 	return {};
 }
 
-export function literalLiteralSymbol_boostestUseTSTypeLiteralInterface() {
+export function literalLiteralSymbol_boostestUseTSTypeLiteralInterface<T>() {
 	return {};
 }
 
