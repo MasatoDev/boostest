@@ -39,6 +39,8 @@ export type LiteralTypeAlias = {
   tsObject: {};
   tsArray: [];
 
+  symbolLiteral: symbol;
+
   // TODO
   thisType: ThisType<string>;
   array: Array<string>;
@@ -86,6 +88,7 @@ export type LiteralTypeInterface = {
   tsNullLiteral: null;
   tsObject: {};
   tsArray: [];
+  symbolLiteral: symbol;
 
   // TODO
   thisType: ThisType<string>;
@@ -134,6 +137,7 @@ export class LiteralTypeClass {
     public tsNullLiteral: null,
     public tsObject: {},
     public tsArray: [],
+    public symbolLiteral: symbol,
 
     // TODO
     public thisType: ThisType<string>,

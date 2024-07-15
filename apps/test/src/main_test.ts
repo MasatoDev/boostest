@@ -242,10 +242,10 @@ let _ = boostestAccessorClass<typeof AccessorClass>(AccessorClass);
 // let n = boostestTSInterfaceStringUnionType<TSInterfaceStringUnionType>({ type: 'A' });
 // let o = boostestTSAliasMixUnionObjType<TSAliasMixUnionObjType>({ ref_type: 'A', type: 'A' });
 
-// TODO
 /**
  *
  *
+ * TODO:
  * this case is a argument of class is object
  * constructor({ name, age }: { name: string; age: number })
  *
@@ -265,3 +265,17 @@ let _ = boostestMathOperations<MathOperations>();
 
 // TODO: this is not implemented
 // let _ = boostestCallSignatureInterface<CallSignatureInterface>();
+
+/**
+ *
+ *
+ * TODO
+ * constructor signature
+ *
+ *
+ */
+// import { ConstructorSignature, InnerConstructorSignature, ConstructorSignatureInterface } from '@/ts_types/constructor_signature';
+
+// let _ = boostestConstructorSignature<ConstructorSignature>();
+// let _ = boostestInnerConstructorSignature<InnerConstructorSignature>();
+// let _ = boostestConstructorSignatureInterface<ConstructorSignatureInterface>();
