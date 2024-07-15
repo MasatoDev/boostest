@@ -7,7 +7,8 @@ use oxc::{
             Argument, ArrayExpression, ArrowFunctionExpression, BigIntLiteral, BooleanLiteral,
             CallExpression, Expression, FormalParameterKind, FormalParameters, FunctionBody,
             IdentifierReference, NullLiteral, NumericLiteral, ObjectExpression, ObjectPropertyKind,
-            PropertyKey, PropertyKind, StringLiteral, TSLiteral, TSSignature, TSType,
+            PropertyKey, PropertyKind, StringLiteral, TSCallSignatureDeclaration, TSLiteral,
+            TSSignature, TSType, TSTypeName,
         },
         AstBuilder,
     },
@@ -16,6 +17,89 @@ use oxc::{
 };
 
 use crate::boostest_utils;
+
+pub fn is_ts_type_literal(ts_type: &TSType) -> bool {
+    match ts_type {
+        TSType::TSTypeLiteral(_) => true,
+        _ => false,
+    }
+}
+
+pub fn is_call_signature(ts_type: &TSType) -> bool {
+    match ts_type {
+        TSType::TSTypeLiteral(ts_type_literal) => {
+            ts_type_literal
+                .members
+                .iter()
+                .any(|ts_signature| match ts_signature {
+                    TSSignature::TSCallSignatureDeclaration(_) => true,
+                    _ => false,
+                })
+        }
+        _ => false,
+    }
+}
+
+pub fn get_func_expr_from_call_signature_decl<'a>(
+    ast_builder: &AstBuilder<'a>,
+    ts_call_signature: &TSCallSignatureDeclaration<'a>,
+    key_name: &str,
+    mock_func_name: &str,
+) -> Option<Expression<'a>> {
+    let formal_parameters = ast_builder.copy(&ts_call_signature.params);
+
+    if let Some(return_type) = &ts_call_signature.return_type {
+        let ts_type = ast_builder.copy(&return_type.type_annotation);
+
+        let return_expression;
+
+        if let TSType::TSVoidKeyword(_) = ts_type {
+            return_expression = None;
+        } else {
+            return_expression = Some(get_expression(
+                ast_builder,
+                ts_type,
+                key_name,
+                mock_func_name,
+            ));
+        }
+
+        return Some(function_expr(
+            ast_builder,
+            Some(formal_parameters),
+            return_expression,
+        ));
+    }
+
+    return Some(function_expr(ast_builder, Some(formal_parameters), None));
+}
+
+pub fn get_first_call_signature<'a>(
+    ast_builder: &AstBuilder<'a>,
+    ts_type: TSType<'a>,
+    key_name: &str,
+    mock_func_name: &str,
+) -> Option<Expression<'a>> {
+    match ts_type {
+        TSType::TSTypeLiteral(ts_type_literal) => {
+            for ts_type_literal in ts_type_literal.members.iter() {
+                match ts_type_literal {
+                    TSSignature::TSCallSignatureDeclaration(ts_call_signature) => {
+                        return get_func_expr_from_call_signature_decl(
+                            ast_builder,
+                            ts_call_signature,
+                            key_name,
+                            mock_func_name,
+                        );
+                    }
+                    _ => return None,
+                }
+            }
+            None
+        }
+        _ => None,
+    }
+}
 
 const SPAN: Span = Span::new(0, 0);
 
@@ -159,26 +243,47 @@ pub fn object_arg<'a>(ast_builder: &AstBuilder<'a>) -> Argument<'a> {
 // TSType::TSFunctionType
 fn function_parts<'a>(
     ast_builder: &AstBuilder<'a>,
+    formal_parameters: Option<allocator::Box<'a, FormalParameters<'a>>>,
+    return_expression: Option<Expression<'a>>,
 ) -> (
     allocator::Box<'a, FormalParameters<'a>>,
     allocator::Box<'a, FunctionBody<'a>>,
 ) {
-    let params = ast_builder.formal_parameters(
-        SPAN,
-        FormalParameterKind::ArrowFormalParameters,
-        ast_builder.new_vec(),
-        None,
-    );
-    let body = ast_builder.function_body(SPAN, ast_builder.new_vec(), ast_builder.new_vec());
+    let new_params;
 
-    (params, body)
+    if let Some(params) = formal_parameters {
+        new_params = params;
+    } else {
+        new_params = ast_builder.formal_parameters(
+            SPAN,
+            FormalParameterKind::ArrowFormalParameters,
+            ast_builder.new_vec(),
+            None,
+        );
+    }
+
+    let mut statements = ast_builder.new_vec();
+
+    if let Some(return_expr) = return_expression {
+        let return_statement = ast_builder.return_statement(SPAN, Some(return_expr));
+        statements.push(return_statement);
+    }
+
+    let body = ast_builder.function_body(SPAN, ast_builder.new_vec(), statements);
+
+    (new_params, body)
 }
-pub fn function_expr<'a>(ast_builder: &AstBuilder<'a>) -> Expression<'a> {
-    let (params, body) = function_parts(ast_builder);
+pub fn function_expr<'a>(
+    ast_builder: &AstBuilder<'a>,
+    formal_parameters: Option<allocator::Box<'a, FormalParameters<'a>>>,
+    return_expression: Option<Expression<'a>>,
+) -> Expression<'a> {
+    let (params, body) = function_parts(ast_builder, formal_parameters, return_expression);
+
     ast_builder.arrow_function_expression(SPAN, false, false, params, body, None, None)
 }
 pub fn function_arg<'a>(ast_builder: &AstBuilder<'a>) -> Argument<'a> {
-    let (params, body) = function_parts(ast_builder);
+    let (params, body) = function_parts(ast_builder, None, None);
 
     let arrow_func_expr = ArrowFunctionExpression {
         span: SPAN,
@@ -277,6 +382,18 @@ pub fn get_expr_with_ts_literal_type<'a>(
         ),
         _ => object_expr(ast_builder),
     }
+}
+
+pub fn add_ts_as_expr<'a>(
+    ast_builder: &AstBuilder<'a>,
+    ts_as_expr: Expression<'a>,
+) -> Expression<'a> {
+    let id_ref = ast_builder.identifier_reference(SPAN, "T");
+    let allocated_id_ref = ast_builder.alloc(id_ref);
+    let ts_type_name = TSTypeName::IdentifierReference(allocated_id_ref);
+    let ts_type_ref = ast_builder.ts_type_reference(SPAN, ts_type_name, None);
+
+    ast_builder.ts_as_expression(SPAN, ts_as_expr, ts_type_ref)
 }
 
 /**
@@ -426,6 +543,42 @@ pub fn handle_ts_signature<'a>(
             }
             None
         }
+
+        /*
+         * NOTE: Not support yet
+         *
+         * interface Hoge { (): void // callsignature }
+         * Because functions without key cannot be added using interface
+         * const hoge: Hoge = { (): => {} } // cannot be added
+         */
+        // TSSignature::TSCallSignatureDeclaration(ts_call_signature_decl) => {
+        //     println!("TSCallSignatureDeclaration:{:?}", ts_call_signature_decl);
+        //     if let Some(func_expr) = get_func_expr_from_call_signature_decl(
+        //         ast_builder,
+        //         ts_call_signature_decl,
+        //         "call_signature",
+        //         mock_func_name,
+        //     ) {
+        //         let new_key = ast_builder.string_literal(SPAN, "call_signature");
+        //         let new_key_expr = ast_builder.literal_string_expression(new_key);
+        //         let new_prop_key = ast_builder.property_key_expression(new_key_expr);
+
+        //         return Some((new_prop_key, func_expr));
+        //     }
+
+        //     None
+        // }
+        TSSignature::TSMethodSignature(ts_method_singature) => {
+            println!("TSMethodSignature:{:?}", ts_method_singature);
+            None
+        }
+        TSSignature::TSConstructSignatureDeclaration(ts_construct_signature) => {
+            println!(
+                "TSConstructSignatureDeclaration:{:?}",
+                ts_construct_signature
+            );
+            None
+        }
         _ => None,
     }
 }
@@ -477,7 +630,7 @@ pub fn get_expression<'a>(
             if boostest_utils::ast_utils::is_function_type(&ts_type_ref) =>
         {
             // TODO: Array
-            function_expr(ast_builder)
+            function_expr(ast_builder, None, None)
         }
         TSType::TSTypeReference(ts_type_ref)
             if boostest_utils::ast_utils::is_array_type(&ts_type_ref) =>
@@ -494,7 +647,25 @@ pub fn get_expression<'a>(
         TSType::TSBigIntKeyword(_) => bigint_expr(ast_builder, None, None),
         TSType::TSObjectKeyword(_) => object_expr(ast_builder),
         TSType::TSVoidKeyword(_) => null_expr(ast_builder),
-        TSType::TSFunctionType(_) => function_expr(ast_builder),
+        TSType::TSFunctionType(ts_function_type) => {
+            let formal_parameters = ast_builder.copy(&ts_function_type.params);
+
+            let ts_type = ast_builder.copy(&ts_function_type.return_type.type_annotation);
+            let return_expression;
+
+            if let TSType::TSVoidKeyword(_) = ts_type {
+                return_expression = None;
+            } else {
+                return_expression = Some(get_expression(
+                    ast_builder,
+                    ts_type,
+                    key_name,
+                    mock_func_name,
+                ));
+            }
+
+            function_expr(ast_builder, Some(formal_parameters), return_expression)
+        }
         TSType::TSUndefinedKeyword(_) => undefined_expr(ast_builder),
         TSType::TSUnknownKeyword(_) => undefined_expr(ast_builder),
         TSType::TSConditionalType(ts_conditional_type) => {

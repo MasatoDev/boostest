@@ -1,4 +1,4 @@
-export function boostestTSTypeAliasTemplate() {
+export function boostestTSTypeAliasTemplate<T>() {
   return {
     boostestKey: 'boostestValue',
   };

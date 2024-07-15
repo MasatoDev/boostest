@@ -1,3 +1,65 @@
+import {
+  boostestAccessorClass,
+  boostestAnoExportDefaultClass,
+  boostestAnoExportDefaultInterface,
+  boostestAnoExportNamedDeclClass,
+  boostestAnoMixInterface,
+  boostestArgObjClass,
+  boostestCallSignature,
+  boostestExportDefaultClass,
+  boostestExportDefaultClassWithDecl,
+  boostestExportDefaultNamedDecl,
+  boostestExportNamedDecl,
+  boostestExportNamedDeclInterface,
+  boostestIndexSignature,
+  boostestLiteralAliasType,
+  boostestLiteralInterfaceType,
+  boostestLiteralTypeClass,
+  boostestMathOperations,
+  boostestMixClassFirst,
+  boostestMixClassFirst2,
+  boostestMixClassSecond,
+  boostestMixClassSecond2,
+  boostestMixCompTSAlias,
+  boostestMixInterfaceFirst,
+  boostestMixInterfaceFirst2,
+  boostestMixInterfaceSecond,
+  boostestMixInterfaceSecond2,
+  boostestMixTSAliasFirst,
+  boostestMixTSAliasFirst2,
+  boostestMixTSAliasSecond,
+  boostestMixTSAliasSecond2,
+  boostestNestedInterface,
+  boostestNestedPropClass,
+  boostestNestedType,
+  boostestSingleCallSignature,
+  boostestTsLiteralArrayUnionType,
+  boostestTsLiteralFunctionUnionType,
+  boostestTsLiteralNumberUnionType,
+  boostestTsLiteralObjectUnionType,
+  boostestTsLiteralTypeStringUnionType,
+  boostestTsTypeLiteralArray,
+  boostestTsTypeLiteralBoolean,
+  boostestTsTypeLiteralFunction,
+  boostestTsTypeLiteralLiteralArrayType,
+  boostestTsTypeLiteralLiteralFunctionType,
+  boostestTsTypeLiteralLiteralNumberType,
+  boostestTsTypeLiteralLiteralObjectType,
+  boostestTsTypeLiteralLiteralSymbolType,
+  boostestTsTypeLiteralLiteralTypeString,
+  boostestTsTypeLiteralNull,
+  boostestTsTypeLiteralNumber,
+  boostestTsTypeLiteralObject,
+  boostestTsTypeLiteralString,
+  boostestTsTypeLiteralSymbol,
+  boostestTsTypeLiteralUndefined,
+  boostestUseTSTypeLiteralAlias,
+  boostestUseTSTypeLiteralInterface,
+} from './main_test_test_data';
+
+// TODO: not supported yet
+// _ = boostest();
+
 import { LiteralTypeAlias, LiteralTypeClass, LiteralTypeInterface } from '@/ts_types/literal';
 let _ = boostestLiteralAliasType<LiteralTypeAlias>();
 let _ = boostestLiteralInterfaceType<LiteralTypeInterface>();
@@ -194,3 +256,12 @@ let _ = boostestArgObjClass<typeof ArgObjClass>(ArgObjClass);
 
 import { IndexSignature } from '@/ts_types/index_signature';
 let _ = boostestIndexSignature<IndexSignature>();
+
+import { CallSignature, MathOperations, SingleCallSignature, CallSignatureInterface } from '@/ts_types/call_signature';
+import { boostest } from 'boostest';
+let _ = boostestCallSignature<CallSignature>();
+let _ = boostestSingleCallSignature<SingleCallSignature>();
+let _ = boostestMathOperations<MathOperations>();
+
+// TODO: this is not implemented
+// let _ = boostestCallSignatureInterface<CallSignatureInterface>();
