@@ -103,6 +103,30 @@ pub fn get_first_call_signature<'a>(
 
 const SPAN: Span = Span::new(0, 0);
 
+fn symbol_expr<'a>(ast_builder: &AstBuilder<'a>) -> Expression<'a> {
+    let new_id = ast_builder.identifier_reference(SPAN, "Symbol");
+    let new_callee = ast_builder.identifier_reference_expression(new_id);
+    let args = ast_builder.new_vec();
+    ast_builder.call_expression(SPAN, new_callee, args, false, None)
+}
+
+fn symbol_arg<'a>(ast_builder: &AstBuilder<'a>) -> Argument<'a> {
+    let new_id = ast_builder.identifier_reference(SPAN, "Symbol");
+    let new_callee = ast_builder.identifier_reference_expression(new_id);
+    let args = ast_builder.new_vec();
+
+    let callee_expr = CallExpression {
+        span: SPAN,
+        callee: new_callee,
+        arguments: args,
+        optional: false,
+        type_parameters: None,
+    };
+
+    let allocated_callee_expr = ast_builder.alloc(callee_expr);
+    Argument::CallExpression(allocated_callee_expr)
+}
+
 // TSType::TSStringKeyword
 fn string_literal<'a>(
     ast_builder: &AstBuilder<'a>,
@@ -527,6 +551,14 @@ pub fn handle_ts_signature<'a>(
                 let key_ts_type = ast_builder.copy(&first.type_annotation.type_annotation);
                 let ts_type = ast_builder.copy(&ts_index_signature.type_annotation.type_annotation);
 
+                /*
+                 * TODO: Not supported
+                 * [Symbol_Key: symbol]: boolean;
+                 */
+                if let TSType::TSSymbolKeyword(_) = key_ts_type {
+                    return None;
+                }
+
                 let key = get_expression(
                     ast_builder,
                     key_ts_type,
@@ -782,10 +814,7 @@ pub fn get_expression<'a>(
             // TODO
             ast_builder.object_expression(SPAN, ast_builder.new_vec(), None)
         }
-        TSType::TSSymbolKeyword(_) => {
-            // TODO
-            ast_builder.object_expression(SPAN, ast_builder.new_vec(), None)
-        }
+        TSType::TSSymbolKeyword(_) => symbol_expr(ast_builder),
         TSType::TSImportType(_) => {
             // TODO
             ast_builder.object_expression(SPAN, ast_builder.new_vec(), None)
@@ -1030,10 +1059,7 @@ pub fn get_arg<'a>(
             // TODO
             object_arg(ast_builder)
         }
-        TSType::TSSymbolKeyword(_) => {
-            // TODO
-            object_arg(ast_builder)
-        }
+        TSType::TSSymbolKeyword(_) => symbol_arg(ast_builder),
         TSType::TSImportType(_) => {
             // TODO
             object_arg(ast_builder)
