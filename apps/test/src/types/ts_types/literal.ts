@@ -39,7 +39,12 @@ export type LiteralTypeAlias = {
   tsObject: {};
   tsArray: [];
 
+  // constructorType: abstract new (...args: any) => any;
+
   symbolLiteral: symbol;
+  tsTuple: [string, number, any, RefType, RefTypeInterface];
+  tsNamedTuple: [name: string, ver: number, ref: RefType, refInterface: RefTypeInterface];
+  intersectionType: RefType & RefTypeInterface & { name: string; age: number };
 
   // TODO
   thisType: ThisType<string>;
@@ -88,7 +93,11 @@ export type LiteralTypeInterface = {
   tsNullLiteral: null;
   tsObject: {};
   tsArray: [];
+
   symbolLiteral: symbol;
+  tsTuple: [string, number, any, RefType, RefTypeInterface];
+  tsNamedTuple: [name: string, ver: number, ref: RefType, refInterface: RefTypeInterface];
+  intersectionType: RefType & RefTypeInterface & { name: string; age: number };
 
   // TODO
   thisType: ThisType<string>;
@@ -137,7 +146,11 @@ export class LiteralTypeClass {
     public tsNullLiteral: null,
     public tsObject: {},
     public tsArray: [],
+
     public symbolLiteral: symbol,
+    public tsTuple: [string, number, any, RefType, RefTypeInterface],
+    public tsNamedTuple: [name: string, ver: number, ref: RefType, refInterface: RefTypeInterface],
+    public intersectionType: RefType & RefTypeInterface & { name: string; age: number },
 
     // TODO
     public thisType: ThisType<string>,
