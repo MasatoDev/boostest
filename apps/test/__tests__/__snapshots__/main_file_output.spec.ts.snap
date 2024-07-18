@@ -335,6 +335,75 @@ export function boostestCallSignature<T>() {
 	};
 }
 
+export function boostestComplexChipsType<T>(args?: Partial<T>): T {
+	return ({
+		'name':'test string data',
+		'age':10,
+		'sex':1,
+		'short_name':'john',
+		'favorite':favorite_CalbeeLightlySalted_boostestComplexChipsType<any>(),
+		'mostFav':mostFav_PringlesSourCreamAndOnion_boostestComplexChipsType<any>(),
+		'func':() => {
+		},
+		'undefinedKey':undefined,
+		'anyKey':'any',
+		'nullKey':null,
+		'optionalKey':'test string data',
+		'unknownKey':undefined,
+		'thisKey':{},
+		'conditionalKey':conditionalKey_KettleBrandSeaSaltAndVinegar_boostestComplexChipsType<any>(),
+		'objectKey':{},
+		'voidKey':null,
+		'indexedKey':{},
+		'intersectionKey':{
+			...intersectionKey_LayClassic_boostestComplexChipsType<any>(),
+			...intersectionKey_KoikeyaPridePotato_boostestComplexChipsType<any>()
+		},
+		'arrayKey':[],
+		...args
+	} as T);
+}
+
+export function favorite_CalbeeLightlySalted_boostestComplexChipsType<T>(args?: Partial<T>): T {
+	return ({
+		'name':'Calbee Lightly Salted',
+		'price':120,
+		...args
+	} as T);
+}
+
+export function mostFav_PringlesSourCreamAndOnion_boostestComplexChipsType<T>(args?: Partial<T>): T {
+	return ({
+		'name':'Pringles Sour Cream & Onion',
+		'price':200,
+		...args
+	} as T);
+}
+
+export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestComplexChipsType<T>(args?: Partial<T>): T {
+	return ({
+		'name':'Kettle Brand Sea Salt & Vinegar',
+		'price':250,
+		...args
+	} as T);
+}
+
+export function intersectionKey_LayClassic_boostestComplexChipsType<T>(args?: Partial<T>): T {
+	return ({
+		'name':"Lay's Classic",
+		'price':130,
+		...args
+	} as T);
+}
+
+export function intersectionKey_KoikeyaPridePotato_boostestComplexChipsType<T>(args?: Partial<T>): T {
+	return ({
+		'name':'Koikeya Pride Potato',
+		'price':150,
+		...args
+	} as T);
+}
+
 export function boostestExportDefaultClass<T extends abstract new (...args: any) => any>(ExportDefaultClass): T {
 	return new ExportDefaultClass('test string data', chips_ComplexInterfaceChips_boostestExportDefaultClass<any>());
 }

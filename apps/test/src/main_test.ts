@@ -6,6 +6,7 @@ import {
   boostestAnoMixInterface,
   boostestArgObjClass,
   boostestCallSignature,
+  boostestComplexChipsType,
   boostestExportDefaultClass,
   boostestExportDefaultClassWithDecl,
   boostestExportDefaultNamedDecl,
@@ -164,6 +165,9 @@ let _ = boostestNestedPropClass<typeof NestedPropClass>(NestedPropClass);
  *
  *
  */
+import { ComplexChipsType } from './types/export_decl';
+let _ = boostestComplexChipsType<ComplexChipsType>();
+
 import AnoExportDefaultInterface from '@/export_default_interface';
 let a = boostestAnoExportDefaultInterface<AnoExportDefaultInterface>({
   name: 'overridden',
