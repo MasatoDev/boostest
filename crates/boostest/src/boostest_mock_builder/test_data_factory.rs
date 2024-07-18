@@ -1002,56 +1002,22 @@ pub fn get_arg<'a>(
         TSType::TSFunctionType(_) => function_arg(ast_builder),
         TSType::TSUndefinedKeyword(_) => undefined_arg(ast_builder),
         TSType::TSUnknownKeyword(_) => undefined_arg(ast_builder),
-        TSType::TSConditionalType(_ts_conditional_type) => {
-            // TODO
-            let object_expr = ObjectExpression {
-                span: SPAN,
-                properties: ast_builder.new_vec(),
-                trailing_comma: None,
-            };
-            let argument_item = ast_builder.alloc(object_expr);
-            Argument::ObjectExpression(argument_item)
-
-            // let ts_type = ast_builder.copy(&ts_conditional_type.true_type);
-            // let new = get_expression(ts_type, key_name);
-            // return new;
+        TSType::TSConditionalType(ts_conditional_type) => {
+            let ts_type = ast_builder.copy(&ts_conditional_type.true_type);
+            get_arg(ast_builder, ts_type, key_name, mock_func_name)
         }
-        TSType::TSUnionType(_box_ts_union_type) => {
-            // TODO
-            let object_expr = ObjectExpression {
-                span: SPAN,
-                properties: ast_builder.new_vec(),
-                trailing_comma: None,
-            };
-            let argument_item = ast_builder.alloc(object_expr);
-            Argument::ObjectExpression(argument_item)
-
-            // let ts_union_type = &mut box_ts_union_type.unbox();
-            // let first_union_type = ts_union_type.types.first_mut();
-
-            // if let Some(first_type) = first_union_type {
-            //     let ts_type = ast_builder.copy(first_type);
-            //     let new = get_expression(ts_type, key_name);
-            //     return new;
-            // }
-
-            // let new_val = self
-            //     .ast_builder
-            //     .string_literal(SPAN, "default_val(unimplemented)");
-            // ast_builder.literal_string_expression(new_val)
+        TSType::TSUnionType(box_ts_union_type) => {
+            let ts_union_type = &mut box_ts_union_type.unbox();
+            let first_union_type = ts_union_type.types.first_mut();
+            if let Some(first_type) = first_union_type {
+                let ts_type = ast_builder.copy(first_type);
+                return get_arg(ast_builder, ts_type, key_name, mock_func_name);
+            }
+            // fallback
+            null_arg(ast_builder)
         }
         TSType::TSNeverKeyword(_) => null_arg(ast_builder),
         TSType::TSArrayType(_) => array_arg(ast_builder, None),
-        TSType::TSThisType(_) => {
-            // TODO
-            // error
-            object_arg(ast_builder, None)
-        }
-        TSType::TSMappedType(_) => {
-            // {[K in keyof T]: T[K]}
-            // TODO
-            object_arg(ast_builder, None)
-        }
         TSType::TSTupleType(ts_tuple_type) => {
             let mut new_elements = ast_builder.new_vec();
             for element in &ts_tuple_type.element_types {
@@ -1062,21 +1028,13 @@ pub fn get_arg<'a>(
             }
             array_arg(ast_builder, Some(new_elements))
         }
-        TSType::TSNamedTupleMember(_) => {
-            // [name: string, age: number]
-            // TODO
-            object_arg(ast_builder, None)
-        }
-        TSType::TSQualifiedName(_) => {
-            // TODO
-            // Namespace.MyType
-            object_arg(ast_builder, None)
+        TSType::TSNamedTupleMember(ts_named_tuple_member) => {
+            let ts_type = ast_builder.copy(&ts_named_tuple_member.element_type);
+            get_arg(ast_builder, ts_type, key_name, mock_func_name)
         }
         TSType::TSTypeLiteral(ts_type_literal) => {
             // {name: string, age: number}
             // { x: number; y: number; }`
-            // TODO
-            // object_arg(ast_builder)
             handle_ts_signatures_with_args(
                 ast_builder,
                 &ts_type_literal.members,
@@ -1084,6 +1042,37 @@ pub fn get_arg<'a>(
                 mock_func_name,
                 Some(key_name.to_string()),
             )
+        }
+        TSType::TSIntersectionType(ts_intersection_type) => {
+            let mut temp_expr = ast_builder.new_vec();
+            for ts_type in &ts_intersection_type.types {
+                let new_ts_type = ast_builder.copy(ts_type);
+                let expr = get_expression(ast_builder, new_ts_type, key_name, mock_func_name);
+                let spread_expr = ast_builder.spread_element(SPAN, expr);
+                let obj_prop_expr = ObjectPropertyKind::SpreadProperty(spread_expr);
+                temp_expr.push(obj_prop_expr);
+            }
+
+            object_arg(ast_builder, Some(temp_expr))
+        }
+        TSType::TSLiteralType(literal_type) => {
+            get_arg_with_ts_literal_type(ast_builder, &literal_type.literal)
+        }
+        TSType::TSSymbolKeyword(_) => symbol_arg(ast_builder),
+        TSType::TSThisType(_) => {
+            // TODO
+            // error
+            object_arg(ast_builder, None)
+        }
+        TSType::TSMappedType(_) => {
+            // {[K in keyof T]: T[K]}
+            // TODO
+            object_arg(ast_builder, None)
+        }
+        TSType::TSQualifiedName(_) => {
+            // TODO
+            // Namespace.MyType
+            object_arg(ast_builder, None)
         }
         TSType::TSTypeOperatorType(_) => {
             // keyof T
@@ -1119,22 +1108,6 @@ pub fn get_arg<'a>(
             // TODO
             object_arg(ast_builder, None)
         }
-        TSType::TSIntersectionType(ts_intersection_type) => {
-            let mut temp_expr = ast_builder.new_vec();
-            for ts_type in &ts_intersection_type.types {
-                let new_ts_type = ast_builder.copy(ts_type);
-                let expr = get_expression(ast_builder, new_ts_type, key_name, mock_func_name);
-                let spread_expr = ast_builder.spread_element(SPAN, expr);
-                let obj_prop_expr = ObjectPropertyKind::SpreadProperty(spread_expr);
-                temp_expr.push(obj_prop_expr);
-            }
-
-            object_arg(ast_builder, Some(temp_expr))
-        }
-        TSType::TSLiteralType(literal_type) => {
-            get_arg_with_ts_literal_type(ast_builder, &literal_type.literal)
-        }
-
         TSType::JSDocNullableType(_) => {
             // TODO
             object_arg(ast_builder, None)
@@ -1143,7 +1116,6 @@ pub fn get_arg<'a>(
             // TODO
             object_arg(ast_builder, None)
         }
-        TSType::TSSymbolKeyword(_) => symbol_arg(ast_builder),
         TSType::TSImportType(_) => {
             // TODO
             object_arg(ast_builder, None)

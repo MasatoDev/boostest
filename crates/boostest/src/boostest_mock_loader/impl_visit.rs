@@ -127,9 +127,19 @@ impl<'a> VisitMut<'a> for MockAstLoader {
                 Statement::TSInterfaceDeclaration(decl) => {
                     self.visit_ts_interface_declaration(decl);
                 }
-                Statement::TSExportAssignment(_ts_export_assignment) => {
-                    // not implemented (commonjs)
-                    // println!("TSExportAssignment: {:?}", ts_export_assignment);
+                Statement::TSExportAssignment(ts_export_assignment) => {
+                    /*
+                     * TODO: support commonjs
+                     * export = ClassName;
+                     *
+                     */
+
+                    // if let Expression::Identifier(id) = &ts_export_assignment.expression {
+                    //     self.set_default_import_name(
+                    //         &String::from("default"),
+                    //         &id.name.to_string(),
+                    //     );
+                    // }
                 }
                 Statement::ExportDefaultDeclaration(export_default_decl) => {
                     self.visit_export_default_declaration(export_default_decl);

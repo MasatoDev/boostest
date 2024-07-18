@@ -1,15 +1,17 @@
 export function boostestFormDataVisitorHelpers<T>(args?: Partial<T>): T {
 	return ({
-		'defaultVisitor':defaultVisitor_boostestFormDataVisitorHelpers(),
-		'convertValue':() => {
+		'defaultVisitor':defaultVisitor_SerializerVisitor_boostestFormDataVisitorHelpers<any>(),
+		'convertValue':(value: any) => {
+			return 'any';
 		},
-		'isVisitable':() => {
+		'isVisitable':(value: any) => {
+			return true;
 		},
 		...args
 	} as T);
 }
 
-export function defaultVisitor_boostestFormDataVisitorHelpers<T>(args?: Partial<T>): T {
+export function defaultVisitor_SerializerVisitor_boostestFormDataVisitorHelpers<T>(args?: Partial<T>): T {
 	return ({
 		...args
 	} as T);
