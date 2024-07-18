@@ -958,14 +958,14 @@ export function refTypeInterface_RefTypeInterface_boostestLiteralInterfaceType<T
 
 export function boostestLiteralTypeClass<T extends abstract new (...args: any) => any>(LiteralTypeClass): T {
 	return new LiteralTypeClass('test string data', 10, 9007199254740991, true, null, undefined, 'any', undefined, null, {}, null, () => {
-	}, [], referenceLiteral_RefType_boostestLiteralTypeClass<any>(), {}, 'string', 20, 10000000000000n, true, null, {}, [], Symbol(), ['test string data', 10, 'any', tsTuple_RefType_boostestLiteralTypeClass<any>(), tsTuple_RefTypeInterface_boostestLiteralTypeClass<any>()], ['test string data', 10, tsNamedTuple_RefType_boostestLiteralTypeClass<any>(), tsNamedTuple_RefTypeInterface_boostestLiteralTypeClass<any>()], {
+	}, [], referenceLiteral_RefType_boostestLiteralTypeClass<any>(), 'test string data', 'string', 20, 10000000000000n, true, null, {}, [], Symbol(), ['test string data', 10, 'any', tsTuple_RefType_boostestLiteralTypeClass<any>(), tsTuple_RefTypeInterface_boostestLiteralTypeClass<any>(), 'test string data'], ['test string data', 10, tsNamedTuple_RefType_boostestLiteralTypeClass<any>(), tsNamedTuple_RefTypeInterface_boostestLiteralTypeClass<any>(), 10], {
 		...intersectionType_RefType_boostestLiteralTypeClass<any>(),
 		...intersectionType_RefTypeInterface_boostestLiteralTypeClass<any>(),
 		...{
 			'name':'test string data',
 			'age':10
 		}
-	}, {}, [], {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, refTypeInterface_RefTypeInterface_boostestLiteralTypeClass<any>());
+	}, true, {}, [], {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, refTypeInterface_RefTypeInterface_boostestLiteralTypeClass<any>());
 }
 
 export function referenceLiteral_RefType_boostestLiteralTypeClass<T>(args?: Partial<T>): T {

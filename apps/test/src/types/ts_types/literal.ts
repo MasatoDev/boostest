@@ -148,9 +148,10 @@ export class LiteralTypeClass {
     public tsArray: [],
 
     public symbolLiteral: symbol,
-    public tsTuple: [string, number, any, RefType, RefTypeInterface],
-    public tsNamedTuple: [name: string, ver: number, ref: RefType, refInterface: RefTypeInterface],
+    public tsTuple: [string, number, any, RefType, RefTypeInterface, string],
+    public tsNamedTuple: [name: string, ver: number, ref: RefType, refInterface: RefTypeInterface, hello: number],
     public intersectionType: RefType & RefTypeInterface & { name: string; age: number },
+    public conditionalType: string extends number ? true : false,
 
     // TODO
     public thisType: ThisType<string>,
