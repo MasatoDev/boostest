@@ -5,6 +5,7 @@ import {
   boostestAnoExportNamedDeclClass,
   boostestAnoMixInterface,
   boostestArgObjClass,
+  boostestArgObjClass2,
   boostestCallSignature,
   boostestComplexChipsType,
   boostestExportDefaultClass,
@@ -62,9 +63,9 @@ import {
 // _ = boostest();
 
 import { LiteralTypeAlias, LiteralTypeClass, LiteralTypeInterface } from '@/ts_types/literal';
-let _ = boostestLiteralAliasType<LiteralTypeAlias>();
-let _ = boostestLiteralInterfaceType<LiteralTypeInterface>();
-let _ = boostestLiteralTypeClass<typeof LiteralTypeClass>(LiteralTypeClass);
+let literalAlias = boostestLiteralAliasType<LiteralTypeAlias>();
+literalAlias = boostestLiteralInterfaceType<LiteralTypeInterface>();
+boostestLiteralTypeClass<typeof LiteralTypeClass>(LiteralTypeClass);
 
 import {
   // string
@@ -112,9 +113,9 @@ import {
   UseTSTypeLiteralInterface,
 } from '@/ts_types/ts_type_literal';
 
-let _ = boostestTsTypeLiteralString<TsTypeLiteralString>();
-let _ = boostestTsTypeLiteralLiteralTypeString<TsTypeLiteralLiteralTypeString>();
-let _ = boostestTsLiteralTypeStringUnionType<TsLiteralTypeStringUnionType>();
+boostestTsTypeLiteralString<TsTypeLiteralString>();
+boostestTsTypeLiteralLiteralTypeString<TsTypeLiteralLiteralTypeString>();
+boostestTsLiteralTypeStringUnionType<TsLiteralTypeStringUnionType>();
 
 let _ = boostestTsTypeLiteralNumber<TsTypeLiteralNumber>();
 let _ = boostestTsLiteralNumberUnionType<TsLiteralNumberUnionType>();
@@ -256,7 +257,9 @@ let _ = boostestAccessorClass<typeof AccessorClass>(AccessorClass);
  *
  */
 import { ArgObjClass } from './types/pattern/arg_obj_class';
+import { ArgObjClass2 } from './types/pattern/arg_obj_class2';
 let _ = boostestArgObjClass<typeof ArgObjClass>(ArgObjClass);
+let _ = boostestArgObjClass2<typeof ArgObjClass2>(ArgObjClass2);
 
 import { IndexSignature } from '@/ts_types/index_signature';
 let _ = boostestIndexSignature<IndexSignature>();

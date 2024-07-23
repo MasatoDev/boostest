@@ -5,7 +5,12 @@ use std::path::Path;
 extern crate napi_derive;
 
 #[napi]
-pub fn boostest(path: String) {
-  let path = Path::new(&path);
-  call_boostest(path);
+pub fn boostest(path: String, ts_config_path: Option<String>) {
+  if let Some(ts_config_path) = ts_config_path {
+    let ts_config_path = Path::new(&ts_config_path);
+    call_boostest(path, Some(ts_config_path));
+    return;
+  }
+
+  call_boostest(path, None);
 }

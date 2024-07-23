@@ -12,13 +12,23 @@ use indicatif::{ProgressBar, ProgressStyle};
 use oxc::{parser::Parser, span::SourceType};
 use std::path::Path;
 
-pub fn call_boostest(path: &Path) {
-    let setting = setting::get_setting().unwrap_or(Setting {
+pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
+    let mut setting = setting::get_setting().unwrap_or(Setting {
         target: None,
         name: None,
         tsconfig: None,
         out_file_name: None,
     });
+
+    // Preference for command line arguments
+    setting.set_target_path(path);
+
+    // Preference for command line arguments
+    if let Some(ts_config_path) = ts_config_path {
+        let ts_config_path = ts_config_path.to_path_buf();
+        setting.set_tsconfig(ts_config_path)
+    }
+
     let out_file_name = setting.out_file_name.unwrap_or(String::from("boostest"));
 
     let source_type = SourceType::default()
@@ -26,29 +36,11 @@ pub fn call_boostest(path: &Path) {
         .with_module(true)
         .with_typescript(true);
 
-    if let Ok(file) = utils::read(&path) {
-        let mut mock_loader = MockLoader::new(setting.name.clone());
-        let allocator = oxc::allocator::Allocator::default();
-        let parser = Parser::new(&allocator, &file, source_type);
-        let mut program = parser.parse().program;
-
-        boostest_utils::module_resolver::load_mock(
-            &mut mock_loader,
-            &mut program,
-            path,
-            &setting.tsconfig,
-        );
-        if let Err(e) = task::handle_main_task(&mut mock_loader, path, &out_file_name) {
-            println!("{}:{}", format!("failed create test data file").red(), e);
-        }
-
-        return;
-    }
-
     let target = setting.target.unwrap_or_else(|| {
         println!("{}", "Not found target files".red());
         std::process::exit(0);
     });
+
     let contents = utils::read_matching_files(target, &out_file_name).unwrap_or_else(|e| {
         println!("{}:{}", "Target files cloud not parsed".red(), e);
         std::process::exit(0);

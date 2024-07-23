@@ -12,6 +12,22 @@ pub struct Setting {
     pub out_file_name: Option<String>,
 }
 
+impl Setting {
+    pub fn set_target_path(&mut self, target_path: String) {
+        if target_path.is_empty() {
+            return;
+        }
+
+        let mut temp_vec = Vec::new();
+        temp_vec.push(target_path);
+        self.target = Some(temp_vec);
+    }
+
+    pub fn set_tsconfig(&mut self, tsconfig: PathBuf) {
+        self.tsconfig = Some(tsconfig);
+    }
+}
+
 pub fn get_setting() -> anyhow::Result<Setting> {
     let cur_dir = std::env::current_dir()?;
 

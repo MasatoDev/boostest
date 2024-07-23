@@ -28,6 +28,7 @@ regex = "1.10.4"
 glob = "0.3.1"
 colored = "2"
 indicatif = "0.17.8"
+rayon = "1.10"
 
 self_cell          = "1.0.4"
 smallvec           = "1.13.2"

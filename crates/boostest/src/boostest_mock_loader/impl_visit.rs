@@ -7,9 +7,9 @@ use oxc::ast::ast::{
 };
 use oxc::ast::ast::{
     BindingPatternKind, Class, ClassBody, ExportDefaultDeclaration, ExportDefaultDeclarationKind,
-    ExportNamedDeclaration, MethodDefinition, PropertyDefinition, TSInterfaceDeclaration,
-    TSModuleReference, TSSignature, TSType, TSTypeAliasDeclaration, TSTypeParameterInstantiation,
-    VariableDeclarator,
+    ExportNamedDeclaration, ExpressionStatement, MethodDefinition, PropertyDefinition,
+    TSInterfaceDeclaration, TSModuleReference, TSSignature, TSType, TSTypeAliasDeclaration,
+    TSTypeParameterInstantiation, VariableDeclarator,
 };
 use oxc::ast::VisitMut;
 
@@ -26,6 +26,9 @@ impl<'a> VisitMut<'a> for MockLoader {
                 Statement::VariableDeclaration(decl) => {
                     self.visit_variable_declaration(decl);
                 }
+                Statement::ExpressionStatement(expr_stmt) => {
+                    self.visit_expression_statement(expr_stmt);
+                }
                 _ => {}
             }
         }
@@ -41,6 +44,18 @@ impl<'a> VisitMut<'a> for MockLoader {
     fn visit_variable_declarator(&mut self, declarator: &mut VariableDeclarator<'a>) {
         if let Some(Expression::CallExpression(call_expr)) = &mut declarator.init {
             self.visit_call_expression(call_expr)
+        }
+    }
+
+    fn visit_expression_statement(&mut self, stmt: &mut ExpressionStatement<'a>) {
+        match &mut stmt.expression {
+            Expression::CallExpression(call_expr) => self.visit_call_expression(call_expr),
+            Expression::AssignmentExpression(assignment_expr) => {
+                if let Expression::CallExpression(call_expr) = &mut assignment_expr.right {
+                    self.visit_call_expression(call_expr)
+                }
+            }
+            _ => {}
         }
     }
 
@@ -127,7 +142,7 @@ impl<'a> VisitMut<'a> for MockAstLoader {
                 Statement::TSInterfaceDeclaration(decl) => {
                     self.visit_ts_interface_declaration(decl);
                 }
-                Statement::TSExportAssignment(ts_export_assignment) => {
+                Statement::TSExportAssignment(_ts_export_assignment) => {
                     /*
                      * TODO: support commonjs
                      * export = ClassName;
