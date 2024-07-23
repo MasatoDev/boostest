@@ -36,7 +36,7 @@ const test = boostestTest<typeof Test>(Test);
 **With a single command**, you can generate test data for User types, Job instances, and Test classes.
 
 ```bash
-npx boostest ./test.ts --tsconfig ./tsconfig.json
+npx boostest src/test.ts --tsconfig tsconfig.json
 ```
 
 
@@ -73,7 +73,7 @@ yarn add -D boostest
 
 
 ```bash
-Ex) boostest ./target_file_path.ts -t ./tsconfig.json
+Ex) boostest target_file_path.ts -t tsconfig.json
 
 Positionals:
   target_file_path  Specify target file in glob format                  [string]

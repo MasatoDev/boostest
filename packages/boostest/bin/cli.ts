@@ -44,8 +44,6 @@ yargs(hideBin(process.argv))
       const path = argv.target_file_path;
       const tsconfig = argv.tsconfig;
 
-      console.log('path', path);
-
       if (!path && !tsconfig) {
         console.log(blue + 'arguments are not set.' + reset);
         console.log(blue + 'boostest with boostest.setting.json' + reset);
@@ -70,7 +68,7 @@ yargs(hideBin(process.argv))
 
       if (path && tsconfig) {
         console.log(blue + `target file: ${path}` + reset);
-        console.log(blue + `tsconfig file: ${tsconfig}` + reset);
+        console.log(blue + `tsconfig: ${tsconfig}` + reset);
         boostest(path, tsconfig);
         return;
       }
