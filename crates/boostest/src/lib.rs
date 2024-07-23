@@ -47,7 +47,7 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
     });
 
     if contents.is_empty() {
-        println!("{}", "Not found target files".red());
+        println!("{}", "Not found target code".red());
         return;
     }
 
