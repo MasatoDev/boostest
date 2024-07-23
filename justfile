@@ -10,6 +10,7 @@ setup:
 
 debug_build:
   pnpm --filter boostest build:debug
+  pnpm --filter boostest bin:build
 
 example:
   just debug_build
@@ -24,6 +25,15 @@ snapshot:
   pnpm --filter test boostest
   pnpm --filter test boostest:direct
   pnpm --filter test snapshot  
+
+test_cli:
+  just debug_build
+  pnpm --filter test boostest:version
+  pnpm --filter test boostest:help
+  pnpm --filter test boostest:cli:nofile
+  pnpm --filter test boostest:cli:failed
+  pnpm --filter test boostest:cli:tsconfig
+  pnpm --filter test boostest:cli
 
 test:
   just debug_build
@@ -59,6 +69,10 @@ pre_release_boostest:
   # npm version minor
   # npm version preminor
   # npm version prerelease
+  
+cl:
+  pnpm --filter boostest bin:build
+  pnpm --filter example start:boostest
 
   
 

@@ -308,7 +308,8 @@ export function intersectionKey_KoikeyaPridePotato_boostestAnoMixInterface<T>(ar
 export function boostestArgObjClass<T extends abstract new (...args: any) => any>(ArgObjClass): T {
 	return new ArgObjClass({
 		'name':'test string data',
-		'age':10,
+		'age':10
+	}, {
 		'obj_key':object_obj_key_ObjKey_boostestArgObjClass<any>(),
 		'obj_key2':object_obj_key2_ObjKey_boostestArgObjClass<any>()
 	});
@@ -323,6 +324,32 @@ export function object_obj_key_ObjKey_boostestArgObjClass<T>(args?: Partial<T>):
 }
 
 export function object_obj_key2_ObjKey_boostestArgObjClass<T>(args?: Partial<T>): T {
+	return ({
+		'obj_name':'test string data',
+		'obj_val':10,
+		...args
+	} as T);
+}
+
+export function boostestArgObjClass2<T extends abstract new (...args: any) => any>(ArgObjClass2): T {
+	return new ArgObjClass2({
+		'name':'test string data',
+		'age':10
+	}, {
+		'obj_key':object_obj_key_ObjKey_boostestArgObjClass2<any>(),
+		'obj_key2':object_obj_key2_ObjKey_boostestArgObjClass2<any>()
+	});
+}
+
+export function object_obj_key_ObjKey_boostestArgObjClass2<T>(args?: Partial<T>): T {
+	return ({
+		'obj_name':'test string data',
+		'obj_val':10,
+		...args
+	} as T);
+}
+
+export function object_obj_key2_ObjKey_boostestArgObjClass2<T>(args?: Partial<T>): T {
 	return ({
 		'obj_name':'test string data',
 		'obj_val':10,

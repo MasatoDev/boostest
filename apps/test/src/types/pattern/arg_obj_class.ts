@@ -9,7 +9,7 @@ export class ArgObjClass {
   obj_key: ObjKey;
   obj_key2: ObjKey;
 
-  constructor({ name, age, obj_key, obj_key2 }: { name: string; age: number; obj_key: ObjKey; obj_key2: ObjKey }) {
+  constructor({ name, age }: { name: string; age: number }, { obj_key, obj_key2 }: { obj_key: ObjKey; obj_key2: ObjKey }) {
     this.name = name;
     this.age = age;
     this.obj_key = obj_key;

@@ -168,6 +168,7 @@ pub fn load_mock<'a>(
     // add target functions to mock ast loader
     mock_loader.visit_statements(&mut program.body);
 
+    // NOTE: if this loop change to multi-thread, the program that is share mutation variable is need change to something like Arc<Mutex<Program>>
     for (_, mock_ast_loader) in mock_loader.mocks.iter_mut() {
         if let Err(e) = resolve_mock_target_ast(mock_ast_loader, program, path, ts_config_path, 1) {
             let name = &mock_ast_loader.mock_func_name;

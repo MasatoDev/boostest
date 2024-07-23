@@ -48,6 +48,7 @@ pub fn handle_main_task(
 
     let mock_ast_loader_vec = mock_loader.get_sorted_mocks();
 
+    // NOTE: if this loop change to multi-thread, the f(file) is need change to Arc<Mutex<File>>
     for mock_ast_loader in mock_ast_loader_vec {
         if mock_ast_loader.is_empty_code() {
             println!(
