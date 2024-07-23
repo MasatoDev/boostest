@@ -25,8 +25,11 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
 
     // Preference for command line arguments
     if let Some(ts_config_path) = ts_config_path {
-        let ts_config_path = ts_config_path.to_path_buf();
-        setting.set_tsconfig(ts_config_path)
+        if let Ok(cur_dir) = std::env::current_dir() {
+            if let Ok(tsconfig_path) = utils::normalize_and_resolve_path(&cur_dir, ts_config_path) {
+                setting.set_tsconfig(tsconfig_path);
+            }
+        }
     }
 
     let out_file_name = setting.out_file_name.unwrap_or(String::from("boostest"));
@@ -47,7 +50,7 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
     });
 
     if contents.is_empty() {
-        println!("{}", "Not found target files".red());
+        println!("{}", "Not found target code".red());
         return;
     }
 
