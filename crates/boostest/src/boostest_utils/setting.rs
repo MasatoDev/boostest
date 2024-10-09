@@ -1,6 +1,6 @@
 use super::utils;
 
-use std::fs::File;
+use std::fs::{self, File};
 use std::io::BufReader;
 use std::path::PathBuf;
 
@@ -9,6 +9,7 @@ pub struct Setting {
     pub target: Option<Vec<String>>,
     pub name: Option<String>,
     pub tsconfig: Option<PathBuf>,
+    pub project_root_path: Option<PathBuf>,
     pub out_file_name: Option<String>,
 }
 
@@ -24,6 +25,13 @@ impl Setting {
     }
 
     pub fn set_tsconfig(&mut self, tsconfig: PathBuf) {
+        match fs::canonicalize(&tsconfig) {
+            Ok(absolute_path) => {
+                self.project_root_path = Some(absolute_path);
+            }
+            Err(e) => println!("Error getting absolute path: {:?}", e),
+        }
+
         self.tsconfig = Some(tsconfig);
     }
 }
@@ -45,6 +53,7 @@ pub fn get_setting() -> anyhow::Result<Setting> {
         target: None,
         name: None,
         tsconfig: None,
+        project_root_path: None,
         out_file_name: None,
     };
 
@@ -75,11 +84,20 @@ pub fn get_setting() -> anyhow::Result<Setting> {
             "tsconfig" => {
                 if let serde_json::Value::String(val) = value {
                     let ps = PathBuf::from(val);
+                    println!("ps: {:?}", ps);
 
                     if let Some(parent) = &config_path.parent() {
-                        let result =
+                        let relative_path =
                             utils::normalize_and_resolve_path(parent, &ps).unwrap_or(ps.clone());
-                        setting.tsconfig = Some(result);
+
+                        match fs::canonicalize(&relative_path) {
+                            Ok(absolute_path) => {
+                                setting.project_root_path = Some(absolute_path);
+                            }
+                            Err(e) => println!("Error getting absolute path: {:?}", e),
+                        }
+
+                        setting.tsconfig = Some(relative_path);
                     } else {
                         setting.tsconfig = Some(ps);
                     }

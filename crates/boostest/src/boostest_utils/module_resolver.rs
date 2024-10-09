@@ -6,6 +6,7 @@ use oxc::{ast::ast::Program, parser::Parser, span::SourceType};
 use oxc_resolver::{Resolution, ResolveOptions, Resolver, TsconfigOptions, TsconfigReferences};
 use std::path::{Path, PathBuf};
 
+use crate::boostest_debug::tsserver;
 use crate::boostest_mock_loader::mock_ast_loader::MockAstLoader;
 use crate::boostest_mock_loader::mock_loader::MockLoader;
 use crate::boostest_utils::utils;
@@ -15,11 +16,14 @@ fn resolve_specifier(
     specifier: &str,
     ts_config_path: &Option<PathBuf>,
 ) -> Result<Resolution> {
+    println!("path: {:?}", path);
+
     let tsconfig = match ts_config_path {
         Some(ts_config_path) => Some(TsconfigOptions {
             config_file: PathBuf::from(ts_config_path),
             references: TsconfigReferences::Auto,
         }),
+
         None => None,
     };
 
@@ -45,6 +49,7 @@ pub fn resolve_mock_target_ast(
     program: &mut Program,
     path: &Path,
     ts_config_path: &Option<PathBuf>,
+    project_root_path: &Option<PathBuf>,
     depth: u8,
 ) -> Result<()> {
     // prevent infinite loop
@@ -75,7 +80,14 @@ pub fn resolve_mock_target_ast(
      */
     for prop in mock_ast_loader.get_needs_start_analysis_properties() {
         prop.analysis_start();
-        resolve_mock_target_ast(prop, program, path, ts_config_path, depth + 1)?;
+        resolve_mock_target_ast(
+            prop,
+            program,
+            path,
+            ts_config_path,
+            project_root_path,
+            depth + 1,
+        )?;
     }
 
     if !mock_ast_loader.resolved {
@@ -133,6 +145,10 @@ pub fn resolve_mock_target_ast(
 
                     // println!("{}: {}", "read_file_path".green(), read_file_path.display());
 
+                    if let Some(path) = project_root_path {
+                        tsserver(path, &read_file_path);
+                    }
+
                     let file = utils::read(&read_file_path).unwrap_or(String::new());
 
                     let source_type = SourceType::default()
@@ -149,6 +165,7 @@ pub fn resolve_mock_target_ast(
                         &mut program,
                         read_file_path.as_path(),
                         ts_config_path,
+                        project_root_path,
                         depth + 1,
                     )?;
                 }
@@ -164,13 +181,21 @@ pub fn load_mock<'a>(
     program: &mut Program,
     path: &Path,
     ts_config_path: &Option<PathBuf>,
+    project_root_path: &Option<PathBuf>,
 ) {
     // add target functions to mock ast loader
     mock_loader.visit_statements(&mut program.body);
 
     // NOTE: if this loop change to multi-thread, the program that is share mutation variable is need change to something like Arc<Mutex<Program>>
     for (_, mock_ast_loader) in mock_loader.mocks.iter_mut() {
-        if let Err(e) = resolve_mock_target_ast(mock_ast_loader, program, path, ts_config_path, 1) {
+        if let Err(e) = resolve_mock_target_ast(
+            mock_ast_loader,
+            program,
+            path,
+            ts_config_path,
+            project_root_path,
+            1,
+        ) {
             let name = &mock_ast_loader.mock_func_name;
             println!("{}: {}", format!("{}", name.red()), e);
         }
