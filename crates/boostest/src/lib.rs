@@ -72,7 +72,10 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
 
         if let Some(root_path) = &setting.project_root_path {
             let absolute_path = path.canonicalize().unwrap();
-            tsserver(root_path, &absolute_path);
+            if let Some(result) = tsserver(root_path, &absolute_path, 136, 152) {
+                println!("file: {:?}", result.0);
+                println!("span: {:?}", result.1);
+            }
         }
 
         let mut mock_loader = MockLoader::new(setting.name.clone());

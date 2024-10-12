@@ -80,6 +80,7 @@ impl<'a> VisitMut<'a> for MockLoader {
 
 impl<'a> VisitMut<'a> for MockAstLoader {
     fn visit_call_expression(&mut self, expr: &mut CallExpression<'a>) {
+        println!("visit_call_expression: {:?}", expr);
         let CallExpression {
             type_parameters,
             arguments,
