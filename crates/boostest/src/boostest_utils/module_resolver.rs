@@ -143,11 +143,11 @@ pub fn resolve_mock_target_ast(
                         read_file_path = PathBuf::from(path);
                     }
 
-                    // println!("{}: {}", "read_file_path".green(), read_file_path.display());
-
-                    if let Some(path) = project_root_path {
-                        tsserver(path, &read_file_path);
-                    }
+                    // if let Some(path) = project_root_path {
+                    //     if depth == 1 {
+                    //         tsserver(path, &read_file_path);
+                    //     }
+                    // }
 
                     let file = utils::read(&read_file_path).unwrap_or(String::new());
 

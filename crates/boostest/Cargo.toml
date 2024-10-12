@@ -2,9 +2,9 @@
 name = "boostest"
 version = "0.1.0"
 
-edition.workspace    = true
-homepage.workspace   = true
-license.workspace    = true
+edition.workspace = true
+homepage.workspace = true
+license.workspace = true
 repository.workspace = true
 
 
@@ -13,12 +13,13 @@ workspace = true
 
 [dependencies]
 oxc = { workspace = true, features = ["semantic", "codegen"] }
-oxc_resolver = {workspace = true}
-anyhow = {workspace = true}
-glob ={workspace = true}
-serde  = { workspace = true }
-serde_json  = { workspace = true }
-tokio ={workspace = true}
-colored = {workspace = true}
-indicatif = {workspace = true}
-rayon = {workspace = true}
+oxc_resolver = { workspace = true }
+anyhow = { workspace = true }
+glob = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true }
+colored = { workspace = true }
+indicatif = { workspace = true }
+rayon = { workspace = true }
+regex = { workspace = true }

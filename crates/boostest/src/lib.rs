@@ -3,6 +3,7 @@ pub mod boostest_mock_builder;
 pub mod boostest_mock_loader;
 mod boostest_utils;
 
+use boostest_debug::tsserver;
 use boostest_mock_loader::mock_loader::MockLoader;
 use boostest_utils::{
     setting::{self, Setting},
@@ -68,6 +69,11 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
             "target file: {}",
             format!("{}", path.to_string_lossy()).green()
         );
+
+        if let Some(root_path) = &setting.project_root_path {
+            let absolute_path = path.canonicalize().unwrap();
+            tsserver(root_path, &absolute_path);
+        }
 
         let mut mock_loader = MockLoader::new(setting.name.clone());
         let allocator = oxc::allocator::Allocator::default();

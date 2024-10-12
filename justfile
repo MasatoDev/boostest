@@ -18,7 +18,7 @@ example:
 
 test_debug:
   just debug_build
-  pnpm --filter test boostest:cli:tsconfig 
+  pnpm --filter test boostest:direct
 
 snapshot:
   just debug_build

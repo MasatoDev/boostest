@@ -25,20 +25,21 @@ impl Setting {
     }
 
     pub fn set_tsconfig(&mut self, tsconfig: PathBuf) {
-        match fs::canonicalize(&tsconfig) {
-            Ok(absolute_path) => {
-                self.project_root_path = Some(absolute_path);
-            }
-            Err(e) => println!("Error getting absolute path: {:?}", e),
-        }
-
+        self.get_project_root_path_from_tsconfig(&tsconfig);
         self.tsconfig = Some(tsconfig);
+    }
+
+    fn get_project_root_path_from_tsconfig(&mut self, tsconfig_path: &PathBuf) {
+        let project_root_path = fs::canonicalize(tsconfig_path)
+            .ok()
+            .and_then(|absolute_path| absolute_path.parent().map(|p| p.to_path_buf()));
+
+        self.project_root_path = project_root_path;
     }
 }
 
 pub fn get_setting() -> anyhow::Result<Setting> {
     let cur_dir = std::env::current_dir()?;
-
     let config_path = utils::find_boostest_json_recursive(cur_dir)?;
 
     let file = File::open(&config_path)?;
@@ -84,22 +85,14 @@ pub fn get_setting() -> anyhow::Result<Setting> {
             "tsconfig" => {
                 if let serde_json::Value::String(val) = value {
                     let ps = PathBuf::from(val);
-                    println!("ps: {:?}", ps);
 
                     if let Some(parent) = &config_path.parent() {
                         let relative_path =
                             utils::normalize_and_resolve_path(parent, &ps).unwrap_or(ps.clone());
 
-                        match fs::canonicalize(&relative_path) {
-                            Ok(absolute_path) => {
-                                setting.project_root_path = Some(absolute_path);
-                            }
-                            Err(e) => println!("Error getting absolute path: {:?}", e),
-                        }
-
-                        setting.tsconfig = Some(relative_path);
+                        setting.set_tsconfig(relative_path);
                     } else {
-                        setting.tsconfig = Some(ps);
+                        setting.set_tsconfig(ps);
                     }
                 }
             }
