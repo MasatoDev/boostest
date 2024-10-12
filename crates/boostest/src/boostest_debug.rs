@@ -2,7 +2,7 @@ use regex::Regex;
 use serde::Deserialize;
 use serde_json::{json, Value};
 use std::ffi::OsStr;
-use std::fs::File;
+use std::fs::{self, File};
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
@@ -32,6 +32,13 @@ struct Response {
 }
 
 pub fn tsserver(ts_project_root_path: &PathBuf, file_path: &PathBuf) {
+    let source_code = fs::read_to_string(file_path).expect("Unable to read file");
+    let (start_line, start_end) = get_byte_offset_to_line_offset(&source_code, 136);
+    let end = get_byte_offset_to_line_offset(&source_code, 152);
+
+    println!("byte_offset: {}, {}", start_line, start_end);
+    println!("byte_offset: {} {}", end.0, end.1);
+
     println!("ts_project_root_path: {:?}", ts_project_root_path);
     let file_extension = match file_path.extension().and_then(OsStr::to_str) {
         Some("ts") => "TS",
@@ -116,6 +123,25 @@ pub fn tsserver(ts_project_root_path: &PathBuf, file_path: &PathBuf) {
                                             "End: Line {}, Offset {}",
                                             definition.end.line, definition.end.offset
                                         );
+
+                                        let source_code_result =
+                                            fs::read_to_string(definition.file)
+                                                .expect("Unable to read file");
+
+                                        let start_byte_offset = get_line_offset_to_byte_offset(
+                                            &source_code_result,
+                                            definition.start.line as usize,
+                                            definition.start.offset as usize,
+                                        );
+
+                                        let end_byte_offset = get_line_offset_to_byte_offset(
+                                            &source_code_result,
+                                            definition.end.line as usize,
+                                            definition.end.offset as usize,
+                                        );
+
+                                        println!("Start byte offset: {}", start_byte_offset);
+                                        println!("End byte offset: {}", end_byte_offset);
                                     }
                                 }
                             }
@@ -129,4 +155,46 @@ pub fn tsserver(ts_project_root_path: &PathBuf, file_path: &PathBuf) {
     }
 
     // let _ = child.wait().expect("Failed to wait on tsserver");
+}
+
+pub fn get_line_offset_to_byte_offset(source: &str, line: usize, offset: usize) -> usize {
+    let mut byte_offset = 0;
+    let mut current_line = 1;
+    let mut current_offset = 0;
+
+    for (i, c) in source.char_indices() {
+        if current_line == line && current_offset == offset {
+            byte_offset = i;
+            break;
+        }
+
+        if c == '\n' {
+            current_line += 1;
+            current_offset = 0;
+        } else {
+            current_offset += 1;
+        }
+    }
+
+    byte_offset
+}
+
+pub fn get_byte_offset_to_line_offset(source: &str, byte_offset: usize) -> (usize, usize) {
+    let mut current_line = 1;
+    let mut current_offset = 0;
+
+    for (i, c) in source.char_indices() {
+        if i == byte_offset {
+            break;
+        }
+
+        if c == '\n' {
+            current_line += 1;
+            current_offset = 0;
+        } else {
+            current_offset += 1;
+        }
+    }
+
+    (current_line, current_offset)
 }
