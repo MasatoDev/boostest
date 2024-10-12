@@ -69,8 +69,7 @@ pub fn tsserver(
         r#"{{"type": "request", "seq": 12, "command": "definitionAndBoundSpan", "arguments": {{"file": "{}", "line": {}, "offset": {}}}}}"#,
         file_path.display(),
         start_line,
-        // TODO: 1足りない
-        start_offset + 1
+        start_offset
     );
 
     let mut requests = String::new();
@@ -162,70 +161,94 @@ pub fn tsserver(
     // let _ = child.wait().expect("Failed to wait on tsserver");
 }
 
-// fn offset_to_position(offset: usize, source_text: &str) -> Option<Position> {
-//     let rope = Rope::from_str(source_text);
-//     let line = rope.try_byte_to_line(offset).ok()?;
-//     let first_char_of_line = rope.try_line_to_char(line).ok()?;
-//     // Original offset is byte, but Rope uses char offset
-//     let offset = rope.try_byte_to_char(offset).ok()?;
-//     let column = offset - first_char_of_line;
-//     Some(Position {
-//         line: line as u32,
-//         offset: column as u32,
-//     })
-// }
-//
-// fn position_to_offset(position: Position, source_text: &str) -> Option<usize> {
-//     let rope = Rope::from_str(source_text);
-//     let line_char_offset = rope.try_line_to_char(position.line as usize).ok()?;
-//     let char_offset = line_char_offset + position.offset as usize;
-//     let byte_offset = rope.try_char_to_byte(char_offset).ok()?;
-//     Some(byte_offset)
-// }
-
-pub fn position_to_offset(position: Position, source_text: &str) -> Option<u32> {
-    let mut byte_offset = 0;
-    let mut current_line = 1;
-    let mut current_offset = 0;
-
-    let Position { line, offset } = position;
-
-    for (i, c) in source_text.char_indices() {
-        if current_line == line && current_offset == offset {
-            byte_offset = i;
-            break;
-        }
-
-        if c == '\n' {
-            current_line += 1;
-            current_offset = 0;
-        } else {
-            current_offset += 1;
-        }
-    }
-
-    Some(byte_offset as u32)
-}
-
-pub fn offset_to_position(offset: u32, source_text: &str) -> Option<Position> {
-    let mut current_line = 1;
-    let mut current_offset = 0;
-
-    for (i, c) in source_text.char_indices() {
-        if i as u32 == offset {
-            break;
-        }
-
-        if c == '\n' {
-            current_line += 1;
-            current_offset = 0;
-        } else {
-            current_offset += 1;
-        }
-    }
+// TODO:
+fn offset_to_position(offset: u32, source_text: &str) -> Option<Position> {
+    let offset = offset as usize;
+    let rope = Rope::from_str(source_text);
+    // Get line number and byte offset of start of line
+    let line_index = rope.byte_to_line(offset);
+    let line_offset = rope.line_to_byte(line_index);
+    // Get column number
+    let column_index = source_text[line_offset..offset].encode_utf16().count();
+    // line and column are zero-indexed, but we want 1-indexed
 
     Some(Position {
-        line: current_line,
-        offset: current_offset,
+        line: line_index as u32 + 1,
+        offset: column_index as u32 + 1,
     })
 }
+
+fn position_to_offset(position: Position, source_text: &str) -> Option<u32> {
+    let rope = Rope::from_str(source_text);
+
+    // Make sure the line number is within the bounds of the text
+    let line_index = position.line.checked_sub(1)? as usize;
+    if line_index >= rope.len_lines() {
+        return None;
+    }
+
+    // Get the byte offset of the start of the line
+    let line_offset = rope.line_to_byte(line_index);
+
+    // Iterate through the UTF-16 code units to find the column
+    let mut utf16_col_offset = 0;
+    for (i, c) in source_text[line_offset..].char_indices() {
+        // Calculate the length of the character in UTF-16 code units
+        let utf16_len = c.encode_utf16(&mut [0; 2]).len();
+
+        if utf16_col_offset == position.offset.checked_sub(1)? as usize {
+            return Some((line_offset + i) as u32);
+        }
+
+        utf16_col_offset += utf16_len;
+    }
+
+    // If we reach here, the column was out of bounds
+    None
+}
+// pub fn position_to_offset(position: Position, source_text: &str) -> Option<u32> {
+//     let mut byte_offset = 0;
+//     let mut current_line = 1;
+//     let mut current_offset = 0;
+//
+//     let Position { line, offset } = position;
+//
+//     for (i, c) in source_text.char_indices() {
+//         if current_line == line && current_offset == offset {
+//             byte_offset = i;
+//             break;
+//         }
+//
+//         if c == '\n' {
+//             current_line += 1;
+//             current_offset = 0;
+//         } else {
+//             current_offset += 1;
+//         }
+//     }
+//
+//     Some(byte_offset as u32)
+// }
+
+// pub fn offset_to_position(offset: u32, source_text: &str) -> Option<Position> {
+//     let mut current_line = 1;
+//     let mut current_offset = 0;
+//
+//     for (i, c) in source_text.char_indices() {
+//         if i as u32 == offset {
+//             break;
+//         }
+//
+//         if c == '\n' {
+//             current_line += 1;
+//             current_offset = 0;
+//         } else {
+//             current_offset += 1;
+//         }
+//     }
+//
+//     Some(Position {
+//         line: current_line,
+//         offset: current_offset,
+//     })
+// }
