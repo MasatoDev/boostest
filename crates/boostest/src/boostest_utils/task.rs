@@ -1,4 +1,4 @@
-use crate::boostest_mock_loader::mock_ast_loader::MockAstLoader;
+use crate::boostest_mock_loader::mock_ast_loader2::MockAstLoader;
 use crate::boostest_mock_loader::mock_loader::MockLoader;
 
 use anyhow::Result;

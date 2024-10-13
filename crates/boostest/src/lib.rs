@@ -70,20 +70,12 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
             format!("{}", path.to_string_lossy()).green()
         );
 
-        if let Some(root_path) = &setting.project_root_path {
-            let absolute_path = path.canonicalize().unwrap();
-            if let Some(result) = tsserver(root_path, &absolute_path, 136, 152) {
-                println!("file: {:?}", result.0);
-                println!("span: {:?}", result.1);
-            }
-        }
-
-        let mut mock_loader = MockLoader::new(setting.name.clone());
+        let mut mock_loader = MockLoader::new(path_buf.clone(), setting.name.clone());
         let allocator = oxc::allocator::Allocator::default();
         let parser = Parser::new(&allocator, &file, source_type);
         let mut program = parser.parse().program;
 
-        boostest_utils::module_resolver::load_mock(
+        boostest_utils::module_resolver2::load_mock(
             &mut mock_loader,
             &mut program,
             path,
@@ -91,13 +83,13 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
             &setting.project_root_path,
         );
 
-        if let Err(e) = task::handle_main_task(&mut mock_loader, path, &out_file_name) {
-            println!(
-                "{}:{}",
-                format!("failed to create test data at :{}", path.to_string_lossy()).green(),
-                e
-            );
-        }
+        // if let Err(e) = task::handle_main_task(&mut mock_loader, path, &out_file_name) {
+        //     println!(
+        //         "{}:{}",
+        //         format!("failed to create test data at :{}", path.to_string_lossy()).green(),
+        //         e
+        //     );
+        // }
 
         pb.inc(1);
     }

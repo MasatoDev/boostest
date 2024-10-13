@@ -36,9 +36,14 @@ struct Response {
 pub fn tsserver(
     ts_project_root_path: &PathBuf,
     file_path: &PathBuf,
-    start_offset: u32,
-    end_offset: u32,
+    span: Span,
 ) -> Option<(PathBuf, Span)> {
+    let Span {
+        start: start_offset,
+        end: end_offset,
+        ..
+    } = span;
+
     let source_code = fs::read_to_string(file_path).expect("Unable to read file");
     let Position {
         line: start_line,
