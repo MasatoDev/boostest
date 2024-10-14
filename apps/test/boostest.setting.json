@@ -1,0 +1,9 @@
+{
+  "target_pattern": [
+    "src/**/*_test.ts",
+    "src/multi_file_test/multi_file_test2.ts"
+  ],
+  "name": "boostest",
+  "out_file_name": "test_data",
+  "tsconfig": "./tsconfig.json"
+}

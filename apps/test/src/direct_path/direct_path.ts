@@ -1,4 +1,8 @@
-import { LiteralTypeAlias, LiteralTypeClass, LiteralTypeInterface } from '@/ts_types/literal';
+import {
+  LiteralTypeAlias,
+  LiteralTypeClass,
+  LiteralTypeInterface,
+} from "@/ts_types/literal";
 
 let _ = boostestLiteralAliasType<LiteralTypeAlias>();
 let _ = boostestLiteralInterfaceType<LiteralTypeInterface>();

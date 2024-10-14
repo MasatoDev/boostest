@@ -1,4 +1,4 @@
-import { RefType } from '@/ts_types/utils';
+import { RefType } from "@/ts_types/utils";
 
 interface RefTypeInterface {
   name: string;
@@ -31,7 +31,7 @@ export type LiteralTypeAlias = {
   unionType: string | number;
   conditionalType: string extends number ? true : false;
 
-  tsLiteralString: 'string';
+  tsLiteralString: "string";
   tsLiteralNumber: 20;
   tsBigInt: 10000000000000n;
   tsLiteralBoolean: true;
@@ -43,7 +43,12 @@ export type LiteralTypeAlias = {
 
   symbolLiteral: symbol;
   tsTuple: [string, number, any, RefType, RefTypeInterface];
-  tsNamedTuple: [name: string, ver: number, ref: RefType, refInterface: RefTypeInterface];
+  tsNamedTuple: [
+    name: string,
+    ver: number,
+    ref: RefType,
+    refInterface: RefTypeInterface,
+  ];
   intersectionType: RefType & RefTypeInterface & { name: string; age: number };
 
   // TODO
@@ -52,8 +57,8 @@ export type LiteralTypeAlias = {
   partial: Partial<RefType>;
   required: Required<RefType>;
   readonly: Readonly<RefType>;
-  pick: Pick<RefType, 'name'>;
-  omit: Omit<RefType, 'name'>;
+  pick: Pick<RefType, "name">;
+  omit: Omit<RefType, "name">;
   extract: Extract<string | number, string>;
   exclude: Exclude<string | number, string>;
   nonNullable: NonNullable<string | null>;
@@ -86,7 +91,7 @@ export type LiteralTypeInterface = {
   unionType: string | number;
   conditionalType: string extends number ? true : false;
 
-  tsLiteralString: 'string';
+  tsLiteralString: "string";
   tsLiteralNumber: 20;
   tsBigInt: 10000000000000n;
   tsLiteralBoolean: true;
@@ -96,7 +101,12 @@ export type LiteralTypeInterface = {
 
   symbolLiteral: symbol;
   tsTuple: [string, number, any, RefType, RefTypeInterface];
-  tsNamedTuple: [name: string, ver: number, ref: RefType, refInterface: RefTypeInterface];
+  tsNamedTuple: [
+    name: string,
+    ver: number,
+    ref: RefType,
+    refInterface: RefTypeInterface,
+  ];
   intersectionType: RefType & RefTypeInterface & { name: string; age: number };
 
   // TODO
@@ -105,8 +115,8 @@ export type LiteralTypeInterface = {
   partial: Partial<RefType>;
   required: Required<RefType>;
   readonly: Readonly<RefType>;
-  pick: Pick<RefType, 'name'>;
-  omit: Omit<RefType, 'name'>;
+  pick: Pick<RefType, "name">;
+  omit: Omit<RefType, "name">;
   extract: Extract<string | number, string>;
   exclude: Exclude<string | number, string>;
   nonNullable: NonNullable<string | null>;
@@ -139,7 +149,7 @@ export class LiteralTypeClass {
     public referenceLiteral: RefType,
     public unionType: string | number,
 
-    public tsLiteralString: 'string',
+    public tsLiteralString: "string",
     public tsLiteralNumber: 20,
     public tsBigInt: 10000000000000n,
     public tsLiteralBoolean: true,
@@ -149,8 +159,15 @@ export class LiteralTypeClass {
 
     public symbolLiteral: symbol,
     public tsTuple: [string, number, any, RefType, RefTypeInterface, string],
-    public tsNamedTuple: [name: string, ver: number, ref: RefType, refInterface: RefTypeInterface, hello: number],
-    public intersectionType: RefType & RefTypeInterface & { name: string; age: number },
+    public tsNamedTuple: [
+      name: string,
+      ver: number,
+      ref: RefType,
+      refInterface: RefTypeInterface,
+      hello: number,
+    ],
+    public intersectionType: RefType &
+      RefTypeInterface & { name: string; age: number },
     public conditionalType: string extends number ? true : false,
 
     // TODO
@@ -159,8 +176,8 @@ export class LiteralTypeClass {
     public partial: Partial<RefType>,
     public required: Required<RefType>,
     public readonly: Readonly<RefType>,
-    public pick: Pick<RefType, 'name'>,
-    public omit: Omit<RefType, 'name'>,
+    public pick: Pick<RefType, "name">,
+    public omit: Omit<RefType, "name">,
     public extract: Extract<string | number, string>,
     public exclude: Exclude<string | number, string>,
     public nonNullable: NonNullable<string | null>,
@@ -172,6 +189,6 @@ export class LiteralTypeClass {
 
     // TODO
     public classType: typeof Hoge,
-    public refTypeInterface: RefTypeInterface
+    public refTypeInterface: RefTypeInterface,
   ) {}
 }

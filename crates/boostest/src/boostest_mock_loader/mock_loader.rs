@@ -1,17 +1,21 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, path::PathBuf};
 
-use crate::boostest_mock_loader::mock_ast_loader::MockAstLoader;
+use oxc::span::Span;
+
+use crate::boostest_mock_loader::mock_ast_loader2::MockAstLoader;
 
 pub struct MockLoader {
     pub mocks: HashMap<String, MockAstLoader>,
     pub pattern: Option<String>,
+    pub target_file_path: PathBuf,
 }
 
 impl MockLoader {
-    pub fn new(pattern: Option<String>) -> Self {
+    pub fn new(target_file_path: PathBuf, pattern: Option<String>) -> Self {
         Self {
             mocks: HashMap::new(),
             pattern,
+            target_file_path,
         }
     }
 
@@ -41,7 +45,7 @@ impl MockLoader {
     }
 
     pub fn add_ast_loader(&mut self, name: String) {
-        let mock = MockAstLoader::new(name.clone(), None, None);
+        let mock = MockAstLoader::new(name.clone(), None, None, None);
         self.mocks.insert(name.clone(), mock);
     }
 
@@ -50,8 +54,6 @@ impl MockLoader {
         for mock in self.mocks.values() {
             println!("--------MOCK: {:?}---------", &mock.mock_func_name);
             println!("--------MOCK TARGET: {:?}---------", &mock.mock_target_name);
-            println!("---------------------");
-            println!("import: {:?}", mock.import);
             println!("---------------------");
             println!("AST: {:?}", mock.ref_properties);
             println!("---------------------");

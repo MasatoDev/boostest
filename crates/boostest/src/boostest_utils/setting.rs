@@ -1,6 +1,6 @@
 use super::utils;
 
-use std::fs::File;
+use std::fs::{self, File};
 use std::io::BufReader;
 use std::path::PathBuf;
 
@@ -9,6 +9,7 @@ pub struct Setting {
     pub target: Option<Vec<String>>,
     pub name: Option<String>,
     pub tsconfig: Option<PathBuf>,
+    pub project_root_path: Option<PathBuf>,
     pub out_file_name: Option<String>,
 }
 
@@ -24,13 +25,21 @@ impl Setting {
     }
 
     pub fn set_tsconfig(&mut self, tsconfig: PathBuf) {
+        self.get_project_root_path_from_tsconfig(&tsconfig);
         self.tsconfig = Some(tsconfig);
+    }
+
+    fn get_project_root_path_from_tsconfig(&mut self, tsconfig_path: &PathBuf) {
+        let project_root_path = fs::canonicalize(tsconfig_path)
+            .ok()
+            .and_then(|absolute_path| absolute_path.parent().map(|p| p.to_path_buf()));
+
+        self.project_root_path = project_root_path;
     }
 }
 
 pub fn get_setting() -> anyhow::Result<Setting> {
     let cur_dir = std::env::current_dir()?;
-
     let config_path = utils::find_boostest_json_recursive(cur_dir)?;
 
     let file = File::open(&config_path)?;
@@ -45,6 +54,7 @@ pub fn get_setting() -> anyhow::Result<Setting> {
         target: None,
         name: None,
         tsconfig: None,
+        project_root_path: None,
         out_file_name: None,
     };
 
@@ -77,11 +87,12 @@ pub fn get_setting() -> anyhow::Result<Setting> {
                     let ps = PathBuf::from(val);
 
                     if let Some(parent) = &config_path.parent() {
-                        let result =
+                        let relative_path =
                             utils::normalize_and_resolve_path(parent, &ps).unwrap_or(ps.clone());
-                        setting.tsconfig = Some(result);
+
+                        setting.set_tsconfig(relative_path);
                     } else {
-                        setting.tsconfig = Some(ps);
+                        setting.set_tsconfig(ps);
                     }
                 }
             }
