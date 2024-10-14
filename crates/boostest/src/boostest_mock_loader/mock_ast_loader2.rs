@@ -44,6 +44,7 @@ use oxc::{
 #[derive(Debug)]
 pub struct MockAstLoader {
     pub span: Span,
+    pub target_definition_span: Option<Span>,
     pub mock_func_name: String,
     pub mock_target_name: Option<String>,
     pub prop_key_name: Option<String>,
@@ -64,6 +65,7 @@ impl MockAstLoader {
             mock_func_name,
             mock_target_name,
             span: span.unwrap_or(Span::new(0, 0)),
+            target_definition_span: None,
             prop_key_name,
             resolved: false,
             ref_properties: Vec::new(),
@@ -75,6 +77,10 @@ impl MockAstLoader {
     pub fn set_target_name(&mut self, name: String, span: Span) {
         self.mock_target_name = Some(name);
         self.span = span;
+    }
+
+    pub fn set_target_definition_span(&mut self, span: Span) {
+        self.target_definition_span = Some(span);
     }
 
     pub fn analysis_start(&mut self) {
@@ -140,20 +146,34 @@ impl MockAstLoader {
         self.code.is_none()
     }
 
+    fn calc_prop_span(&mut self, span: Span) -> Span {
+        if let Some(target_definition_span) = self.target_definition_span {
+            return Span::new(
+                span.start + target_definition_span.start,
+                span.end + target_definition_span.start,
+            );
+        };
+
+        span
+    }
+
     pub fn add_property_ts_type(&mut self, name: String, key_name: String, span: Span) {
+        let new_span = self.calc_prop_span(span);
+
         self.ref_properties.push(MockAstLoader::new(
             self.mock_func_name.clone(),
             Some(name),
-            Some(span),
+            Some(new_span),
             Some(key_name),
         ));
     }
 
     pub fn add_property_class(&mut self, name: String, span: Span) {
+        let new_span = self.calc_prop_span(span);
         self.ref_properties.push(MockAstLoader::new(
             self.mock_func_name.clone(),
             Some(name),
-            Some(span),
+            Some(new_span),
             None,
         ));
     }

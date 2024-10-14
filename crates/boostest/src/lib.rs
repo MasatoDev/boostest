@@ -83,13 +83,13 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
             &setting.project_root_path,
         );
 
-        // if let Err(e) = task::handle_main_task(&mut mock_loader, path, &out_file_name) {
-        //     println!(
-        //         "{}:{}",
-        //         format!("failed to create test data at :{}", path.to_string_lossy()).green(),
-        //         e
-        //     );
-        // }
+        if let Err(e) = task::handle_main_task(&mut mock_loader, path, &out_file_name) {
+            println!(
+                "{}:{}",
+                format!("failed to create test data at :{}", path.to_string_lossy()).green(),
+                e
+            );
+        }
 
         pb.inc(1);
     }
