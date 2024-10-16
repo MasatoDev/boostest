@@ -70,10 +70,10 @@ pub fn tsserver(
     //     line: end_line,
     //     offset: end_end,
     // } = offset_to_position(end_offset, &source_code).unwrap();
-
-    println!("File: {}", file_path.display());
-    println!("Source span: {:?}", span);
-    println!("Start: Line {}, Offset {}", start_line, start_offset);
+    //
+    // println!("File: {}", file_path.display());
+    // println!("Source span: {:?}", span);
+    // println!("Start: Line {}, Offset {}", start_line, start_offset);
 
     let file_extension = match file_path.extension().and_then(OsStr::to_str) {
         Some("ts") => "TS",
@@ -143,7 +143,7 @@ pub fn tsserver(
                             Ok(response) => {
                                 // 1つ目のdefinitionから必要な情報を取得
                                 if let Some(definition) = response.body.definitions.get(0) {
-                                    println!("Definition name :{}", definition.name);
+                                    println!("Definition :{:?}", definition);
                                     return Some((
                                         definition.fileName.clone().into(),
                                         Span::new(
