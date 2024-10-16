@@ -35,6 +35,8 @@ ref_properties: [
 ]
 */
 
+use std::sync::{Arc, Mutex};
+
 use crate::boostest_mock_builder::mock_builder::MockBuilder;
 use oxc::{
     ast::ast::{Class, TSInterfaceDeclaration, TSTypeAliasDeclaration},
@@ -49,7 +51,7 @@ pub struct MockAstLoader {
     pub mock_target_name: Option<String>,
     pub prop_key_name: Option<String>,
     pub resolved: bool,
-    pub ref_properties: Vec<MockAstLoader>,
+    pub ref_properties: Vec<Arc<Mutex<MockAstLoader>>>,
     pub code: Option<String>,
     analysis_started: bool,
 }
@@ -160,30 +162,32 @@ impl MockAstLoader {
     pub fn add_property_ts_type(&mut self, name: String, key_name: String, span: Span) {
         let new_span = self.calc_prop_span(span);
 
-        self.ref_properties.push(MockAstLoader::new(
-            self.mock_func_name.clone(),
-            Some(name),
-            Some(new_span),
-            Some(key_name),
-        ));
+        self.ref_properties
+            .push(Arc::new(Mutex::new(MockAstLoader::new(
+                self.mock_func_name.clone(),
+                Some(name),
+                Some(new_span),
+                Some(key_name),
+            ))));
     }
 
     pub fn add_property_class(&mut self, name: String, span: Span) {
         let new_span = self.calc_prop_span(span);
-        self.ref_properties.push(MockAstLoader::new(
-            self.mock_func_name.clone(),
-            Some(name),
-            Some(new_span),
-            None,
-        ));
+        self.ref_properties
+            .push(Arc::new(Mutex::new(MockAstLoader::new(
+                self.mock_func_name.clone(),
+                Some(name),
+                Some(new_span),
+                None,
+            ))));
     }
 
-    pub fn get_needs_start_analysis_properties(&mut self) -> Vec<&mut MockAstLoader> {
+    pub fn get_needs_start_analysis_properties(&mut self) -> Vec<Arc<Mutex<MockAstLoader>>> {
         let mut result = Vec::new();
 
-        for prop in &mut self.ref_properties {
-            if !prop.resolved && !prop.analysis_started {
-                result.push(prop);
+        for prop in &self.ref_properties {
+            if !prop.lock().unwrap().resolved && !prop.lock().unwrap().analysis_started {
+                result.push(prop.clone());
             }
         }
         result

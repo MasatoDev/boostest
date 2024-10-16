@@ -70,7 +70,7 @@ impl<'a> VisitMut<'a> for MockLoader {
                 self.add_ast_loader(target_mock_name.clone().to_string());
 
                 if let Some(target_mock) = self.get_mock(&target_mock_name) {
-                    target_mock.visit_call_expression(expr);
+                    target_mock.lock().unwrap().visit_call_expression(expr);
                 }
             }
         }

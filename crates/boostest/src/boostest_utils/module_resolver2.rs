@@ -4,8 +4,9 @@ use anyhow::{anyhow, Result};
 use oxc::ast::VisitMut;
 use oxc::span::Span;
 use oxc::{ast::ast::Program, parser::Parser, span::SourceType};
-use oxc_resolver::{Resolution, ResolveOptions, Resolver, TsconfigOptions, TsconfigReferences};
 use std::path::{Path, PathBuf};
+use std::sync::{Arc, Mutex};
+use std::thread;
 
 use crate::boostest_debug::tsserver;
 use crate::boostest_mock_loader::mock_ast_loader2::{self, MockAstLoader};
@@ -50,12 +51,14 @@ fn source_text_from_span(span: Span, source_text: &str) -> &str {
     &source_text[start..end]
 }
 
-pub fn resolve_mock_target_ast(
-    mock_ast_loader: &mut MockAstLoader,
+pub fn resolve_mock_target_ast<'a>(
+    mock_ast_loader: Arc<Mutex<MockAstLoader>>,
     path: &Path,
     project_root_path: &Option<PathBuf>,
     depth: u8,
 ) -> Result<()> {
+    let mut mock_ast_loader = mock_ast_loader.lock().unwrap();
+
     if depth > 50 {
         if let Some(target) = &mock_ast_loader.mock_target_name {
             println!(
@@ -104,17 +107,33 @@ pub fn resolve_mock_target_ast(
 
             mock_ast_loader.visit_statements(&mut program.body);
 
+            let mut handles = vec![];
+
             /*
              * NOTE:
              * start analysis for ref_properties after original mock_target_ast analysis is started
              */
             for prop in mock_ast_loader.get_needs_start_analysis_properties() {
-                resolve_mock_target_ast(
-                    prop,
-                    target_file_path.as_path(),
-                    &Some(project_root_path.clone()),
-                    depth + 1,
-                )?;
+                let cloned_mock_ast_loader = prop.clone();
+                let target_file_path = target_file_path.clone();
+                let project_root_path = project_root_path.clone();
+
+                let handle = thread::spawn(move || {
+                    if let Err(e) = resolve_mock_target_ast(
+                        cloned_mock_ast_loader,
+                        target_file_path.as_path(),
+                        &Some(project_root_path.clone()),
+                        depth + 1,
+                    ) {
+                        println!("{}", e);
+                    }
+                });
+
+                handles.push(handle);
+            }
+
+            for handle in handles {
+                handle.join().unwrap();
             }
         } else {
             return Err(anyhow!("ファイル読み込みでエラー"));
@@ -124,25 +143,43 @@ pub fn resolve_mock_target_ast(
     Ok(())
 }
 
-pub fn load_mock<'a>(
-    mock_loader: &mut MockLoader,
+pub fn load_mock(
+    mock_loader: Arc<Mutex<MockLoader>>,
     program: &mut Program,
     path: &Path,
     ts_config_path: &Option<PathBuf>,
     project_root_path: &Option<PathBuf>,
 ) {
-    // add target functions to mock ast loader
-    mock_loader.visit_statements(&mut program.body);
-
-    // NOTE: if this loop change to multi-thread, the program that is share mutation variable is need change to something like Arc<Mutex<Program>>
-    for (_, mock_ast_loader) in mock_loader.mocks.iter_mut() {
-        if let Err(e) = resolve_mock_target_ast(mock_ast_loader, path, project_root_path, 1) {
-            let name = &mock_ast_loader.mock_func_name;
-            println!("{}: {}", format!("{}", name.red()), e);
-        }
+    {
+        let mut mock_loader_ref = mock_loader.lock().unwrap();
+        mock_loader_ref.visit_statements(&mut program.body);
     }
 
-    // println!("--------INIT---------");
-    // mock_loader.debug();
-    // println!("-----------------");
+    {
+        let mut handles = vec![];
+
+        let mocks = {
+            let mock_loader_ref = mock_loader.lock().unwrap();
+            mock_loader_ref.mocks.clone()
+        };
+
+        for (_, mock_ast_loader) in mocks.iter() {
+            let path = path.to_path_buf();
+            let project_root_path = project_root_path.clone();
+            let mock_ast_loader = mock_ast_loader.clone();
+
+            let handle = thread::spawn(move || {
+                if let Err(e) =
+                    resolve_mock_target_ast(mock_ast_loader, &path, &project_root_path, 1)
+                {
+                    println!("{}", e);
+                }
+            });
+            handles.push(handle);
+        }
+
+        for handle in handles {
+            handle.join().unwrap();
+        }
+    }
 }

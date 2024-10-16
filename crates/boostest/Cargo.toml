@@ -19,6 +19,7 @@ glob = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 tokio = { workspace = true }
+futures = { workspace = true }
 colored = { workspace = true }
 indicatif = { workspace = true }
 rayon = { workspace = true }
