@@ -2,11 +2,11 @@ use oxc::span::Span;
 use regex::Regex;
 use ropey::Rope;
 use serde::Deserialize;
-use serde_json::{json, Value};
+use serde_json::Value;
 use std::ffi::OsStr;
-use std::fs::{self, File};
-use std::io::{Read, Write};
-use std::path::{Path, PathBuf};
+use std::fs;
+use std::io::Write;
+use std::path::PathBuf;
 use std::process::{Command, Stdio};
 
 #[derive(Deserialize, Debug)]
@@ -21,32 +21,34 @@ struct TextSpan {
     length: u32,
 }
 
+#[allow(non_snake_case)]
 #[derive(Debug, Deserialize)]
 struct Definition {
     fileName: String,
-    textSpan: TextSpan,
-    kind: String,
-    name: String,
-    containerName: String,
+    // textSpan: TextSpan,
+    // kind: String,
+    // name: String,
+    // containerName: String,
     contextSpan: TextSpan,
-    isLocal: bool,
-    isAmbient: bool,
-    unverified: bool,
+    // isLocal: bool,
+    // isAmbient: bool,
+    // unverified: bool,
 }
 
+#[allow(non_snake_case)]
 #[derive(Debug, Deserialize)]
 struct Body {
     definitions: Vec<Definition>,
-    textSpan: TextSpan,
+    // textSpan: TextSpan,
 }
 
 #[derive(Debug, Deserialize)]
 struct Response {
-    seq: u32,
-    r#type: String,
-    command: String,
-    request_seq: u32,
-    success: bool,
+    // seq: u32,
+    // r#type: String,
+    // command: String,
+    // request_seq: u32,
+    // success: bool,
     body: Body,
 }
 
@@ -57,7 +59,7 @@ pub fn tsserver(
 ) -> Option<(PathBuf, Span)> {
     let Span {
         start: start_offset,
-        end: end_offset,
+        // end: end_offset,
         ..
     } = span;
 
@@ -143,7 +145,6 @@ pub fn tsserver(
                             Ok(response) => {
                                 // 1つ目のdefinitionから必要な情報を取得
                                 if let Some(definition) = response.body.definitions.get(0) {
-                                    println!("Definition :{:?}", definition);
                                     return Some((
                                         definition.fileName.clone().into(),
                                         Span::new(
@@ -173,8 +174,6 @@ pub fn tsserver(
 fn offset_to_position(offset: u32, source_text: &str) -> Option<Position> {
     let offset = offset as usize;
     let rope = Rope::from_str(source_text);
-
-    println!("offset: {}", offset);
 
     // Get line number and byte offset of start of line
     let line_index = rope.byte_to_line(offset);

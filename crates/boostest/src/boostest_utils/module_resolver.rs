@@ -28,7 +28,7 @@ fn utf16_to_utf8_offset(rope: &Rope, utf16_offset: usize) -> usize {
     for chunk in rope.chunks() {
         let chunk_utf16_len = chunk.encode_utf16().count();
         if utf16_count + chunk_utf16_len > utf16_offset {
-            for (i, c) in chunk.chars().enumerate() {
+            for (_i, c) in chunk.chars().enumerate() {
                 if utf16_count == utf16_offset {
                     return utf8_offset;
                 }
@@ -166,11 +166,8 @@ pub fn resolve_mock_target_ast(
                     let mut read_file_path: PathBuf = PathBuf::new();
                     let parent_path_buf = parent_path.to_path_buf();
 
-                    println!("{}: {}", "loaded".green(), next_import.loaded);
-
                     // important the order of is_loaded_hogehoge() because these func handle loaded flag
                     if MockAstLoader::is_loaded_index_d_ts(&next_import) {
-                        println!("{}: {}", "loaded index d ts".green(), next_import.full_path);
                         next_import.file_d_ts_loaded = true;
 
                         let next_file_stem = Path::new(&next_import.full_path)
@@ -189,13 +186,11 @@ pub fn resolve_mock_target_ast(
                     }
 
                     if MockAstLoader::is_loaded_full_path(&next_import) {
-                        println!("{}: {}", "loaded full path".green(), next_import.full_path);
                         next_import.index_d_ts_loaded = true;
                         read_file_path = parent_path_buf.join("index.d.ts");
                     }
 
                     if MockAstLoader::is_unloaded_import(&next_import) {
-                        println!("{}: {}", "unloaded import".yellow(), next_import.full_path);
                         next_import.loaded = true;
 
                         let resolution_result =
@@ -209,23 +204,13 @@ pub fn resolve_mock_target_ast(
                     // TODO: use same program ast
                     if next_import.need_reload {
                         read_file_path = PathBuf::from(path);
-                        println!("need reload: {:?}", read_file_path);
                     }
 
                     if !read_file_path.exists() {
-                        println!("{}", "using tsserver".green(),);
-
                         if let Some(project_root_path) = project_root_path {
                             if let Some(first_path) =
                                 locked_mock_ast_loader.current_read_file_path.clone()
                             {
-                                println!(
-                                    "{}: {}",
-                                    "using tsserver".green(),
-                                    project_root_path.display()
-                                );
-
-                                // TODO: add using tsserver logic
                                 drop(locked_mock_ast_loader);
 
                                 resolve_mock_target_ast_with_tsserver(
@@ -302,8 +287,8 @@ pub fn resolve_mock_target_ast_with_tsserver<'a>(
             &mock_ast_loader.mock_target_name, &absolute_path
         );
 
-        if let Some(hoge) = tsserver(project_root_path, &absolute_path, mock_ast_loader.span) {
-            let (target_file_path, span) = hoge;
+        if let Some(result) = tsserver(project_root_path, &absolute_path, mock_ast_loader.span) {
+            let (target_file_path, span) = result;
 
             // spanから定義元のテキストを取得できる。
             // TODO: 定義の中に参照があると、そのspanはファイルのものではない(定義元の中でのspan)になるため、それを利用してtsserverに渡すことができない。
@@ -312,6 +297,7 @@ pub fn resolve_mock_target_ast_with_tsserver<'a>(
 
             let target_source = utils::read(&target_file_path).unwrap_or(String::new());
             // let target_source_text = span.source_text(&target_source);
+            //
 
             let target_source_text = source_text_from_span(span, &target_source);
 

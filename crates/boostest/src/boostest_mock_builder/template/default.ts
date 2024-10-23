@@ -1,3 +1,3 @@
-export function boostestDefaultTemplate() {
+export function boostestDefaultTemplate<T>() {
   return {};
 }

@@ -8,7 +8,7 @@ use oxc::ast::ast::{
 use oxc::ast::ast::{
     BindingPatternKind, Class, ClassBody, ExportDefaultDeclaration, ExportDefaultDeclarationKind,
     ExportNamedDeclaration, ExpressionStatement, MethodDefinition, PropertyDefinition,
-    TSInterfaceDeclaration, TSModuleReference, TSSignature, TSType, TSTypeAliasDeclaration,
+    TSInterfaceDeclaration, TSModuleReference, TSSignature, TSTypeAliasDeclaration,
     TSTypeParameterInstantiation, VariableDeclarator,
 };
 use oxc::ast::VisitMut;
@@ -161,6 +161,10 @@ impl<'a> VisitMut<'a> for MockAstLoader {
                 Statement::ExportDefaultDeclaration(export_default_decl) => {
                     self.visit_export_default_declaration(export_default_decl);
                 }
+                Statement::ExpressionStatement(_expr_stmt) => {
+                    // TODO: hoge<T = any>のようなgenericは`T = any`というexpressio, statementなのでanyが入るよう調整する
+                }
+
                 _ => {
                     // println!("Another Statement {:?}", stmt);
                 }
@@ -305,17 +309,35 @@ impl<'a> VisitMut<'a> for MockAstLoader {
     fn visit_ts_type_alias_declaration(&mut self, decl: &mut TSTypeAliasDeclaration<'a>) {
         if let Some(target_name) = self.get_decl_name_for_resolve() {
             if decl.id.name.to_string() == *target_name {
+                /*
+                    genericの変数も探してしまい、解決できず処理が止まってしまう
+                    時間制限と、genericの変数を利用するよう調整が必要そう
+                */
+                test_data_assignment::ts_type_assign_as_property(
+                    self,
+                    &decl.type_annotation,
+                    target_name.to_string(),
+                );
+
                 self.add_ts_alias(decl);
 
                 // NOTE: handle mock target property
-                match &mut decl.type_annotation {
-                    TSType::TSTypeLiteral(ts_type_literal) => {
-                        for ts_signature in ts_type_literal.members.iter_mut() {
-                            self.visit_ts_signature(ts_signature);
-                        }
-                    }
-                    _ => {}
-                }
+                // match &mut decl.type_annotation {
+                //     TSType::TSTypeLiteral(ts_type_literal) => {
+                //         for ts_signature in ts_type_literal.members.iter_mut() {
+                //             self.visit_ts_signature(ts_signature);
+                //         }
+                //     }
+                //     TSType::TSTypeReference(ty_ref) => {
+                //                 test_data_assignment::ts_type_assign_as_property(
+                //                     self,
+                //                     &ts_type.type_annotation,
+                //             ty_ref.type
+                //                     id.name.to_string(),
+                //                 );
+                //     }
+                //     _ => {}
+                // }
             }
         }
     }

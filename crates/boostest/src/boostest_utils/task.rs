@@ -51,7 +51,9 @@ pub fn handle_main_task(
 
     // NOTE: if this loop change to multi-thread, the f(file) is need change to Arc<Mutex<File>>
     for mock_ast_loader in mock_ast_loader_vec {
-        if mock_ast_loader.lock().unwrap().is_empty_code() {
+        let locked_mock_ast_loader = mock_ast_loader.lock().unwrap();
+
+        if locked_mock_ast_loader.is_empty_code() {
             println!(
                 "{}",
                 format!(
@@ -64,11 +66,12 @@ pub fn handle_main_task(
             continue;
         }
 
-        if let Some(code) = &mock_ast_loader.lock().unwrap().code {
+        if let Some(code) = &locked_mock_ast_loader.code {
             f.write_all(code.as_bytes())?;
             f.write_all(b"\n")?;
         }
 
+        drop(locked_mock_ast_loader);
         write_ref_properties(mock_ast_loader, &mut f)?;
     }
 
@@ -76,18 +79,23 @@ pub fn handle_main_task(
 }
 
 pub fn write_ref_properties(prop: Arc<Mutex<MockAstLoader>>, f: &mut File) -> Result<()> {
-    for prop in prop.lock().unwrap().ref_properties.iter() {
-        if let Some(code) = &prop.lock().unwrap().code {
+    let children_props = prop.lock().unwrap().ref_properties.clone();
+
+    for children_prop in children_props.iter() {
+        let locked_prop = children_prop.lock().unwrap();
+
+        if let Some(code) = &locked_prop.code {
             f.write_all(code.as_bytes())?;
             f.write_all(b"\n")?;
         } else {
-            let fallback_code = &prop.lock().unwrap().generate_fallback_code();
+            let fallback_code = locked_prop.generate_fallback_code();
 
             f.write_all(fallback_code.as_bytes())?;
             f.write_all(b"\n")?;
         }
 
-        write_ref_properties(prop.clone(), f)?;
+        drop(locked_prop);
+        write_ref_properties(children_prop.clone(), f)?;
     }
     Ok(())
 }

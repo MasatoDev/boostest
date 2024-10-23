@@ -3,7 +3,6 @@ pub mod boostest_mock_builder;
 pub mod boostest_mock_loader;
 mod boostest_utils;
 
-use boostest_debug::tsserver;
 use boostest_mock_loader::mock_loader::MockLoader;
 use boostest_utils::{
     setting::{self, Setting},
@@ -12,10 +11,7 @@ use boostest_utils::{
 use colored::*;
 use indicatif::{ProgressBar, ProgressStyle};
 use oxc::{parser::Parser, span::SourceType};
-use std::{
-    path::Path,
-    sync::{Arc, Mutex},
-};
+use std::path::Path;
 
 pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
     let mut setting = setting::get_setting().unwrap_or(Setting {
@@ -92,6 +88,7 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
             &setting.project_root_path,
         );
 
+        println!("done!!!\n");
         if let Err(e) = task::handle_main_task(&mut mock_loader, path, &out_file_name) {
             println!(
                 "{}:{}",
