@@ -16,7 +16,7 @@ use oxc::ast::VisitMut;
 use crate::boostest_mock_builder::test_data_assignment;
 use crate::boostest_mock_loader::mock_loader::MockLoader;
 
-use super::mock_ast_loader2::MockAstLoader;
+use super::mock_ast_loader::MockAstLoader;
 
 // *********************************** MockBuilder ***********************************
 impl<'a> VisitMut<'a> for MockLoader {
@@ -104,7 +104,6 @@ impl<'a> VisitMut<'a> for MockAstLoader {
         for param in &ty.params {
             if let TSTypeReference(ty_ref) = param {
                 if let TSTypeName::IdentifierReference(identifier) = &ty_ref.type_name {
-                    println!("visit_ts_type_parameter_instantiation: {:?}", identifier);
                     self.set_target_name(identifier.name.clone().into_string(), identifier.span);
                 }
             }

@@ -35,8 +35,16 @@ ref_properties: [
 ]
 */
 
+use std::{
+    path::PathBuf,
+    sync::{Arc, Mutex},
+};
+
 use crate::boostest_mock_builder::mock_builder::MockBuilder;
-use oxc::ast::ast::{Class, TSInterfaceDeclaration, TSTypeAliasDeclaration};
+use oxc::{
+    ast::ast::{Class, TSInterfaceDeclaration, TSTypeAliasDeclaration},
+    span::Span,
+};
 
 #[derive(Clone, Debug)]
 pub struct Import {
@@ -53,13 +61,19 @@ pub struct Import {
 
 #[derive(Debug)]
 pub struct MockAstLoader {
+    // for tsserver
+    pub span: Span,
+    pub target_definition_span: Option<Span>,
+
     pub mock_func_name: String,
     pub mock_target_name: Option<String>,
     pub prop_key_name: Option<String>,
     pub resolved: bool,
     pub import: Vec<Import>,
+    pub current_read_file_path: Option<PathBuf>,
+    pub def_file_path: Option<PathBuf>,
     pub temp_import_source_vec: Option<Vec<Import>>,
-    pub ref_properties: Vec<MockAstLoader>,
+    pub ref_properties: Vec<Arc<Mutex<MockAstLoader>>>,
     pub code: Option<String>,
     analysis_started: bool,
 }
@@ -68,14 +82,20 @@ impl MockAstLoader {
     pub fn new(
         mock_func_name: String,
         mock_target_name: Option<String>,
+        span: Option<Span>,
         prop_key_name: Option<String>,
     ) -> Self {
         Self {
+            span: span.unwrap_or(Span::new(0, 0)),
+            target_definition_span: None,
+
             mock_func_name,
             mock_target_name,
             prop_key_name,
             resolved: false,
             import: Vec::new(),
+            current_read_file_path: None,
+            def_file_path: None,
             ref_properties: Vec::new(),
             analysis_started: false,
             temp_import_source_vec: None,
@@ -83,8 +103,17 @@ impl MockAstLoader {
         }
     }
 
-    pub fn set_target_name(&mut self, name: String) {
+    pub fn set_current_read_file_path(&mut self, path: PathBuf) {
+        self.current_read_file_path = Some(path);
+    }
+
+    pub fn set_target_name(&mut self, name: String, span: Span) {
         self.mock_target_name = Some(name);
+        self.span = span;
+    }
+
+    pub fn set_target_definition_span(&mut self, span: Span) {
+        self.target_definition_span = Some(span);
     }
 
     pub fn analysis_start(&mut self) {
@@ -310,28 +339,54 @@ impl MockAstLoader {
         self.reset_temp_import_source();
     }
 
-    pub fn add_property_ts_type(&mut self, name: String, key_name: String) {
-        self.ref_properties.push(MockAstLoader::new(
+    fn calc_prop_span(&mut self, span: Span) -> Span {
+        if let Some(target_definition_span) = self.target_definition_span {
+            return Span::new(
+                span.start + target_definition_span.start,
+                span.end + target_definition_span.start,
+            );
+        };
+
+        span
+    }
+
+    pub fn add_property_ts_type(&mut self, name: String, key_name: String, span: Span) {
+        let new_span = self.calc_prop_span(span);
+
+        let mut new_mock_ast_loader = MockAstLoader::new(
             self.mock_func_name.clone(),
             Some(name),
+            Some(new_span),
             Some(key_name),
-        ));
+        );
+        new_mock_ast_loader.def_file_path = self.current_read_file_path.clone();
+
+        self.ref_properties
+            .push(Arc::new(Mutex::new(new_mock_ast_loader)));
     }
 
-    pub fn add_property_class(&mut self, name: String) {
-        self.ref_properties.push(MockAstLoader::new(
+    pub fn add_property_class(&mut self, name: String, span: Span) {
+        let new_span = self.calc_prop_span(span);
+
+        let mut new_mock_ast_loader = MockAstLoader::new(
             self.mock_func_name.clone(),
             Some(name),
+            Some(new_span),
             None,
-        ));
+        );
+        new_mock_ast_loader.def_file_path = self.current_read_file_path.clone();
+
+        self.ref_properties
+            .push(Arc::new(Mutex::new(new_mock_ast_loader)));
     }
 
-    pub fn get_needs_start_analysis_properties(&mut self) -> Vec<&mut MockAstLoader> {
+    pub fn get_needs_start_analysis_properties(&mut self) -> Vec<Arc<Mutex<MockAstLoader>>> {
         let mut result = Vec::new();
 
         for prop in &mut self.ref_properties {
-            if !prop.resolved && !prop.analysis_started {
-                result.push(prop);
+            let prop_lock = prop.lock().unwrap();
+            if !prop_lock.resolved && !prop_lock.analysis_started {
+                result.push(prop.clone());
             }
         }
         result

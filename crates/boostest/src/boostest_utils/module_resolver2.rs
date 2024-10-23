@@ -9,7 +9,7 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 
 use crate::boostest_debug::tsserver;
-use crate::boostest_mock_loader::mock_ast_loader2::{self, MockAstLoader};
+use crate::boostest_mock_loader::mock_ast_loader::{self, MockAstLoader};
 use crate::boostest_mock_loader::mock_loader::MockLoader;
 use crate::boostest_utils::utils;
 

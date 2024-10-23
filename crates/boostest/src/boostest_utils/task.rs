@@ -1,4 +1,4 @@
-use crate::boostest_mock_loader::mock_ast_loader2::MockAstLoader;
+use crate::boostest_mock_loader::mock_ast_loader::MockAstLoader;
 use crate::boostest_mock_loader::mock_loader::MockLoader;
 
 use anyhow::Result;
@@ -10,12 +10,10 @@ use std::path::Path;
 use std::sync::{Arc, Mutex};
 
 pub fn handle_main_task(
-    mock_loader: Arc<Mutex<MockLoader>>,
+    mock_loader: &mut MockLoader,
     path: &Path,
     out_file_name: &str,
 ) -> Result<()> {
-    let mut mock_loader = mock_loader.lock().unwrap();
-
     let file_name = path
         .file_stem()
         .unwrap_or(OsStr::new("none_file_name"))

@@ -173,6 +173,9 @@ pub fn tsserver(
 fn offset_to_position(offset: u32, source_text: &str) -> Option<Position> {
     let offset = offset as usize;
     let rope = Rope::from_str(source_text);
+
+    println!("offset: {}", offset);
+
     // Get line number and byte offset of start of line
     let line_index = rope.byte_to_line(offset);
     let line_offset = rope.line_to_byte(line_index);

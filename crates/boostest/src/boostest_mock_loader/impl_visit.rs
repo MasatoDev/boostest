@@ -69,7 +69,7 @@ impl<'a> VisitMut<'a> for MockLoader {
                 self.add_ast_loader(target_mock_name.clone().to_string());
 
                 if let Some(target_mock) = self.get_mock(&target_mock_name) {
-                    target_mock.visit_call_expression(expr);
+                    target_mock.lock().unwrap().visit_call_expression(expr);
                 }
             }
         }
@@ -80,7 +80,6 @@ impl<'a> VisitMut<'a> for MockLoader {
 
 impl<'a> VisitMut<'a> for MockAstLoader {
     fn visit_call_expression(&mut self, expr: &mut CallExpression<'a>) {
-        println!("visit_call_expression: {:?}", expr);
         let CallExpression {
             type_parameters,
             arguments,
@@ -104,7 +103,7 @@ impl<'a> VisitMut<'a> for MockAstLoader {
         for param in &ty.params {
             if let TSTypeReference(ty_ref) = param {
                 if let TSTypeName::IdentifierReference(identifier) = &ty_ref.type_name {
-                    self.set_target_name(identifier.name.clone().into_string());
+                    self.set_target_name(identifier.name.clone().into_string(), identifier.span);
                 }
             }
         }
@@ -113,7 +112,7 @@ impl<'a> VisitMut<'a> for MockAstLoader {
     fn visit_argument(&mut self, arg: &mut Argument<'a>) {
         match arg {
             Argument::Identifier(identifier) => {
-                self.set_target_name(identifier.name.clone().into_string());
+                self.set_target_name(identifier.name.clone().into_string(), identifier.span);
             }
             _ => {
                 // println!("This isn't mock target: {:?}", arg);
@@ -126,6 +125,8 @@ impl<'a> VisitMut<'a> for MockAstLoader {
     fn visit_statements(&mut self, stmts: &mut Vec<'a, Statement<'a>>) {
         for stmt in stmts.iter_mut() {
             match stmt {
+                // TODO: support named change `const huga  = hoge;`
+                Statement::VariableDeclaration(_) => {}
                 Statement::TSImportEqualsDeclaration(ts_import_equals_decl) => {
                     self.visit_ts_import_equals_declaration(ts_import_equals_decl);
                 }

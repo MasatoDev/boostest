@@ -73,24 +73,26 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
             format!("{}", path.to_string_lossy()).green()
         );
 
-        let mut mock_loader = Arc::new(Mutex::new(MockLoader::new(
-            path_buf.clone(),
-            setting.name.clone(),
-        )));
+        // let mut mock_loader = Arc::new(Mutex::new(MockLoader::new(
+        //     path_buf.clone(),
+        //     setting.name.clone(),
+        // )));
+        //
+        let mut mock_loader = MockLoader::new(path_buf.clone(), setting.name.clone());
 
         let allocator = oxc::allocator::Allocator::default();
         let parser = Parser::new(&allocator, &file, source_type);
         let mut program = parser.parse().program;
 
-        boostest_utils::module_resolver2::load_mock(
-            mock_loader.clone(),
+        boostest_utils::module_resolver::load_mock(
+            &mut mock_loader,
             &mut program,
             path,
             &setting.tsconfig,
             &setting.project_root_path,
         );
 
-        if let Err(e) = task::handle_main_task(mock_loader.clone(), path, &out_file_name) {
+        if let Err(e) = task::handle_main_task(&mut mock_loader, path, &out_file_name) {
             println!(
                 "{}:{}",
                 format!("failed to create test data at :{}", path.to_string_lossy()).green(),

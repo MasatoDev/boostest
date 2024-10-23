@@ -4,7 +4,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use crate::boostest_mock_loader::mock_ast_loader2::MockAstLoader;
+use crate::boostest_mock_loader::mock_ast_loader::MockAstLoader;
 
 pub struct MockLoader {
     pub mocks: HashMap<String, Arc<Mutex<MockAstLoader>>>,
@@ -75,8 +75,8 @@ impl MockLoader {
             println!("---------------------");
             println!("AST: {:?}", mock.lock().unwrap().ref_properties);
             println!("---------------------");
-            // println!("name: {:?}", self.);
-            // println!("---------------------");
+            println!("target_definition_span: {:?}", mock.lock().unwrap().span);
+            println!("---------------------");
         }
     }
 }

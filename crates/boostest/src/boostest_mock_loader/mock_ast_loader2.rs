@@ -169,7 +169,7 @@ impl MockAstLoader {
                 Some(new_span),
                 Some(key_name),
             ))));
-    }
+    }っっj
 
     pub fn add_property_class(&mut self, name: String, span: Span) {
         let new_span = self.calc_prop_span(span);

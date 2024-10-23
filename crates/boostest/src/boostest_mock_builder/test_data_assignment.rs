@@ -1,4 +1,4 @@
-use crate::{boostest_mock_loader::mock_ast_loader2::MockAstLoader, boostest_utils};
+use crate::{boostest_mock_loader::mock_ast_loader::MockAstLoader, boostest_utils};
 use oxc::ast::ast::{TSSignature, TSType, TSTypeName};
 
 fn ts_signature_assign(
