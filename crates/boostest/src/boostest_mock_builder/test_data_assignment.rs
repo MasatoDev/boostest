@@ -31,6 +31,8 @@ pub fn ts_type_assign_as_property(
 ) {
     match ts_type {
         TSType::TSTypeReference(ty_ref) if boostest_utils::ast_utils::is_defined_type(&ty_ref) => {}
+        TSType::TSTypeReference(ty_ref) if boostest_utils::ast_utils::is_function_type(&ty_ref) => {
+        }
         TSType::TSTypeReference(ty_ref) if boostest_utils::ast_utils::is_array_type(&ty_ref) => {}
         TSType::TSTypeReference(ty_ref) => {
             if let TSTypeName::IdentifierReference(identifier) = &ty_ref.type_name {

@@ -1,5 +1,5 @@
 {
-  "target_pattern": ["src/invest/sendgrid/*"],
+  "target_pattern": ["src/invest/**/*"],
   "name": "boostest",
   "out_file_name": "test_data",
   "tsconfig": "./tsconfig.json"

@@ -1,5 +1,78 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`boostest invest dir output correctly 1`] = `
+"export function boostestFormDataVisitorHelpers<T>(args?: Partial<T>): T {
+	return ({
+		'defaultVisitor':defaultVisitor_SerializerVisitor_boostestFormDataVisitorHelpers<any>(),
+		'convertValue':(value: any) => {
+			return 'any';
+		},
+		'isVisitable':(value: any) => {
+			return true;
+		},
+		...args
+	} as T);
+}
+
+export function defaultVisitor_SerializerVisitor_boostestFormDataVisitorHelpers<T>(args?: Partial<T>): T {
+	return ({
+		...args
+	} as T);
+}
+
+export function boostestResponseType<T>(args?: Partial<T>): T {
+	return ({
+		...args
+	} as T);
+}
+
+"
+`;
+
+exports[`boostest invest dir output correctly 2`] = `
+"export function boostestHandler<T>(args?: Partial<T>): T {
+	return ({
+		...args
+	} as T);
+}
+
+export function boostestParamHandler<T>(args?: Partial<T>): T {
+	return ({
+		...args
+	} as T);
+}
+
+export function boostestRequest<T>(args?: Partial<T>): T {
+	return ({
+		...args
+	} as T);
+}
+
+export function boostestResponse<T>(args?: Partial<T>): T {
+	return ({
+		...args
+	} as T);
+}
+
+"
+`;
+
+exports[`boostest invest dir output correctly 3`] = `
+"export function boostestSendGrid<T>() {
+	return ClientResponse_Response_boostestSendGrid<any>();
+}
+
+export function ClientResponse_Response_boostestSendGrid<T extends abstract new (...args: any) => any>(Response): T {
+	return new Response(10, body_TPayload_boostestSendGrid<any>(), 'any');
+}
+
+export function body_TPayload_boostestSendGrid<T>() {
+	return {};
+}
+
+"
+`;
+
 exports[`boostest main file output correctly 1`] = `
 "export function boostestAccessorClass<T extends abstract new (...args: any) => any>(AccessorClass): T {
 	return new AccessorClass('test string data', 10, 10);
@@ -48,7 +121,7 @@ export function favorite_CalbeeLightlySalted_boostestAnoExportDefaultClass<T>(ar
 
 export function mostFav_PringlesSourCreamAndOnion_boostestAnoExportDefaultClass<T>(args?: Partial<T>): T {
 	return ({
-		'name':'Pringles Sour Cream & Onion',
+		'name':'Pringles Sour Cream & Onion \\u{1f600}',
 		'price':200,
 		...args
 	} as T);
@@ -56,7 +129,7 @@ export function mostFav_PringlesSourCreamAndOnion_boostestAnoExportDefaultClass<
 
 export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestAnoExportDefaultClass<T>(args?: Partial<T>): T {
 	return ({
-		'name':'Kettle Brand Sea Salt & Vinegar',
+		'name':'Kettle Brand Sea Salt & Vinegar \\u{65e5}\\u{672c}\\u{8a9e}\\u{304c}\\u{5165}\\u{308b}\\u{3068}\\u{3069}\\u{3046}\\u{ff1f}\\u{1f914}',
 		'price':250,
 		...args
 	} as T);
@@ -125,7 +198,7 @@ export function favorite_CalbeeLightlySalted_boostestAnoExportDefaultInterface<T
 
 export function mostFav_PringlesSourCreamAndOnion_boostestAnoExportDefaultInterface<T>(args?: Partial<T>): T {
 	return ({
-		'name':'Pringles Sour Cream & Onion',
+		'name':'Pringles Sour Cream & Onion \\u{1f600}',
 		'price':200,
 		...args
 	} as T);
@@ -133,7 +206,7 @@ export function mostFav_PringlesSourCreamAndOnion_boostestAnoExportDefaultInterf
 
 export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestAnoExportDefaultInterface<T>(args?: Partial<T>): T {
 	return ({
-		'name':'Kettle Brand Sea Salt & Vinegar',
+		'name':'Kettle Brand Sea Salt & Vinegar \\u{65e5}\\u{672c}\\u{8a9e}\\u{304c}\\u{5165}\\u{308b}\\u{3068}\\u{3069}\\u{3046}\\u{ff1f}\\u{1f914}',
 		'price':250,
 		...args
 	} as T);
@@ -198,7 +271,7 @@ export function favorite_CalbeeLightlySalted_boostestAnoExportNamedDeclClass<T>(
 
 export function mostFav_PringlesSourCreamAndOnion_boostestAnoExportNamedDeclClass<T>(args?: Partial<T>): T {
 	return ({
-		'name':'Pringles Sour Cream & Onion',
+		'name':'Pringles Sour Cream & Onion \\u{1f600}',
 		'price':200,
 		...args
 	} as T);
@@ -206,7 +279,7 @@ export function mostFav_PringlesSourCreamAndOnion_boostestAnoExportNamedDeclClas
 
 export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestAnoExportNamedDeclClass<T>(args?: Partial<T>): T {
 	return ({
-		'name':'Kettle Brand Sea Salt & Vinegar',
+		'name':'Kettle Brand Sea Salt & Vinegar \\u{65e5}\\u{672c}\\u{8a9e}\\u{304c}\\u{5165}\\u{308b}\\u{3068}\\u{3069}\\u{3046}\\u{ff1f}\\u{1f914}',
 		'price':250,
 		...args
 	} as T);
@@ -275,7 +348,7 @@ export function favorite_CalbeeLightlySalted_boostestAnoMixInterface<T>(args?: P
 
 export function mostFav_PringlesSourCreamAndOnion_boostestAnoMixInterface<T>(args?: Partial<T>): T {
 	return ({
-		'name':'Pringles Sour Cream & Onion',
+		'name':'Pringles Sour Cream & Onion \\u{1f600}',
 		'price':200,
 		...args
 	} as T);
@@ -283,7 +356,7 @@ export function mostFav_PringlesSourCreamAndOnion_boostestAnoMixInterface<T>(arg
 
 export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestAnoMixInterface<T>(args?: Partial<T>): T {
 	return ({
-		'name':'Kettle Brand Sea Salt & Vinegar',
+		'name':'Kettle Brand Sea Salt & Vinegar \\u{65e5}\\u{672c}\\u{8a9e}\\u{304c}\\u{5165}\\u{308b}\\u{3068}\\u{3069}\\u{3046}\\u{ff1f}\\u{1f914}',
 		'price':250,
 		...args
 	} as T);
@@ -401,7 +474,7 @@ export function favorite_CalbeeLightlySalted_boostestComplexChipsType<T>(args?: 
 
 export function mostFav_PringlesSourCreamAndOnion_boostestComplexChipsType<T>(args?: Partial<T>): T {
 	return ({
-		'name':'Pringles Sour Cream & Onion',
+		'name':'Pringles Sour Cream & Onion \\u{1f600}',
 		'price':200,
 		...args
 	} as T);
@@ -409,7 +482,7 @@ export function mostFav_PringlesSourCreamAndOnion_boostestComplexChipsType<T>(ar
 
 export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestComplexChipsType<T>(args?: Partial<T>): T {
 	return ({
-		'name':'Kettle Brand Sea Salt & Vinegar',
+		'name':'Kettle Brand Sea Salt & Vinegar \\u{65e5}\\u{672c}\\u{8a9e}\\u{304c}\\u{5165}\\u{308b}\\u{3068}\\u{3069}\\u{3046}\\u{ff1f}\\u{1f914}',
 		'price':250,
 		...args
 	} as T);
@@ -474,7 +547,7 @@ export function favorite_CalbeeLightlySalted_boostestExportDefaultClass<T>(args?
 
 export function mostFav_PringlesSourCreamAndOnion_boostestExportDefaultClass<T>(args?: Partial<T>): T {
 	return ({
-		'name':'Pringles Sour Cream & Onion',
+		'name':'Pringles Sour Cream & Onion \\u{1f600}',
 		'price':200,
 		...args
 	} as T);
@@ -482,7 +555,7 @@ export function mostFav_PringlesSourCreamAndOnion_boostestExportDefaultClass<T>(
 
 export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportDefaultClass<T>(args?: Partial<T>): T {
 	return ({
-		'name':'Kettle Brand Sea Salt & Vinegar',
+		'name':'Kettle Brand Sea Salt & Vinegar \\u{65e5}\\u{672c}\\u{8a9e}\\u{304c}\\u{5165}\\u{308b}\\u{3068}\\u{3069}\\u{3046}\\u{ff1f}\\u{1f914}',
 		'price':250,
 		...args
 	} as T);
@@ -547,7 +620,7 @@ export function favorite_CalbeeLightlySalted_boostestExportDefaultClassWithDecl<
 
 export function mostFav_PringlesSourCreamAndOnion_boostestExportDefaultClassWithDecl<T>(args?: Partial<T>): T {
 	return ({
-		'name':'Pringles Sour Cream & Onion',
+		'name':'Pringles Sour Cream & Onion \\u{1f600}',
 		'price':200,
 		...args
 	} as T);
@@ -555,7 +628,7 @@ export function mostFav_PringlesSourCreamAndOnion_boostestExportDefaultClassWith
 
 export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportDefaultClassWithDecl<T>(args?: Partial<T>): T {
 	return ({
-		'name':'Kettle Brand Sea Salt & Vinegar',
+		'name':'Kettle Brand Sea Salt & Vinegar \\u{65e5}\\u{672c}\\u{8a9e}\\u{304c}\\u{5165}\\u{308b}\\u{3068}\\u{3069}\\u{3046}\\u{ff1f}\\u{1f914}',
 		'price':250,
 		...args
 	} as T);
@@ -624,7 +697,7 @@ export function favorite_CalbeeLightlySalted_boostestExportDefaultNamedDecl<T>(a
 
 export function mostFav_PringlesSourCreamAndOnion_boostestExportDefaultNamedDecl<T>(args?: Partial<T>): T {
 	return ({
-		'name':'Pringles Sour Cream & Onion',
+		'name':'Pringles Sour Cream & Onion \\u{1f600}',
 		'price':200,
 		...args
 	} as T);
@@ -632,7 +705,7 @@ export function mostFav_PringlesSourCreamAndOnion_boostestExportDefaultNamedDecl
 
 export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportDefaultNamedDecl<T>(args?: Partial<T>): T {
 	return ({
-		'name':'Kettle Brand Sea Salt & Vinegar',
+		'name':'Kettle Brand Sea Salt & Vinegar \\u{65e5}\\u{672c}\\u{8a9e}\\u{304c}\\u{5165}\\u{308b}\\u{3068}\\u{3069}\\u{3046}\\u{ff1f}\\u{1f914}',
 		'price':250,
 		...args
 	} as T);
@@ -693,7 +766,7 @@ export function favorite_CalbeeLightlySalted_boostestExportNamedDecl<T>(args?: P
 
 export function mostFav_PringlesSourCreamAndOnion_boostestExportNamedDecl<T>(args?: Partial<T>): T {
 	return ({
-		'name':'Pringles Sour Cream & Onion',
+		'name':'Pringles Sour Cream & Onion \\u{1f600}',
 		'price':200,
 		...args
 	} as T);
@@ -701,7 +774,7 @@ export function mostFav_PringlesSourCreamAndOnion_boostestExportNamedDecl<T>(arg
 
 export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportNamedDecl<T>(args?: Partial<T>): T {
 	return ({
-		'name':'Kettle Brand Sea Salt & Vinegar',
+		'name':'Kettle Brand Sea Salt & Vinegar \\u{65e5}\\u{672c}\\u{8a9e}\\u{304c}\\u{5165}\\u{308b}\\u{3068}\\u{3069}\\u{3046}\\u{ff1f}\\u{1f914}',
 		'price':250,
 		...args
 	} as T);
@@ -770,7 +843,7 @@ export function favorite_CalbeeLightlySalted_boostestExportNamedDeclInterface<T>
 
 export function mostFav_PringlesSourCreamAndOnion_boostestExportNamedDeclInterface<T>(args?: Partial<T>): T {
 	return ({
-		'name':'Pringles Sour Cream & Onion',
+		'name':'Pringles Sour Cream & Onion \\u{1f600}',
 		'price':200,
 		...args
 	} as T);
@@ -778,7 +851,7 @@ export function mostFav_PringlesSourCreamAndOnion_boostestExportNamedDeclInterfa
 
 export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportNamedDeclInterface<T>(args?: Partial<T>): T {
 	return ({
-		'name':'Kettle Brand Sea Salt & Vinegar',
+		'name':'Kettle Brand Sea Salt & Vinegar \\u{65e5}\\u{672c}\\u{8a9e}\\u{304c}\\u{5165}\\u{308b}\\u{3068}\\u{3069}\\u{3046}\\u{ff1f}\\u{1f914}',
 		'price':250,
 		...args
 	} as T);
@@ -1195,7 +1268,7 @@ export function favorite_CalbeeLightlySalted_boostestMixCompTSAlias<T>(args?: Pa
 
 export function mostFav_PringlesSourCreamAndOnion_boostestMixCompTSAlias<T>(args?: Partial<T>): T {
 	return ({
-		'name':'Pringles Sour Cream & Onion',
+		'name':'Pringles Sour Cream & Onion \\u{1f600}',
 		'price':200,
 		...args
 	} as T);
@@ -1203,7 +1276,7 @@ export function mostFav_PringlesSourCreamAndOnion_boostestMixCompTSAlias<T>(args
 
 export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestMixCompTSAlias<T>(args?: Partial<T>): T {
 	return ({
-		'name':'Kettle Brand Sea Salt & Vinegar',
+		'name':'Kettle Brand Sea Salt & Vinegar \\u{65e5}\\u{672c}\\u{8a9e}\\u{304c}\\u{5165}\\u{308b}\\u{3068}\\u{3069}\\u{3046}\\u{ff1f}\\u{1f914}',
 		'price':250,
 		...args
 	} as T);
