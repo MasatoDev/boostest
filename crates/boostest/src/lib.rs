@@ -1,5 +1,6 @@
 pub mod boostest_mock_builder;
 pub mod boostest_mock_loader;
+mod boostest_tsserver;
 mod boostest_utils;
 
 use boostest_mock_loader::mock_loader::MockLoader;
@@ -17,6 +18,7 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
         target: None,
         name: None,
         tsconfig: None,
+        project_root_path: None,
         out_file_name: None,
     });
 
@@ -26,7 +28,8 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
     // Preference for command line arguments
     if let Some(ts_config_path) = ts_config_path {
         let ts_config_path = ts_config_path.to_path_buf();
-        setting.set_tsconfig(ts_config_path)
+        // tsserver(ts_config_path.clone());
+        setting.set_tsconfig(ts_config_path);
     }
 
     let out_file_name = setting.out_file_name.unwrap_or(String::from("boostest"));
@@ -66,7 +69,13 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
             format!("{}", path.to_string_lossy()).green()
         );
 
-        let mut mock_loader = MockLoader::new(setting.name.clone());
+        // let mut mock_loader = Arc::new(Mutex::new(MockLoader::new(
+        //     path_buf.clone(),
+        //     setting.name.clone(),
+        // )));
+        //
+        let mut mock_loader = MockLoader::new(path_buf.clone(), setting.name.clone());
+
         let allocator = oxc::allocator::Allocator::default();
         let parser = Parser::new(&allocator, &file, source_type);
         let mut program = parser.parse().program;
@@ -76,6 +85,7 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
             &mut program,
             path,
             &setting.tsconfig,
+            &setting.project_root_path,
         );
 
         if let Err(e) = task::handle_main_task(&mut mock_loader, path, &out_file_name) {

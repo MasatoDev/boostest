@@ -31,20 +31,28 @@ pub fn ts_type_assign_as_property(
 ) {
     match ts_type {
         TSType::TSTypeReference(ty_ref) if boostest_utils::ast_utils::is_defined_type(&ty_ref) => {}
+        TSType::TSTypeReference(ty_ref) if boostest_utils::ast_utils::is_function_type(&ty_ref) => {
+        }
         TSType::TSTypeReference(ty_ref) if boostest_utils::ast_utils::is_array_type(&ty_ref) => {}
         TSType::TSTypeReference(ty_ref) => {
             if let TSTypeName::IdentifierReference(identifier) = &ty_ref.type_name {
                 let new_key = format!("{}_{}", key, identifier.name.clone().into_string());
-                mock_ast_loader
-                    .add_property_ts_type(identifier.name.clone().into_string(), new_key);
+                mock_ast_loader.add_property_ts_type(
+                    identifier.name.clone().into_string(),
+                    new_key,
+                    identifier.span,
+                );
             }
         }
         TSType::TSConditionalType(ts_condition_type) => {
             if let TSType::TSTypeReference(ty_ref) = &ts_condition_type.true_type {
                 if let TSTypeName::IdentifierReference(identifier) = &ty_ref.type_name {
                     let new_key = format!("{}_{}", key, identifier.name.clone().into_string());
-                    mock_ast_loader
-                        .add_property_ts_type(identifier.name.clone().into_string(), new_key);
+                    mock_ast_loader.add_property_ts_type(
+                        identifier.name.clone().into_string(),
+                        new_key,
+                        identifier.span,
+                    );
                 }
             }
         }
@@ -53,8 +61,11 @@ pub fn ts_type_assign_as_property(
                 if let TSType::TSTypeReference(ty_ref) = first_union_type {
                     if let TSTypeName::IdentifierReference(identifier) = &ty_ref.type_name {
                         let new_key = format!("{}_{}", key, identifier.name.clone().into_string());
-                        mock_ast_loader
-                            .add_property_ts_type(identifier.name.clone().into_string(), new_key);
+                        mock_ast_loader.add_property_ts_type(
+                            identifier.name.clone().into_string(),
+                            new_key,
+                            identifier.span,
+                        );
                     }
                 }
             }

@@ -69,7 +69,7 @@ impl<'a> VisitMut<'a> for MockLoader {
                 self.add_ast_loader(target_mock_name.clone().to_string());
 
                 if let Some(target_mock) = self.get_mock(&target_mock_name) {
-                    target_mock.visit_call_expression(expr);
+                    target_mock.lock().unwrap().visit_call_expression(expr);
                 }
             }
         }
@@ -103,7 +103,7 @@ impl<'a> VisitMut<'a> for MockAstLoader {
         for param in &ty.params {
             if let TSTypeReference(ty_ref) = param {
                 if let TSTypeName::IdentifierReference(identifier) = &ty_ref.type_name {
-                    self.set_target_name(identifier.name.clone().into_string());
+                    self.set_target_name(identifier.name.clone().into_string(), identifier.span);
                 }
             }
         }
@@ -112,7 +112,7 @@ impl<'a> VisitMut<'a> for MockAstLoader {
     fn visit_argument(&mut self, arg: &mut Argument<'a>) {
         match arg {
             Argument::Identifier(identifier) => {
-                self.set_target_name(identifier.name.clone().into_string());
+                self.set_target_name(identifier.name.clone().into_string(), identifier.span);
             }
             _ => {
                 // println!("This isn't mock target: {:?}", arg);
@@ -125,6 +125,8 @@ impl<'a> VisitMut<'a> for MockAstLoader {
     fn visit_statements(&mut self, stmts: &mut Vec<'a, Statement<'a>>) {
         for stmt in stmts.iter_mut() {
             match stmt {
+                // TODO: support named change `const huga  = hoge;`
+                Statement::VariableDeclaration(_) => {}
                 Statement::TSImportEqualsDeclaration(ts_import_equals_decl) => {
                     self.visit_ts_import_equals_declaration(ts_import_equals_decl);
                 }
@@ -159,6 +161,10 @@ impl<'a> VisitMut<'a> for MockAstLoader {
                 Statement::ExportDefaultDeclaration(export_default_decl) => {
                     self.visit_export_default_declaration(export_default_decl);
                 }
+                Statement::ExpressionStatement(_expr_stmt) => {
+                    // TODO: hoge<T = any>のようなgenericは`T = any`というexpressio, statementなのでanyが入るよう調整する
+                }
+
                 _ => {
                     // println!("Another Statement {:?}", stmt);
                 }
@@ -303,8 +309,6 @@ impl<'a> VisitMut<'a> for MockAstLoader {
     fn visit_ts_type_alias_declaration(&mut self, decl: &mut TSTypeAliasDeclaration<'a>) {
         if let Some(target_name) = self.get_decl_name_for_resolve() {
             if decl.id.name.to_string() == *target_name {
-                self.add_ts_alias(decl);
-
                 // NOTE: handle mock target property
                 match &mut decl.type_annotation {
                     TSType::TSTypeLiteral(ts_type_literal) => {
@@ -312,8 +316,22 @@ impl<'a> VisitMut<'a> for MockAstLoader {
                             self.visit_ts_signature(ts_signature);
                         }
                     }
+
+                    /*
+                        genericの変数も探してしまい、解決できず処理が止まってしまう
+                        時間制限と、genericの変数を利用するよう調整が必要そう
+                    */
+                    TSType::TSTypeReference(_ty_ref) => {
+                        test_data_assignment::ts_type_assign_as_property(
+                            self,
+                            &decl.type_annotation,
+                            target_name.to_string(),
+                        )
+                    }
                     _ => {}
                 }
+
+                self.add_ts_alias(decl);
             }
         }
     }

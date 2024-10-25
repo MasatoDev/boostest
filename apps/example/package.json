@@ -9,7 +9,8 @@
     "demo": "node --no-warnings --loader ts-node/esm ./src/example.ts",
     "boostest:help": "boostest --help",
     "boostest:version": "boostest --version",
-    "boostest": "boostest ./src/example.ts ./tsconfig.json"
+    "boostest": "boostest ./src/example.ts ./tsconfig.json",
+    "start:boostest": "boostest"
   },
   "keywords": [],
   "author": "",

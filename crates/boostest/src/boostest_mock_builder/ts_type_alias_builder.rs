@@ -173,11 +173,13 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
         */
 
         if !test_data_factory::is_ts_type_literal(&self.ts_type_alias.type_annotation) {
+            let id_name = self.ts_type_alias.id.name.to_string();
             let ts_annotation = self.ast_builder.copy(&self.ts_type_alias.type_annotation);
+
             let new_expr = test_data_factory::get_expression(
                 &self.ast_builder,
                 ts_annotation,
-                "key_name",
+                &id_name,
                 &self.mock_data.mock_func_name,
             );
 
