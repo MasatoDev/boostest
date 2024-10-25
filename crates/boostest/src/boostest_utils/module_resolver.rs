@@ -282,11 +282,6 @@ pub fn resolve_mock_target_ast_with_tsserver<'a>(
     let absolute_path = path.canonicalize().unwrap();
 
     if let Some(project_root_path) = project_root_path {
-        println!(
-            "identifying target file: {:?} \n target:{:?}",
-            &mock_ast_loader.mock_target_name, &absolute_path
-        );
-
         if let Some(result) = tsserver(project_root_path, &absolute_path, mock_ast_loader.span) {
             let (target_file_path, span) = result;
 

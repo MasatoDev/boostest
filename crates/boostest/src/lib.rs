@@ -88,7 +88,6 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
             &setting.project_root_path,
         );
 
-        println!("done!!!\n");
         if let Err(e) = task::handle_main_task(&mut mock_loader, path, &out_file_name) {
             println!(
                 "{}:{}",
