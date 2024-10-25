@@ -1,6 +1,6 @@
-mod boostest_debug;
 pub mod boostest_mock_builder;
 pub mod boostest_mock_loader;
+mod boostest_tsserver;
 mod boostest_utils;
 
 use boostest_mock_loader::mock_loader::MockLoader;

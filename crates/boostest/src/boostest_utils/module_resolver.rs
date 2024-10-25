@@ -10,9 +10,9 @@ use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 use std::thread;
 
-use crate::boostest_debug::tsserver;
 use crate::boostest_mock_loader::mock_ast_loader::MockAstLoader;
 use crate::boostest_mock_loader::mock_loader::MockLoader;
+use crate::boostest_tsserver::tsserver;
 use crate::boostest_utils::utils;
 
 /**
