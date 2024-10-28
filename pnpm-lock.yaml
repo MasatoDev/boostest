@@ -34,9 +34,21 @@ importers:
 
   apps/test:
     dependencies:
+      '@sendgrid/mail':
+        specifier: ^8.1.3
+        version: 8.1.3
+      '@types/express':
+        specifier: ^4.17.21
+        version: 4.17.21
+      axios:
+        specifier: ^1.7.2
+        version: 1.7.2
       boostest:
         specifier: workspace:*
         version: link:../../packages/boostest
+      express:
+        specifier: ^4.19.2
+        version: 4.19.2
       jest:
         specifier: ^29.7.0
         version: 29.7.0(@types/node@20.14.9)(ts-node@10.9.2(@types/node@20.14.9)(typescript@5.5.3))
