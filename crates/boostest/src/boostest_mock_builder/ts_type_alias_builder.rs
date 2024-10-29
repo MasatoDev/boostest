@@ -70,12 +70,7 @@ impl<'a> TSTypeAliasBuilder<'a> {
 
         self.visit_program(program);
 
-        let mut codegen_options = CodegenOptions::default();
-        codegen_options.enable_typescript = true;
-
-        Codegen::<false>::new("", "", codegen_options)
-            .build(program)
-            .source_text
+        Codegen::new().build(program).source_text
     }
 
     pub fn get_ts_alias_properties(

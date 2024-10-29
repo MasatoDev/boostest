@@ -54,9 +54,7 @@ impl<'a> FallbackFuncBuilder<'a> {
         let mut codegen_options = CodegenOptions::default();
         codegen_options.enable_typescript = true;
 
-        Codegen::<false>::new("", "", codegen_options)
-            .build(program)
-            .source_text
+        Codegen::new().build(program).source_text
     }
 }
 

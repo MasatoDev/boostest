@@ -72,12 +72,9 @@ impl<'a> ClassBuilder<'a> {
 
         self.visit_program(program);
 
-        let mut codegen_options = CodegenOptions::default();
-        codegen_options.enable_typescript = true;
+        let codegen_options = CodegenOptions::default();
 
-        Codegen::<false>::new("", "", codegen_options)
-            .build(program)
-            .source_text
+        Codegen::new().build(program).source_text
     }
 
     pub fn get_new_expression_argument(&mut self) -> allocator::Vec<'a, Argument<'a>> {
