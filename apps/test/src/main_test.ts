@@ -57,12 +57,16 @@ import {
   boostestTsTypeLiteralUndefined,
   boostestUseTSTypeLiteralAlias,
   boostestUseTSTypeLiteralInterface,
-} from './main_test_test_data';
+} from "./main_test_test_data";
 
 // TODO: not supported yet
 // _ = boostest();
 
-import { LiteralTypeAlias, LiteralTypeClass, LiteralTypeInterface } from '@/ts_types/literal';
+import {
+  LiteralTypeAlias,
+  LiteralTypeClass,
+  LiteralTypeInterface,
+} from "@/ts_types/literal";
 let literalAlias = boostestLiteralAliasType<LiteralTypeAlias>();
 literalAlias = boostestLiteralInterfaceType<LiteralTypeInterface>();
 boostestLiteralTypeClass<typeof LiteralTypeClass>(LiteralTypeClass);
@@ -111,7 +115,7 @@ import {
   // use
   UseTSTypeLiteralAlias,
   UseTSTypeLiteralInterface,
-} from '@/ts_types/ts_type_literal';
+} from "@/ts_types/ts_type_literal";
 
 boostestTsTypeLiteralString<TsTypeLiteralString>();
 boostestTsTypeLiteralLiteralTypeString<TsTypeLiteralLiteralTypeString>();
@@ -119,7 +123,8 @@ boostestTsLiteralTypeStringUnionType<TsLiteralTypeStringUnionType>();
 
 let _ = boostestTsTypeLiteralNumber<TsTypeLiteralNumber>();
 let _ = boostestTsLiteralNumberUnionType<TsLiteralNumberUnionType>();
-let _ = boostestTsTypeLiteralLiteralNumberType<TsTypeLiteralLiteralNumberType>();
+let _ =
+  boostestTsTypeLiteralLiteralNumberType<TsTypeLiteralLiteralNumberType>();
 
 let _ = boostestTsTypeLiteralBoolean<TsTypeLiteralBoolean>();
 
@@ -132,15 +137,18 @@ let _ = boostestTsTypeLiteralLiteralArrayType<TsTypeLiteralLiteralArrayType>();
 let _ = boostestTsLiteralArrayUnionType<TsLiteralArrayUnionType>();
 
 let _ = boostestTsTypeLiteralObject<TsTypeLiteralObject>();
-let _ = boostestTsTypeLiteralLiteralObjectType<TsTypeLiteralLiteralObjectType>();
+let _ =
+  boostestTsTypeLiteralLiteralObjectType<TsTypeLiteralLiteralObjectType>();
 let _ = boostestTsLiteralObjectUnionType<TsLiteralObjectUnionType>();
 
 let _ = boostestTsTypeLiteralFunction<TsTypeLiteralFunction>();
-let _ = boostestTsTypeLiteralLiteralFunctionType<TsTypeLiteralLiteralFunctionType>();
+let _ =
+  boostestTsTypeLiteralLiteralFunctionType<TsTypeLiteralLiteralFunctionType>();
 let _ = boostestTsLiteralFunctionUnionType<TsLiteralFunctionUnionType>();
 
 let _ = boostestTsTypeLiteralSymbol<TsTypeLiteralSymbol>();
-let _ = boostestTsTypeLiteralLiteralSymbolType<TsTypeLiteralLiteralSymbolType>();
+let _ =
+  boostestTsTypeLiteralLiteralSymbolType<TsTypeLiteralLiteralSymbolType>();
 
 let _ = boostestUseTSTypeLiteralAlias<UseTSTypeLiteralAlias>();
 let _ = boostestUseTSTypeLiteralInterface<UseTSTypeLiteralInterface>();
@@ -152,11 +160,11 @@ let _ = boostestUseTSTypeLiteralInterface<UseTSTypeLiteralInterface>();
  *
  *
  */
-import { NestedType, NestedInterface } from '@/ts_types/nested';
+import { NestedType, NestedInterface } from "@/ts_types/nested";
 let _ = boostestNestedType<NestedType>();
 let _ = boostestNestedInterface<NestedInterface>();
 
-import { NestedPropClass } from '@/nested_prop_class';
+import { NestedPropClass } from "@/nested_prop_class";
 let _ = boostestNestedPropClass<typeof NestedPropClass>(NestedPropClass);
 
 /**
@@ -166,60 +174,77 @@ let _ = boostestNestedPropClass<typeof NestedPropClass>(NestedPropClass);
  *
  *
  */
-import { ComplexChipsType } from './types/export_decl';
+import { ComplexChipsType } from "./types/export_decl";
 let _ = boostestComplexChipsType<ComplexChipsType>();
 
-import AnoExportDefaultInterface from '@/export_default_interface';
+import AnoExportDefaultInterface from "@/export_default_interface";
 let a = boostestAnoExportDefaultInterface<AnoExportDefaultInterface>({
-  name: 'overridden',
+  name: "overridden",
 });
 
-import AnoExportDefaultClass from '@/export_default_class';
-let b = boostestAnoExportDefaultClass<typeof AnoExportDefaultClass>(AnoExportDefaultClass);
+import AnoExportDefaultClass from "@/export_default_class";
+let b = boostestAnoExportDefaultClass<typeof AnoExportDefaultClass>(
+  AnoExportDefaultClass,
+);
 
-import ExportDefaultClass from './types/export_default_class';
-let c = boostestExportDefaultClass<typeof ExportDefaultClass>(ExportDefaultClass);
+import ExportDefaultClass from "./types/export_default_class";
+let c =
+  boostestExportDefaultClass<typeof ExportDefaultClass>(ExportDefaultClass);
 
-import ExportDefaultClassWithDecl from './types/export_default_class_with_decl';
-let d = boostestExportDefaultClassWithDecl<typeof ExportDefaultClassWithDecl>(ExportDefaultClassWithDecl);
+import ExportDefaultClassWithDecl from "./types/export_default_class_with_decl";
+let d = boostestExportDefaultClassWithDecl<typeof ExportDefaultClassWithDecl>(
+  ExportDefaultClassWithDecl,
+);
 
-import { ExportNamedDecl } from './types/export_named_decl';
+import { ExportNamedDecl } from "./types/export_named_decl";
 let e = boostestExportNamedDecl<ExportNamedDecl>();
 
-import ExportDefaultNamedDecl from './types/export_default_named_decl';
+import ExportDefaultNamedDecl from "./types/export_default_named_decl";
 let f = boostestExportDefaultNamedDecl<ExportDefaultNamedDecl>();
 
-import { AnoExportNamedDeclInterface } from './types/export_named_decl_interface';
+import { AnoExportNamedDeclInterface } from "./types/export_named_decl_interface";
 let g = boostestExportNamedDeclInterface<AnoExportNamedDeclInterface>();
 
-import { AnoExportNamedDeclClass } from './types/export_named_decl_class';
-let h = boostestAnoExportNamedDeclClass<typeof AnoExportNamedDeclClass>(AnoExportNamedDeclClass);
+import { AnoExportNamedDeclClass } from "./types/export_named_decl_class";
+let h = boostestAnoExportNamedDeclClass<typeof AnoExportNamedDeclClass>(
+  AnoExportNamedDeclClass,
+);
 
-import Mix, { MixCompTSAlias } from './types/mix';
-let i = boostestAnoMixInterface<Mix>({ name: 'mix' });
-let j = boostestMixCompTSAlias<MixCompTSAlias>({ name: 'mixCompTSAlias' });
+import Mix, { MixCompTSAlias } from "./types/mix";
+let i = boostestAnoMixInterface<Mix>({ name: "mix" });
+let j = boostestMixCompTSAlias<MixCompTSAlias>({ name: "mixCompTSAlias" });
 
-import MixInterfaceSecond, { MixInterfaceFirst } from '@/mix_default_normal/mix_interface';
+import MixInterfaceSecond, {
+  MixInterfaceFirst,
+} from "@/mix_default_normal/mix_interface";
 let _ = boostestMixInterfaceFirst<MixInterfaceFirst>();
 let _ = boostestMixInterfaceSecond<MixInterfaceSecond>();
 
-import MixInterfaceFirst2, { MixInterfaceSecond2 } from '@/mix_default_normal/mix_interface2';
+import MixInterfaceFirst2, {
+  MixInterfaceSecond2,
+} from "@/mix_default_normal/mix_interface2";
 let _ = boostestMixInterfaceFirst2<MixInterfaceFirst2>();
 let _ = boostestMixInterfaceSecond2<MixInterfaceSecond2>();
 
-import MixTSAliasSecond, { MixTSAliasFirst } from '@/mix_default_normal/mix_ts_alias';
+import MixTSAliasSecond, {
+  MixTSAliasFirst,
+} from "@/mix_default_normal/mix_ts_alias";
 let _ = boostestMixTSAliasFirst<MixTSAliasFirst>();
 let _ = boostestMixTSAliasSecond<MixTSAliasSecond>();
 
-import MixTSAliasSecond2, { MixTSAliasFirst2 } from '@/mix_default_normal/mix_ts_alias2';
+import MixTSAliasSecond2, {
+  MixTSAliasFirst2,
+} from "@/mix_default_normal/mix_ts_alias2";
 let _ = boostestMixTSAliasFirst2<MixTSAliasFirst2>();
 let _ = boostestMixTSAliasSecond2<MixTSAliasSecond2>();
 
-import MixClassFirst, { MixClassSecond } from '@/mix_default_normal/mix_class';
+import MixClassFirst, { MixClassSecond } from "@/mix_default_normal/mix_class";
 let _ = boostestMixClassFirst<typeof MixClassFirst>(MixClassFirst);
 let _ = boostestMixClassSecond<typeof MixClassSecond>(MixClassSecond);
 
-import MixClassFirst2, { MixClassSecond2 } from '@/mix_default_normal/mix_class2';
+import MixClassFirst2, {
+  MixClassSecond2,
+} from "@/mix_default_normal/mix_class2";
 let _ = boostestMixClassFirst2<typeof MixClassFirst2>(MixClassFirst2);
 let _ = boostestMixClassSecond2<typeof MixClassSecond2>(MixClassSecond2);
 
@@ -230,7 +255,7 @@ let _ = boostestMixClassSecond2<typeof MixClassSecond2>(MixClassSecond2);
  *
  *
  */
-import { AccessorClass } from './types/pattern/accessor_class';
+import { AccessorClass } from "./types/pattern/accessor_class";
 let _ = boostestAccessorClass<typeof AccessorClass>(AccessorClass);
 
 /**
@@ -256,16 +281,21 @@ let _ = boostestAccessorClass<typeof AccessorClass>(AccessorClass);
  *
  *
  */
-import { ArgObjClass } from './types/pattern/arg_obj_class';
-import { ArgObjClass2 } from './types/pattern/arg_obj_class2';
+import { ArgObjClass } from "./types/pattern/arg_obj_class";
+import { ArgObjClass2 } from "./types/pattern/arg_obj_class2";
 let _ = boostestArgObjClass<typeof ArgObjClass>(ArgObjClass);
 let _ = boostestArgObjClass2<typeof ArgObjClass2>(ArgObjClass2);
 
-import { IndexSignature } from '@/ts_types/index_signature';
+import { IndexSignature } from "@/ts_types/index_signature";
 let _ = boostestIndexSignature<IndexSignature>();
 
-import { CallSignature, MathOperations, SingleCallSignature, CallSignatureInterface } from '@/ts_types/call_signature';
-import { boostest } from 'boostest';
+import {
+  CallSignature,
+  MathOperations,
+  SingleCallSignature,
+  CallSignatureInterface,
+} from "@/ts_types/call_signature";
+import { boostest } from "boostest";
 let _ = boostestCallSignature<CallSignature>();
 let _ = boostestSingleCallSignature<SingleCallSignature>();
 let _ = boostestMathOperations<MathOperations>();

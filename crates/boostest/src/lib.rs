@@ -1,12 +1,13 @@
-pub mod boostest_mock_builder;
-pub mod boostest_mock_loader;
-mod boostest_tsserver;
+// pub mod boostest_mock_builder;
+// pub mod boostest_mock_loader;
+// mod boostest_tsserver;
 mod boostest_utils;
+mod new;
 
-use boostest_mock_loader::mock_loader::MockLoader;
+// use boostest_mock_loader::mock_loader::MockLoader;
 use boostest_utils::{
     setting::{self, Setting},
-    task, utils,
+    utils,
 };
 use colored::*;
 use indicatif::{ProgressBar, ProgressStyle};
@@ -34,11 +35,7 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
 
     let out_file_name = setting.out_file_name.unwrap_or(String::from("boostest"));
 
-    let source_type = SourceType::default()
-        .with_always_strict(true)
-        .with_module(true)
-        .with_typescript(true);
-
+    let source_type = SourceType::ts();
     let target = setting.target.unwrap_or_else(|| {
         println!("{}", "Not found target files".red());
         std::process::exit(0);
@@ -69,32 +66,64 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
             format!("{}", path.to_string_lossy()).green()
         );
 
+        let mut detector =
+            new::boostest_manager::target_detector::TargetDetector::new(setting.name.clone());
+        detector.detect(path);
+        let mut main_targets = detector.main_targets;
+
+        new::boostest_target::main_target_resolver::main_targets_resolve(
+            &main_targets,
+            &setting.tsconfig,
+            &setting.project_root_path,
+        );
+
+        for main_target in &main_targets {
+            println!("{:?}", main_target.lock().unwrap().target.lock().unwrap());
+
+            match &main_target
+                .lock()
+                .unwrap()
+                .target
+                .lock()
+                .unwrap()
+                .target_definition
+            {
+                Some(main_target) => {
+                    println!("{}:{:?}", "main target".green(), main_target);
+                }
+                _ => {
+                    println!("{}:{}", "main target".red(), "not found target definition");
+                }
+            }
+        }
+
         // let mut mock_loader = Arc::new(Mutex::new(MockLoader::new(
         //     path_buf.clone(),
         //     setting.name.clone(),
         // )));
         //
-        let mut mock_loader = MockLoader::new(path_buf.clone(), setting.name.clone());
 
-        let allocator = oxc::allocator::Allocator::default();
-        let parser = Parser::new(&allocator, &file, source_type);
-        let mut program = parser.parse().program;
+        // let mut mock_loader = MockLoader::new(path_buf.clone(), setting.name.clone());
+        //
+        // let allocator = oxc::allocator::Allocator::default();
+        // let parser = Parser::new(&allocator, &file, source_type);
+        // let mut program = parser.parse().program;
 
-        boostest_utils::module_resolver::load_mock(
-            &mut mock_loader,
-            &mut program,
-            path,
-            &setting.tsconfig,
-            &setting.project_root_path,
-        );
+        // boostest_utils::module_resolver::load_mock(
+        //     &mut mock_loader,
+        //     &mut program,
+        //     path,
+        //     &setting.tsconfig,
+        //     &setting.project_root_path,
+        // );
 
-        if let Err(e) = task::handle_main_task(&mut mock_loader, path, &out_file_name) {
-            println!(
-                "{}:{}",
-                format!("failed to create test data at :{}", path.to_string_lossy()).green(),
-                e
-            );
-        }
+        // if let Err(e) = task::handle_main_task(&mut mock_loader, path, &out_file_name) {
+        //     println!(
+        //         "{}:{}",
+        //         format!("failed to create test data at :{}", path.to_string_lossy()).green(),
+        //         e
+        //     );
+        // }
 
         pb.inc(1);
     }
