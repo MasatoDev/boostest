@@ -158,9 +158,9 @@ pub fn ts_type_assign_as_property(
 /*************/
 /** PRIVATE **/
 /*************/
-fn calc_prop_span(span: Span, read_file_span: Option<Span>) -> Span {
+pub fn calc_prop_span(span: Span, read_file_span: Option<Span>) -> Span {
     if let Some(read_file_span) = read_file_span {
-        Span::new(
+        return Span::new(
             span.start + read_file_span.start,
             span.end + read_file_span.start,
         );

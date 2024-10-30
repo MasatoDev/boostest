@@ -19,7 +19,7 @@ use oxc::ast::ast::{
 use oxc::ast::VisitMut;
 
 use super::super::boostest_manager::propety_assignment::{
-    ts_type_assign_as_property, TargetReferenceInfo,
+    calc_prop_span, ts_type_assign_as_property, TargetReferenceInfo,
 };
 use super::super::boostest_utils::{module_resolver::resolve_specifier, tsserver::tsserver};
 
@@ -500,7 +500,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
                     .unwrap()
                     .set_target_definition(TargetDefinition {
                         specifier: identifier.name.to_string(),
-                        span: class.span,
+                        span: calc_prop_span(class.span, self.read_file_span),
                         file_path: self.temp_current_read_file_path.clone(),
                         target_type: TargetType::Class,
                     });
@@ -661,7 +661,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
                 .unwrap()
                 .set_target_definition(TargetDefinition {
                     specifier: decl.id.name.to_string(),
-                    span: decl.span,
+                    span: calc_prop_span(decl.span, self.read_file_span),
                     file_path: self.temp_current_read_file_path.clone(),
                     target_type: TargetType::TSTypeAlias,
                 });
@@ -677,7 +677,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
                 .unwrap()
                 .set_target_definition(TargetDefinition {
                     specifier: decl.id.name.to_string(),
-                    span: decl.span,
+                    span: calc_prop_span(decl.span, self.read_file_span),
                     file_path: self.temp_current_read_file_path.clone(),
                     target_type: TargetType::TSInterface,
                 });
@@ -863,12 +863,24 @@ pub fn resolve_target_ast_with_tsserver(
             &absolute_path,
             target.target_reference.span,
         ) {
+            drop(target);
             let (target_file_path, span) = result;
+
+            println!(
+                "{}",
+                format!(
+                    "tsserver: {} -> {:?}",
+                    target_file_path.to_str().unwrap_or("unknown file"),
+                    span
+                )
+                .green()
+            );
 
             // NOTE: 対象ファイルから定義元のspanを取得
             // それをsouce_textとしてast visitするため完全なファイルではない
             // 抽出位置からのspanとなるため、抽出地点のSPANを加えられるよう一時保存する
             target_resolver.read_file_span = Some(span);
+            target_resolver.temp_current_read_file_path = target_file_path.clone();
 
             let target_source = utils::read(&target_file_path).unwrap_or(String::new());
             // let target_source_text = span.source_text(&target_source);
@@ -880,9 +892,6 @@ pub fn resolve_target_ast_with_tsserver(
             let parser = Parser::new(&allocator, &target_source_text, source_type);
             let mut program = parser.parse().program;
 
-            drop(target);
-
-            target_resolver.read_file_span = Some(span);
             target_resolver.visit_statements(&mut program.body);
 
             // let mut handles = vec![];
