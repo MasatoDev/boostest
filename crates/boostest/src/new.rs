@@ -1,3 +1,4 @@
+pub mod boostest_generator;
 pub mod boostest_manager;
 /**
 

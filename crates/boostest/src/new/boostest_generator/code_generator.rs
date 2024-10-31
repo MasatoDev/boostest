@@ -1,102 +1,189 @@
-use std::{
-    path::PathBuf,
-    sync::{Arc, Mutex},
-};
+use oxc::allocator::{Allocator, Vec as AllocVec};
+use oxc::parser::Parser;
+use oxc::span::SourceType;
 
-use crate::boostest_mock_builder::mock_builder::MockBuilder;
-use oxc::{
-    ast::ast::{Class, TSInterfaceDeclaration, TSTypeAliasDeclaration},
-    span::Span,
+use oxc::ast::ast::{
+    Class, ExportDefaultDeclaration, ExportDefaultDeclarationKind, ExportNamedDeclaration,
+    TSInterfaceDeclaration, TSTypeAliasDeclaration,
 };
+use oxc::ast::ast::{Declaration, Statement};
+use oxc::ast::VisitMut;
 
-#[derive(Debug)]
-pub struct CodeGenerator {
-    pub mock_func_name: String,
-    pub mock_target_name: Option<String>,
-    pub prop_key_name: Option<String>,
-    pub resolved: bool,
-    pub import: Vec<Import>,
-    pub current_read_file_path: Option<PathBuf>,
-    pub def_file_path: Option<PathBuf>,
-    pub temp_import_source_vec: Option<Vec<Import>>,
-    pub ref_properties: Vec<Arc<Mutex<MockAstLoader>>>,
-    pub code: Option<String>,
-    analysis_started: bool,
+use crate::new::boostest_generator::class_builder::ClassBuilder;
+use crate::new::boostest_generator::ts_interface_builder::TSInterfaceBuilder;
+use crate::new::boostest_generator::ts_type_alias_builder::TSTypeAliasBuilder;
+use crate::new::boostest_target::target::TargetType;
+
+pub struct CodeGenerator<'a> {
+    pub specifier: &'a str,
+    pub target_type: &'a TargetType,
+    key_name: Option<String>,
+    source_text: &'a str,
+    allocator: &'a Allocator,
+    source_type: SourceType,
+
+    code: Option<String>,
 }
 
-impl CodeGenerator {
-    fn new(
-        mock_func_name: String,
-        mock_target_name: Option<String>,
-        span: Option<Span>,
-        prop_key_name: Option<String>,
+impl<'a, 'b: 'a> CodeGenerator<'a> {
+    pub fn new(
+        allocator: &'b Allocator,
+        specifier: &'a str,
+        key_name: Option<String>,
+        source_text: &'a str,
+        target_type: &'a TargetType,
     ) -> Self {
         Self {
-            span: span.unwrap_or(Span::new(0, 0)),
-            target_definition_span: None,
-
-            mock_func_name,
-            mock_target_name,
-            prop_key_name,
-            resolved: false,
-            import: Vec::new(),
-            current_read_file_path: None,
-            def_file_path: None,
-            ref_properties: Vec::new(),
-            analysis_started: false,
-            temp_import_source_vec: None,
+            specifier,
+            source_text,
+            key_name,
+            target_type,
+            allocator,
+            source_type: SourceType::ts(),
             code: None,
         }
     }
 
-    pub fn add_class(&mut self, class: &mut Class) {
-        // println!("add_class{:?}", class);
-        self.resolve();
+    pub fn find(&mut self) {
+        let parser = Parser::new(self.allocator, self.source_text, self.source_type);
+        let mut program = parser.parse().program;
 
-        let mut mock_builder = MockBuilder::new();
-
-        let code = mock_builder.generate_class_code(
-            self.mock_func_name.clone(),
-            self.prop_key_name.clone(),
-            class,
-        );
-        self.code = Some(code);
+        self.visit_statements(&mut program.body);
     }
 
-    pub fn add_ts_interface(&mut self, ts_interface: &mut TSInterfaceDeclaration) {
-        // println!("add_ts_interface{:?}", ts_interface);
-        self.resolve();
-
-        let mut mock_builder = MockBuilder::new();
-
-        let code = mock_builder.generate_ts_interface_code(
-            self.mock_func_name.clone(),
-            self.prop_key_name.clone(),
-            ts_interface,
+    fn gen_ts_interface(&mut self, ts_interface_decl: &mut TSInterfaceDeclaration) {
+        let key_name = self.key_name.clone();
+        let mut ts_interface_builder = TSInterfaceBuilder::new(
+            self.allocator,
+            ts_interface_decl,
+            self.specifier.to_string(),
+            key_name,
         );
-        self.code = Some(code);
+
+        self.code = Some(ts_interface_builder.generate_code(self.source_type));
+        println!("code: {:?}", self.code);
     }
 
-    pub fn add_ts_alias(&mut self, ts_type_alias: &mut TSTypeAliasDeclaration) {
-        // println!("add_ts_alias{:?}", ts_type_alias);
-        self.resolve();
+    fn gen_ts_alias<'c>(&mut self, ts_type_alias_decl: &'c mut TSTypeAliasDeclaration<'a>) {
+        let key_name = self.key_name.clone();
 
-        let mut mock_builder = MockBuilder::new();
-
-        let code = mock_builder.generate_ts_type_alias_code(
-            self.mock_func_name.clone(),
-            self.prop_key_name.clone(),
-            ts_type_alias,
+        let mut ts_type_alias_builder = TSTypeAliasBuilder::new(
+            self.allocator,
+            ts_type_alias_decl,
+            self.specifier.to_string(),
+            key_name,
         );
-        self.code = Some(code);
+
+        self.code = Some(ts_type_alias_builder.generate_code(self.source_type));
+        println!("code: {:?}", self.code);
     }
 
-    pub fn generate_fallback_code(&self) -> String {
-        let mut mock_builder = MockBuilder::new();
+    fn gen_class(&mut self, class: &mut Class) {
+        let key_name = self.key_name.clone();
+        let mut class_builder =
+            ClassBuilder::new(self.allocator, class, self.specifier.to_string(), key_name);
 
-        let code = mock_builder
-            .generate_fallback_func_code(self.mock_func_name.clone(), self.prop_key_name.clone());
-        // self.code = Some(code.clone());
-        code
+        self.code = Some(class_builder.generate_code(self.source_type));
+        println!("code: {:?}", self.code);
+    }
+}
+
+impl<'a> VisitMut<'a> for CodeGenerator<'a> {
+    fn visit_statements(&mut self, stmts: &mut AllocVec<'a, Statement<'a>>) {
+        for stmt in stmts.iter_mut() {
+            match stmt {
+                /**********/
+                /* Import */
+                /**********/
+                Statement::ExportNamedDeclaration(export_named_decl) => {
+                    self.visit_export_named_declaration(export_named_decl);
+                }
+                Statement::ExportDefaultDeclaration(export_default_decl) => {
+                    self.visit_export_default_declaration(export_default_decl);
+                }
+
+                /***************/
+                /* Declaration */
+                /***************/
+                Statement::ClassDeclaration(class) => self.visit_class(class),
+                Statement::TSTypeAliasDeclaration(decl) => {
+                    self.visit_ts_type_alias_declaration(decl);
+                }
+                Statement::TSInterfaceDeclaration(decl) => {
+                    self.visit_ts_interface_declaration(decl);
+                }
+
+                _ => {
+                    // println!("Another Statement {:?}", stmt);
+                }
+            }
+        }
+    }
+
+    fn visit_export_default_declaration(&mut self, decl: &mut ExportDefaultDeclaration<'a>) {
+        match &mut decl.declaration {
+            ExportDefaultDeclarationKind::ClassDeclaration(class) => {
+                self.visit_class(class);
+            }
+            ExportDefaultDeclarationKind::TSInterfaceDeclaration(ts_interface_decl) => {
+                self.visit_ts_interface_declaration(ts_interface_decl);
+            }
+            ExportDefaultDeclarationKind::FunctionDeclaration(_) => {}
+            _ => {}
+        }
+    }
+
+    /*************************************************/
+    /*************************************************/
+    /*                Import / Export                */
+    /*************************************************/
+    /*************************************************/
+
+    fn visit_export_named_declaration(&mut self, decl: &mut ExportNamedDeclaration<'a>) {
+        let ExportNamedDeclaration { declaration, .. } = decl;
+
+        if let Some(export_named_decl) = declaration {
+            match export_named_decl {
+                Declaration::ClassDeclaration(class) => {
+                    self.visit_class(class);
+                }
+                Declaration::TSTypeAliasDeclaration(decl) => {
+                    self.visit_ts_type_alias_declaration(decl);
+                }
+                Declaration::TSInterfaceDeclaration(decl) => {
+                    self.visit_ts_interface_declaration(decl)
+                }
+                _ => {
+                    // println!("Another Statement {:?}", export_named_decl);
+                }
+            }
+        }
+    }
+
+    /*************************************************/
+    /*************************************************/
+    /*                Handle Targets                 */
+    /*************************************************/
+    /*************************************************/
+
+    fn visit_class(&mut self, class: &mut Class<'a>) {
+        if let Some(identifier) = &class.id {
+            if identifier.name.to_string() == self.specifier {
+                self.gen_class(class);
+            }
+        }
+    }
+
+    // handle mock target is type alias
+    fn visit_ts_type_alias_declaration(&mut self, decl: &mut TSTypeAliasDeclaration<'a>) {
+        if decl.id.name.to_string() == self.specifier {
+            self.gen_ts_alias(decl);
+        }
+    }
+
+    fn visit_ts_interface_declaration(&mut self, decl: &mut TSInterfaceDeclaration<'a>) {
+        if decl.id.name.to_string() == self.specifier {
+            self.gen_ts_interface(decl);
+        }
     }
 }

@@ -866,16 +866,6 @@ pub fn resolve_target_ast_with_tsserver(
             drop(target);
             let (target_file_path, span) = result;
 
-            println!(
-                "{}",
-                format!(
-                    "tsserver: {} -> {:?}",
-                    target_file_path.to_str().unwrap_or("unknown file"),
-                    span
-                )
-                .green()
-            );
-
             // NOTE: 対象ファイルから定義元のspanを取得
             // それをsouce_textとしてast visitするため完全なファイルではない
             // 抽出位置からのspanとなるため、抽出地点のSPANを加えられるよう一時保存する

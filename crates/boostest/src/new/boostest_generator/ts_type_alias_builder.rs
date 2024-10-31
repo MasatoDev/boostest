@@ -5,7 +5,7 @@ use oxc::{
             BindingIdentifier, Declaration, Expression, FunctionBody, Program, Statement,
             TSPropertySignature, TSSignature, TSType, TSTypeAliasDeclaration,
         },
-        AstBuilder, VisitMut,
+        ast_builder, AstBuilder, VisitMut,
     },
     codegen::{Codegen, CodegenOptions},
     parser::Parser,
@@ -15,6 +15,7 @@ use oxc::{
 use oxc::allocator;
 
 use super::test_data_factory;
+use super::{code_generator, extends_ast_builder::AstBuilderExt};
 
 const SPAN: Span = Span::new(0, 0);
 
@@ -26,22 +27,18 @@ pub struct TypeAliasMockData {
 pub struct TSTypeAliasBuilder<'a> {
     mock_data: TypeAliasMockData,
     ast_builder: AstBuilder<'a>,
-
     ts_type_alias: TSTypeAliasDeclaration<'a>,
-
-    target: Arc<Mutex<Target>>,
-    key_name: Option<String>,
 }
 
 impl<'a> TSTypeAliasBuilder<'a> {
-    pub fn new(
+    pub fn new<'c>(
         allocator: &'a Allocator,
-        ts_type_alias: &'a TSTypeAliasDeclaration<'a>,
+        ts_type_alias: &'c mut TSTypeAliasDeclaration<'a>,
         mock_func_name: String,
         key_name: Option<String>,
     ) -> Self {
         let ast_builder = AstBuilder::new(allocator);
-        let copied_ts_type_alias = ast_builder.copy(ts_type_alias);
+        let copied = ast_builder.move_ts_type_alias_declatration(ts_type_alias);
 
         let mock_data = TypeAliasMockData {
             mock_func_name,
@@ -51,7 +48,7 @@ impl<'a> TSTypeAliasBuilder<'a> {
         Self {
             ast_builder,
             mock_data,
-            ts_type_alias: copied_ts_type_alias,
+            ts_type_alias: copied,
         }
     }
 
@@ -74,7 +71,7 @@ impl<'a> TSTypeAliasBuilder<'a> {
 
         self.visit_program(program);
 
-        Codegen::new().build(program).source_text
+        Codegen::new().build(program).code
     }
 
     pub fn get_ts_alias_properties(
@@ -130,8 +127,8 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
                             None => self.mock_data.mock_func_name.clone(),
                         };
 
-                        let name = self.ast_builder.new_atom(&new_name);
-                        let new_binding = BindingIdentifier::new(SPAN, name);
+                        let name = self.ast_builder.atom(&new_name);
+                        let new_binding = self.ast_builder.binding_identifier(SPAN, name);
 
                         let _ = std::mem::replace(id, new_binding);
                     }
@@ -173,7 +170,10 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
 
         if !test_data_factory::is_ts_type_literal(&self.ts_type_alias.type_annotation) {
             let id_name = self.ts_type_alias.id.name.to_string();
-            let ts_annotation = self.ast_builder.copy(&self.ts_type_alias.type_annotation);
+
+            let ts_annotation = self
+                .ast_builder
+                .move_ts_type(&mut self.ts_type_alias.type_annotation);
 
             let new_expr = test_data_factory::get_expression(
                 &self.ast_builder,
@@ -187,7 +187,9 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
         }
 
         if test_data_factory::is_call_signature(&self.ts_type_alias.type_annotation) {
-            let ts_annotation = self.ast_builder.copy(&self.ts_type_alias.type_annotation);
+            let ts_annotation = self
+                .ast_builder
+                .move_ts_type(&mut self.ts_type_alias.type_annotation);
 
             if let Some(call_signature_expr) = test_data_factory::get_first_call_signature(
                 &self.ast_builder,
@@ -236,7 +238,7 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
             Expression::TSAsExpression(ts_as_expr) => match &mut ts_as_expr.expression {
                 Expression::ObjectExpression(obj_expr) => {
                     if let Some(last) = obj_expr.properties.pop() {
-                        let vec = self.ast_builder.new_vec();
+                        let vec = self.ast_builder.vec();
 
                         let ts_signatures = match &mut self.ts_type_alias.type_annotation {
                             TSType::TSTypeLiteral(ts_type_literal) => &ts_type_literal.members,
@@ -259,69 +261,6 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
                 _ => {}
             },
             _ => {}
-        }
-    }
-}
-
-impl<'a> VisitMut<'a> for TargetResolver {
-    fn visit_statements(&mut self, stmts: &mut AllocVec<'a, Statement<'a>>) {
-        for stmt in stmts.iter_mut() {
-            match stmt {
-                Statement::ExportNamedDeclaration(export_named_decl) => {
-                    self.visit_export_named_declaration(export_named_decl);
-                }
-                Statement::TSTypeAliasDeclaration(decl) => {
-                    self.visit_ts_type_alias_declaration(decl);
-                }
-                _ => {
-                    // println!("Another Statement {:?}", stmt);
-                }
-            }
-        }
-    }
-
-    /*************************************************/
-    /*************************************************/
-    /*                Import / Export                */
-    /*************************************************/
-    /*************************************************/
-    fn visit_export_named_declaration(&mut self, decl: &mut ExportNamedDeclaration<'a>) {
-        let ExportNamedDeclaration { declaration, .. } = decl;
-
-        if let Some(export_named_decl) = declaration {
-            match export_named_decl {
-                Declaration::TSTypeAliasDeclaration(decl) => {
-                    self.visit_ts_type_alias_declaration(decl);
-                }
-                _ => {
-                    // println!("Another Statement {:?}", export_named_decl);
-                }
-            }
-        }
-    }
-
-    /*************************************************/
-    /*************************************************/
-    /*                Handle Targets                 */
-    /*************************************************/
-    /*************************************************/
-
-    // handle mock target is type alias
-    fn visit_ts_type_alias_declaration(&mut self, decl: &mut TSTypeAliasDeclaration<'a>) {
-        let target_name = self.get_decl_name_for_resolve();
-
-        if decl.id.name.to_string() == *target_name {
-            // self.add_ts_alias(decl);
-            self.target
-                .lock()
-                .unwrap()
-                .set_target_definition(TargetDefinition {
-                    specifier: decl.id.name.to_string(),
-                    span: calc_prop_span(decl.span, self.read_file_span),
-                    file_path: self.temp_current_read_file_path.clone(),
-                    target_type: TargetType::TSTypeAlias,
-                });
-            self.status = ResolveStatus::Resolved;
         }
     }
 }

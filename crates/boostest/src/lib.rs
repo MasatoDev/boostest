@@ -78,8 +78,6 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
         );
 
         for main_target in &main_targets {
-            println!("{:?}", main_target.lock().unwrap().target.lock().unwrap());
-
             match &main_target
                 .lock()
                 .unwrap()
@@ -89,8 +87,26 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
                 .target_definition
             {
                 Some(main_target) => {
-                    println!("{}:{:?}", "main target".green(), main_target);
+                    // println!("{}:{:?}", "main target".green(), main_target);
+
+                    let target_source =
+                        utils::read(&main_target.file_path).unwrap_or(String::new());
+                    let target_source_text = main_target.span.source_text(&target_source);
+                    let allocator = oxc::allocator::Allocator::default();
+
+                    let mut find_ast = new::boostest_generator::code_generator::CodeGenerator::new(
+                        &allocator,
+                        &main_target.specifier,
+                        None,
+                        &target_source_text,
+                        &main_target.target_type,
+                    );
+
+                    find_ast.find();
+
+                    // println!("{}:{}", "target source".green(), target_source_text);
                 }
+
                 _ => {
                     println!("{}:{}", "main target".red(), "not found target definition");
                 }
