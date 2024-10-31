@@ -51,10 +51,7 @@ impl<'a> FallbackFuncBuilder<'a> {
 
         self.visit_program(program);
 
-        let mut codegen_options = CodegenOptions::default();
-        codegen_options.enable_typescript = true;
-
-        Codegen::new().build(program).source_text
+        Codegen::new().build(program).code
     }
 }
 
@@ -88,8 +85,8 @@ impl<'a> VisitMut<'a> for FallbackFuncBuilder<'a> {
                             None => self.mock_data.mock_func_name.clone(),
                         };
 
-                        let name = self.ast_builder.new_atom(&new_name);
-                        let new_binding = BindingIdentifier::new(SPAN, name);
+                        let name = self.ast_builder.atom(&new_name);
+                        let new_binding = self.ast_builder.binding_identifier(SPAN, name);
 
                         let _ = std::mem::replace(id, new_binding);
                     }

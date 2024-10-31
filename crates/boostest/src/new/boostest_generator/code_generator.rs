@@ -51,7 +51,7 @@ impl<'a, 'b: 'a> CodeGenerator<'a> {
         self.visit_statements(&mut program.body);
     }
 
-    fn gen_ts_interface(&mut self, ts_interface_decl: &mut TSInterfaceDeclaration) {
+    fn gen_ts_interface<'c>(&mut self, ts_interface_decl: &'c mut TSInterfaceDeclaration<'a>) {
         let key_name = self.key_name.clone();
         let mut ts_interface_builder = TSInterfaceBuilder::new(
             self.allocator,
@@ -78,7 +78,7 @@ impl<'a, 'b: 'a> CodeGenerator<'a> {
         println!("code: {:?}", self.code);
     }
 
-    fn gen_class(&mut self, class: &mut Class) {
+    fn gen_class<'c>(&mut self, class: &'c mut Class<'a>) {
         let key_name = self.key_name.clone();
         let mut class_builder =
             ClassBuilder::new(self.allocator, class, self.specifier.to_string(), key_name);

@@ -238,16 +238,18 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
             Expression::TSAsExpression(ts_as_expr) => match &mut ts_as_expr.expression {
                 Expression::ObjectExpression(obj_expr) => {
                     if let Some(last) = obj_expr.properties.pop() {
-                        let vec = self.ast_builder.vec();
+                        let mut vec = self.ast_builder.vec();
 
                         let ts_signatures = match &mut self.ts_type_alias.type_annotation {
-                            TSType::TSTypeLiteral(ts_type_literal) => &ts_type_literal.members,
-                            _ => &vec,
+                            TSType::TSTypeLiteral(ref mut ts_type_literal) => {
+                                &mut ts_type_literal.members
+                            }
+                            _ => &mut vec,
                         };
 
                         let new_obj_expr = test_data_factory::handle_ts_signatures(
                             &self.ast_builder,
-                            &ts_signatures,
+                            ts_signatures,
                             Some(last),
                             &self.mock_data.mock_func_name,
                             None,

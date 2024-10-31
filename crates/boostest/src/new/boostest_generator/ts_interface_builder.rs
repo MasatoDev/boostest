@@ -14,7 +14,7 @@ use oxc::{
 
 use oxc::allocator;
 
-use super::test_data_factory;
+use super::{extends_ast_builder::AstBuilderExt, test_data_factory};
 
 const SPAN: Span = Span::new(0, 0);
 
@@ -31,14 +31,14 @@ pub struct TSInterfaceBuilder<'a> {
 }
 
 impl<'a> TSInterfaceBuilder<'a> {
-    pub fn new(
+    pub fn new<'c>(
         allocator: &'a Allocator,
-        ts_interface: &'a mut TSInterfaceDeclaration,
+        ts_interface: &'c mut TSInterfaceDeclaration<'a>,
         mock_func_name: String,
         key_name: Option<String>,
     ) -> Self {
         let ast_builder = AstBuilder::new(allocator);
-        let copied_ts_interface = ast_builder.copy(ts_interface);
+        let copied = ast_builder.move_ts_interface_declatration(ts_interface);
 
         let mock_data = TypeAliasMockData {
             mock_func_name,
@@ -48,7 +48,7 @@ impl<'a> TSInterfaceBuilder<'a> {
         Self {
             ast_builder,
             mock_data,
-            target_ts_interface: copied_ts_interface,
+            target_ts_interface: copied,
         }
     }
 
@@ -61,7 +61,7 @@ impl<'a> TSInterfaceBuilder<'a> {
 
         self.visit_program(program);
 
-        Codegen::new().build(program).source_text
+        Codegen::new().build(program).code
     }
 }
 
@@ -95,8 +95,8 @@ impl<'a> VisitMut<'a> for TSInterfaceBuilder<'a> {
                             None => self.mock_data.mock_func_name.clone(),
                         };
 
-                        let name = self.ast_builder.new_atom(&new_name);
-                        let new_binding = BindingIdentifier::new(SPAN, name);
+                        let name = self.ast_builder.atom(&new_name);
+                        let new_binding = self.ast_builder.binding_identifier(SPAN, name);
 
                         let _ = std::mem::replace(id, new_binding);
                     }
@@ -150,10 +150,10 @@ impl<'a> VisitMut<'a> for TSInterfaceBuilder<'a> {
                 match &mut ts_as_expr.expression {
                     Expression::ObjectExpression(obj_expr) => {
                         if let Some(last) = obj_expr.properties.pop() {
-                            let ts_signatures = &self.target_ts_interface.body.body;
+                            let ts_signatures = &mut self.target_ts_interface.body.body;
                             let new_obj_expr = test_data_factory::handle_ts_signatures(
                                 &self.ast_builder,
-                                &ts_signatures,
+                                ts_signatures,
                                 Some(last),
                                 &self.mock_data.mock_func_name,
                                 None,
@@ -168,7 +168,7 @@ impl<'a> VisitMut<'a> for TSInterfaceBuilder<'a> {
 
                             let new_ts_as_expr =
                                 self.ast_builder
-                                    .ts_as_expression(SPAN, new_obj_expr, new_ts_type);
+                                    .expression_ts_as(SPAN, new_obj_expr, new_ts_type);
 
                             let _ = std::mem::replace(expr, new_ts_as_expr);
                         }
