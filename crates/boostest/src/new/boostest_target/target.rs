@@ -35,8 +35,8 @@ pub struct TargetReference {
 
 #[derive(Debug)]
 pub struct Target {
-    pub name: String,  // boostestHoge<Hoge>() -> Hoge
-    func_name: String, // boostestHoge<Hoge>() -> boostestHoge
+    pub name: String,      // boostestHoge<Hoge>() -> Hoge
+    pub func_name: String, // boostestHoge<Hoge>() -> boostestHoge
     pub target_reference: TargetReference,
     pub target_definition: Option<TargetDefinition>,
     pub ref_properties: Vec<Arc<Mutex<PropertyTarget>>>,
@@ -50,7 +50,7 @@ pub struct MainTarget {
 #[derive(Debug)]
 pub struct PropertyTarget {
     pub target: Arc<Mutex<Target>>,
-    key_name: Option<String>,
+    pub key_name: Option<String>,
 }
 
 impl MainTarget {

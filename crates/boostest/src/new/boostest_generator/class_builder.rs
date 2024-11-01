@@ -4,11 +4,10 @@ use oxc::{
         ast::{
             Argument, BindingIdentifier, BindingPattern, BindingPatternKind, Class, ClassElement,
             Declaration, Expression, FunctionBody, Program, Statement,
-            TSTypeParameterInstantiation,
         },
         AstBuilder, VisitMut,
     },
-    codegen::{Codegen, CodegenOptions},
+    codegen::Codegen,
     parser::Parser,
     span::{SourceType, Span},
 };
@@ -18,11 +17,6 @@ use oxc::allocator;
 use super::{extends_ast_builder::AstBuilderExt, test_data_factory};
 
 const SPAN: Span = Span::new(0, 0);
-
-pub struct ClassArg {
-    pub key: String,
-    pub val: String,
-}
 
 pub struct ClassMockData {
     pub mock_func_name: String,
@@ -73,9 +67,8 @@ impl<'a> ClassBuilder<'a> {
 
         self.visit_program(program);
 
-        let codegen_options = CodegenOptions::default();
-
         Codegen::new().build(program).code
+        // return String::from("code");
     }
 
     pub fn get_new_expression_argument(&mut self) -> allocator::Vec<'a, Argument<'a>> {
@@ -206,31 +199,16 @@ impl<'a> VisitMut<'a> for ClassBuilder<'a> {
         match expr {
             Expression::NewExpression(new_expr) => {
                 if let Expression::Identifier(ident) = &mut new_expr.callee {
-                    self.visit_identifier_reference(ident);
+                    if ident.name.to_string() == "boostestClassName" {
+                        new_expr.callee = self
+                            .ast_builder
+                            .expression_identifier_reference(SPAN, &self.mock_data.class_name);
+                        new_expr.arguments = self.get_new_expression_argument();
+                    }
                 }
-
-                let callee = self.ast_builder.move_expression(&mut new_expr.callee);
-                let args = self.get_new_expression_argument();
-                let type_parameters: Option<allocator::Box<TSTypeParameterInstantiation>> = None;
-
-                let new_expression =
-                    self.ast_builder
-                        .expression_new(SPAN, callee, args, type_parameters);
-
-                let _ = std::mem::replace(expr, new_expression);
             }
 
             _ => {}
-        }
-    }
-
-    fn visit_identifier_reference(&mut self, ident: &mut oxc::ast::ast::IdentifierReference<'a>) {
-        if ident.name.to_string() == "boostestClassName" {
-            let i = self
-                .ast_builder
-                .identifier_reference(SPAN, &self.mock_data.class_name);
-
-            let _ = std::mem::replace(ident, i);
         }
     }
 }

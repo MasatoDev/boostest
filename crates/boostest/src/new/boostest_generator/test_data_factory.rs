@@ -99,7 +99,9 @@ pub fn get_first_call_signature<'a>(
                             mock_func_name,
                         );
                     }
-                    _ => return None,
+                    _ => {
+                        continue;
+                    }
                 }
             }
             None
@@ -760,6 +762,12 @@ pub fn get_expression<'a>(
             // TODO: Array
             array_expr(ast_builder, None)
         }
+        TSType::TSTypeReference(ts_type_ref) if ast_utils::is_true_type(&ts_type_ref) => {
+            boolean_expr(ast_builder, Some(true))
+        }
+        TSType::TSTypeReference(ts_type_ref) if ast_utils::is_false_type(&ts_type_ref) => {
+            boolean_expr(ast_builder, Some(false))
+        }
         TSType::TSTypeReference(ts_type_ref) => {
             if let TSTypeName::IdentifierReference(identifier) = &ts_type_ref.type_name {
                 let new_key = format!("{}_{}", key_name, identifier.name.clone().into_string());
@@ -810,6 +818,7 @@ pub fn get_expression<'a>(
             let first_union_type = ts_union_type.types.first_mut();
             if let Some(first_type) = first_union_type {
                 let ts_type = ast_builder.move_ts_type(first_type);
+                println!("ts_type:{:?}", ts_type);
                 let new = get_expression(ast_builder, ts_type, key_name, mock_func_name);
                 return new;
             }
@@ -925,9 +934,11 @@ pub fn get_expression<'a>(
             // TODO
             ast_builder.expression_object(SPAN, ast_builder.vec(), None)
         }
-        TSType::TSParenthesizedType(_) => {
-            // TODO
-            ast_builder.expression_object(SPAN, ast_builder.vec(), None)
+        TSType::TSParenthesizedType(ref mut ts_parenthesized_type) => {
+            let ts_type = ast_builder.move_ts_type(&mut ts_parenthesized_type.type_annotation);
+            get_expression(ast_builder, ts_type, key_name, mock_func_name)
+
+            // ast_builder.expression_object(SPAN, ast_builder.vec(), None)
         }
         TSType::JSDocNonNullableType(_) => {
             // TODO
@@ -1024,6 +1035,12 @@ pub fn get_arg<'a>(
         TSType::TSTypeReference(ts_type_ref) if ast_utils::is_array_type(&ts_type_ref) => {
             // TODO: Array
             array_arg(ast_builder, None)
+        }
+        TSType::TSTypeReference(ts_type_ref) if ast_utils::is_true_type(&ts_type_ref) => {
+            boolean_arg(ast_builder, Some(true))
+        }
+        TSType::TSTypeReference(ts_type_ref) if ast_utils::is_false_type(&ts_type_ref) => {
+            boolean_arg(ast_builder, Some(false))
         }
         TSType::TSTypeReference(ts_type_ref) => {
             if let TSTypeName::IdentifierReference(identifier) = &ts_type_ref.type_name {

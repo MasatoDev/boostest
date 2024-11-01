@@ -57,6 +57,8 @@ pub fn tsserver(
     file_path: &PathBuf,
     span: Span,
 ) -> Option<(PathBuf, Span)> {
+    println!("tsserver: {:?}", file_path);
+
     let Span {
         start: start_offset,
         // end: end_offset,
@@ -145,6 +147,7 @@ pub fn tsserver(
                             Ok(response) => {
                                 // 1つ目のdefinitionから必要な情報を取得
                                 if let Some(definition) = response.body.definitions.get(0) {
+                                    println!("Definition: {:?}", definition);
                                     return Some((
                                         definition.fileName.clone().into(),
                                         Span::new(

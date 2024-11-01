@@ -16,25 +16,28 @@ use crate::new::boostest_target::target::TargetType;
 
 pub struct CodeGenerator<'a> {
     pub specifier: &'a str,
+    pub func_name: &'a str,
     pub target_type: &'a TargetType,
     key_name: Option<String>,
     source_text: &'a str,
     allocator: &'a Allocator,
     source_type: SourceType,
 
-    code: Option<String>,
+    pub code: Option<String>,
 }
 
 impl<'a, 'b: 'a> CodeGenerator<'a> {
     pub fn new(
         allocator: &'b Allocator,
         specifier: &'a str,
+        func_name: &'a str,
         key_name: Option<String>,
         source_text: &'a str,
         target_type: &'a TargetType,
     ) -> Self {
         Self {
             specifier,
+            func_name,
             source_text,
             key_name,
             target_type,
@@ -44,7 +47,7 @@ impl<'a, 'b: 'a> CodeGenerator<'a> {
         }
     }
 
-    pub fn find(&mut self) {
+    pub fn generate(&mut self) {
         let parser = Parser::new(self.allocator, self.source_text, self.source_type);
         let mut program = parser.parse().program;
 
@@ -56,12 +59,11 @@ impl<'a, 'b: 'a> CodeGenerator<'a> {
         let mut ts_interface_builder = TSInterfaceBuilder::new(
             self.allocator,
             ts_interface_decl,
-            self.specifier.to_string(),
+            self.func_name.to_string(),
             key_name,
         );
 
         self.code = Some(ts_interface_builder.generate_code(self.source_type));
-        println!("code: {:?}", self.code);
     }
 
     fn gen_ts_alias<'c>(&mut self, ts_type_alias_decl: &'c mut TSTypeAliasDeclaration<'a>) {
@@ -70,21 +72,19 @@ impl<'a, 'b: 'a> CodeGenerator<'a> {
         let mut ts_type_alias_builder = TSTypeAliasBuilder::new(
             self.allocator,
             ts_type_alias_decl,
-            self.specifier.to_string(),
+            self.func_name.to_string(),
             key_name,
         );
 
         self.code = Some(ts_type_alias_builder.generate_code(self.source_type));
-        println!("code: {:?}", self.code);
     }
 
     fn gen_class<'c>(&mut self, class: &'c mut Class<'a>) {
         let key_name = self.key_name.clone();
         let mut class_builder =
-            ClassBuilder::new(self.allocator, class, self.specifier.to_string(), key_name);
+            ClassBuilder::new(self.allocator, class, self.func_name.to_string(), key_name);
 
         self.code = Some(class_builder.generate_code(self.source_type));
-        println!("code: {:?}", self.code);
     }
 }
 

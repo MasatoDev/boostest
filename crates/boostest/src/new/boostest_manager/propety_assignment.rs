@@ -56,6 +56,7 @@ pub fn ts_type_assign_as_property(
         TSType::TSTypeReference(ty_ref) if ast_utils::is_defined_type(&ty_ref) => {}
         TSType::TSTypeReference(ty_ref) if ast_utils::is_function_type(&ty_ref) => {}
         TSType::TSTypeReference(ty_ref) if ast_utils::is_array_type(&ty_ref) => {}
+        TSType::TSTypeReference(ty_ref) if ast_utils::is_boolean_type(&ty_ref) => {}
         TSType::TSTypeReference(ty_ref) => {
             if let TSTypeName::IdentifierReference(identifier) = &ty_ref.type_name {
                 let new_key = format!("{}_{}", key, identifier.name.clone().into_string());
@@ -69,8 +70,14 @@ pub fn ts_type_assign_as_property(
                 );
             }
         }
+
         TSType::TSConditionalType(ts_condition_type) => {
             if let TSType::TSTypeReference(ty_ref) = &ts_condition_type.true_type {
+                // exclude boolean type
+                if ast_utils::is_true_type(ty_ref) {
+                    return;
+                }
+
                 if let TSTypeName::IdentifierReference(identifier) = &ty_ref.type_name {
                     let new_key = format!("{}_{}", key, identifier.name.clone().into_string());
                     target.lock().unwrap().add_property_ts_type(
@@ -87,6 +94,10 @@ pub fn ts_type_assign_as_property(
         TSType::TSUnionType(ts_union_type) => {
             if let Some(first_union_type) = ts_union_type.types.first() {
                 if let TSType::TSTypeReference(ty_ref) = first_union_type {
+                    // exclude boolean type
+                    if ast_utils::is_true_type(ty_ref) {
+                        return;
+                    }
                     if let TSTypeName::IdentifierReference(identifier) = &ty_ref.type_name {
                         let new_key = format!("{}_{}", key, identifier.name.clone().into_string());
                         target.lock().unwrap().add_property_ts_type(

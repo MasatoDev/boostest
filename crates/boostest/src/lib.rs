@@ -35,7 +35,6 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
 
     let out_file_name = setting.out_file_name.unwrap_or(String::from("boostest"));
 
-    let source_type = SourceType::ts();
     let target = setting.target.unwrap_or_else(|| {
         println!("{}", "Not found target files".red());
         std::process::exit(0);
@@ -71,46 +70,26 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
         detector.detect(path);
         let mut main_targets = detector.main_targets;
 
+        main_targets.sort_by(|a, b| {
+            let a = a.lock().unwrap().target.lock().unwrap().func_name.clone();
+            let b = b.lock().unwrap().target.lock().unwrap().func_name.clone();
+            a.cmp(&b)
+        });
+
         new::boostest_target::main_target_resolver::main_targets_resolve(
             &main_targets,
             &setting.tsconfig,
             &setting.project_root_path,
         );
 
-        for main_target in &main_targets {
-            match &main_target
-                .lock()
-                .unwrap()
-                .target
-                .lock()
-                .unwrap()
-                .target_definition
-            {
-                Some(main_target) => {
-                    // println!("{}:{:?}", "main target".green(), main_target);
-
-                    let target_source =
-                        utils::read(&main_target.file_path).unwrap_or(String::new());
-                    let target_source_text = main_target.span.source_text(&target_source);
-                    let allocator = oxc::allocator::Allocator::default();
-
-                    let mut find_ast = new::boostest_generator::code_generator::CodeGenerator::new(
-                        &allocator,
-                        &main_target.specifier,
-                        None,
-                        &target_source_text,
-                        &main_target.target_type,
-                    );
-
-                    find_ast.find();
-
-                    // println!("{}:{}", "target source".green(), target_source_text);
-                }
-
-                _ => {
-                    println!("{}:{}", "main target".red(), "not found target definition");
-                }
-            }
+        if let Err(e) =
+            new::boostest_manager::task::handle_main_task(main_targets, path, &out_file_name)
+        {
+            println!(
+                "{}:{}",
+                format!("failed to create test data at :{}", path.to_string_lossy()).green(),
+                e
+            );
         }
 
         // let mut mock_loader = Arc::new(Mutex::new(MockLoader::new(

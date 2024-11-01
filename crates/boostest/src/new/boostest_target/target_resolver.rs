@@ -478,6 +478,9 @@ impl<'a> VisitMut<'a> for TargetResolver {
                 Declaration::TSInterfaceDeclaration(decl) => {
                     self.visit_ts_interface_declaration(decl)
                 }
+                Declaration::VariableDeclaration(decl) => {
+                    // TODO: support named change `const huga  = aguh;`
+                }
                 _ => {
                     // println!("Another Statement {:?}", export_named_decl);
                 }
