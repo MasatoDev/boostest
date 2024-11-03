@@ -9,10 +9,10 @@ use oxc::ast::ast::{
 use oxc::ast::ast::{Declaration, Statement};
 use oxc::ast::VisitMut;
 
-use crate::new::boostest_generator::class_builder::ClassBuilder;
-use crate::new::boostest_generator::ts_interface_builder::TSInterfaceBuilder;
-use crate::new::boostest_generator::ts_type_alias_builder::TSTypeAliasBuilder;
-use crate::new::boostest_target::target::TargetType;
+use crate::boostest_generator::class_builder::ClassBuilder;
+use crate::boostest_generator::ts_interface_builder::TSInterfaceBuilder;
+use crate::boostest_generator::ts_type_alias_builder::TSTypeAliasBuilder;
+use crate::boostest_target::target::TargetType;
 
 pub struct CodeGenerator<'a> {
     pub specifier: &'a str,

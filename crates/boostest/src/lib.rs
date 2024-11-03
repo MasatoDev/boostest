@@ -1,11 +1,16 @@
-mod new;
+mod boostest_generator;
+mod boostest_manager;
+mod boostest_target;
+mod boostest_utils;
 
-use colored::*;
-use indicatif::{ProgressBar, ProgressStyle};
-use new::boostest_utils::{
+use boostest_manager::{target_detector::TargetDetector, task::handle_main_task};
+use boostest_target::main_target_resolver::main_targets_resolve;
+use boostest_utils::{
     setting::{self, Setting},
     utils,
 };
+use colored::*;
+use indicatif::{ProgressBar, ProgressStyle};
 use std::path::Path;
 
 pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
@@ -54,8 +59,7 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
     for (path_buf, _file) in contents {
         let path = path_buf.as_path();
 
-        let mut detector =
-            new::boostest_manager::target_detector::TargetDetector::new(setting.name.clone());
+        let mut detector = TargetDetector::new(setting.name.clone());
         detector.detect(path);
         let mut main_targets = detector.main_targets;
 
@@ -65,15 +69,9 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
             a.cmp(&b)
         });
 
-        new::boostest_target::main_target_resolver::main_targets_resolve(
-            &main_targets,
-            &setting.tsconfig,
-            &setting.project_root_path,
-        );
+        main_targets_resolve(&main_targets, &setting.tsconfig, &setting.project_root_path);
 
-        if let Err(e) =
-            new::boostest_manager::task::handle_main_task(main_targets, path, &out_file_name)
-        {
+        if let Err(e) = handle_main_task(main_targets, path, &out_file_name) {
             println!(
                 "{}:{}",
                 format!("failed to create test data at :{}", path.to_string_lossy()).green(),

@@ -9,7 +9,7 @@ use oxc::{
 };
 
 use super::super::boostest_utils::ast_utils;
-use crate::new::boostest_target::target::{Target, TargetReference};
+use crate::boostest_target::target::{Target, TargetReference};
 
 #[derive(Debug, Clone)]
 pub struct TargetReferenceInfo {
