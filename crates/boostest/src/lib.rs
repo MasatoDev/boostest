@@ -1,17 +1,12 @@
-// pub mod boostest_mock_builder;
-// pub mod boostest_mock_loader;
-// mod boostest_tsserver;
 mod boostest_utils;
 mod new;
 
-// use boostest_mock_loader::mock_loader::MockLoader;
 use boostest_utils::{
     setting::{self, Setting},
     utils,
 };
 use colored::*;
 use indicatif::{ProgressBar, ProgressStyle};
-use oxc::{parser::Parser, span::SourceType};
 use std::path::Path;
 
 pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
@@ -57,13 +52,8 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
             .progress_chars("##-"),
     );
 
-    for (path_buf, file) in contents {
+    for (path_buf, _file) in contents {
         let path = path_buf.as_path();
-
-        println!(
-            "target file: {}",
-            format!("{}", path.to_string_lossy()).green()
-        );
 
         let mut detector =
             new::boostest_manager::target_detector::TargetDetector::new(setting.name.clone());

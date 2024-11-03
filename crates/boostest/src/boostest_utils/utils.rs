@@ -18,7 +18,7 @@ pub fn read(path: &Path) -> io::Result<String> {
 
 pub fn read_matching_files(
     patterns: Vec<String>,
-    out_file_name: &String,
+    out_file_name: &str,
 ) -> anyhow::Result<HashMap<PathBuf, String>> {
     let mut contents: HashMap<PathBuf, String> = HashMap::new();
 
@@ -32,7 +32,7 @@ pub fn read_matching_files(
                 .file_name()
                 .unwrap_or(OsStr::new("none_file_name"))
                 .to_string_lossy()
-                .contains(out_file_name.as_str())
+                .contains(out_file_name)
             {
                 continue;
             }

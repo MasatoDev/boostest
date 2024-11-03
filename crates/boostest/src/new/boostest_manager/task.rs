@@ -1,7 +1,7 @@
 use crate::boostest_utils::utils;
-use crate::new::boostest_generator::code_generator::{self, CodeGenerator};
+use crate::new::boostest_generator::code_generator::CodeGenerator;
 use crate::new::boostest_generator::fallback_func_builder::FallbackFuncBuilder;
-use crate::new::boostest_target::target::{self, MainTarget, PropertyTarget, Target};
+use crate::new::boostest_target::target::{MainTarget, PropertyTarget, Target};
 
 use anyhow::Result;
 use colored::*;
@@ -44,8 +44,6 @@ pub fn handle_main_task(
     // NOTE: if this loop change to multi-thread, the f(file) is need change to Arc<Mutex<File>>
     for main_target in main_targets {
         let target = main_target.lock().unwrap().target.clone();
-        println!("main: {:?}", target.lock().unwrap().func_name);
-        println!("main: {:?}", target.lock().unwrap().target_definition);
 
         let code = get_code(target.clone(), None);
 
@@ -80,11 +78,6 @@ pub fn write_ref_properties(
     for children_prop in property_targets.iter() {
         let locked_prop = children_prop.lock().unwrap();
 
-        println!(
-            "props: {:?}:{:?}",
-            locked_prop.key_name,
-            locked_prop.target.lock().unwrap().func_name
-        );
         let code = get_code(locked_prop.target.clone(), locked_prop.key_name.clone());
 
         match code {

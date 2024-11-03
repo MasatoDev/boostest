@@ -4,11 +4,8 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use oxc::ast::ast::{
-    Argument, CallExpression, Declaration, Expression, ImportDeclaration, TSType::TSTypeReference,
-    TSTypeName,
-};
-use oxc::ast::ast::{TSTypeParameterInstantiation, VariableDeclarator};
+use oxc::ast::ast::TSTypeParameterInstantiation;
+use oxc::ast::ast::{Argument, CallExpression, TSType::TSTypeReference, TSTypeName};
 use oxc::ast::VisitMut;
 
 #[derive(Debug)]
@@ -16,7 +13,6 @@ pub enum TargetType {
     Class,
     TSInterface,
     TSTypeAlias,
-    Unknown,
 }
 
 #[derive(Debug)]

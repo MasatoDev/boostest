@@ -2,20 +2,20 @@ use oxc::{
     allocator::Allocator,
     ast::{
         ast::{
-            BindingIdentifier, Declaration, Expression, FunctionBody, Program, Statement,
-            TSPropertySignature, TSSignature, TSType, TSTypeAliasDeclaration,
+            Declaration, Expression, FunctionBody, Program, Statement, TSPropertySignature,
+            TSSignature, TSType, TSTypeAliasDeclaration,
         },
-        ast_builder, AstBuilder, VisitMut,
+        AstBuilder, VisitMut,
     },
-    codegen::{Codegen, CodegenOptions},
+    codegen::Codegen,
     parser::Parser,
     span::{SourceType, Span},
 };
 
 use oxc::allocator;
 
+use super::extends_ast_builder::AstBuilderExt;
 use super::test_data_factory;
-use super::{code_generator, extends_ast_builder::AstBuilderExt};
 
 const SPAN: Span = Span::new(0, 0);
 

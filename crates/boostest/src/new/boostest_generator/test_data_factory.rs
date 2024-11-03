@@ -818,7 +818,6 @@ pub fn get_expression<'a>(
             let first_union_type = ts_union_type.types.first_mut();
             if let Some(first_type) = first_union_type {
                 let ts_type = ast_builder.move_ts_type(first_type);
-                println!("ts_type:{:?}", ts_type);
                 let new = get_expression(ast_builder, ts_type, key_name, mock_func_name);
                 return new;
             }
@@ -1178,10 +1177,6 @@ pub fn get_arg<'a>(
             object_arg(ast_builder, None)
         }
         TSType::TSIntrinsicKeyword(_) => {
-            // TODO
-            object_arg(ast_builder, None)
-        }
-        TSType::TSParenthesizedType(_) => {
             // TODO
             object_arg(ast_builder, None)
         }

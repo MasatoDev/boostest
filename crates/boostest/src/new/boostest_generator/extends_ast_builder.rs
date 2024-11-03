@@ -4,8 +4,8 @@ use oxc::{
     allocator::Box,
     ast::{
         ast::{
-            Class, ClassType, TSInterfaceBody, TSInterfaceDeclaration, TSType,
-            TSTypeAliasDeclaration, TSTypeParameterDeclaration, TSTypeParameterInstantiation,
+            Class, ClassType, TSInterfaceDeclaration, TSType, TSTypeAliasDeclaration,
+            TSTypeParameterDeclaration, TSTypeParameterInstantiation,
         },
         AstBuilder,
     },

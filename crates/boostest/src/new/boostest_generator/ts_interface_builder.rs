@@ -2,12 +2,12 @@ use oxc::{
     allocator::Allocator,
     ast::{
         ast::{
-            BindingIdentifier, Declaration, Expression, FunctionBody, Program, Statement,
-            TSAnyKeyword, TSInterfaceDeclaration, TSType,
+            Declaration, Expression, FunctionBody, Program, Statement, TSAnyKeyword,
+            TSInterfaceDeclaration, TSType,
         },
         AstBuilder, VisitMut,
     },
-    codegen::{Codegen, CodegenOptions},
+    codegen::Codegen,
     parser::Parser,
     span::{SourceType, Span},
 };

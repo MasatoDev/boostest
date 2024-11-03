@@ -5,18 +5,19 @@ use oxc::parser::Parser;
 use oxc::span::{SourceType, Span};
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
-use std::thread;
 
 use oxc::ast::ast::{
     BindingPatternKind, Class, ClassBody, ExportDefaultDeclaration, ExportDefaultDeclarationKind,
     ExportNamedDeclaration, MethodDefinition, PropertyDefinition, TSInterfaceDeclaration,
     TSModuleReference, TSSignature, TSType, TSTypeAliasDeclaration,
 };
-use oxc::ast::ast::{
-    Declaration, Expression, ImportDeclaration, ImportDeclarationSpecifier, Statement,
-    TSImportEqualsDeclaration, TSType::TSTypeReference, TSTypeName, VariableDeclaration,
+use oxc::ast::{
+    ast::{
+        Declaration, ImportDeclaration, ImportDeclarationSpecifier, Statement,
+        TSImportEqualsDeclaration,
+    },
+    VisitMut,
 };
-use oxc::ast::VisitMut;
 
 use super::super::boostest_manager::propety_assignment::{
     calc_prop_span, ts_type_assign_as_property, TargetReferenceInfo,
@@ -478,7 +479,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
                 Declaration::TSInterfaceDeclaration(decl) => {
                     self.visit_ts_interface_declaration(decl)
                 }
-                Declaration::VariableDeclaration(decl) => {
+                Declaration::VariableDeclaration(_decl) => {
                     // TODO: support named change `const huga  = aguh;`
                 }
                 _ => {

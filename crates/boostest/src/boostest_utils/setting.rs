@@ -19,8 +19,7 @@ impl Setting {
             return;
         }
 
-        let mut temp_vec = Vec::new();
-        temp_vec.push(target_path);
+        let temp_vec = vec![target_path];
         self.target = Some(temp_vec);
     }
 
