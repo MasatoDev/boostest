@@ -26,8 +26,8 @@ use super::super::boostest_utils::{module_resolver::resolve_specifier, tsserver:
 
 use super::target::{Target, TargetDefinition, TargetType};
 
-use crate::boostest_utils::utils;
 use crate::new::boostest_utils::buf::source_text_from_span;
+use crate::new::boostest_utils::utils;
 
 /**
 

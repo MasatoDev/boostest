@@ -1,12 +1,11 @@
-mod boostest_utils;
 mod new;
 
-use boostest_utils::{
+use colored::*;
+use indicatif::{ProgressBar, ProgressStyle};
+use new::boostest_utils::{
     setting::{self, Setting},
     utils,
 };
-use colored::*;
-use indicatif::{ProgressBar, ProgressStyle};
 use std::path::Path;
 
 pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {

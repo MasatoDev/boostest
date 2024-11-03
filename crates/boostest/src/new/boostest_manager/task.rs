@@ -1,7 +1,7 @@
-use crate::boostest_utils::utils;
 use crate::new::boostest_generator::code_generator::CodeGenerator;
 use crate::new::boostest_generator::fallback_func_builder::FallbackFuncBuilder;
 use crate::new::boostest_target::target::{MainTarget, PropertyTarget, Target};
+use crate::new::boostest_utils::utils;
 
 use anyhow::Result;
 use colored::*;

@@ -9,8 +9,8 @@ use oxc::ast::VisitMut;
 use oxc::parser::Parser;
 use oxc::span::{SourceType, Span};
 
-use crate::boostest_utils::utils;
 use crate::new::boostest_target::target::{MainTarget, TargetReference};
+use crate::new::boostest_utils::utils;
 
 pub struct TargetDetector {
     pattern: String,
