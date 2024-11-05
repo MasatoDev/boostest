@@ -46,27 +46,6 @@ pub fn read_matching_files(
     Ok(contents)
 }
 
-pub fn find_boostest_json_recursive(dir: PathBuf) -> anyhow::Result<PathBuf> {
-    for entry in fs::read_dir(dir)? {
-        let entry = entry?;
-        let path = entry.path();
-
-        if path.is_file() {
-            if let Some(file_name) = path.file_name() {
-                if file_name == "boostest.setting.json" {
-                    return Ok(path);
-                }
-            }
-        } else if path.is_dir() {
-            if let Ok(found_path) = find_boostest_json_recursive(path) {
-                return Ok(found_path);
-            }
-        }
-    }
-
-    Err(anyhow!("boostest.json not found"))
-}
-
 /**
  * Normalize and resolve the path.
  * parent: "hoge/a/b/c", relative: "../../d/e/f" => "hoge/a/d/e/f"
