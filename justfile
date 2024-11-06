@@ -6,6 +6,8 @@ _default:
 
 setup:
   pnpm install
+  pnpm --filter test install
+  pnpm --filter example install
   echo "✅ Setup complete!"
 
 debug_build:

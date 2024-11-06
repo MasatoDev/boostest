@@ -22,6 +22,28 @@ pub fn is_function_type<'a>(ts_type_ref: &allocator::Box<'a, TSTypeReference<'a>
     false
 }
 
+pub fn is_true_type<'a>(ts_type_ref: &allocator::Box<'a, TSTypeReference<'a>>) -> bool {
+    if let TSTypeName::IdentifierReference(id) = &ts_type_ref.type_name {
+        if id.name == "true" {
+            return true;
+        }
+    }
+    false
+}
+
+pub fn is_false_type<'a>(ts_type_ref: &allocator::Box<'a, TSTypeReference<'a>>) -> bool {
+    if let TSTypeName::IdentifierReference(id) = &ts_type_ref.type_name {
+        if id.name == "false" {
+            return true;
+        }
+    }
+    false
+}
+
+pub fn is_boolean_type<'a>(ts_type_ref: &allocator::Box<'a, TSTypeReference<'a>>) -> bool {
+    is_true_type(ts_type_ref) || is_false_type(ts_type_ref)
+}
+
 // TODO: handle correctly
 pub fn is_defined_type<'a>(ts_type_ref: &allocator::Box<'a, TSTypeReference<'a>>) -> bool {
     is_partial_type(ts_type_ref)

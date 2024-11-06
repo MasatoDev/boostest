@@ -1,10 +1,10 @@
 use oxc::{
     allocator::Allocator,
     ast::{
-        ast::{BindingIdentifier, Declaration, Program, Statement},
+        ast::{Declaration, Program, Statement},
         AstBuilder, VisitMut,
     },
-    codegen::{Codegen, CodegenOptions},
+    codegen::Codegen,
     parser::Parser,
     span::{SourceType, Span},
 };
@@ -12,11 +12,6 @@ use oxc::{
 use oxc::allocator;
 
 const SPAN: Span = Span::new(0, 0);
-
-pub struct ClassArg {
-    pub key: String,
-    pub val: String,
-}
 
 pub struct FallbackMockData {
     pub mock_func_name: String,
@@ -51,12 +46,7 @@ impl<'a> FallbackFuncBuilder<'a> {
 
         self.visit_program(program);
 
-        let mut codegen_options = CodegenOptions::default();
-        codegen_options.enable_typescript = true;
-
-        Codegen::<false>::new("", "", codegen_options)
-            .build(program)
-            .source_text
+        Codegen::new().build(program).code
     }
 }
 
@@ -90,8 +80,8 @@ impl<'a> VisitMut<'a> for FallbackFuncBuilder<'a> {
                             None => self.mock_data.mock_func_name.clone(),
                         };
 
-                        let name = self.ast_builder.new_atom(&new_name);
-                        let new_binding = BindingIdentifier::new(SPAN, name);
+                        let name = self.ast_builder.atom(&new_name);
+                        let new_binding = self.ast_builder.binding_identifier(SPAN, name);
 
                         let _ = std::mem::replace(id, new_binding);
                     }
