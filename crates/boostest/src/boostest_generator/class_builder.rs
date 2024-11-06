@@ -7,21 +7,16 @@ use oxc::{
         },
         AstBuilder, VisitMut,
     },
-    codegen::{Codegen, CodegenOptions},
+    codegen::Codegen,
     parser::Parser,
     span::{SourceType, Span},
 };
 
 use oxc::allocator;
 
-use super::test_data_factory;
+use super::{extends_ast_builder::AstBuilderExt, test_data_factory};
 
 const SPAN: Span = Span::new(0, 0);
-
-pub struct ClassArg {
-    pub key: String,
-    pub val: String,
-}
 
 pub struct ClassMockData {
     pub mock_func_name: String,
@@ -36,15 +31,15 @@ pub struct ClassBuilder<'a> {
 }
 
 impl<'a> ClassBuilder<'a> {
-    pub fn new(
+    pub fn new<'c>(
         allocator: &'a Allocator,
-        class: &'a Class,
+        class: &'c mut Class<'a>,
         mock_func_name: String,
         key_name: Option<String>,
     ) -> Self {
         let ast_builder = AstBuilder::new(allocator);
 
-        let copied_class = ast_builder.copy(class);
+        let copied = ast_builder.move_class(class);
 
         let mock_data = ClassMockData {
             mock_func_name,
@@ -55,7 +50,7 @@ impl<'a> ClassBuilder<'a> {
         Self {
             ast_builder,
             mock_data,
-            class: copied_class,
+            class: copied,
         }
     }
 
@@ -72,32 +67,30 @@ impl<'a> ClassBuilder<'a> {
 
         self.visit_program(program);
 
-        let mut codegen_options = CodegenOptions::default();
-        codegen_options.enable_typescript = true;
-
-        Codegen::<false>::new("", "", codegen_options)
-            .build(program)
-            .source_text
+        Codegen::new().build(program).code
+        // return String::from("code");
     }
 
     pub fn get_new_expression_argument(&mut self) -> allocator::Vec<'a, Argument<'a>> {
-        let mut args = self.ast_builder.new_vec();
+        let mut args = self.ast_builder.vec();
         let mut target_data_vec = Vec::new();
 
-        for stmt in &self.class.body.body {
+        for stmt in self.class.body.body.iter_mut() {
             match stmt {
-                ClassElement::MethodDefinition(method) => {
-                    for formal_parameter in &method.value.params.items {
+                ClassElement::MethodDefinition(ref mut method) => {
+                    for formal_parameter in method.value.params.items.iter_mut() {
                         match &formal_parameter.pattern.kind {
                             BindingPatternKind::BindingIdentifier(id) => {
-                                if let Some(item) = &formal_parameter.pattern.type_annotation {
-                                    let ts_type = self.ast_builder.copy(&item.type_annotation);
+                                if let Some(item) = &mut formal_parameter.pattern.type_annotation {
+                                    let ts_type =
+                                        self.ast_builder.move_ts_type(&mut item.type_annotation);
                                     target_data_vec.push((id.name.to_string(), ts_type));
                                 }
                             }
                             BindingPatternKind::ObjectPattern(_) => {
-                                if let Some(item) = &formal_parameter.pattern.type_annotation {
-                                    let ts_type = self.ast_builder.copy(&item.type_annotation);
+                                if let Some(item) = &mut formal_parameter.pattern.type_annotation {
+                                    let ts_type =
+                                        self.ast_builder.move_ts_type(&mut item.type_annotation);
                                     target_data_vec.push((String::from("object"), ts_type));
                                 }
                             }
@@ -144,8 +137,9 @@ impl<'a> VisitMut<'a> for ClassBuilder<'a> {
 
     fn visit_binding_identifier(&mut self, ident: &mut BindingIdentifier<'a>) {
         if ident.name.to_string() == "boostestClassName" {
-            let name = self.ast_builder.new_atom(&self.mock_data.class_name);
-            let new_binding = BindingIdentifier::new(SPAN, name);
+            let name = self.ast_builder.atom(&self.mock_data.class_name);
+
+            let new_binding = self.ast_builder.binding_identifier(SPAN, name);
 
             let _ = std::mem::replace(ident, new_binding);
         }
@@ -168,8 +162,8 @@ impl<'a> VisitMut<'a> for ClassBuilder<'a> {
                             None => self.mock_data.mock_func_name.clone(),
                         };
 
-                        let name = self.ast_builder.new_atom(&new_name);
-                        let new_binding = BindingIdentifier::new(SPAN, name);
+                        let name = self.ast_builder.atom(&new_name);
+                        let new_binding = self.ast_builder.binding_identifier(SPAN, name);
 
                         let _ = std::mem::replace(id, new_binding);
                     }
@@ -205,27 +199,16 @@ impl<'a> VisitMut<'a> for ClassBuilder<'a> {
         match expr {
             Expression::NewExpression(new_expr) => {
                 if let Expression::Identifier(ident) = &mut new_expr.callee {
-                    self.visit_identifier_reference(ident);
+                    if ident.name.to_string() == "boostestClassName" {
+                        new_expr.callee = self
+                            .ast_builder
+                            .expression_identifier_reference(SPAN, &self.mock_data.class_name);
+                        new_expr.arguments = self.get_new_expression_argument();
+                    }
                 }
-
-                let callee = self.ast_builder.move_expression(&mut new_expr.callee);
-                let args = self.get_new_expression_argument();
-                let new_expression = self.ast_builder.new_expression(SPAN, callee, args, None);
-
-                let _ = std::mem::replace(expr, new_expression);
             }
 
             _ => {}
-        }
-    }
-
-    fn visit_identifier_reference(&mut self, ident: &mut oxc::ast::ast::IdentifierReference<'a>) {
-        if ident.name.to_string() == "boostestClassName" {
-            let i = self
-                .ast_builder
-                .identifier_reference(SPAN, &self.mock_data.class_name);
-
-            let _ = std::mem::replace(ident, i);
         }
     }
 }

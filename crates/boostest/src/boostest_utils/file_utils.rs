@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 use std::path::{Path, PathBuf};
 
 use glob::glob;
@@ -18,7 +18,7 @@ pub fn read(path: &Path) -> io::Result<String> {
 
 pub fn read_matching_files(
     patterns: Vec<String>,
-    out_file_name: &String,
+    out_file_name: &str,
 ) -> anyhow::Result<HashMap<PathBuf, String>> {
     let mut contents: HashMap<PathBuf, String> = HashMap::new();
 
@@ -32,7 +32,7 @@ pub fn read_matching_files(
                 .file_name()
                 .unwrap_or(OsStr::new("none_file_name"))
                 .to_string_lossy()
-                .contains(out_file_name.as_str())
+                .contains(out_file_name)
             {
                 continue;
             }
@@ -44,27 +44,6 @@ pub fn read_matching_files(
     }
 
     Ok(contents)
-}
-
-pub fn find_boostest_json_recursive(dir: PathBuf) -> anyhow::Result<PathBuf> {
-    for entry in fs::read_dir(dir)? {
-        let entry = entry?;
-        let path = entry.path();
-
-        if path.is_file() {
-            if let Some(file_name) = path.file_name() {
-                if file_name == "boostest.setting.json" {
-                    return Ok(path);
-                }
-            }
-        } else if path.is_dir() {
-            if let Ok(found_path) = find_boostest_json_recursive(path) {
-                return Ok(found_path);
-            }
-        }
-    }
-
-    Err(anyhow!("boostest.json not found"))
 }
 
 /**

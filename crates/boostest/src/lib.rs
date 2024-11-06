@@ -1,16 +1,16 @@
-pub mod boostest_mock_builder;
-pub mod boostest_mock_loader;
-mod boostest_tsserver;
+mod boostest_generator;
+mod boostest_manager;
+mod boostest_target;
 mod boostest_utils;
 
-use boostest_mock_loader::mock_loader::MockLoader;
+use boostest_manager::{target_detector::TargetDetector, task::handle_main_task};
+use boostest_target::main_target_resolver::main_targets_resolve;
 use boostest_utils::{
+    file_utils,
     setting::{self, Setting},
-    task, utils,
 };
 use colored::*;
 use indicatif::{ProgressBar, ProgressStyle};
-use oxc::{parser::Parser, span::SourceType};
 use std::path::Path;
 
 pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
@@ -34,17 +34,12 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
 
     let out_file_name = setting.out_file_name.unwrap_or(String::from("boostest"));
 
-    let source_type = SourceType::default()
-        .with_always_strict(true)
-        .with_module(true)
-        .with_typescript(true);
-
     let target = setting.target.unwrap_or_else(|| {
         println!("{}", "Not found target files".red());
         std::process::exit(0);
     });
 
-    let contents = utils::read_matching_files(target, &out_file_name).unwrap_or_else(|e| {
+    let contents = file_utils::read_matching_files(target, &out_file_name).unwrap_or_else(|e| {
         println!("{}:{}", "Target files cloud not parsed".red(), e);
         std::process::exit(0);
     });
@@ -61,40 +56,56 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
             .progress_chars("##-"),
     );
 
-    for (path_buf, file) in contents {
+    for (path_buf, _file) in contents {
         let path = path_buf.as_path();
 
-        println!(
-            "target file: {}",
-            format!("{}", path.to_string_lossy()).green()
-        );
+        let mut detector = TargetDetector::new(setting.name.clone());
+        detector.detect(path);
+        let mut main_targets = detector.main_targets;
 
-        // let mut mock_loader = Arc::new(Mutex::new(MockLoader::new(
-        //     path_buf.clone(),
-        //     setting.name.clone(),
-        // )));
-        //
-        let mut mock_loader = MockLoader::new(path_buf.clone(), setting.name.clone());
+        main_targets.sort_by(|a, b| {
+            let a = a.lock().unwrap().target.lock().unwrap().func_name.clone();
+            let b = b.lock().unwrap().target.lock().unwrap().func_name.clone();
+            a.cmp(&b)
+        });
 
-        let allocator = oxc::allocator::Allocator::default();
-        let parser = Parser::new(&allocator, &file, source_type);
-        let mut program = parser.parse().program;
+        main_targets_resolve(&main_targets, &setting.tsconfig, &setting.project_root_path);
 
-        boostest_utils::module_resolver::load_mock(
-            &mut mock_loader,
-            &mut program,
-            path,
-            &setting.tsconfig,
-            &setting.project_root_path,
-        );
-
-        if let Err(e) = task::handle_main_task(&mut mock_loader, path, &out_file_name) {
+        if let Err(e) = handle_main_task(main_targets, path, &out_file_name) {
             println!(
                 "{}:{}",
                 format!("failed to create test data at :{}", path.to_string_lossy()).green(),
                 e
             );
         }
+
+        // let mut mock_loader = Arc::new(Mutex::new(MockLoader::new(
+        //     path_buf.clone(),
+        //     setting.name.clone(),
+        // )));
+        //
+
+        // let mut mock_loader = MockLoader::new(path_buf.clone(), setting.name.clone());
+        //
+        // let allocator = oxc::allocator::Allocator::default();
+        // let parser = Parser::new(&allocator, &file, source_type);
+        // let mut program = parser.parse().program;
+
+        // boostest_utils::module_resolver::load_mock(
+        //     &mut mock_loader,
+        //     &mut program,
+        //     path,
+        //     &setting.tsconfig,
+        //     &setting.project_root_path,
+        // );
+
+        // if let Err(e) = task::handle_main_task(&mut mock_loader, path, &out_file_name) {
+        //     println!(
+        //         "{}:{}",
+        //         format!("failed to create test data at :{}", path.to_string_lossy()).green(),
+        //         e
+        //     );
+        // }
 
         pb.inc(1);
     }

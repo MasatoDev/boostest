@@ -2,18 +2,19 @@ use oxc::{
     allocator::Allocator,
     ast::{
         ast::{
-            BindingIdentifier, Declaration, Expression, FunctionBody, Program, Statement,
-            TSPropertySignature, TSSignature, TSType, TSTypeAliasDeclaration,
+            Declaration, Expression, FunctionBody, Program, Statement, TSPropertySignature,
+            TSSignature, TSType, TSTypeAliasDeclaration,
         },
         AstBuilder, VisitMut,
     },
-    codegen::{Codegen, CodegenOptions},
+    codegen::Codegen,
     parser::Parser,
     span::{SourceType, Span},
 };
 
 use oxc::allocator;
 
+use super::extends_ast_builder::AstBuilderExt;
 use super::test_data_factory;
 
 const SPAN: Span = Span::new(0, 0);
@@ -30,14 +31,14 @@ pub struct TSTypeAliasBuilder<'a> {
 }
 
 impl<'a> TSTypeAliasBuilder<'a> {
-    pub fn new(
+    pub fn new<'c>(
         allocator: &'a Allocator,
-        ts_type_alias: &'a TSTypeAliasDeclaration<'a>,
+        ts_type_alias: &'c mut TSTypeAliasDeclaration<'a>,
         mock_func_name: String,
         key_name: Option<String>,
     ) -> Self {
         let ast_builder = AstBuilder::new(allocator);
-        let copied_ts_type_alias = ast_builder.copy(ts_type_alias);
+        let copied = ast_builder.move_ts_type_alias_declatration(ts_type_alias);
 
         let mock_data = TypeAliasMockData {
             mock_func_name,
@@ -47,7 +48,7 @@ impl<'a> TSTypeAliasBuilder<'a> {
         Self {
             ast_builder,
             mock_data,
-            ts_type_alias: copied_ts_type_alias,
+            ts_type_alias: copied,
         }
     }
 
@@ -70,12 +71,7 @@ impl<'a> TSTypeAliasBuilder<'a> {
 
         self.visit_program(program);
 
-        let mut codegen_options = CodegenOptions::default();
-        codegen_options.enable_typescript = true;
-
-        Codegen::<false>::new("", "", codegen_options)
-            .build(program)
-            .source_text
+        Codegen::new().build(program).code
     }
 
     pub fn get_ts_alias_properties(
@@ -131,8 +127,8 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
                             None => self.mock_data.mock_func_name.clone(),
                         };
 
-                        let name = self.ast_builder.new_atom(&new_name);
-                        let new_binding = BindingIdentifier::new(SPAN, name);
+                        let name = self.ast_builder.atom(&new_name);
+                        let new_binding = self.ast_builder.binding_identifier(SPAN, name);
 
                         let _ = std::mem::replace(id, new_binding);
                     }
@@ -174,7 +170,10 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
 
         if !test_data_factory::is_ts_type_literal(&self.ts_type_alias.type_annotation) {
             let id_name = self.ts_type_alias.id.name.to_string();
-            let ts_annotation = self.ast_builder.copy(&self.ts_type_alias.type_annotation);
+
+            let ts_annotation = self
+                .ast_builder
+                .move_ts_type(&mut self.ts_type_alias.type_annotation);
 
             let new_expr = test_data_factory::get_expression(
                 &self.ast_builder,
@@ -188,7 +187,9 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
         }
 
         if test_data_factory::is_call_signature(&self.ts_type_alias.type_annotation) {
-            let ts_annotation = self.ast_builder.copy(&self.ts_type_alias.type_annotation);
+            let ts_annotation = self
+                .ast_builder
+                .move_ts_type(&mut self.ts_type_alias.type_annotation);
 
             if let Some(call_signature_expr) = test_data_factory::get_first_call_signature(
                 &self.ast_builder,
@@ -237,16 +238,18 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
             Expression::TSAsExpression(ts_as_expr) => match &mut ts_as_expr.expression {
                 Expression::ObjectExpression(obj_expr) => {
                     if let Some(last) = obj_expr.properties.pop() {
-                        let vec = self.ast_builder.new_vec();
+                        let mut vec = self.ast_builder.vec();
 
                         let ts_signatures = match &mut self.ts_type_alias.type_annotation {
-                            TSType::TSTypeLiteral(ts_type_literal) => &ts_type_literal.members,
-                            _ => &vec,
+                            TSType::TSTypeLiteral(ref mut ts_type_literal) => {
+                                &mut ts_type_literal.members
+                            }
+                            _ => &mut vec,
                         };
 
                         let new_obj_expr = test_data_factory::handle_ts_signatures(
                             &self.ast_builder,
-                            &ts_signatures,
+                            ts_signatures,
                             Some(last),
                             &self.mock_data.mock_func_name,
                             None,
