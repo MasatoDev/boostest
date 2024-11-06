@@ -6,8 +6,8 @@ mod boostest_utils;
 use boostest_manager::{target_detector::TargetDetector, task::handle_main_task};
 use boostest_target::main_target_resolver::main_targets_resolve;
 use boostest_utils::{
+    file_utils,
     setting::{self, Setting},
-    utils,
 };
 use colored::*;
 use indicatif::{ProgressBar, ProgressStyle};
@@ -39,7 +39,7 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
         std::process::exit(0);
     });
 
-    let contents = utils::read_matching_files(target, &out_file_name).unwrap_or_else(|e| {
+    let contents = file_utils::read_matching_files(target, &out_file_name).unwrap_or_else(|e| {
         println!("{}:{}", "Target files cloud not parsed".red(), e);
         std::process::exit(0);
     });

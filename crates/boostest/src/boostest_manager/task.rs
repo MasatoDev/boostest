@@ -1,7 +1,7 @@
 use crate::boostest_generator::code_generator::CodeGenerator;
 use crate::boostest_generator::fallback_func_builder::FallbackFuncBuilder;
 use crate::boostest_target::target::{MainTarget, PropertyTarget, Target};
-use crate::boostest_utils::utils;
+use crate::boostest_utils::file_utils;
 
 use anyhow::Result;
 use colored::*;
@@ -120,7 +120,8 @@ fn get_code(target: Arc<Mutex<Target>>, key_name: Option<String>) -> Option<Stri
     let locked_target = target.lock().unwrap();
     match &locked_target.target_definition {
         Some(target_definition) => {
-            let target_source = utils::read(&target_definition.file_path).unwrap_or(String::new());
+            let target_source =
+                file_utils::read(&target_definition.file_path).unwrap_or(String::new());
             let target_source_text = target_definition.span.source_text(&target_source);
             let allocator = oxc::allocator::Allocator::default();
 

@@ -30,3 +30,10 @@ pub fn source_text_from_span(span: Span, source_text: &str) -> &str {
     let end = utf16_to_utf8_offset(&rope, span.end as usize);
     &source_text[start..end]
 }
+
+pub fn utf16_span_to_utf8_span(span: Span, source_text: &str) -> Span {
+    let rope = Rope::from_str(source_text);
+    let start = utf16_to_utf8_offset(&rope, span.start as usize);
+    let end = utf16_to_utf8_offset(&rope, span.end as usize);
+    Span::new(start as u32, end as u32)
+}

@@ -10,7 +10,7 @@ use oxc::parser::Parser;
 use oxc::span::{SourceType, Span};
 
 use crate::boostest_target::target::{MainTarget, TargetReference};
-use crate::boostest_utils::utils;
+use crate::boostest_utils::file_utils;
 
 pub struct TargetDetector {
     pattern: String,
@@ -29,7 +29,7 @@ impl TargetDetector {
 
     pub fn detect(&mut self, target_file_path: &Path) {
         self.temp_target_file_path = target_file_path.to_path_buf();
-        let target_source = utils::read(target_file_path).unwrap_or(String::new());
+        let target_source = file_utils::read(target_file_path).unwrap_or(String::new());
 
         let source_type = SourceType::ts();
         let allocator = oxc::allocator::Allocator::default();

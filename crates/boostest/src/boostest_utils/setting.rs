@@ -4,7 +4,7 @@ use std::fs::{self, File};
 use std::io::BufReader;
 use std::path::PathBuf;
 
-use super::utils;
+use super::file_utils;
 
 #[derive(Debug)]
 pub struct Setting {
@@ -92,8 +92,8 @@ pub fn get_setting() -> anyhow::Result<Setting> {
                     let ps = PathBuf::from(val);
 
                     if let Some(parent) = &config_path.parent() {
-                        let relative_path =
-                            utils::normalize_and_resolve_path(parent, &ps).unwrap_or(ps.clone());
+                        let relative_path = file_utils::normalize_and_resolve_path(parent, &ps)
+                            .unwrap_or(ps.clone());
 
                         setting.set_tsconfig(relative_path);
                     } else {

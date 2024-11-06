@@ -303,6 +303,19 @@ let _ = boostestMathOperations<MathOperations>();
 // TODO: this is not implemented
 // let _ = boostestCallSignatureInterface<CallSignatureInterface>();
 
+import {
+  RenamedNestedPropClass,
+  RenamedComplexChipsType,
+} from "@/export_rename";
+
+let a = boostestRenamedNestedPropClass<typeof RenamedNestedPropClass>(
+  RenamedNestedPropClass,
+);
+let b = boostestRenamedComplexChipsType<RenamedComplexChipsType>();
+
+import * as Hoge from "@/common.ts";
+let hoge = boostestCommonCjs<Hoge>();
+
 /**
  *
  *

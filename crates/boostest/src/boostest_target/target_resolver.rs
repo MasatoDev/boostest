@@ -26,8 +26,8 @@ use super::super::boostest_utils::{module_resolver::resolve_specifier, tsserver:
 
 use super::target::{Target, TargetDefinition, TargetType};
 
-use crate::boostest_utils::buf::source_text_from_span;
-use crate::boostest_utils::utils;
+use crate::boostest_utils::buf::{source_text_from_span, utf16_span_to_utf8_span};
+use crate::boostest_utils::file_utils;
 
 /**
 
@@ -82,6 +82,8 @@ pub struct TargetResolver {
     pub status: ResolveStatus,
     pub read_file_span: Option<Span>,
 
+    pub use_tsserver: bool,
+
     /*
     - visit ast
     - add temp_import_source_vec
@@ -92,6 +94,7 @@ pub struct TargetResolver {
     pub import: Vec<Import>,
     pub temp_import_source_vec: Option<Vec<Import>>,
     pub temp_current_read_file_path: PathBuf,
+    pub temp_renamed_var_decl_span: Option<Span>,
 }
 
 impl TargetResolver {
@@ -100,8 +103,10 @@ impl TargetResolver {
             target,
             status: ResolveStatus::Nothing,
             import: Vec::new(),
+            use_tsserver: false,
             temp_import_source_vec: None,
             temp_current_read_file_path: PathBuf::new(),
+            temp_renamed_var_decl_span: None,
             read_file_span: None,
         }
     }
@@ -226,6 +231,14 @@ impl TargetResolver {
         false
     }
 
+    // export const Hoge = Huga;
+    pub fn set_renamed_decl(&mut self, renamed_decl_name: String) {
+        if let Some(last) = self.import.last_mut() {
+            last.identifier_original_name = Some(renamed_decl_name.clone());
+            last.need_reload = true;
+        }
+    }
+
     pub fn set_default_import_name(&mut self, exported: &String, local: &String) {
         if let Some(import) = self.get_next_import() {
             if import.default_import
@@ -330,22 +343,43 @@ impl<'a> VisitMut<'a> for TargetResolver {
                 /********/
                 /* TODO */
                 /********/
-                Statement::VariableDeclaration(_) => {
+                Statement::VariableDeclaration(var_decl) => {
+                    var_decl.declarations.iter_mut().for_each(|decl| {
+                        match &decl.id.kind {
+                            BindingPatternKind::BindingIdentifier(id) => {
+                                if id.name == self.get_decl_name_for_resolve() {
+                                    if let Some(init) = &mut decl.init {
+                                        if let Some(identifier) = init.get_identifier_reference() {
+                                            self.set_renamed_decl(identifier.name.to_string());
+
+                                            // for tsserver
+                                            self.temp_renamed_var_decl_span = Some(calc_prop_span(
+                                                identifier.span,
+                                                self.read_file_span,
+                                            ));
+                                        }
+                                    }
+                                }
+                            }
+                            _ => {}
+                        };
+                    });
+
                     // TODO: support named change `const huga  = hoge;`
                 }
-                Statement::TSExportAssignment(_ts_export_assignment) => {
-                    /*
-                     * TODO: support commonjs
-                     * export = ClassName;
-                     *
-                     */
+                Statement::TSExportAssignment(ts_export_assignment) => {
+                    if let Some(identifier) =
+                        ts_export_assignment.expression.get_identifier_reference()
+                    {
+                        self.set_default_import_name(
+                            &String::from("default"),
+                            &identifier.name.to_string(),
+                        );
 
-                    // if let Expression::Identifier(id) = &ts_export_assignment.expression {
-                    //     self.set_default_import_name(
-                    //         &String::from("default"),
-                    //         &id.name.to_string(),
-                    //     );
-                    // }
+                        // for tsserver
+                        self.temp_renamed_var_decl_span =
+                            Some(calc_prop_span(identifier.span, self.read_file_span));
+                    }
                 }
                 Statement::ExpressionStatement(_expr_stmt) => {
                     // TODO: hoge<T = any>のようなgenericは`T = any`というexpressio, statementなのでanyが入るよう調整する
@@ -411,7 +445,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
                 match specifier {
                     ImportDeclarationSpecifier::ImportNamespaceSpecifier(namespace) => {
                         let local = namespace.local.name.clone().into_string();
-                        self.set_temp_import_source(local, full_path, imported, false)
+                        self.set_temp_import_source(local, full_path, imported, true)
                     }
                     ImportDeclarationSpecifier::ImportSpecifier(normal) => {
                         let local = normal.local.name.clone().into_string();
@@ -479,8 +513,29 @@ impl<'a> VisitMut<'a> for TargetResolver {
                 Declaration::TSInterfaceDeclaration(decl) => {
                     self.visit_ts_interface_declaration(decl)
                 }
-                Declaration::VariableDeclaration(_decl) => {
-                    // TODO: support named change `const huga  = aguh;`
+                Declaration::VariableDeclaration(var_decl) => {
+                    var_decl.declarations.iter_mut().for_each(|decl| {
+                        match &decl.id.kind {
+                            BindingPatternKind::BindingIdentifier(id) => {
+                                if id.name == self.get_decl_name_for_resolve() {
+                                    if let Some(init) = &mut decl.init {
+                                        if let Some(identifier) = init.get_identifier_reference() {
+                                            self.set_renamed_decl(identifier.name.to_string());
+
+                                            // for tsserver
+                                            self.temp_renamed_var_decl_span = Some(calc_prop_span(
+                                                identifier.span,
+                                                self.read_file_span,
+                                            ));
+                                        }
+                                    }
+                                }
+                            }
+                            _ => {}
+                        };
+                    });
+
+                    // TODO: support named change `const huga  = hoge;`
                 }
                 _ => {
                     // println!("Another Statement {:?}", export_named_decl);
@@ -496,9 +551,8 @@ impl<'a> VisitMut<'a> for TargetResolver {
     /*************************************************/
     fn visit_class(&mut self, class: &mut Class<'a>) {
         if let Some(identifier) = &class.id {
-            if identifier.name.to_string() == self.get_decl_name_for_resolve() {
-                // self.add_class(class);
-
+            if self.use_tsserver || identifier.name.to_string() == self.get_decl_name_for_resolve()
+            {
                 self.target
                     .lock()
                     .unwrap()
@@ -632,7 +686,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
     fn visit_ts_type_alias_declaration(&mut self, decl: &mut TSTypeAliasDeclaration<'a>) {
         let target_name = self.get_decl_name_for_resolve();
 
-        if decl.id.name.to_string() == *target_name {
+        if self.use_tsserver || decl.id.name.to_string() == *target_name {
             // NOTE: handle mock target property
             match &mut decl.type_annotation {
                 TSType::TSTypeLiteral(ts_type_literal) => {
@@ -647,7 +701,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
                 */
                 TSType::TSTypeReference(_ty_ref) => {
                     ts_type_assign_as_property(
-                        self.target.clone().clone(),
+                        self.target.clone(),
                         TargetReferenceInfo {
                             file_path: self.temp_current_read_file_path.clone(),
                         },
@@ -659,7 +713,6 @@ impl<'a> VisitMut<'a> for TargetResolver {
                 _ => {}
             }
 
-            // self.add_ts_alias(decl);
             self.target
                 .lock()
                 .unwrap()
@@ -674,8 +727,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
     }
 
     fn visit_ts_interface_declaration(&mut self, decl: &mut TSInterfaceDeclaration<'a>) {
-        if decl.id.name.to_string() == self.get_decl_name_for_resolve() {
-            // self.add_ts_interface(decl);
+        if self.use_tsserver || decl.id.name.to_string() == self.get_decl_name_for_resolve() {
             self.target
                 .lock()
                 .unwrap()
@@ -723,7 +775,7 @@ pub fn resolve_target(
     };
 
     target_resolver.temp_current_read_file_path = target_file_path.clone();
-    let file = utils::read(&target_file_path).unwrap_or(String::new());
+    let file = file_utils::read(&target_file_path).unwrap_or(String::new());
     let source_type = SourceType::ts();
     let allocator = oxc::allocator::Allocator::default();
     let parser = Parser::new(&allocator, &file, source_type);
@@ -856,11 +908,19 @@ pub fn resolve_target_ast_with_tsserver(
         return Ok(());
     }
 
+    // clean up
+    target_resolver.temp_renamed_var_decl_span = None;
+    if target_resolver.resolved() {
+        return Ok(());
+    };
+
     let absolute_path = target_file_path.canonicalize().unwrap();
     target_resolver.temp_current_read_file_path = absolute_path.clone();
 
     if let Some(project_root_path) = project_root_path {
         let target = target_resolver.target.lock().unwrap();
+
+        target_resolver.use_tsserver = true;
 
         if let Some(result) = tsserver(
             project_root_path,
@@ -870,14 +930,14 @@ pub fn resolve_target_ast_with_tsserver(
             drop(target);
             let (target_file_path, span) = result;
 
+            let target_source = file_utils::read(&target_file_path).unwrap_or(String::new());
+            let utf8_span = utf16_span_to_utf8_span(span, &target_source);
+
             // NOTE: 対象ファイルから定義元のspanを取得
             // それをsouce_textとしてast visitするため完全なファイルではない
             // 抽出位置からのspanとなるため、抽出地点のSPANを加えられるよう一時保存する
-            target_resolver.read_file_span = Some(span);
+            target_resolver.read_file_span = Some(utf8_span);
             target_resolver.temp_current_read_file_path = target_file_path.clone();
-
-            let target_source = utils::read(&target_file_path).unwrap_or(String::new());
-            // let target_source_text = span.source_text(&target_source);
 
             let target_source_text = source_text_from_span(span, &target_source);
 
@@ -888,32 +948,17 @@ pub fn resolve_target_ast_with_tsserver(
 
             target_resolver.visit_statements(&mut program.body);
 
-            // let mut handles = vec![];
-            //
-            // /*
-            //  * NOTE:
-            //  * start analysis for ref_properties after original mock_target_ast analysis is started
-            //  */
-            // for prop in target_resolver.get_needs_start_analysis_properties() {
-            //     let mut cloned_target_resolver = target_resolver.clone();
-            //     let project_root_path = project_root_path.clone();
-            //
-            //     let handle = thread::spawn(move || {
-            //         if let Err(e) = resolve_target_ast_with_tsserver(
-            //             &mut cloned_target_resolver,
-            //             &Some(project_root_path.clone()),
-            //             depth + 1,
-            //         ) {
-            //             println!("{}", e);
-            //         }
-            //     });
-            //
-            //     handles.push(handle);
-            // }
-            //
-            // for handle in handles {
-            //     handle.join().unwrap();
-            // }
+            if let Some(span) = target_resolver.temp_renamed_var_decl_span {
+                let mut target = target_resolver.target.lock().unwrap();
+                target.target_reference.span = span;
+                target.target_reference.file_path = target_file_path.clone();
+                drop(target);
+                resolve_target_ast_with_tsserver(
+                    target_resolver,
+                    &Some(project_root_path.clone()),
+                    depth + 1,
+                )?;
+            }
         } else {
             return Err(anyhow!("ファイル読み込みでエラー"));
         }
