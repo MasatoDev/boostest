@@ -5,11 +5,12 @@ use oxc::{
     ast::{
         ast::{
             Argument, ArrayExpression, ArrayExpressionElement, ArrowFunctionExpression,
-            BigIntLiteral, BindingRestElement, BooleanLiteral, CallExpression, Expression,
-            FormalParameterKind, FormalParameters, FunctionBody, IdentifierReference, NullLiteral,
-            NumericLiteral, ObjectExpression, ObjectPropertyKind, PropertyKey, PropertyKind,
-            StringLiteral, TSCallSignatureDeclaration, TSLiteral, TSSignature, TSType,
-            TSTypeAnnotation, TSTypeName, TSTypeParameterDeclaration, TSTypeParameterInstantiation,
+            BigIntLiteral, BindingRestElement, BooleanLiteral, CallExpression,
+            ComputedMemberExpression, Expression, FormalParameterKind, FormalParameters,
+            FunctionBody, IdentifierReference, NullLiteral, NumericLiteral, ObjectExpression,
+            ObjectPropertyKind, PropertyKey, PropertyKind, StringLiteral,
+            TSCallSignatureDeclaration, TSLiteral, TSSignature, TSType, TSTypeAnnotation,
+            TSTypeName, TSTypeParameterDeclaration, TSTypeParameterInstantiation,
             TSTypeQueryExprName,
         },
         AstBuilder,
@@ -405,10 +406,10 @@ pub fn object_arg<'a>(
 }
 
 //  Object.keys(user)[0];
-fn computed_member_expr<'a>(
+fn computed_member<'a>(
     ast_builder: &AstBuilder<'a>,
     arg_expression: Expression<'a>,
-) -> Expression<'a> {
+) -> allocator::Box<'a, ComputedMemberExpression<'a>> {
     // Create Identifier nodes
     let object_id = ast_builder.expression_identifier_reference(SPAN, "Object");
     let keys_id = ast_builder.identifier_name(SPAN, "keys");
@@ -435,11 +436,22 @@ fn computed_member_expr<'a>(
         oxc::syntax::number::NumberBase::Decimal,
     );
 
-    // Create ComputedMemberExpression node
-    let computed_member_expr =
-        ast_builder.alloc_computed_member_expression(SPAN, call_expr, numeric_literal, false);
+    ast_builder.alloc_computed_member_expression(SPAN, call_expr, numeric_literal, false)
+}
+fn computed_member_expr<'a>(
+    ast_builder: &AstBuilder<'a>,
+    arg_expression: Expression<'a>,
+) -> Expression<'a> {
+    let computed_member_expression = computed_member(ast_builder, arg_expression);
+    Expression::ComputedMemberExpression(computed_member_expression)
+}
 
-    Expression::ComputedMemberExpression(computed_member_expr)
+fn computed_member_arg<'a>(
+    ast_builder: &AstBuilder<'a>,
+    arg_expression: Expression<'a>,
+) -> Argument<'a> {
+    let computed_member_expression = computed_member(ast_builder, arg_expression);
+    Argument::ComputedMemberExpression(computed_member_expression)
 }
 
 /****** reference ******/
@@ -917,7 +929,6 @@ pub fn get_expression<'a>(
 
                 return computed_member_expr(ast_builder, arg_expression);
             }
-            // TODO
             ast_builder.expression_object(SPAN, ast_builder.vec(), None)
         }
         TSType::TSInferType(_ts_infer_type) => {
@@ -1176,9 +1187,14 @@ pub fn get_arg<'a>(
             // Namespace.MyType
             object_arg(ast_builder, None)
         }
-        TSType::TSTypeOperatorType(_) => {
+        TSType::TSTypeOperatorType(ts_type_operator_type) => {
             // keyof T
-            // TODO
+            if let TSType::TSTypeReference(ts_type_ref) = &ts_type_operator_type.type_annotation {
+                let new_key = format!("{}_{}", key_name, ts_type_ref.type_name);
+                let arg_expression = ref_expr(ast_builder, &new_key, mock_func_name, true);
+
+                return computed_member_arg(ast_builder, arg_expression);
+            }
             object_arg(ast_builder, None)
         }
         TSType::TSTypePredicate(_) => {

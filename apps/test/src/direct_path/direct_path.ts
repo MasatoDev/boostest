@@ -6,7 +6,7 @@ import {
 
 let _ = boostestLiteralAliasType<LiteralTypeAlias>();
 // let _ = boostestLiteralInterfaceType<LiteralTypeInterface>();
-// let _ = boostestLiteralTypeClass<typeof LiteralTypeClass>(LiteralTypeClass);
+let _ = boostestLiteralTypeClass<typeof LiteralTypeClass>(LiteralTypeClass);
 //
 // import { ExportNamedDecl } from "@/export_named_decl";
 // let e = boostestExportNamedDecl<ExportNamedDecl>();
