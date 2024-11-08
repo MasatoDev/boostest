@@ -4,7 +4,7 @@ use std::{
 };
 
 use oxc::{
-    ast::ast::{TSSignature, TSTupleElement, TSType, TSTypeName},
+    ast::ast::{TSSignature, TSTupleElement, TSType, TSTypeName, TSTypeQueryExprName},
     span::Span,
 };
 
@@ -60,7 +60,7 @@ pub fn ts_type_assign_as_property(
         TSType::TSTypeReference(ty_ref) => {
             if let TSTypeName::IdentifierReference(identifier) = &ty_ref.type_name {
                 let new_key = format!("{}_{}", key, identifier.name.clone().into_string());
-                target.lock().unwrap().add_property_ts_type(
+                target.lock().unwrap().add_property(
                     identifier.name.clone().into_string(),
                     new_key,
                     TargetReference {
@@ -80,7 +80,7 @@ pub fn ts_type_assign_as_property(
 
                 if let TSTypeName::IdentifierReference(identifier) = &ty_ref.type_name {
                     let new_key = format!("{}_{}", key, identifier.name.clone().into_string());
-                    target.lock().unwrap().add_property_ts_type(
+                    target.lock().unwrap().add_property(
                         identifier.name.clone().into_string(),
                         new_key,
                         TargetReference {
@@ -100,7 +100,7 @@ pub fn ts_type_assign_as_property(
                     }
                     if let TSTypeName::IdentifierReference(identifier) = &ty_ref.type_name {
                         let new_key = format!("{}_{}", key, identifier.name.clone().into_string());
-                        target.lock().unwrap().add_property_ts_type(
+                        target.lock().unwrap().add_property(
                             identifier.name.clone().into_string(),
                             new_key,
                             TargetReference {
@@ -160,6 +160,34 @@ pub fn ts_type_assign_as_property(
                     ts_type,
                     key.clone(),
                 );
+            }
+        }
+        TSType::TSTypeQuery(ts_type_query) => {
+            println!("TSType::TSTypeQuery {:?}", ts_type_query);
+
+            if let TSTypeQueryExprName::IdentifierReference(identifier) = &ts_type_query.expr_name {
+                let new_key = format!("{}_{}", key, identifier.name.clone().into_string());
+                target.lock().unwrap().add_property(
+                    identifier.name.clone().into_string(),
+                    new_key,
+                    TargetReference {
+                        span: calc_prop_span(identifier.span, read_file_span),
+                        file_path,
+                    },
+                )
+            }
+        }
+        TSType::TSTypeOperatorType(ts_type_operator_type) => {
+            if let TSType::TSTypeReference(ts_type_ref) = &ts_type_operator_type.type_annotation {
+                let new_key = format!("{}_{}", key, ts_type_ref.type_name);
+                target.lock().unwrap().add_property(
+                    ts_type_ref.type_name.to_string(),
+                    new_key,
+                    TargetReference {
+                        span: calc_prop_span(ts_type_ref.span, read_file_span),
+                        file_path,
+                    },
+                )
             }
         }
         _ => {}

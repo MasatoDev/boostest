@@ -5,8 +5,8 @@ import {
 } from "@/ts_types/literal";
 
 let _ = boostestLiteralAliasType<LiteralTypeAlias>();
-let _ = boostestLiteralInterfaceType<LiteralTypeInterface>();
-let _ = boostestLiteralTypeClass<typeof LiteralTypeClass>(LiteralTypeClass);
+// let _ = boostestLiteralInterfaceType<LiteralTypeInterface>();
+// let _ = boostestLiteralTypeClass<typeof LiteralTypeClass>(LiteralTypeClass);
 //
 // import { ExportNamedDecl } from "@/export_named_decl";
 // let e = boostestExportNamedDecl<ExportNamedDecl>();
@@ -31,3 +31,17 @@ let _ = boostestLiteralTypeClass<typeof LiteralTypeClass>(LiteralTypeClass);
 //   RenamedNestedPropClass,
 // );
 // let b = boostestRenamedComplexChipsType<RenamedComplexChipsType>();
+
+/** TODO: support types */
+// keyof	×	keyof T	{}
+// typeof	×	typeof T	{}
+// infer	×	infer T	{}
+// mapped type	×	{[K in keyof T]: T[K]}	{}
+// namespace	×	Namespace.Hoge	{}
+// constructor type	×	abstract new (...args: any) => any	{}
+// index accessor	×	Hoge['name']	{}
+// template	×	${string}	{}
+
+// export function classType_Hoge_boostestLiteralAliasType<T extends abstract new (...args: any) => any>(Hoge): T {
+// 	return new Hoge("test string data", 10);
+// }

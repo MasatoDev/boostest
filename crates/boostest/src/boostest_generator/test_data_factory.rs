@@ -10,11 +10,15 @@ use oxc::{
             NumericLiteral, ObjectExpression, ObjectPropertyKind, PropertyKey, PropertyKind,
             StringLiteral, TSCallSignatureDeclaration, TSLiteral, TSSignature, TSType,
             TSTypeAnnotation, TSTypeName, TSTypeParameterDeclaration, TSTypeParameterInstantiation,
+            TSTypeQueryExprName,
         },
         AstBuilder,
     },
     span::{Atom, Span},
-    syntax::number::{BigintBase, NumberBase},
+    syntax::{
+        identifier,
+        number::{BigintBase, NumberBase},
+    },
 };
 
 use super::super::boostest_utils::ast_utils;
@@ -398,6 +402,44 @@ pub fn object_arg<'a>(
     };
     let argument_item = ast_builder.alloc(object_expr);
     Argument::ObjectExpression(argument_item)
+}
+
+//  Object.keys(user)[0];
+fn computed_member_expr<'a>(
+    ast_builder: &AstBuilder<'a>,
+    arg_expression: Expression<'a>,
+) -> Expression<'a> {
+    // Create Identifier nodes
+    let object_id = ast_builder.expression_identifier_reference(SPAN, "Object");
+    let keys_id = ast_builder.identifier_name(SPAN, "keys");
+
+    // Create StaticMemberExpression node
+    let alloc_static_member_expr =
+        ast_builder.alloc_static_member_expression(SPAN, object_id, keys_id, false);
+    let static_member_expr = Expression::StaticMemberExpression(alloc_static_member_expr);
+
+    // Create CallExpression node
+    let arg = ast_builder.argument_expression(arg_expression);
+    let mut args = ast_builder.vec();
+    args.push(arg);
+
+    let type_parameters: Option<allocator::Box<TSTypeParameterInstantiation<'a>>> = None;
+    let call_expr =
+        ast_builder.expression_call(SPAN, static_member_expr, type_parameters, args, false);
+
+    // Create NumericLiteral node
+    let numeric_literal = ast_builder.expression_numeric_literal(
+        SPAN,
+        0.0,
+        "0",
+        oxc::syntax::number::NumberBase::Decimal,
+    );
+
+    // Create ComputedMemberExpression node
+    let computed_member_expr =
+        ast_builder.alloc_computed_member_expression(SPAN, call_expr, numeric_literal, false);
+
+    Expression::ComputedMemberExpression(computed_member_expr)
 }
 
 /****** reference ******/
@@ -867,8 +909,14 @@ pub fn get_expression<'a>(
             }
             ast_builder.expression_object(SPAN, temp_expr, None)
         }
-        TSType::TSTypeOperatorType(_) => {
+        TSType::TSTypeOperatorType(ts_type_operator_type) => {
             // keyof T
+            if let TSType::TSTypeReference(ts_type_ref) = &ts_type_operator_type.type_annotation {
+                let new_key = format!("{}_{}", key_name, ts_type_ref.type_name);
+                let arg_expression = ref_expr(ast_builder, &new_key, mock_func_name, true);
+
+                return computed_member_expr(ast_builder, arg_expression);
+            }
             // TODO
             ast_builder.expression_object(SPAN, ast_builder.vec(), None)
         }
@@ -887,10 +935,12 @@ pub fn get_expression<'a>(
             // Namespace.MyType
             ast_builder.expression_object(SPAN, ast_builder.vec(), None)
         }
-        TSType::TSTypeQuery(_) => {
-            // typeof x
-            // TODO
-            ast_builder.expression_object(SPAN, ast_builder.vec(), None)
+        TSType::TSTypeQuery(ts_type_query) => {
+            if let TSTypeQueryExprName::IdentifierReference(identifier) = &ts_type_query.expr_name {
+                let new_key = format!("{}_{}", key_name, identifier.name.clone().into_string());
+                return ref_expr(ast_builder, &new_key, mock_func_name, true);
+            }
+            ref_expr(ast_builder, key_name, mock_func_name, true)
         }
         TSType::TSTypePredicate(_) => {
             // x is string
@@ -1136,10 +1186,12 @@ pub fn get_arg<'a>(
             // TODO
             object_arg(ast_builder, None)
         }
-        TSType::TSTypeQuery(_) => {
-            // typeof x
-            // TODO
-            object_arg(ast_builder, None)
+        TSType::TSTypeQuery(ts_type_query) => {
+            if let TSTypeQueryExprName::IdentifierReference(identifier) = &ts_type_query.expr_name {
+                let new_key = format!("{}_{}", key_name, identifier.name.clone().into_string());
+                return ref_arg(ast_builder, &new_key, mock_func_name, true);
+            }
+            ref_arg(ast_builder, key_name, mock_func_name, true)
         }
         TSType::TSTemplateLiteralType(_) => {
             // `${string}`, \`hello ${string}\`

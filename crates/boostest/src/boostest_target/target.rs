@@ -114,7 +114,7 @@ impl Target {
         }
     }
 
-    pub fn add_property_ts_type(
+    pub fn add_property(
         &mut self,
         name: String,
         key_name: String,
