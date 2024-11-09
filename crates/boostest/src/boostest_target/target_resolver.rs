@@ -945,19 +945,22 @@ pub fn resolve_target_ast_with_tsserver(
 
     if let Some(project_root_path) = project_root_path {
         let target = target_resolver.target.lock().unwrap();
+        let name = target.name.clone();
+        let span = target.target_reference.span.clone();
+        drop(target);
 
         target_resolver.use_tsserver = true;
 
+        println!("🚀");
         if let Some(result) = tsserver(
             project_root_path,
             &absolute_path,
-            target.target_reference.span,
-            &target.name,
+            span,
+            &name,
             ts_server_cache.clone(),
         ) {
             println!("{}", format!("🎨 tsserver result",).green());
 
-            drop(target);
             let (target_file_path, span) = result;
 
             let target_source = file_utils::read(&target_file_path).unwrap_or(String::new());

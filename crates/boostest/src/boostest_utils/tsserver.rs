@@ -66,15 +66,13 @@ pub fn tsserver(
     let mut locked_cache = ts_server_cache.lock().unwrap();
 
     // TODO: Cache hit
-    if let Some(definition) = locked_cache.get_definition_with_wait(target_name) {
-        println!("Cache hit!");
-        return Some((definition.result.0.clone(), definition.result.1.clone()));
-    }
-
-    println!("Cache non!");
-    locked_cache.request_ts_utilities(target_name);
-
-    drop(locked_cache);
+    // if let Some(definition) = locked_cache.get_definition_with_wait(target_name) {
+    //     println!("Cache hit!");
+    //     return Some((definition.result.0.clone(), definition.result.1.clone()));
+    // }
+    //
+    // println!("Cache non!");
+    // locked_cache.request_ts_utilities(target_name);
 
     let Span {
         start: start_offset,
@@ -126,15 +124,9 @@ pub fn tsserver(
     requests.push_str(&json3);
     requests.push('\n');
 
-    let mut locked_cache = ts_server_cache.lock().unwrap();
-
-    println!("🚀Requests: {}", requests);
-
     let output_str = locked_cache.get_def(&requests);
 
-    drop(locked_cache);
-
-    println!("Output: {}", output_str);
+    println!("✨output");
 
     // Split the output by Content-Length
     let re = Regex::new(r"Content-Length: \d+\r?\n\r?\n").unwrap();
@@ -154,7 +146,7 @@ pub fn tsserver(
                             Ok(response) => {
                                 // 1つ目のdefinitionから必要な情報を取得
                                 if let Some(definition) = response.body.definitions.get(0) {
-                                    println!("Definition: {:?}", definition);
+                                    println!("{:?}: Definition: {:?}", target_name, definition);
                                     let result: (PathBuf, Span) = (
                                         definition.fileName.clone().into(),
                                         Span::new(
@@ -164,9 +156,7 @@ pub fn tsserver(
                                         ),
                                     );
 
-                                    let mut locked_cache = ts_server_cache.lock().unwrap();
-                                    locked_cache.set_definition(target_name, result.clone());
-                                    drop(locked_cache);
+                                    // locked_cache.set_definition(target_name, result.clone());
                                     println!("Definition: {:?}", definition);
 
                                     return Some(result);
@@ -252,6 +242,8 @@ impl TSServerCache {
     }
 
     pub fn get_def(&mut self, requests: &str) -> String {
+        println!("🐟Requests");
+
         let mut command = Command::new("npx")
             .arg("tsserver")
             .stdin(Stdio::piped()) // 標準入力をパイプに接続
