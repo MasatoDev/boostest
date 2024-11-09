@@ -166,8 +166,6 @@ pub fn ts_type_assign_as_property(
             }
         }
         TSType::TSTypeQuery(ts_type_query) => {
-            println!("TSType::TSTypeQuery {:?}", ts_type_query);
-
             if let TSTypeQueryExprName::IdentifierReference(identifier) = &ts_type_query.expr_name {
                 let new_key = format!("{}_{}", key, identifier.name.clone().into_string());
                 target.lock().unwrap().add_property(

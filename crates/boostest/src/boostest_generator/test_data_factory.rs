@@ -895,17 +895,8 @@ pub fn handle_ts_signature<'a>(
 
         //     None
         // }
-        TSSignature::TSMethodSignature(ts_method_singature) => {
-            println!("TSMethodSignature:{:?}", ts_method_singature);
-            None
-        }
-        TSSignature::TSConstructSignatureDeclaration(ts_construct_signature) => {
-            println!(
-                "TSConstructSignatureDeclaration:{:?}",
-                ts_construct_signature
-            );
-            None
-        }
+        TSSignature::TSMethodSignature(ts_method_singature) => None,
+        TSSignature::TSConstructSignatureDeclaration(ts_construct_signature) => None,
         _ => None,
     }
 }
@@ -1171,7 +1162,6 @@ pub fn get_expression<'a>(
             ast_builder.expression_object(SPAN, ast_builder.vec(), None)
         }
         TSType::TSConstructorType(_) => {
-            println!("TSConstructorType");
             // TODO
             ast_builder.expression_object(SPAN, ast_builder.vec(), None)
         }
