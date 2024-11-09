@@ -65,18 +65,13 @@ pub fn tsserver(
 ) -> Option<(PathBuf, Span)> {
     let mut locked_cache = ts_server_cache.lock().unwrap();
 
-    // TODO: Cache hit
-    // if let Some(definition) = locked_cache.get_definition_with_wait(target_name) {
-    //     println!("Cache hit!");
-    //     return Some((definition.result.0.clone(), definition.result.1.clone()));
-    // }
-    //
-    // println!("Cache non!");
-    // locked_cache.request_ts_utilities(target_name);
+    // TODO: Cache hit check
+    if let Some(definition) = locked_cache.get_definition(target_name) {
+        return Some((definition.result.0.clone(), definition.result.1.clone()));
+    }
 
     let Span {
         start: start_offset,
-        // end: end_offset,
         ..
     } = span;
 
@@ -85,14 +80,6 @@ pub fn tsserver(
         line: start_line,
         offset: start_offset,
     } = offset_to_position(start_offset, &source_code).unwrap();
-    // let Position {
-    //     line: end_line,
-    //     offset: end_end,
-    // } = offset_to_position(end_offset, &source_code).unwrap();
-    //
-    // println!("File: {}", file_path.display());
-    // println!("Source span: {:?}", span);
-    // println!("Start: Line {}, Offset {}", start_line, start_offset);
 
     let file_extension = match file_path.extension().and_then(OsStr::to_str) {
         Some("ts") => "TS",
@@ -100,9 +87,6 @@ pub fn tsserver(
         _ => "TS",
     };
 
-    let json1 = format!(
-        r##"{{"seq": 1, "type": "request", "command": "compilerOptionsForInferredProjects", "arguments": {{"options": {{"module": "ESNext", "moduleResolution": "Bundler", "target": "ES2020", "jsx": "react", "allowImportingTsExtensions": true, "strictNullChecks": true, "strictFunctionTypes": true, "sourceMap": true, "allowJs": true, "allowSyntheticDefaultImports": true, "allowNonTsExtensions": true, "resolveJsonModule": true}}}}}}"##
-    );
     let json2 = format!(
         r##"{{"seq": 2, "type": "request", "command": "updateOpen", "arguments": {{"changedFiles": [], "closedFiles": [], "openFiles": [{{"file": "{}", "projectRootPath": "{}", "scriptKindName": "{}"}}]}}}}"##,
         file_path.display(),
@@ -117,7 +101,6 @@ pub fn tsserver(
     );
 
     let mut requests = String::new();
-    // requests.push_str(&json1);
     requests.push('\n');
     requests.push_str(&json2);
     requests.push('\n');
@@ -125,8 +108,6 @@ pub fn tsserver(
     requests.push('\n');
 
     let output_str = locked_cache.get_def(&requests);
-
-    println!("✨output");
 
     // Split the output by Content-Length
     let re = Regex::new(r"Content-Length: \d+\r?\n\r?\n").unwrap();
@@ -146,7 +127,6 @@ pub fn tsserver(
                             Ok(response) => {
                                 // 1つ目のdefinitionから必要な情報を取得
                                 if let Some(definition) = response.body.definitions.get(0) {
-                                    println!("{:?}: Definition: {:?}", target_name, definition);
                                     let result: (PathBuf, Span) = (
                                         definition.fileName.clone().into(),
                                         Span::new(
@@ -156,8 +136,7 @@ pub fn tsserver(
                                         ),
                                     );
 
-                                    // locked_cache.set_definition(target_name, result.clone());
-                                    println!("Definition: {:?}", definition);
+                                    locked_cache.set_definition(target_name, result.clone());
 
                                     return Some(result);
                                 } else {
@@ -216,7 +195,6 @@ pub struct TSServerCache {
     pub constructor_type: Option<DefinitionCache>,
     pub instance_type: Option<DefinitionCache>,
     pub promise_type: Option<DefinitionCache>,
-    processing_requests: HashSet<String>,
 }
 
 impl TSServerCache {
@@ -237,13 +215,10 @@ impl TSServerCache {
             constructor_type: None,
             instance_type: None,
             promise_type: None,
-            processing_requests: HashSet::new(),
         }
     }
 
     pub fn get_def(&mut self, requests: &str) -> String {
-        println!("🐟Requests");
-
         let mut command = Command::new("npx")
             .arg("tsserver")
             .stdin(Stdio::piped()) // 標準入力をパイプに接続
@@ -275,7 +250,6 @@ impl TSServerCache {
                 output.push('\n');
 
                 if line.contains("definitionAndBoundSpan-full") {
-                    println!("Found the specific string, terminating...");
                     break;
                 }
             }
@@ -294,20 +268,20 @@ impl TSServerCache {
 
         match name {
             "ThisType" => self.this_type = Some(definition),
-            "PartialType" => self.partial_type = Some(definition),
-            "RequiredType" => self.required_type = Some(definition),
-            "ReadonlyType" => self.readonly_type = Some(definition),
-            "PickType" => self.pick_type = Some(definition),
-            "OmitType" => self.omit_type = Some(definition),
-            "RecordType" => self.record_type = Some(definition),
-            "ExcludeType" => self.exclude_type = Some(definition),
-            "ExtractType" => self.extract_type = Some(definition),
-            "NonNullableType" => self.nonnullable_type = Some(definition),
-            "ParametersType" => self.parameters_type = Some(definition),
+            "Partial" => self.partial_type = Some(definition),
+            "Required" => self.required_type = Some(definition),
+            "Readonly" => self.readonly_type = Some(definition),
+            "Pick" => self.pick_type = Some(definition),
+            "Omit" => self.omit_type = Some(definition),
+            "Record" => self.record_type = Some(definition),
+            "Exclude" => self.exclude_type = Some(definition),
+            "Extract" => self.extract_type = Some(definition),
+            "NonNullable" => self.nonnullable_type = Some(definition),
+            "Parameters" => self.parameters_type = Some(definition),
             "ReturnType" => self.returntype_type = Some(definition),
-            "ConstructorType" => self.constructor_type = Some(definition),
+            "ConstructorParameters" => self.constructor_type = Some(definition),
             "InstanceType" => self.instance_type = Some(definition),
-            "PromiseType" => self.promise_type = Some(definition),
+            "Promise" => self.promise_type = Some(definition),
             _ => (),
         }
     }
@@ -315,50 +289,21 @@ impl TSServerCache {
     fn get_definition(&self, name: &str) -> Option<&DefinitionCache> {
         match name {
             "ThisType" => self.this_type.as_ref(),
-            "PartialType" => self.partial_type.as_ref(),
-            "RequiredType" => self.required_type.as_ref(),
-            "ReadonlyType" => self.readonly_type.as_ref(),
-            "PickType" => self.pick_type.as_ref(),
-            "OmitType" => self.omit_type.as_ref(),
-            "RecordType" => self.record_type.as_ref(),
-            "ExcludeType" => self.exclude_type.as_ref(),
-            "ExtractType" => self.extract_type.as_ref(),
-            "NonNullableType" => self.nonnullable_type.as_ref(),
-            "ParametersType" => self.parameters_type.as_ref(),
+            "Partial" => self.partial_type.as_ref(),
+            "Required" => self.required_type.as_ref(),
+            "Readonly" => self.readonly_type.as_ref(),
+            "Pick" => self.pick_type.as_ref(),
+            "Omit" => self.omit_type.as_ref(),
+            "Record" => self.record_type.as_ref(),
+            "Exclude" => self.exclude_type.as_ref(),
+            "Extract" => self.extract_type.as_ref(),
+            "NonNullable" => self.nonnullable_type.as_ref(),
+            "Parameters" => self.parameters_type.as_ref(),
             "ReturnType" => self.returntype_type.as_ref(),
-            "ConstructorType" => self.constructor_type.as_ref(),
+            "ConstructorParameters" => self.constructor_type.as_ref(),
             "InstanceType" => self.instance_type.as_ref(),
-            "PromiseType" => self.promise_type.as_ref(),
+            "Promise" => self.promise_type.as_ref(),
             _ => None,
-        }
-    }
-
-    pub fn request_ts_utilities(&mut self, name: &str) {
-        match name {
-            "ThisType" | "PartialType" | "RequiredType" | "ReadonlyType" | "PickType"
-            | "OmitType" | "RecordType" | "ExcludeType" | "ExtractType" | "NonNullableType"
-            | "ParametersType" | "ReturnType" | "ConstructorType" | "InstanceType"
-            | "PromiseType" => {
-                self.processing_requests.insert(name.to_string());
-            }
-            _ => {}
-        }
-    }
-
-    pub fn get_definition_with_wait(&mut self, name: &str) -> Option<&DefinitionCache> {
-        println!("Processing requests: {:?}", self.processing_requests);
-
-        if self.processing_requests.contains(name) {
-            loop {
-                if self.processing_requests.contains(name) {
-                    thread::sleep(Duration::from_secs(1));
-                } else {
-                    return self.get_definition(name);
-                }
-            }
-        } else {
-            self.processing_requests.insert(name.to_string());
-            None
         }
     }
 }

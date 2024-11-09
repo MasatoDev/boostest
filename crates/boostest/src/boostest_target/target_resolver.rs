@@ -951,7 +951,6 @@ pub fn resolve_target_ast_with_tsserver(
 
         target_resolver.use_tsserver = true;
 
-        println!("🚀");
         if let Some(result) = tsserver(
             project_root_path,
             &absolute_path,
@@ -959,8 +958,6 @@ pub fn resolve_target_ast_with_tsserver(
             &name,
             ts_server_cache.clone(),
         ) {
-            println!("{}", format!("🎨 tsserver result",).green());
-
             let (target_file_path, span) = result;
 
             let target_source = file_utils::read(&target_file_path).unwrap_or(String::new());
