@@ -49,8 +49,6 @@ export type LiteralTypeAlias = {
   tsObject: {};
   tsArray: [];
 
-  // constructorType: abstract new (...args: any) => any;
-
   symbolLiteral: symbol;
   tsTuple: [string, number, any, RefType, RefTypeInterface];
   tsNamedTuple: [
@@ -65,26 +63,27 @@ export type LiteralTypeAlias = {
   mapperType: Butterfly;
   keyOfMapperType: KeyOfButterfly;
 
-  //
-  // // TODO
-  // thisType: ThisType<string>;
-  // array: Array<string>;
-  // partial: Partial<RefType>;
-  // required: Required<RefType>;
-  // readonly: Readonly<RefType>;
-  // pick: Pick<RefType, "name">;
-  // omit: Omit<RefType, "name">;
-  // extract: Extract<string | number, string>;
-  // exclude: Exclude<string | number, string>;
-  // nonNullable: NonNullable<string | null>;
-  // parameters: Parameters<() => void>;
-  // constructorParameters: ConstructorParameters<typeof LiteralTypeClass>;
-  // instanceType: InstanceType<typeof LiteralTypeClass>;
-  // promise: Promise<RefType>;
-  // refTypeInterface: RefTypeInterface;
-  // infer: ReturnType<() => void>;
-  //
-  // classType: typeof Hoge;
+  /**********************/
+  /******* TODO *********/
+  /**********************/
+  constructorType: abstract new (...args: any) => any;
+  thisType: ThisType<string>;
+  array: Array<string>;
+  partial: Partial<RefType>;
+  required: Required<RefType>;
+  readonly: Readonly<RefType>;
+  pick: Pick<RefType, "name">;
+  omit: Omit<RefType, "name">;
+  extract: Extract<string | number, string>;
+  exclude: Exclude<string | number, string>;
+  nonNullable: NonNullable<string | null>;
+  parameters: Parameters<() => void>;
+  constructorParameters: ConstructorParameters<typeof LiteralTypeClass>;
+  returnType: ReturnType<() => void>;
+  instanceType: InstanceType<typeof LiteralTypeClass>;
+  promise: Promise<RefType>;
+  refTypeInterface: RefTypeInterface;
+  classType: typeof Hoge;
 };
 
 export type LiteralTypeInterface = {
@@ -122,8 +121,15 @@ export type LiteralTypeInterface = {
     refInterface: RefTypeInterface,
   ];
   intersectionType: RefType & RefTypeInterface & { name: string; age: number };
+  keyof: keyof RefType;
+  indexAccessor: RefType["name"];
+  mapperType: Butterfly;
+  keyOfMapperType: KeyOfButterfly;
 
-  // TODO
+  /**********************/
+  /******* TODO *********/
+  /**********************/
+  constructorType: abstract new (...args: any) => any;
   thisType: ThisType<string>;
   array: Array<string>;
   partial: Partial<RefType>;
@@ -139,14 +145,8 @@ export type LiteralTypeInterface = {
   returnType: ReturnType<() => void>;
   instanceType: InstanceType<typeof LiteralTypeClass>;
   promise: Promise<RefType>;
-  keyof: keyof RefType;
-  indexAccessor: RefType["name"];
-  mapperType: Butterfly;
-  keyOfMapperType: KeyOfButterfly;
-
-  // TODO: literal
-  classType: typeof Hoge;
   refTypeInterface: RefTypeInterface;
+  classType: typeof Hoge;
 };
 
 export class LiteralTypeClass {
@@ -193,31 +193,27 @@ export class LiteralTypeClass {
     public mapperType: Butterfly,
     public keyOfMapperType: KeyOfButterfly,
 
-    //
-    // // TODO
-    // public thisType: ThisType<string>,
-    // public array: Array<string>,
-    // public partial: Partial<RefType>,
-    // public required: Required<RefType>,
-    // public readonly: Readonly<RefType>,
-    // public pick: Pick<RefType, "name">,
-    // public omit: Omit<RefType, "name">,
-    // public extract: Extract<string | number, string>,
-    // public exclude: Exclude<string | number, string>,
-    // public nonNullable: NonNullable<string | null>,
-    // public parameters: Parameters<() => void>,
-    // public constructorParameters: ConstructorParameters<typeof LiteralTypeClass>,
-    // public returnType: ReturnType<() => void>,
-    // public instanceType: InstanceType<typeof LiteralTypeClass>,
-    // public promise: Promise<RefType>,
-    //
-    // public refTypeInterface: RefTypeInterface,
-    // public classType: typeof Hoge,
-    // public keyof: keyof RefType,
-    // public indexAccessor: RefType["name"],
-    // TODO
-    // public infer: ReturnType<() => void>,
-    // infer: ReturnType<() => void>;
+    /**********************/
+    /******* TODO *********/
+    /**********************/
+    public constructorType: abstract new (...args: any) => any,
+    public thisType: ThisType<string>,
+    public array: Array<string>,
+    public partial: Partial<RefType>,
+    public required: Required<RefType>,
+    public readonly: Readonly<RefType>,
+    public pick: Pick<RefType, "name">,
+    public omit: Omit<RefType, "name">,
+    public extract: Extract<string | number, string>,
+    public exclude: Exclude<string | number, string>,
+    public nonNullable: NonNullable<string | null>,
+    public parameters: Parameters<() => void>,
+    public constructorParameters: ConstructorParameters<typeof Hoge>,
+    public returnType: ReturnType<() => void>,
+    public instanceType: InstanceType<typeof Hoge>,
+    public promise: Promise<RefType>,
+    public refTypeInterface: RefTypeInterface,
+    public classType: typeof Hoge,
     //
   ) {}
 }
