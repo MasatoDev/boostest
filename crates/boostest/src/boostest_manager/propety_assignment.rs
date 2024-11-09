@@ -214,6 +214,13 @@ pub fn ts_type_assign_as_property(
                     TSType::TSTypeReference(ts_type_ref) => {
                         let new_key = format!("{}_{}", key, ts_type_ref.type_name);
 
+                        // TODO: generic type
+                        if ["T", "K", "P", "U"]
+                            .contains(&ts_type_ref.type_name.to_string().as_str())
+                        {
+                            return;
+                        }
+
                         target.lock().unwrap().add_property(
                             ts_type_ref.type_name.to_string(),
                             new_key,
@@ -231,6 +238,13 @@ pub fn ts_type_assign_as_property(
                             &ts_type_operator_type.type_annotation
                         {
                             let new_key = format!("{}_{}", key, ts_type_ref.type_name);
+
+                            // TODO: generic type
+                            if ["T", "K", "P", "U"]
+                                .contains(&ts_type_ref.type_name.to_string().as_str())
+                            {
+                                return;
+                            }
 
                             target.lock().unwrap().add_property(
                                 ts_type_ref.type_name.to_string(),
