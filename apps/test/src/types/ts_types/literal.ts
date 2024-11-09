@@ -13,6 +13,16 @@ class Hoge {
   }
 }
 
+type SystemSupportLanguage = "en" | "fr" | "it" | "es";
+
+type Butterfly = {
+  [key in SystemSupportLanguage]: string;
+};
+
+type KeyOfButterfly = {
+  [key in keyof RefType]: key;
+};
+
 export type LiteralTypeAlias = {
   stringLiteral: string;
   numberLiteral: number;
@@ -39,8 +49,6 @@ export type LiteralTypeAlias = {
   tsObject: {};
   tsArray: [];
 
-  // constructorType: abstract new (...args: any) => any;
-
   symbolLiteral: symbol;
   tsTuple: [string, number, any, RefType, RefTypeInterface];
   tsNamedTuple: [
@@ -50,8 +58,15 @@ export type LiteralTypeAlias = {
     refInterface: RefTypeInterface,
   ];
   intersectionType: RefType & RefTypeInterface & { name: string; age: number };
+  keyof: keyof RefType;
+  indexAccessor: RefType["name"];
+  mapperType: Butterfly;
+  keyOfMapperType: KeyOfButterfly;
 
-  // TODO
+  /**********************/
+  /******* TODO *********/
+  /**********************/
+  constructorType: abstract new (...args: any) => any;
   thisType: ThisType<string>;
   array: Array<string>;
   partial: Partial<RefType>;
@@ -67,10 +82,8 @@ export type LiteralTypeAlias = {
   returnType: ReturnType<() => void>;
   instanceType: InstanceType<typeof LiteralTypeClass>;
   promise: Promise<RefType>;
-
-  // TODO
-  classType: typeof Hoge;
   refTypeInterface: RefTypeInterface;
+  // classType: typeof Hoge;
 };
 
 export type LiteralTypeInterface = {
@@ -108,8 +121,15 @@ export type LiteralTypeInterface = {
     refInterface: RefTypeInterface,
   ];
   intersectionType: RefType & RefTypeInterface & { name: string; age: number };
+  keyof: keyof RefType;
+  indexAccessor: RefType["name"];
+  mapperType: Butterfly;
+  keyOfMapperType: KeyOfButterfly;
 
-  // TODO
+  /**********************/
+  /******* TODO *********/
+  /**********************/
+  constructorType: abstract new (...args: any) => any;
   thisType: ThisType<string>;
   array: Array<string>;
   partial: Partial<RefType>;
@@ -125,10 +145,8 @@ export type LiteralTypeInterface = {
   returnType: ReturnType<() => void>;
   instanceType: InstanceType<typeof LiteralTypeClass>;
   promise: Promise<RefType>;
-
-  // TODO: literal
-  classType: typeof Hoge;
   refTypeInterface: RefTypeInterface;
+  // classType: typeof Hoge;
 };
 
 export class LiteralTypeClass {
@@ -170,7 +188,15 @@ export class LiteralTypeClass {
       RefTypeInterface & { name: string; age: number },
     public conditionalType: string extends number ? true : false,
 
-    // TODO
+    public keyof: keyof RefType,
+    public indexAccessor: RefType["name"],
+    public mapperType: Butterfly,
+    public keyOfMapperType: KeyOfButterfly,
+
+    /**********************/
+    /******* TODO *********/
+    /**********************/
+    public constructorType: abstract new (...args: any) => any,
     public thisType: ThisType<string>,
     public array: Array<string>,
     public partial: Partial<RefType>,
@@ -182,13 +208,12 @@ export class LiteralTypeClass {
     public exclude: Exclude<string | number, string>,
     public nonNullable: NonNullable<string | null>,
     public parameters: Parameters<() => void>,
-    // public constructorParameters: ConstructorParameters<typeof LiteralTypeClass>,
+    public constructorParameters: ConstructorParameters<typeof Hoge>,
     public returnType: ReturnType<() => void>,
-    // public instanceType: InstanceType<typeof LiteralTypeClass>,
+    public instanceType: InstanceType<typeof Hoge>,
     public promise: Promise<RefType>,
-
-    // TODO
-    public classType: typeof Hoge,
     public refTypeInterface: RefTypeInterface,
+    // public classType: typeof Hoge,
+    //
   ) {}
 }

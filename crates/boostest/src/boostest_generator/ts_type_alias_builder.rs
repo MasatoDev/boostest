@@ -14,6 +14,8 @@ use oxc::{
 
 use oxc::allocator;
 
+use crate::boostest_target::target::TargetSupplement;
+
 use super::extends_ast_builder::AstBuilderExt;
 use super::test_data_factory;
 
@@ -22,6 +24,7 @@ const SPAN: Span = Span::new(0, 0);
 pub struct TypeAliasMockData {
     pub mock_func_name: String,
     pub key_name: Option<String>,
+    pub target_supplement: Option<TargetSupplement>,
 }
 
 pub struct TSTypeAliasBuilder<'a> {
@@ -36,6 +39,7 @@ impl<'a> TSTypeAliasBuilder<'a> {
         ts_type_alias: &'c mut TSTypeAliasDeclaration<'a>,
         mock_func_name: String,
         key_name: Option<String>,
+        target_supplement: Option<TargetSupplement>,
     ) -> Self {
         let ast_builder = AstBuilder::new(allocator);
         let copied = ast_builder.move_ts_type_alias_declatration(ts_type_alias);
@@ -43,6 +47,7 @@ impl<'a> TSTypeAliasBuilder<'a> {
         let mock_data = TypeAliasMockData {
             mock_func_name,
             key_name,
+            target_supplement,
         };
 
         Self {
@@ -171,6 +176,13 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
         if !test_data_factory::is_ts_type_literal(&self.ts_type_alias.type_annotation) {
             let id_name = self.ts_type_alias.id.name.to_string();
 
+            let is_mapped_type = self
+                .mock_data
+                .target_supplement
+                .clone()
+                .map(|s| s.is_mapped_type)
+                .unwrap_or(false);
+
             let ts_annotation = self
                 .ast_builder
                 .move_ts_type(&mut self.ts_type_alias.type_annotation);
@@ -180,9 +192,11 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
                 ts_annotation,
                 &id_name,
                 &self.mock_data.mock_func_name,
+                is_mapped_type,
             );
 
             let _ = std::mem::replace(expr, new_expr);
+
             return;
         }
 

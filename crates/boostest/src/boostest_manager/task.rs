@@ -132,6 +132,7 @@ fn get_code(target: Arc<Mutex<Target>>, key_name: Option<String>) -> Option<Stri
                 key_name,
                 &target_source_text,
                 &target_definition.target_type,
+                locked_target.target_reference.target_supplement.clone(),
             );
 
             code_generator.generate();
@@ -140,11 +141,12 @@ fn get_code(target: Arc<Mutex<Target>>, key_name: Option<String>) -> Option<Stri
         }
 
         _ => {
-            println!(
-                "{}:{}",
-                &locked_target.func_name.red(),
-                "not found target definition",
-            );
+            // println!(
+            //     "{} of {}:{}",
+            //     &locked_target.name.red(),
+            //     &locked_target.func_name.red(),
+            //     "not found target definition",
+            // );
         }
     }
     None

@@ -45,6 +45,7 @@ impl TargetDetector {
             TargetReference {
                 file_path: self.temp_target_file_path.clone(),
                 span: Span::default(),
+                target_supplement: None,
             },
         );
 

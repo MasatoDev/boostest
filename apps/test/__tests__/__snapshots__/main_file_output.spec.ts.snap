@@ -27,7 +27,7 @@ export function chips_ComplexInterfaceChips_boostestAnoExportDefaultClass<T>(arg
 		"conditionalKey": conditionalKey_KettleBrandSeaSaltAndVinegar_boostestAnoExportDefaultClass<any>(),
 		"objectKey": {},
 		"voidKey": null,
-		"indexedKey": {},
+		"indexedKey": indexedKey_PotatoChip_boostestAnoExportDefaultClass<any>()["name"],
 		"intersectionKey": {
 			...intersectionKey_LayClassic_boostestAnoExportDefaultClass<any>(),
 			...intersectionKey_KoikeyaPridePotato_boostestAnoExportDefaultClass<any>()
@@ -57,6 +57,14 @@ export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestAnoExportDef
 	return {
 		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
 		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestAnoExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
 		...args
 	} as T;
 }
@@ -103,7 +111,7 @@ export function chips_ComplexInterfaceChips_boostestAnoExportDefaultInterface<T>
 		"conditionalKey": conditionalKey_KettleBrandSeaSaltAndVinegar_boostestAnoExportDefaultInterface<any>(),
 		"objectKey": {},
 		"voidKey": null,
-		"indexedKey": {},
+		"indexedKey": indexedKey_PotatoChip_boostestAnoExportDefaultInterface<any>()["name"],
 		"intersectionKey": {
 			...intersectionKey_LayClassic_boostestAnoExportDefaultInterface<any>(),
 			...intersectionKey_KoikeyaPridePotato_boostestAnoExportDefaultInterface<any>()
@@ -133,6 +141,14 @@ export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestAnoExportDef
 	return {
 		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
 		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestAnoExportDefaultInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
 		...args
 	} as T;
 }
@@ -175,7 +191,7 @@ export function chips_ComplexInterfaceChips_boostestAnoExportNamedDeclClass<T>(a
 		"conditionalKey": conditionalKey_KettleBrandSeaSaltAndVinegar_boostestAnoExportNamedDeclClass<any>(),
 		"objectKey": {},
 		"voidKey": null,
-		"indexedKey": {},
+		"indexedKey": indexedKey_PotatoChip_boostestAnoExportNamedDeclClass<any>()["name"],
 		"intersectionKey": {
 			...intersectionKey_LayClassic_boostestAnoExportNamedDeclClass<any>(),
 			...intersectionKey_KoikeyaPridePotato_boostestAnoExportNamedDeclClass<any>()
@@ -205,6 +221,14 @@ export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestAnoExportNam
 	return {
 		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
 		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestAnoExportNamedDeclClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
 		...args
 	} as T;
 }
@@ -251,7 +275,7 @@ export function chips_ComplexInterfaceChips_boostestAnoMixInterface<T>(args?: Pa
 		"conditionalKey": conditionalKey_KettleBrandSeaSaltAndVinegar_boostestAnoMixInterface<any>(),
 		"objectKey": {},
 		"voidKey": null,
-		"indexedKey": {},
+		"indexedKey": indexedKey_PotatoChip_boostestAnoMixInterface<any>()["name"],
 		"intersectionKey": {
 			...intersectionKey_LayClassic_boostestAnoMixInterface<any>(),
 			...intersectionKey_KoikeyaPridePotato_boostestAnoMixInterface<any>()
@@ -281,6 +305,14 @@ export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestAnoMixInterf
 	return {
 		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
 		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestAnoMixInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
 		...args
 	} as T;
 }
@@ -383,7 +415,7 @@ export function boostestComplexChipsType<T>(args?: Partial<T>): T {
 		"conditionalKey": conditionalKey_KettleBrandSeaSaltAndVinegar_boostestComplexChipsType<any>(),
 		"objectKey": {},
 		"voidKey": null,
-		"indexedKey": {},
+		"indexedKey": indexedKey_PotatoChip_boostestComplexChipsType<any>()["name"],
 		"intersectionKey": {
 			...intersectionKey_LayClassic_boostestComplexChipsType<any>(),
 			...intersectionKey_KoikeyaPridePotato_boostestComplexChipsType<any>()
@@ -413,6 +445,14 @@ export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestComplexChips
 	return {
 		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
 		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
 		...args
 	} as T;
 }
@@ -455,7 +495,7 @@ export function chips_ComplexInterfaceChips_boostestExportDefaultClass<T>(args?:
 		"conditionalKey": conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportDefaultClass<any>(),
 		"objectKey": {},
 		"voidKey": null,
-		"indexedKey": {},
+		"indexedKey": indexedKey_PotatoChip_boostestExportDefaultClass<any>()["name"],
 		"intersectionKey": {
 			...intersectionKey_LayClassic_boostestExportDefaultClass<any>(),
 			...intersectionKey_KoikeyaPridePotato_boostestExportDefaultClass<any>()
@@ -485,6 +525,14 @@ export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportDefaul
 	return {
 		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
 		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
 		...args
 	} as T;
 }
@@ -527,7 +575,7 @@ export function chips_ComplexInterfaceChips_boostestExportDefaultClassWithDecl<T
 		"conditionalKey": conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportDefaultClassWithDecl<any>(),
 		"objectKey": {},
 		"voidKey": null,
-		"indexedKey": {},
+		"indexedKey": indexedKey_PotatoChip_boostestExportDefaultClassWithDecl<any>()["name"],
 		"intersectionKey": {
 			...intersectionKey_LayClassic_boostestExportDefaultClassWithDecl<any>(),
 			...intersectionKey_KoikeyaPridePotato_boostestExportDefaultClassWithDecl<any>()
@@ -557,6 +605,14 @@ export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportDefaul
 	return {
 		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
 		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestExportDefaultClassWithDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
 		...args
 	} as T;
 }
@@ -603,7 +659,7 @@ export function chips_ComplexInterfaceChips_boostestExportDefaultNamedDecl<T>(ar
 		"conditionalKey": conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportDefaultNamedDecl<any>(),
 		"objectKey": {},
 		"voidKey": null,
-		"indexedKey": {},
+		"indexedKey": indexedKey_PotatoChip_boostestExportDefaultNamedDecl<any>()["name"],
 		"intersectionKey": {
 			...intersectionKey_LayClassic_boostestExportDefaultNamedDecl<any>(),
 			...intersectionKey_KoikeyaPridePotato_boostestExportDefaultNamedDecl<any>()
@@ -633,6 +689,14 @@ export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportDefaul
 	return {
 		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
 		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestExportDefaultNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
 		...args
 	} as T;
 }
@@ -671,7 +735,7 @@ export function boostestExportNamedDecl<T>(args?: Partial<T>): T {
 		"conditionalKey": conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportNamedDecl<any>(),
 		"objectKey": {},
 		"voidKey": null,
-		"indexedKey": {},
+		"indexedKey": indexedKey_PotatoChip_boostestExportNamedDecl<any>()["name"],
 		"intersectionKey": {
 			...intersectionKey_LayClassic_boostestExportNamedDecl<any>(),
 			...intersectionKey_KoikeyaPridePotato_boostestExportNamedDecl<any>()
@@ -701,6 +765,14 @@ export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportNamedD
 	return {
 		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
 		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestExportNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
 		...args
 	} as T;
 }
@@ -747,7 +819,7 @@ export function chips_ComplexInterfaceChips_boostestExportNamedDeclInterface<T>(
 		"conditionalKey": conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportNamedDeclInterface<any>(),
 		"objectKey": {},
 		"voidKey": null,
-		"indexedKey": {},
+		"indexedKey": indexedKey_PotatoChip_boostestExportNamedDeclInterface<any>()["name"],
 		"intersectionKey": {
 			...intersectionKey_LayClassic_boostestExportNamedDeclInterface<any>(),
 			...intersectionKey_KoikeyaPridePotato_boostestExportNamedDeclInterface<any>()
@@ -777,6 +849,14 @@ export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportNamedD
 	return {
 		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
 		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestExportNamedDeclInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
 		...args
 	} as T;
 }
@@ -852,6 +932,11 @@ export function boostestLiteralAliasType<T>(args?: Partial<T>): T {
 				"age": 10
 			}
 		},
+		"keyof": Object.keys(keyof_RefType_boostestLiteralAliasType<any>())[0],
+		"indexAccessor": indexAccessor_RefType_boostestLiteralAliasType<any>()["name"],
+		"mapperType": mapperType_Butterfly_boostestLiteralAliasType<any>(),
+		"keyOfMapperType": keyOfMapperType_KeyOfButterfly_boostestLiteralAliasType<any>(),
+		"constructorType": {},
 		"thisType": {},
 		"array": [],
 		"partial": {},
@@ -867,7 +952,6 @@ export function boostestLiteralAliasType<T>(args?: Partial<T>): T {
 		"returnType": {},
 		"instanceType": {},
 		"promise": {},
-		"classType": {},
 		"refTypeInterface": refTypeInterface_RefTypeInterface_boostestLiteralAliasType<any>(),
 		...args
 	} as T;
@@ -922,6 +1006,57 @@ export function intersectionType_RefType_boostestLiteralAliasType<T>(args?: Part
 }
 
 export function intersectionType_RefTypeInterface_boostestLiteralAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function keyof_RefType_boostestLiteralAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function indexAccessor_RefType_boostestLiteralAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function mapperType_Butterfly_boostestLiteralAliasType<T>() {
+	return Butterfly_SystemSupportLanguage_boostestLiteralAliasType().reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: ""
+		};
+	}, {});
+}
+
+export function Butterfly_SystemSupportLanguage_boostestLiteralAliasType<T>() {
+	return [
+		"en",
+		"fr",
+		"it",
+		"es"
+	];
+}
+
+export function keyOfMapperType_KeyOfButterfly_boostestLiteralAliasType<T>() {
+	return Object.keys(KeyOfButterfly_RefType_boostestLiteralAliasType<any>()).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: ""
+		};
+	}, {});
+}
+
+export function KeyOfButterfly_RefType_boostestLiteralAliasType<T>(args?: Partial<T>): T {
 	return {
 		"name": "test string data",
 		"ver": 10,
@@ -984,6 +1119,11 @@ export function boostestLiteralInterfaceType<T>(args?: Partial<T>): T {
 				"age": 10
 			}
 		},
+		"keyof": Object.keys(keyof_RefType_boostestLiteralInterfaceType<any>())[0],
+		"indexAccessor": indexAccessor_RefType_boostestLiteralInterfaceType<any>()["name"],
+		"mapperType": mapperType_Butterfly_boostestLiteralInterfaceType<any>(),
+		"keyOfMapperType": keyOfMapperType_KeyOfButterfly_boostestLiteralInterfaceType<any>(),
+		"constructorType": {},
 		"thisType": {},
 		"array": [],
 		"partial": {},
@@ -999,7 +1139,6 @@ export function boostestLiteralInterfaceType<T>(args?: Partial<T>): T {
 		"returnType": {},
 		"instanceType": {},
 		"promise": {},
-		"classType": {},
 		"refTypeInterface": refTypeInterface_RefTypeInterface_boostestLiteralInterfaceType<any>(),
 		...args
 	} as T;
@@ -1061,6 +1200,57 @@ export function intersectionType_RefTypeInterface_boostestLiteralInterfaceType<T
 	} as T;
 }
 
+export function keyof_RefType_boostestLiteralInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function indexAccessor_RefType_boostestLiteralInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function mapperType_Butterfly_boostestLiteralInterfaceType<T>() {
+	return Butterfly_SystemSupportLanguage_boostestLiteralInterfaceType().reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: ""
+		};
+	}, {});
+}
+
+export function Butterfly_SystemSupportLanguage_boostestLiteralInterfaceType<T>() {
+	return [
+		"en",
+		"fr",
+		"it",
+		"es"
+	];
+}
+
+export function keyOfMapperType_KeyOfButterfly_boostestLiteralInterfaceType<T>() {
+	return Object.keys(KeyOfButterfly_RefType_boostestLiteralInterfaceType<any>()).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: ""
+		};
+	}, {});
+}
+
+export function KeyOfButterfly_RefType_boostestLiteralInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
 export function refTypeInterface_RefTypeInterface_boostestLiteralInterfaceType<T>(args?: Partial<T>): T {
 	return {
 		"name": "test string data",
@@ -1090,7 +1280,7 @@ export function boostestLiteralTypeClass<T extends abstract new (...args: any) =
 			"name": "test string data",
 			"age": 10
 		}
-	}, true, {}, [], {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, refTypeInterface_RefTypeInterface_boostestLiteralTypeClass<any>());
+	}, false, Object.keys(keyof_RefType_boostestLiteralTypeClass<any>())[0], indexAccessor_RefType_boostestLiteralTypeClass<any>()["name"], mapperType_Butterfly_boostestLiteralTypeClass<any>(), keyOfMapperType_KeyOfButterfly_boostestLiteralTypeClass<any>(), {}, {}, [], {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, refTypeInterface_RefTypeInterface_boostestLiteralTypeClass<any>());
 }
 
 export function referenceLiteral_RefType_boostestLiteralTypeClass<T>(args?: Partial<T>): T {
@@ -1142,6 +1332,57 @@ export function intersectionType_RefType_boostestLiteralTypeClass<T>(args?: Part
 }
 
 export function intersectionType_RefTypeInterface_boostestLiteralTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function keyof_RefType_boostestLiteralTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function indexAccessor_RefType_boostestLiteralTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function mapperType_Butterfly_boostestLiteralTypeClass<T>() {
+	return Butterfly_SystemSupportLanguage_boostestLiteralTypeClass().reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: ""
+		};
+	}, {});
+}
+
+export function Butterfly_SystemSupportLanguage_boostestLiteralTypeClass<T>() {
+	return [
+		"en",
+		"fr",
+		"it",
+		"es"
+	];
+}
+
+export function keyOfMapperType_KeyOfButterfly_boostestLiteralTypeClass<T>() {
+	return Object.keys(KeyOfButterfly_RefType_boostestLiteralTypeClass<any>()).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: ""
+		};
+	}, {});
+}
+
+export function KeyOfButterfly_RefType_boostestLiteralTypeClass<T>(args?: Partial<T>): T {
 	return {
 		"name": "test string data",
 		"ver": 10,
@@ -1203,7 +1444,7 @@ export function boostestMixCompTSAlias<T>(args?: Partial<T>): T {
 		"conditionalKey": conditionalKey_KettleBrandSeaSaltAndVinegar_boostestMixCompTSAlias<any>(),
 		"objectKey": {},
 		"voidKey": null,
-		"indexedKey": {},
+		"indexedKey": indexedKey_PotatoChip_boostestMixCompTSAlias<any>()["name"],
 		"intersectionKey": {
 			...intersectionKey_LayClassic_boostestMixCompTSAlias<any>(),
 			...intersectionKey_KoikeyaPridePotato_boostestMixCompTSAlias<any>()
@@ -1233,6 +1474,14 @@ export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestMixCompTSAli
 	return {
 		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
 		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestMixCompTSAlias<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
 		...args
 	} as T;
 }
@@ -1528,7 +1777,7 @@ export function RenamedComplexChipsType_ComplexChipsType_boostestRenamedComplexC
 		"conditionalKey": conditionalKey_KettleBrandSeaSaltAndVinegar_boostestRenamedComplexChipsType<any>(),
 		"objectKey": {},
 		"voidKey": null,
-		"indexedKey": {},
+		"indexedKey": indexedKey_PotatoChip_boostestRenamedComplexChipsType<any>()["name"],
 		"intersectionKey": {
 			...intersectionKey_LayClassic_boostestRenamedComplexChipsType<any>(),
 			...intersectionKey_KoikeyaPridePotato_boostestRenamedComplexChipsType<any>()
@@ -1558,6 +1807,14 @@ export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestRenamedCompl
 	return {
 		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
 		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestRenamedComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
 		...args
 	} as T;
 }
@@ -1600,7 +1857,7 @@ export function huga_anoChips_ComplexInterfaceChips_boostestRenamedNestedPropCla
 		"conditionalKey": conditionalKey_KettleBrandSeaSaltAndVinegar_boostestRenamedNestedPropClass<any>(),
 		"objectKey": {},
 		"voidKey": null,
-		"indexedKey": {},
+		"indexedKey": indexedKey_PotatoChip_boostestRenamedNestedPropClass<any>()["name"],
 		"intersectionKey": {
 			...intersectionKey_LayClassic_boostestRenamedNestedPropClass<any>(),
 			...intersectionKey_KoikeyaPridePotato_boostestRenamedNestedPropClass<any>()
@@ -1630,6 +1887,14 @@ export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestRenamedNeste
 	return {
 		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
 		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestRenamedNestedPropClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
 		...args
 	} as T;
 }
@@ -1714,10 +1979,6 @@ export function boostestTsTypeLiteralLiteralObjectType<T>(args?: Partial<T>): T 
 	} as T;
 }
 
-export function boostestTsTypeLiteralLiteralSymbolType<T>() {
-	return {};
-}
-
 export function boostestTsTypeLiteralLiteralTypeString<T>() {
 	return "string";
 }
@@ -1772,7 +2033,6 @@ export function boostestUseTSTypeLiteralAlias<T>(args?: Partial<T>): T {
 		"literalLiteralBigInt": literalLiteralBigInt_TsTypeLiteralLiteralBigIntType_boostestUseTSTypeLiteralAlias<any>(),
 		"literalBigIntUnion": literalBigIntUnion_TsLiteralBigIntUnionType_boostestUseTSTypeLiteralAlias<any>(),
 		"literalSymbol": literalSymbol_TsTypeLiteralSymbol_boostestUseTSTypeLiteralAlias<any>(),
-		"literalLiteralSymbol": literalLiteralSymbol_TsTypeLiteralLiteralSymbolType_boostestUseTSTypeLiteralAlias<any>(),
 		...args
 	} as T;
 }
@@ -1883,10 +2143,6 @@ export function literalSymbol_TsTypeLiteralSymbol_boostestUseTSTypeLiteralAlias<
 	return Symbol();
 }
 
-export function literalLiteralSymbol_TsTypeLiteralLiteralSymbolType_boostestUseTSTypeLiteralAlias<T>() {
-	return {};
-}
-
 export function boostestUseTSTypeLiteralInterface<T>(args?: Partial<T>): T {
 	return {
 		"literalString": literalString_TsTypeLiteralString_boostestUseTSTypeLiteralInterface<any>(),
@@ -1913,7 +2169,6 @@ export function boostestUseTSTypeLiteralInterface<T>(args?: Partial<T>): T {
 		"literalLiteralBigInt": literalLiteralBigInt_TsTypeLiteralLiteralBigIntType_boostestUseTSTypeLiteralInterface<any>(),
 		"literalBigIntUnion": literalBigIntUnion_TsLiteralBigIntUnionType_boostestUseTSTypeLiteralInterface<any>(),
 		"literalSymbol": literalSymbol_TsTypeLiteralSymbol_boostestUseTSTypeLiteralInterface<any>(),
-		"literalLiteralSymbol": literalLiteralSymbol_TsTypeLiteralLiteralSymbolType_boostestUseTSTypeLiteralInterface<any>(),
 		...args
 	} as T;
 }
@@ -2022,10 +2277,6 @@ export function literalBigIntUnion_TsLiteralBigIntUnionType_boostestUseTSTypeLit
 
 export function literalSymbol_TsTypeLiteralSymbol_boostestUseTSTypeLiteralInterface<T>() {
 	return Symbol();
-}
-
-export function literalLiteralSymbol_TsTypeLiteralLiteralSymbolType_boostestUseTSTypeLiteralInterface<T>() {
-	return {};
 }
 
 "

@@ -49,14 +49,28 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
         return;
     }
 
-    let pb = ProgressBar::new(contents.len() as u64);
-    pb.set_style(
-        ProgressStyle::with_template("{bar:40.cyan/blue} {pos:>7}/{len:7} {msg}")
-            .unwrap()
-            .progress_chars("##-"),
-    );
-
     for (path_buf, _file) in contents {
+        let progress_bar = ProgressBar::new(4);
+        progress_bar.set_style(
+            ProgressStyle::with_template("{spinner:.green} [{bar:40.cyan/blue}] {msg}")
+                .unwrap()
+                .tick_strings(&[
+                    "▹▹▹▹▹",
+                    "▸▹▹▹▹",
+                    "▹▸▹▹▹",
+                    "▹▹▸▹▹",
+                    "▹▹▹▸▹",
+                    "▹▹▹▹▸",
+                    "▪▪▪▪▪",
+                ]),
+        );
+
+        progress_bar.inc(1);
+        progress_bar.set_message(format!(
+            "Detecting: {}",
+            path_buf.file_name().unwrap().to_string_lossy()
+        ));
+
         let path = path_buf.as_path();
 
         let mut detector = TargetDetector::new(setting.name.clone());
@@ -69,7 +83,19 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
             a.cmp(&b)
         });
 
+        progress_bar.inc(1);
+        progress_bar.set_message(format!(
+            "Resolving: {}",
+            path_buf.file_name().unwrap().to_string_lossy()
+        ));
+
         main_targets_resolve(&main_targets, &setting.tsconfig, &setting.project_root_path);
+
+        progress_bar.inc(1);
+        progress_bar.set_message(format!(
+            "Generating Code: {}",
+            path_buf.file_name().unwrap().to_string_lossy()
+        ));
 
         if let Err(e) = handle_main_task(main_targets, path, &out_file_name) {
             println!(
@@ -79,36 +105,9 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
             );
         }
 
-        // let mut mock_loader = Arc::new(Mutex::new(MockLoader::new(
-        //     path_buf.clone(),
-        //     setting.name.clone(),
-        // )));
-        //
-
-        // let mut mock_loader = MockLoader::new(path_buf.clone(), setting.name.clone());
-        //
-        // let allocator = oxc::allocator::Allocator::default();
-        // let parser = Parser::new(&allocator, &file, source_type);
-        // let mut program = parser.parse().program;
-
-        // boostest_utils::module_resolver::load_mock(
-        //     &mut mock_loader,
-        //     &mut program,
-        //     path,
-        //     &setting.tsconfig,
-        //     &setting.project_root_path,
-        // );
-
-        // if let Err(e) = task::handle_main_task(&mut mock_loader, path, &out_file_name) {
-        //     println!(
-        //         "{}:{}",
-        //         format!("failed to create test data at :{}", path.to_string_lossy()).green(),
-        //         e
-        //     );
-        // }
-
-        pb.inc(1);
+        progress_bar.finish_with_message(format!(
+            "Done: {}",
+            path_buf.file_name().unwrap().to_string_lossy()
+        ));
     }
-
-    pb.finish();
 }
