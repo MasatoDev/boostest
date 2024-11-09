@@ -23,6 +23,8 @@ indicatif = { workspace = true }
 rayon = { workspace = true }
 regex = { workspace = true }
 ropey = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+futures = { workspace = true }
 
 [dev-dependencies]
 tempfile = "3.13.0"

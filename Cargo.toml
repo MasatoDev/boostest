@@ -36,5 +36,5 @@ ropey = "1.6.1"
 
 boostest = { version = "0.0.1", path = "./crates/boostest" }
 
-# tokio = { version = "1", features = ["full"] }
-# futures = "0.3.30"
+tokio = { version = "1", features = ["full"] }
+futures = "0.3.30"
