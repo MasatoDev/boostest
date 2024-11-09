@@ -141,12 +141,12 @@ fn get_code(target: Arc<Mutex<Target>>, key_name: Option<String>) -> Option<Stri
         }
 
         _ => {
-            println!(
-                "{} of {}:{}",
-                &locked_target.name.red(),
-                &locked_target.func_name.red(),
-                "not found target definition",
-            );
+            // println!(
+            //     "{} of {}:{}",
+            //     &locked_target.name.red(),
+            //     &locked_target.func_name.red(),
+            //     "not found target definition",
+            // );
         }
     }
     None

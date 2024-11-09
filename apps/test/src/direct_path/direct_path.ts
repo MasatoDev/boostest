@@ -34,9 +34,9 @@ let b = boostestRenamedComplexChipsType<RenamedComplexChipsType>();
 
 /** TODO: support types */
 // [x] keyof	×	keyof T	{}
-// [x] typeof	×	typeof T	{}
 // [x] index accessor	×	Hoge['name']	{}
 // [x] mapped type	×	{[K in keyof T]: T[K]}	{}
+
 // namespace	×	Namespace.Hoge	{}
 // constructor type	×	abstract new (...args: any) => any	{}
 // template	×	${string}	{}
@@ -44,6 +44,11 @@ let b = boostestRenamedComplexChipsType<RenamedComplexChipsType>();
 // infer Rとして定義した
 // infer	×	infer T	{}
 
+// [△] typeof	×	typeof T	{}
+// NOTE: needs argument
 // export function classType_Hoge_boostestLiteralAliasType<T extends abstract new (...args: any) => any>(Hoge): T {
 // 	return new Hoge("test string data", 10);
 // }
+//
+// const Hoge = {}
+// typeof Hoge

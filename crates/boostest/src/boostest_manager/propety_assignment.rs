@@ -53,7 +53,7 @@ pub fn ts_type_assign_as_property(
     let TargetReferenceInfo { file_path } = target_reference_info.clone();
 
     match ts_type {
-        // TSType::TSTypeReference(ty_ref) if ast_utils::is_defined_type(&ty_ref) => {}
+        TSType::TSTypeReference(ty_ref) if ast_utils::is_defined_type(&ty_ref) => {}
         TSType::TSTypeReference(ty_ref) if ast_utils::is_function_type(&ty_ref) => {}
         TSType::TSTypeReference(ty_ref) if ast_utils::is_array_type(&ty_ref) => {}
         TSType::TSTypeReference(ty_ref) if ast_utils::is_boolean_type(&ty_ref) => {}
@@ -168,6 +168,7 @@ pub fn ts_type_assign_as_property(
         TSType::TSTypeQuery(ts_type_query) => {
             if let TSTypeQueryExprName::IdentifierReference(identifier) = &ts_type_query.expr_name {
                 let new_key = format!("{}_{}", key, identifier.name.clone().into_string());
+
                 target.lock().unwrap().add_property(
                     identifier.name.clone().into_string(),
                     new_key,

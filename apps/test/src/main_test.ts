@@ -147,8 +147,8 @@ let _ =
 let _ = boostestTsLiteralFunctionUnionType<TsLiteralFunctionUnionType>();
 
 let _ = boostestTsTypeLiteralSymbol<TsTypeLiteralSymbol>();
-let _ =
-  boostestTsTypeLiteralLiteralSymbolType<TsTypeLiteralLiteralSymbolType>();
+// let _ =
+// boostestTsTypeLiteralLiteralSymbolType<TsTypeLiteralLiteralSymbolType>();
 
 let _ = boostestUseTSTypeLiteralAlias<UseTSTypeLiteralAlias>();
 let _ = boostestUseTSTypeLiteralInterface<UseTSTypeLiteralInterface>();

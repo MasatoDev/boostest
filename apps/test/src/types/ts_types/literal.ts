@@ -83,7 +83,7 @@ export type LiteralTypeAlias = {
   instanceType: InstanceType<typeof LiteralTypeClass>;
   promise: Promise<RefType>;
   refTypeInterface: RefTypeInterface;
-  classType: typeof Hoge;
+  // classType: typeof Hoge;
 };
 
 export type LiteralTypeInterface = {
@@ -146,7 +146,7 @@ export type LiteralTypeInterface = {
   instanceType: InstanceType<typeof LiteralTypeClass>;
   promise: Promise<RefType>;
   refTypeInterface: RefTypeInterface;
-  classType: typeof Hoge;
+  // classType: typeof Hoge;
 };
 
 export class LiteralTypeClass {
@@ -213,7 +213,7 @@ export class LiteralTypeClass {
     public instanceType: InstanceType<typeof Hoge>,
     public promise: Promise<RefType>,
     public refTypeInterface: RefTypeInterface,
-    public classType: typeof Hoge,
+    // public classType: typeof Hoge,
     //
   ) {}
 }

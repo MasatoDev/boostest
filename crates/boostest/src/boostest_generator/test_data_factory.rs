@@ -936,10 +936,10 @@ pub fn get_expression<'a>(
     is_mapped_type: bool,
 ) -> Expression<'a> {
     let val = match type_annotation {
-        // TSType::TSTypeReference(ts_type_ref) if ast_utils::is_defined_type(&ts_type_ref) => {
-        //     // TODO: Defined type
-        //     object_expr(ast_builder, None)
-        // }
+        TSType::TSTypeReference(ts_type_ref) if ast_utils::is_defined_type(&ts_type_ref) => {
+            // TODO: Defined type
+            object_expr(ast_builder, None)
+        }
         TSType::TSTypeReference(ts_type_ref) if ast_utils::is_function_type(&ts_type_ref) => {
             // TODO: Array
             function_expr(ast_builder, None, None)
@@ -998,9 +998,10 @@ pub fn get_expression<'a>(
         TSType::TSConditionalType(ref mut ts_conditional_type) => {
             let mut ts_type = ast_builder.move_ts_type(&mut ts_conditional_type.true_type);
 
-            if let TSType::TSTypeReference(_) = ts_type {
-                ts_type = ast_builder.move_ts_type(&mut ts_conditional_type.false_type);
-            }
+            // TODO:
+            // if let TSType::TSTypeReference(_) = ts_type {
+            //     ts_type = ast_builder.move_ts_type(&mut ts_conditional_type.false_type);
+            // }
 
             get_expression(ast_builder, ts_type, key_name, mock_func_name, false)
         }

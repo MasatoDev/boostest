@@ -1,5 +1,5 @@
 type NestedRefType = {
-  name: 'NestedRefType';
+  name: "NestedRefType";
 };
 
 export type NestedType = {
@@ -39,17 +39,20 @@ export type NestedType = {
   y: Record<string, { z: number; aa: boolean }>;
 
   // Addition of type literals
-  literalType: 'option1' | 'option2' | 'option3';
+  literalType: "option1" | "option2" | "option3";
   mixedType: { a: number } & { b: string }; // Intersection type
-  conditionalType: 'active' | 'inactive' | { status: 'pending'; detail: string };
+  conditionalType:
+    | "active"
+    | "inactive"
+    | { status: "pending"; detail: string };
 
   extended: {
     id: number;
     info: {
       description: string;
-      tags: ('tag1' | 'tag2' | 'tag3')[]; // Array of literal types
+      tags: ("tag1" | "tag2" | "tag3")[]; // Array of literal types
       settings: {
-        mode: 'auto' | 'manual';
+        mode: "auto" | "manual";
         level: 1 | 2 | 3; // Literal type (specific numbers)
         extras?: {
           feature: true | false;
@@ -97,17 +100,20 @@ export type NestedInterface = {
   y: Record<string, { z: number; aa: boolean }>;
 
   // Addition of type literals
-  literalType: 'option1' | 'option2' | 'option3';
+  literalType: "option1" | "option2" | "option3";
   mixedType: { a: number } & { b: string }; // Intersection type
-  conditionalType: 'active' | 'inactive' | { status: 'pending'; detail: string };
+  conditionalType:
+    | "active"
+    | "inactive"
+    | { status: "pending"; detail: string };
 
   extended: {
     id: number;
     info: {
       description: string;
-      tags: ('tag1' | 'tag2' | 'tag3')[]; // Array of literal types
+      tags: ("tag1" | "tag2" | "tag3")[]; // Array of literal types
       settings: {
-        mode: 'auto' | 'manual';
+        mode: "auto" | "manual";
         level: 1 | 2 | 3; // Literal type (specific numbers)
         extras?: {
           feature: true | false;
