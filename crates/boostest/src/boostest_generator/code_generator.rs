@@ -12,7 +12,7 @@ use oxc::ast::VisitMut;
 use crate::boostest_generator::class_builder::ClassBuilder;
 use crate::boostest_generator::ts_interface_builder::TSInterfaceBuilder;
 use crate::boostest_generator::ts_type_alias_builder::TSTypeAliasBuilder;
-use crate::boostest_target::target::TargetType;
+use crate::boostest_target::target::{TargetSupplement, TargetType};
 
 pub struct CodeGenerator<'a> {
     pub specifier: &'a str,
@@ -22,6 +22,7 @@ pub struct CodeGenerator<'a> {
     source_text: &'a str,
     allocator: &'a Allocator,
     source_type: SourceType,
+    target_supplement: Option<TargetSupplement>,
 
     pub code: Option<String>,
 }
@@ -34,6 +35,7 @@ impl<'a, 'b: 'a> CodeGenerator<'a> {
         key_name: Option<String>,
         source_text: &'a str,
         target_type: &'a TargetType,
+        target_supplement: Option<TargetSupplement>,
     ) -> Self {
         Self {
             specifier,
@@ -44,6 +46,7 @@ impl<'a, 'b: 'a> CodeGenerator<'a> {
             allocator,
             source_type: SourceType::ts(),
             code: None,
+            target_supplement,
         }
     }
 
@@ -74,6 +77,7 @@ impl<'a, 'b: 'a> CodeGenerator<'a> {
             ts_type_alias_decl,
             self.func_name.to_string(),
             key_name,
+            self.target_supplement.clone(),
         );
 
         self.code = Some(ts_type_alias_builder.generate_code(self.source_type));

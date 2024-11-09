@@ -13,43 +13,58 @@ class Hoge {
   }
 }
 
+type SystemSupportLanguage = "en" | "fr" | "it" | "es";
+
+type Butterfly = {
+  [key in SystemSupportLanguage]: string;
+};
+
+type KeyOfButterfly = {
+  [key in keyof RefType]: key;
+};
+
 export type LiteralTypeAlias = {
-  // stringLiteral: string;
-  // numberLiteral: number;
-  // bigintLiteral: bigint;
-  // booleanLiteral: boolean;
-  // nullLiteral: null;
-  // undefinedId: undefined;
-  // anyLiteral: any;
-  // unknownLiteral: unknown;
-  // neverLiteral: never;
-  // objectLiteral: object;
-  // voidLiteral: void;
-  // functionLiteral: () => void;
-  // arrayLiteral: string[];
-  // referenceLiteral: RefType;
-  // unionType: string | number;
-  // conditionalType: string extends number ? true : false;
-  //
-  // tsLiteralString: "string";
-  // tsLiteralNumber: 20;
-  // tsBigInt: 10000000000000n;
-  // tsLiteralBoolean: true;
-  // tsNullLiteral: null;
-  // tsObject: {};
-  // tsArray: [];
-  //
-  // // constructorType: abstract new (...args: any) => any;
-  //
-  // symbolLiteral: symbol;
-  // tsTuple: [string, number, any, RefType, RefTypeInterface];
-  // tsNamedTuple: [
-  //   name: string,
-  //   ver: number,
-  //   ref: RefType,
-  //   refInterface: RefTypeInterface,
-  // ];
-  // intersectionType: RefType & RefTypeInterface & { name: string; age: number };
+  stringLiteral: string;
+  numberLiteral: number;
+  bigintLiteral: bigint;
+  booleanLiteral: boolean;
+  nullLiteral: null;
+  undefinedId: undefined;
+  anyLiteral: any;
+  unknownLiteral: unknown;
+  neverLiteral: never;
+  objectLiteral: object;
+  voidLiteral: void;
+  functionLiteral: () => void;
+  arrayLiteral: string[];
+  referenceLiteral: RefType;
+  unionType: string | number;
+  conditionalType: string extends number ? true : false;
+
+  tsLiteralString: "string";
+  tsLiteralNumber: 20;
+  tsBigInt: 10000000000000n;
+  tsLiteralBoolean: true;
+  tsNullLiteral: null;
+  tsObject: {};
+  tsArray: [];
+
+  // constructorType: abstract new (...args: any) => any;
+
+  symbolLiteral: symbol;
+  tsTuple: [string, number, any, RefType, RefTypeInterface];
+  tsNamedTuple: [
+    name: string,
+    ver: number,
+    ref: RefType,
+    refInterface: RefTypeInterface,
+  ];
+  intersectionType: RefType & RefTypeInterface & { name: string; age: number };
+  keyof: keyof RefType;
+  indexAccessor: RefType["name"];
+  mapperType: Butterfly;
+  keyOfMapperType: KeyOfButterfly;
+
   //
   // // TODO
   // thisType: ThisType<string>;
@@ -64,15 +79,12 @@ export type LiteralTypeAlias = {
   // nonNullable: NonNullable<string | null>;
   // parameters: Parameters<() => void>;
   // constructorParameters: ConstructorParameters<typeof LiteralTypeClass>;
-  // returnType: ReturnType<() => void>;
   // instanceType: InstanceType<typeof LiteralTypeClass>;
   // promise: Promise<RefType>;
-
   // refTypeInterface: RefTypeInterface;
+  // infer: ReturnType<() => void>;
   //
-  // TODO
-  classType: typeof Hoge;
-  keyof: keyof RefType;
+  // classType: typeof Hoge;
 };
 
 export type LiteralTypeInterface = {
@@ -127,6 +139,10 @@ export type LiteralTypeInterface = {
   returnType: ReturnType<() => void>;
   instanceType: InstanceType<typeof LiteralTypeClass>;
   promise: Promise<RefType>;
+  keyof: keyof RefType;
+  indexAccessor: RefType["name"];
+  mapperType: Butterfly;
+  keyOfMapperType: KeyOfButterfly;
 
   // TODO: literal
   classType: typeof Hoge;
@@ -135,42 +151,48 @@ export type LiteralTypeInterface = {
 
 export class LiteralTypeClass {
   constructor(
-    // public stringLiteral: string,
-    // public numberLiteral: number,
-    // public bigintLiteral: bigint,
-    // public booleanLiteral: boolean,
-    // public nullLiteral: null,
-    // public undefinedId: undefined,
-    // public anyLiteral: any,
-    // public unknownLiteral: unknown,
-    // public neverLiteral: never,
-    // public objectLiteral: object,
-    // public voidLiteral: void,
-    // public functionLiteral: () => void,
-    // public arrayLiteral: string[],
-    // public referenceLiteral: RefType,
-    // public unionType: string | number,
-    //
-    // public tsLiteralString: "string",
-    // public tsLiteralNumber: 20,
-    // public tsBigInt: 10000000000000n,
-    // public tsLiteralBoolean: true,
-    // public tsNullLiteral: null,
-    // public tsObject: {},
-    // public tsArray: [],
-    //
-    // public symbolLiteral: symbol,
-    // public tsTuple: [string, number, any, RefType, RefTypeInterface, string],
-    // public tsNamedTuple: [
-    //   name: string,
-    //   ver: number,
-    //   ref: RefType,
-    //   refInterface: RefTypeInterface,
-    //   hello: number,
-    // ],
-    // public intersectionType: RefType &
-    //   RefTypeInterface & { name: string; age: number },
-    // public conditionalType: string extends number ? true : false,
+    public stringLiteral: string,
+    public numberLiteral: number,
+    public bigintLiteral: bigint,
+    public booleanLiteral: boolean,
+    public nullLiteral: null,
+    public undefinedId: undefined,
+    public anyLiteral: any,
+    public unknownLiteral: unknown,
+    public neverLiteral: never,
+    public objectLiteral: object,
+    public voidLiteral: void,
+    public functionLiteral: () => void,
+    public arrayLiteral: string[],
+    public referenceLiteral: RefType,
+    public unionType: string | number,
+
+    public tsLiteralString: "string",
+    public tsLiteralNumber: 20,
+    public tsBigInt: 10000000000000n,
+    public tsLiteralBoolean: true,
+    public tsNullLiteral: null,
+    public tsObject: {},
+    public tsArray: [],
+
+    public symbolLiteral: symbol,
+    public tsTuple: [string, number, any, RefType, RefTypeInterface, string],
+    public tsNamedTuple: [
+      name: string,
+      ver: number,
+      ref: RefType,
+      refInterface: RefTypeInterface,
+      hello: number,
+    ],
+    public intersectionType: RefType &
+      RefTypeInterface & { name: string; age: number },
+    public conditionalType: string extends number ? true : false,
+
+    public keyof: keyof RefType,
+    public indexAccessor: RefType["name"],
+    public mapperType: Butterfly,
+    public keyOfMapperType: KeyOfButterfly,
+
     //
     // // TODO
     // public thisType: ThisType<string>,
@@ -184,14 +206,18 @@ export class LiteralTypeClass {
     // public exclude: Exclude<string | number, string>,
     // public nonNullable: NonNullable<string | null>,
     // public parameters: Parameters<() => void>,
-    // // public constructorParameters: ConstructorParameters<typeof LiteralTypeClass>,
+    // public constructorParameters: ConstructorParameters<typeof LiteralTypeClass>,
     // public returnType: ReturnType<() => void>,
-    // // public instanceType: InstanceType<typeof LiteralTypeClass>,
+    // public instanceType: InstanceType<typeof LiteralTypeClass>,
     // public promise: Promise<RefType>,
     //
     // public refTypeInterface: RefTypeInterface,
+    // public classType: typeof Hoge,
+    // public keyof: keyof RefType,
+    // public indexAccessor: RefType["name"],
     // TODO
-    public classType: typeof Hoge,
-    public keyof: keyof RefType,
+    // public infer: ReturnType<() => void>,
+    // infer: ReturnType<() => void>;
+    //
   ) {}
 }

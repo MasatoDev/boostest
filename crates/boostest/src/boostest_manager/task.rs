@@ -132,6 +132,7 @@ fn get_code(target: Arc<Mutex<Target>>, key_name: Option<String>) -> Option<Stri
                 key_name,
                 &target_source_text,
                 &target_definition.target_type,
+                locked_target.target_reference.target_supplement.clone(),
             );
 
             code_generator.generate();

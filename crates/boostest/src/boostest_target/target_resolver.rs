@@ -710,6 +710,18 @@ impl<'a> VisitMut<'a> for TargetResolver {
                         target_name.to_string(),
                     );
                 }
+
+                TSType::TSMappedType(_ts_mapped_type) => {
+                    ts_type_assign_as_property(
+                        self.target.clone(),
+                        TargetReferenceInfo {
+                            file_path: self.temp_current_read_file_path.clone(),
+                        },
+                        self.read_file_span,
+                        &decl.type_annotation,
+                        target_name.to_string(),
+                    );
+                }
                 _ => {}
             }
 
@@ -799,16 +811,6 @@ pub fn resolve_target(
             if let Some(parent_path) = module_path.parent() {
                 if let Some(next_import) = target_resolver.get_next_import() {
                     if TargetResolver::is_loaded_file_d_ts(&next_import) {
-                        // TODO: 呼ばれていない
-                        // tried all possible patterns.
-
-                        if let Some(project_root_path) = project_root_path {
-                            resolve_target_ast_with_tsserver(
-                                target_resolver,
-                                &Some(project_root_path.clone()),
-                                depth + 1,
-                            )?;
-                        }
                         return Ok(());
                     }
 
@@ -875,6 +877,16 @@ pub fn resolve_target(
                         depth + 1,
                     )?;
                 }
+
+                if let Some(project_root_path) = project_root_path {
+                    resolve_target_ast_with_tsserver(
+                        target_resolver,
+                        &Some(project_root_path.clone()),
+                        depth + 1,
+                    )?;
+                }
+
+                return Ok(());
             }
         }
     }

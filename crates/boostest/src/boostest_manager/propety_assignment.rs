@@ -9,7 +9,7 @@ use oxc::{
 };
 
 use super::super::boostest_utils::ast_utils;
-use crate::boostest_target::target::{Target, TargetReference};
+use crate::boostest_target::target::{Target, TargetReference, TargetSupplement};
 
 #[derive(Debug, Clone)]
 pub struct TargetReferenceInfo {
@@ -53,7 +53,7 @@ pub fn ts_type_assign_as_property(
     let TargetReferenceInfo { file_path } = target_reference_info.clone();
 
     match ts_type {
-        TSType::TSTypeReference(ty_ref) if ast_utils::is_defined_type(&ty_ref) => {}
+        // TSType::TSTypeReference(ty_ref) if ast_utils::is_defined_type(&ty_ref) => {}
         TSType::TSTypeReference(ty_ref) if ast_utils::is_function_type(&ty_ref) => {}
         TSType::TSTypeReference(ty_ref) if ast_utils::is_array_type(&ty_ref) => {}
         TSType::TSTypeReference(ty_ref) if ast_utils::is_boolean_type(&ty_ref) => {}
@@ -66,6 +66,7 @@ pub fn ts_type_assign_as_property(
                     TargetReference {
                         span: calc_prop_span(identifier.span, read_file_span),
                         file_path,
+                        target_supplement: None,
                     },
                 );
             }
@@ -86,6 +87,7 @@ pub fn ts_type_assign_as_property(
                         TargetReference {
                             span: calc_prop_span(identifier.span, read_file_span),
                             file_path,
+                            target_supplement: None,
                         },
                     );
                 }
@@ -106,6 +108,7 @@ pub fn ts_type_assign_as_property(
                             TargetReference {
                                 span: calc_prop_span(identifier.span, read_file_span),
                                 file_path,
+                                target_supplement: None,
                             },
                         );
                     }
@@ -173,6 +176,7 @@ pub fn ts_type_assign_as_property(
                     TargetReference {
                         span: calc_prop_span(identifier.span, read_file_span),
                         file_path,
+                        target_supplement: None,
                     },
                 )
             }
@@ -186,9 +190,71 @@ pub fn ts_type_assign_as_property(
                     TargetReference {
                         span: calc_prop_span(ts_type_ref.span, read_file_span),
                         file_path,
+                        target_supplement: None,
                     },
                 )
             }
+        }
+        TSType::TSIndexedAccessType(ts_indexed_access_type) => {
+            if let TSType::TSTypeReference(ts_object_type_ref) = &ts_indexed_access_type.object_type
+            {
+                let new_key = format!("{}_{}", key, ts_object_type_ref.type_name);
+                target.lock().unwrap().add_property(
+                    ts_object_type_ref.type_name.to_string(),
+                    new_key,
+                    TargetReference {
+                        span: calc_prop_span(ts_indexed_access_type.span, read_file_span),
+                        file_path,
+                        target_supplement: None,
+                    },
+                )
+            }
+        }
+        TSType::TSMappedType(ts_mapped_type) => {
+            if let Some(ts_type) = &ts_mapped_type.type_parameter.constraint {
+                match ts_type {
+                    TSType::TSTypeReference(ts_type_ref) => {
+                        let new_key = format!("{}_{}", key, ts_type_ref.type_name);
+
+                        target.lock().unwrap().add_property(
+                            ts_type_ref.type_name.to_string(),
+                            new_key,
+                            TargetReference {
+                                span: calc_prop_span(ts_type_ref.span, read_file_span),
+                                file_path,
+                                target_supplement: Some(TargetSupplement {
+                                    is_mapped_type: true,
+                                }),
+                            },
+                        )
+                    }
+                    TSType::TSTypeOperatorType(ts_type_operator_type) => {
+                        if let TSType::TSTypeReference(ts_type_ref) =
+                            &ts_type_operator_type.type_annotation
+                        {
+                            let new_key = format!("{}_{}", key, ts_type_ref.type_name);
+
+                            target.lock().unwrap().add_property(
+                                ts_type_ref.type_name.to_string(),
+                                new_key,
+                                TargetReference {
+                                    span: calc_prop_span(ts_type_ref.span, read_file_span),
+                                    file_path,
+                                    target_supplement: Some(TargetSupplement {
+                                        is_mapped_type: true,
+                                    }),
+                                },
+                            )
+                        }
+                    }
+
+                    _ => {}
+                }
+            }
+
+            // {[K in keyof T]: T[K]}
+            // TODO
+            // ts_mapped_type.type_parameter.constraint
         }
         _ => {}
     }

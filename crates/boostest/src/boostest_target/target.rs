@@ -23,10 +23,16 @@ pub struct TargetDefinition {
     pub target_type: TargetType,
 }
 
+#[derive(Debug, Clone)]
+pub struct TargetSupplement {
+    pub is_mapped_type: bool,
+}
+
 #[derive(Debug)]
 pub struct TargetReference {
     pub file_path: PathBuf,
     pub span: Span,
+    pub target_supplement: Option<TargetSupplement>,
 }
 
 #[derive(Debug)]
