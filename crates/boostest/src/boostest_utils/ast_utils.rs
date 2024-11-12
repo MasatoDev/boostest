@@ -44,7 +44,7 @@ pub fn is_boolean_type<'a>(ts_type_ref: &allocator::Box<'a, TSTypeReference<'a>>
     is_true_type(ts_type_ref) || is_false_type(ts_type_ref)
 }
 
-// TODO: handle correctly
+// TODO: remove this function
 pub fn is_defined_type<'a>(ts_type_ref: &allocator::Box<'a, TSTypeReference<'a>>) -> bool {
     return false;
     is_partial_type(ts_type_ref)
