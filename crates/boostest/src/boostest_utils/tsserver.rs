@@ -1,13 +1,17 @@
+use colored::Colorize;
 use oxc::span::Span;
 use regex::Regex;
 use ropey::Rope;
 use serde::Deserialize;
 use serde_json::Value;
+use std::collections::HashSet;
 use std::ffi::OsStr;
-use std::fs;
-use std::io::Write;
+use std::io::{BufRead, BufReader, Write};
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
+use std::sync::{Arc, Mutex};
+use std::time::Duration;
+use std::{fs, thread};
 
 #[derive(Deserialize, Debug)]
 pub struct Position {
@@ -56,10 +60,18 @@ pub fn tsserver(
     ts_project_root_path: &PathBuf,
     file_path: &PathBuf,
     span: Span,
+    target_name: &str,
+    ts_server_cache: Arc<Mutex<TSServerCache>>,
 ) -> Option<(PathBuf, Span)> {
+    let mut locked_cache = ts_server_cache.lock().unwrap();
+
+    // TODO: Cache hit check
+    if let Some(definition) = locked_cache.get_definition(target_name) {
+        return Some((definition.result.0.clone(), definition.result.1.clone()));
+    }
+
     let Span {
         start: start_offset,
-        // end: end_offset,
         ..
     } = span;
 
@@ -68,14 +80,6 @@ pub fn tsserver(
         line: start_line,
         offset: start_offset,
     } = offset_to_position(start_offset, &source_code).unwrap();
-    // let Position {
-    //     line: end_line,
-    //     offset: end_end,
-    // } = offset_to_position(end_offset, &source_code).unwrap();
-    //
-    // println!("File: {}", file_path.display());
-    // println!("Source span: {:?}", span);
-    // println!("Start: Line {}, Offset {}", start_line, start_offset);
 
     let file_extension = match file_path.extension().and_then(OsStr::to_str) {
         Some("ts") => "TS",
@@ -83,9 +87,6 @@ pub fn tsserver(
         _ => "TS",
     };
 
-    let json1 = format!(
-        r##"{{"seq": 1, "type": "request", "command": "compilerOptionsForInferredProjects", "arguments": {{"options": {{"module": "ESNext", "moduleResolution": "Bundler", "target": "ES2020", "jsx": "react", "allowImportingTsExtensions": true, "strictNullChecks": true, "strictFunctionTypes": true, "sourceMap": true, "allowJs": true, "allowSyntheticDefaultImports": true, "allowNonTsExtensions": true, "resolveJsonModule": true}}}}}}"##
-    );
     let json2 = format!(
         r##"{{"seq": 2, "type": "request", "command": "updateOpen", "arguments": {{"changedFiles": [], "closedFiles": [], "openFiles": [{{"file": "{}", "projectRootPath": "{}", "scriptKindName": "{}"}}]}}}}"##,
         file_path.display(),
@@ -100,32 +101,13 @@ pub fn tsserver(
     );
 
     let mut requests = String::new();
-    requests.push_str(&json1);
     requests.push('\n');
     requests.push_str(&json2);
     requests.push('\n');
     requests.push_str(&json3);
+    requests.push('\n');
 
-    let mut child = Command::new("npx")
-        .arg("tsserver")
-        .stdin(Stdio::piped()) // 標準入力をパイプに接続
-        .stdout(Stdio::piped()) // 標準出力をパイプに接続
-        .spawn()
-        .expect("Failed to start tsserver");
-
-    // 標準入力に書き込むためのハンドルを取得
-    let stdin = child.stdin.as_mut().expect("Failed to open stdin");
-
-    stdin
-        .write_all(requests.as_bytes())
-        .expect("Failed to send request");
-
-    // `npx tsserver`の出力を読み取る
-    let output = child.wait_with_output().expect("failed to wait on child");
-    let output_str = String::from_utf8_lossy(&output.stdout).to_string();
-
-    // 標準出力と標準エラーの出力を表示
-    // println!("stdout: {}", String::from_utf8_lossy(&output.stdout));
+    let output_str = locked_cache.get_def(&requests);
 
     // Split the output by Content-Length
     let re = Regex::new(r"Content-Length: \d+\r?\n\r?\n").unwrap();
@@ -145,14 +127,18 @@ pub fn tsserver(
                             Ok(response) => {
                                 // 1つ目のdefinitionから必要な情報を取得
                                 if let Some(definition) = response.body.definitions.get(0) {
-                                    return Some((
+                                    let result: (PathBuf, Span) = (
                                         definition.fileName.clone().into(),
                                         Span::new(
                                             definition.contextSpan.start,
                                             definition.contextSpan.start
                                                 + definition.contextSpan.length,
                                         ),
-                                    ));
+                                    );
+
+                                    locked_cache.set_definition(target_name, result.clone());
+
+                                    return Some(result);
                                 } else {
                                     println!("No definitions found.");
                                 }
@@ -188,78 +174,136 @@ fn offset_to_position(offset: u32, source_text: &str) -> Option<Position> {
     })
 }
 
-// fn position_to_offset(position: Position, source_text: &str) -> Option<u32> {
-//     let rope = Rope::from_str(source_text);
-//
-//     // Make sure the line number is within the bounds of the text
-//     let line_index = position.line.checked_sub(1)? as usize;
-//     if line_index >= rope.len_lines() {
-//         return None;
-//     }
-//
-//     // Get the byte offset of the start of the line
-//     let line_offset = rope.line_to_byte(line_index);
-//
-//     // Iterate through the UTF-16 code units to find the column
-//     let mut utf16_col_offset = 0;
-//     for (i, c) in source_text[line_offset..].char_indices() {
-//         // Calculate the length of the character in UTF-16 code units
-//         let utf16_len = c.encode_utf16(&mut [0; 2]).len();
-//
-//         if utf16_col_offset == position.offset.checked_sub(1)? as usize {
-//             return Some((line_offset + i) as u32);
-//         }
-//
-//         utf16_col_offset += utf16_len;
-//     }
-//
-//     // If we reach here, the column was out of bounds
-//     None
-// }
+pub struct DefinitionCache {
+    pub name: String,
+    pub result: (PathBuf, Span),
+}
 
-// pub fn position_to_offset(position: Position, source_text: &str) -> Option<u32> {
-//     let mut byte_offset = 0;
-//     let mut current_line = 1;
-//     let mut current_offset = 0;
-//
-//     let Position { line, offset } = position;
-//
-//     for (i, c) in source_text.char_indices() {
-//         if current_line == line && current_offset == offset {
-//             byte_offset = i;
-//             break;
-//         }
-//
-//         if c == '\n' {
-//             current_line += 1;
-//             current_offset = 0;
-//         } else {
-//             current_offset += 1;
-//         }
-//     }
-//
-//     Some(byte_offset as u32)
-// }
+pub struct TSServerCache {
+    pub this_type: Option<DefinitionCache>,
+    pub partial_type: Option<DefinitionCache>,
+    pub required_type: Option<DefinitionCache>,
+    pub readonly_type: Option<DefinitionCache>,
+    pub pick_type: Option<DefinitionCache>,
+    pub omit_type: Option<DefinitionCache>,
+    pub record_type: Option<DefinitionCache>,
+    pub exclude_type: Option<DefinitionCache>,
+    pub extract_type: Option<DefinitionCache>,
+    pub nonnullable_type: Option<DefinitionCache>,
+    pub parameters_type: Option<DefinitionCache>,
+    pub returntype_type: Option<DefinitionCache>,
+    pub constructor_type: Option<DefinitionCache>,
+    pub instance_type: Option<DefinitionCache>,
+    pub promise_type: Option<DefinitionCache>,
+}
 
-// pub fn offset_to_position(offset: u32, source_text: &str) -> Option<Position> {
-//     let mut current_line = 1;
-//     let mut current_offset = 0;
-//
-//     for (i, c) in source_text.char_indices() {
-//         if i as u32 == offset {
-//             break;
-//         }
-//
-//         if c == '\n' {
-//             current_line += 1;
-//             current_offset = 0;
-//         } else {
-//             current_offset += 1;
-//         }
-//     }
-//
-//     Some(Position {
-//         line: current_line,
-//         offset: current_offset,
-//     })
-// }
+impl TSServerCache {
+    pub fn new() -> Self {
+        Self {
+            this_type: None,
+            partial_type: None,
+            required_type: None,
+            readonly_type: None,
+            pick_type: None,
+            omit_type: None,
+            record_type: None,
+            exclude_type: None,
+            extract_type: None,
+            nonnullable_type: None,
+            parameters_type: None,
+            returntype_type: None,
+            constructor_type: None,
+            instance_type: None,
+            promise_type: None,
+        }
+    }
+
+    pub fn get_def(&mut self, requests: &str) -> String {
+        let mut command = Command::new("npx")
+            .arg("tsserver")
+            .stdin(Stdio::piped()) // 標準入力をパイプに接続
+            .stdout(Stdio::piped()) // 標準出力をパイプに接続
+            .spawn()
+            .expect("Failed to start tsserver");
+
+        let json1 = format!(
+            r##"{{"seq": 1, "type": "request", "command": "compilerOptionsForInferredProjects", "arguments": {{"options": {{"module": "ESNext", "moduleResolution": "Bundler", "target": "ES2020", "jsx": "react", "allowImportingTsExtensions": true, "strictNullChecks": true, "strictFunctionTypes": true, "sourceMap": true, "allowJs": true, "allowSyntheticDefaultImports": true, "allowNonTsExtensions": true, "resolveJsonModule": true}}}}}}"##
+        );
+
+        let stdin = command.stdin.as_mut().expect("Failed to open stdin");
+        stdin.write_all(json1.as_bytes());
+
+        let stdin = command.stdin.as_mut().expect("Failed to open stdin");
+        let stdout = command.stdout.take().expect("Failed to open stdout");
+
+        stdin
+            .write_all(requests.as_bytes())
+            .expect("Failed to write to stdin");
+
+        let handle = thread::spawn(move || {
+            let reader = BufReader::new(stdout);
+            let mut output = String::new();
+
+            for line in reader.lines() {
+                let line = line.expect("Failed to read line");
+                output.push_str(&line);
+                output.push('\n');
+
+                if line.contains("definitionAndBoundSpan-full") {
+                    break;
+                }
+            }
+
+            output
+        });
+
+        handle.join().expect("Thread panicked")
+    }
+
+    pub fn set_definition(&mut self, name: &str, result: (PathBuf, Span)) {
+        let definition = DefinitionCache {
+            name: name.to_string(),
+            result,
+        };
+
+        match name {
+            "ThisType" => self.this_type = Some(definition),
+            "Partial" => self.partial_type = Some(definition),
+            "Required" => self.required_type = Some(definition),
+            "Readonly" => self.readonly_type = Some(definition),
+            "Pick" => self.pick_type = Some(definition),
+            "Omit" => self.omit_type = Some(definition),
+            "Record" => self.record_type = Some(definition),
+            "Exclude" => self.exclude_type = Some(definition),
+            "Extract" => self.extract_type = Some(definition),
+            "NonNullable" => self.nonnullable_type = Some(definition),
+            "Parameters" => self.parameters_type = Some(definition),
+            "ReturnType" => self.returntype_type = Some(definition),
+            "ConstructorParameters" => self.constructor_type = Some(definition),
+            "InstanceType" => self.instance_type = Some(definition),
+            "Promise" => self.promise_type = Some(definition),
+            _ => (),
+        }
+    }
+
+    fn get_definition(&self, name: &str) -> Option<&DefinitionCache> {
+        match name {
+            "ThisType" => self.this_type.as_ref(),
+            "Partial" => self.partial_type.as_ref(),
+            "Required" => self.required_type.as_ref(),
+            "Readonly" => self.readonly_type.as_ref(),
+            "Pick" => self.pick_type.as_ref(),
+            "Omit" => self.omit_type.as_ref(),
+            "Record" => self.record_type.as_ref(),
+            "Exclude" => self.exclude_type.as_ref(),
+            "Extract" => self.extract_type.as_ref(),
+            "NonNullable" => self.nonnullable_type.as_ref(),
+            "Parameters" => self.parameters_type.as_ref(),
+            "ReturnType" => self.returntype_type.as_ref(),
+            "ConstructorParameters" => self.constructor_type.as_ref(),
+            "InstanceType" => self.instance_type.as_ref(),
+            "Promise" => self.promise_type.as_ref(),
+            _ => None,
+        }
+    }
+}

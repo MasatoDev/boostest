@@ -8,10 +8,14 @@ use boostest_target::main_target_resolver::main_targets_resolve;
 use boostest_utils::{
     file_utils,
     setting::{self, Setting},
+    tsserver::TSServerCache,
 };
 use colored::*;
 use indicatif::{ProgressBar, ProgressStyle};
-use std::path::Path;
+use std::{
+    path::Path,
+    sync::{Arc, Mutex},
+};
 
 pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
     let mut setting = setting::get_setting().unwrap_or(Setting {
@@ -48,6 +52,8 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
         println!("{}", "Not found target code".red());
         return;
     }
+
+    let tsserver_cache = Arc::new(Mutex::new(TSServerCache::new()));
 
     for (path_buf, _file) in contents {
         let progress_bar = ProgressBar::new(4);
@@ -89,7 +95,12 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
             path_buf.file_name().unwrap().to_string_lossy()
         ));
 
-        main_targets_resolve(&main_targets, &setting.tsconfig, &setting.project_root_path);
+        main_targets_resolve(
+            &main_targets,
+            &setting.tsconfig,
+            &setting.project_root_path,
+            tsserver_cache.clone(),
+        );
 
         progress_bar.inc(1);
         progress_bar.set_message(format!(

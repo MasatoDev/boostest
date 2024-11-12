@@ -28,6 +28,7 @@ use super::target::{Target, TargetDefinition, TargetType};
 
 use crate::boostest_utils::buf::{source_text_from_span, utf16_span_to_utf8_span};
 use crate::boostest_utils::file_utils;
+use crate::boostest_utils::tsserver::TSServerCache;
 
 /**
 
@@ -115,6 +116,7 @@ impl TargetResolver {
         &mut self,
         ts_config_path: &Option<PathBuf>,
         project_root_path: &Option<PathBuf>,
+        ts_server_cache: Arc<Mutex<TSServerCache>>,
     ) {
         //TODO: 途中で追加される未解決のpropがある可能性あり。
         self.status = ResolveStatus::Start;
@@ -125,7 +127,14 @@ impl TargetResolver {
             .target_reference
             .file_path
             .clone();
-        resolve_target(self, file_path, ts_config_path, project_root_path, 1);
+        resolve_target(
+            self,
+            file_path,
+            ts_config_path,
+            project_root_path,
+            1,
+            ts_server_cache,
+        );
     }
 
     /*****************/
@@ -767,6 +776,7 @@ pub fn resolve_target(
     ts_config_path: &Option<PathBuf>,
     project_root_path: &Option<PathBuf>,
     depth: u8,
+    ts_server_cache: Arc<Mutex<TSServerCache>>,
 ) -> Result<()> {
     // prevent infinite loop
     if depth > 50 {
@@ -863,6 +873,7 @@ pub fn resolve_target(
                                 target_resolver,
                                 &Some(project_root_path.clone()),
                                 depth + 1,
+                                ts_server_cache.clone(),
                             )?;
                         }
 
@@ -875,6 +886,7 @@ pub fn resolve_target(
                         ts_config_path,
                         project_root_path,
                         depth + 1,
+                        ts_server_cache.clone(),
                     )?;
                 }
 
@@ -883,6 +895,7 @@ pub fn resolve_target(
                         target_resolver,
                         &Some(project_root_path.clone()),
                         depth + 1,
+                        ts_server_cache.clone(),
                     )?;
                 }
 
@@ -898,6 +911,7 @@ pub fn resolve_target_ast_with_tsserver(
     target_resolver: &mut TargetResolver,
     project_root_path: &Option<PathBuf>,
     depth: u8,
+    ts_server_cache: Arc<Mutex<TSServerCache>>,
 ) -> Result<()> {
     let target_file_path = target_resolver
         .target
@@ -931,15 +945,19 @@ pub fn resolve_target_ast_with_tsserver(
 
     if let Some(project_root_path) = project_root_path {
         let target = target_resolver.target.lock().unwrap();
+        let name = target.name.clone();
+        let span = target.target_reference.span.clone();
+        drop(target);
 
         target_resolver.use_tsserver = true;
 
         if let Some(result) = tsserver(
             project_root_path,
             &absolute_path,
-            target.target_reference.span,
+            span,
+            &name,
+            ts_server_cache.clone(),
         ) {
-            drop(target);
             let (target_file_path, span) = result;
 
             let target_source = file_utils::read(&target_file_path).unwrap_or(String::new());
@@ -969,6 +987,7 @@ pub fn resolve_target_ast_with_tsserver(
                     target_resolver,
                     &Some(project_root_path.clone()),
                     depth + 1,
+                    ts_server_cache.clone(),
                 )?;
             }
         } else {
