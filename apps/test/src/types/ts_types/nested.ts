@@ -1,5 +1,10 @@
+type DeepType = {
+  name: "deeptype";
+};
+
 type NestedRefType = {
   name: "NestedRefType";
+  deep: DeepType;
 };
 
 export type NestedType = {

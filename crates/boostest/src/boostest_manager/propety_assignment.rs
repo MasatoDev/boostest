@@ -69,6 +69,22 @@ pub fn ts_type_assign_as_property(
                         target_supplement: None,
                     },
                 );
+
+                // if let Some(type_parameters) = &ty_ref.type_parameters {
+                //     for parameter in type_parameters.params.iter_mut() {
+                //
+                //         let new_generic_key = format!("{}_{}", key, parameter.);
+                //         target.lock().unwrap().add_property(
+                //             identifier.name.clone().into_string(),
+                //             new_key,
+                //             TargetReference {
+                //                 span: calc_prop_span(identifier.span, read_file_span),
+                //                 file_path,
+                //                 target_supplement: None,
+                //             },
+                //         );
+                //     }
+                // }
             }
         }
 
@@ -214,6 +230,7 @@ pub fn ts_type_assign_as_property(
                 match ts_type {
                     TSType::TSTypeReference(ts_type_ref) => {
                         let new_key = format!("{}_{}", key, ts_type_ref.type_name);
+                        println!("new_key: {}", new_key);
 
                         // TODO: generic type
                         if ["T", "K", "P", "U"]

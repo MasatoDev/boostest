@@ -2,8 +2,9 @@ use oxc::{
     allocator::Allocator,
     ast::{
         ast::{
-            Declaration, Expression, FunctionBody, Program, Statement, TSPropertySignature,
-            TSSignature, TSType, TSTypeAliasDeclaration,
+            BindingRestElement, Declaration, Expression, FormalParameterKind, FunctionBody,
+            Program, Statement, TSPropertySignature, TSSignature, TSType, TSTypeAliasDeclaration,
+            TSTypeParameterInstantiation,
         },
         AstBuilder, VisitMut,
     },
@@ -14,7 +15,7 @@ use oxc::{
 
 use oxc::allocator;
 
-use crate::boostest_target::target::TargetSupplement;
+use crate::boostest_target::target::{self, TargetSupplement};
 
 use super::extends_ast_builder::AstBuilderExt;
 use super::test_data_factory;
@@ -23,6 +24,7 @@ const SPAN: Span = Span::new(0, 0);
 
 pub struct TypeAliasMockData {
     pub mock_func_name: String,
+    pub target_name: String,
     pub key_name: Option<String>,
     pub target_supplement: Option<TargetSupplement>,
 }
@@ -38,6 +40,7 @@ impl<'a> TSTypeAliasBuilder<'a> {
         allocator: &'a Allocator,
         ts_type_alias: &'c mut TSTypeAliasDeclaration<'a>,
         mock_func_name: String,
+        target_name: String,
         key_name: Option<String>,
         target_supplement: Option<TargetSupplement>,
     ) -> Self {
@@ -46,6 +49,7 @@ impl<'a> TSTypeAliasBuilder<'a> {
 
         let mock_data = TypeAliasMockData {
             mock_func_name,
+            target_name,
             key_name,
             target_supplement,
         };
@@ -136,6 +140,89 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
                         let new_binding = self.ast_builder.binding_identifier(SPAN, name);
 
                         let _ = std::mem::replace(id, new_binding);
+
+                        let mut formal_parameters = self.ast_builder.vec();
+
+                        if let Some(type_parameters) = &self.ts_type_alias.type_parameters {
+                            for parameter in type_parameters.params.iter().rev() {
+                                let new_arg_name = format!(
+                                    "{}_{}_{}",
+                                    self.mock_data.target_name,
+                                    parameter.name,
+                                    self.mock_data.mock_func_name
+                                );
+                                let pattern_kind = self
+                                    .ast_builder
+                                    .binding_pattern_kind_binding_identifier(SPAN, new_arg_name);
+                                let any = self.ast_builder.ts_type_any_keyword(SPAN);
+                                let type_annotation =
+                                    self.ast_builder.alloc_ts_type_annotation(SPAN, any);
+                                let pattern = self.ast_builder.binding_pattern(
+                                    pattern_kind,
+                                    Some(type_annotation),
+                                    false,
+                                );
+                                let formal_parameter = self.ast_builder.formal_parameter(
+                                    SPAN,
+                                    self.ast_builder.vec(),
+                                    pattern,
+                                    None,
+                                    false,
+                                    false,
+                                );
+                                formal_parameters.push(formal_parameter);
+                            }
+
+                            func.params.items = formal_parameters;
+
+                            let pattern_kind = self
+                                .ast_builder
+                                .binding_pattern_kind_binding_identifier(SPAN, "arg");
+
+                            let type_name = self
+                                .ast_builder
+                                .ts_type_name_identifier_reference(SPAN, "T");
+                            let type_parameters: Option<
+                                allocator::Box<TSTypeParameterInstantiation<'a>>,
+                            > = None;
+                            let type_param = self.ast_builder.ts_type_type_reference(
+                                SPAN,
+                                type_name,
+                                type_parameters,
+                            );
+                            let mut type_params = self.ast_builder.vec();
+                            type_params.push(type_param);
+                            let main_type_name = self
+                                .ast_builder
+                                .ts_type_name_identifier_reference(SPAN, "Partial");
+                            let ts_type_instantiation = self
+                                .ast_builder
+                                .ts_type_parameter_instantiation(SPAN, type_params);
+                            let type_ref = self.ast_builder.ts_type_type_reference(
+                                SPAN,
+                                main_type_name,
+                                Some(ts_type_instantiation),
+                            );
+
+                            let type_annotation =
+                                self.ast_builder.ts_type_annotation(SPAN, type_ref);
+
+                            let pattern = self.ast_builder.binding_pattern(
+                                pattern_kind,
+                                Some(type_annotation),
+                                true,
+                            );
+                            let formal_parameter = self.ast_builder.formal_parameter(
+                                SPAN,
+                                self.ast_builder.vec(),
+                                pattern,
+                                None,
+                                false,
+                                false,
+                            );
+
+                            func.params.items.push(formal_parameter);
+                        }
                     }
                 }
 

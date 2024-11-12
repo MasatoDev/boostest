@@ -643,21 +643,22 @@ impl<'a> VisitMut<'a> for TargetResolver {
         }
     }
 
-    fn visit_property_definition(&mut self, def: &mut PropertyDefinition<'a>) {
-        for annotation in def.type_annotation.iter_mut() {
-            if let Some(key_name) = def.key.name() {
-                ts_type_assign_as_property(
-                    self.target.clone(),
-                    TargetReferenceInfo {
-                        file_path: self.temp_current_read_file_path.clone(),
-                    },
-                    self.read_file_span,
-                    &annotation.type_annotation,
-                    key_name.to_string(),
-                );
-            }
-        }
-    }
+    /** NOTE: not used? */
+    // fn visit_property_definition(&mut self, def: &mut PropertyDefinition<'a>) {
+    //     for annotation in def.type_annotation.iter_mut() {
+    //         if let Some(key_name) = def.key.name() {
+    //             ts_type_assign_as_property(
+    //                 self.target.clone(),
+    //                 TargetReferenceInfo {
+    //                     file_path: self.temp_current_read_file_path.clone(),
+    //                 },
+    //                 self.read_file_span,
+    //                 &annotation.type_annotation,
+    //                 key_name.to_string(),
+    //             );
+    //         }
+    //     }
+    // }
 
     fn visit_ts_signature(&mut self, signature: &mut TSSignature<'a>) {
         match signature {

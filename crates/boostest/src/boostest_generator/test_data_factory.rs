@@ -597,10 +597,16 @@ pub fn ref_parts<'a>(
     ast_builder: &AstBuilder<'a>,
     key_name: &str,
     mock_func_name: &str,
+    arguments: Option<allocator::Vec<'a, Argument<'a>>>,
 ) -> (Expression<'a>, allocator::Vec<'a, Argument<'a>>) {
     // 'key_name':[key_name]_boostestHoge(),
     let new_name = format!("{}_{}", key_name, mock_func_name);
     let new_callee = ast_builder.expression_identifier_reference(SPAN, new_name);
+
+    if let Some(arguments) = arguments {
+        return (new_callee, arguments);
+    }
+
     let arg = ast_builder.vec();
 
     (new_callee, arg)
@@ -609,16 +615,16 @@ pub fn ref_expr<'a>(
     ast_builder: &AstBuilder<'a>,
     key_name: &str,
     mock_func_name: &str,
-    add_generic: bool,
+    generic_type: Option<allocator::Vec<'a, TSType<'a>>>,
+    arguments: Option<allocator::Vec<'a, Argument<'a>>>,
 ) -> Expression<'a> {
-    let (new_callee, arg) = ref_parts(ast_builder, key_name, mock_func_name);
+    let (new_callee, arg) = ref_parts(ast_builder, key_name, mock_func_name, arguments);
 
-    if add_generic {
+    if let Some(generic_type) = generic_type {
         let ts_type = TSType::TSAnyKeyword(ast_builder.alloc_ts_any_keyword(SPAN));
         let mut ts_params = ast_builder.vec();
         ts_params.push(ts_type);
-
-        let ts_type_arg = ast_builder.ts_type_parameter_instantiation(SPAN, ts_params);
+        let ts_type_arg = ast_builder.ts_type_parameter_instantiation(SPAN, generic_type);
 
         ast_builder.expression_call(SPAN, new_callee, Some(ts_type_arg), arg, false)
     } else {
@@ -632,7 +638,7 @@ pub fn ref_arg<'a>(
     mock_func_name: &str,
     add_generic: bool,
 ) -> Argument<'a> {
-    let (new_callee, arg) = ref_parts(ast_builder, key_name, mock_func_name);
+    let (new_callee, arg) = ref_parts(ast_builder, key_name, mock_func_name, None);
 
     if add_generic {
         let ts_type = TSType::TSAnyKeyword(ast_builder.alloc_ts_any_keyword(SPAN));
@@ -954,12 +960,30 @@ pub fn get_expression<'a>(
         TSType::TSTypeReference(ts_type_ref) if ast_utils::is_false_type(&ts_type_ref) => {
             boolean_expr(ast_builder, Some(false))
         }
-        TSType::TSTypeReference(ts_type_ref) => {
+        TSType::TSTypeReference(mut ts_type_ref) => {
             if let TSTypeName::IdentifierReference(identifier) = &ts_type_ref.type_name {
                 let new_key = format!("{}_{}", key_name, identifier.name.clone().into_string());
-                return ref_expr(ast_builder, &new_key, mock_func_name, true);
+
+                if let Some(allocated_type_parameters) = &mut ts_type_ref.type_parameters {
+                    let mut type_parameters =
+                        ast_builder.move_ts_type_parameter_instantiation(allocated_type_parameters);
+
+                    let mut arguments = ast_builder.vec();
+
+                    for parameter in type_parameters.params.iter_mut() {
+                        let arg_ts_type = ast_builder.move_ts_type(parameter);
+                        let arg = get_arg(ast_builder, arg_ts_type, key_name, mock_func_name);
+                        arguments.push(arg);
+                    }
+
+                    return ref_expr(ast_builder, &new_key, mock_func_name, None, Some(arguments));
+                    // let new_generic_key = format!("{}_{}", key, parameter.);
+                }
+
+                return ref_expr(ast_builder, &new_key, mock_func_name, None, None);
             }
-            ref_expr(ast_builder, key_name, mock_func_name, true)
+
+            ref_expr(ast_builder, key_name, mock_func_name, None, None)
         }
         TSType::TSStringKeyword(_) => string_expr(ast_builder, None),
         TSType::TSAnyKeyword(_) => any_expr(ast_builder),
@@ -1079,7 +1103,7 @@ pub fn get_expression<'a>(
             // keyof T
             if let TSType::TSTypeReference(ts_type_ref) = &ts_type_operator_type.type_annotation {
                 let new_key = format!("{}_{}", key_name, ts_type_ref.type_name);
-                let arg_expression = ref_expr(ast_builder, &new_key, mock_func_name, true);
+                let arg_expression = ref_expr(ast_builder, &new_key, mock_func_name, None, None);
 
                 return computed_object_key_member_expr(ast_builder, arg_expression);
             }
@@ -1124,7 +1148,7 @@ pub fn get_expression<'a>(
                         {
                             let new_key = format!("{}_{}", key_name, ts_type_ref.type_name);
                             let arg_expression =
-                                ref_expr(ast_builder, &new_key, mock_func_name, true);
+                                ref_expr(ast_builder, &new_key, mock_func_name, None, None);
                             let obj_expr =
                                 computed_object_full_key_member(ast_builder, arg_expression);
                             return union_full_member_obj_expr(ast_builder, obj_expr);
@@ -1133,7 +1157,7 @@ pub fn get_expression<'a>(
                     _ => {}
                 }
             }
-            ref_expr(ast_builder, key_name, mock_func_name, true)
+            ref_expr(ast_builder, key_name, mock_func_name, None, None)
         }
         TSType::TSQualifiedName(_) => {
             // TODO
@@ -1143,9 +1167,9 @@ pub fn get_expression<'a>(
         TSType::TSTypeQuery(ts_type_query) => {
             if let TSTypeQueryExprName::IdentifierReference(identifier) = &ts_type_query.expr_name {
                 let new_key = format!("{}_{}", key_name, identifier.name.clone().into_string());
-                return ref_expr(ast_builder, &new_key, mock_func_name, true);
+                return ref_expr(ast_builder, &new_key, mock_func_name, None, None);
             }
-            ref_expr(ast_builder, key_name, mock_func_name, true)
+            ref_expr(ast_builder, key_name, mock_func_name, None, None)
         }
         TSType::TSTypePredicate(_) => {
             // x is string
@@ -1174,7 +1198,7 @@ pub fn get_expression<'a>(
                     let literal_expr =
                         get_expr_with_ts_literal_type(ast_builder, &ts_literal_type.literal);
                     let new_key = format!("{}_{}", key_name, ts_object_type_ref.type_name);
-                    let call_expr = ref_expr(ast_builder, &new_key, mock_func_name, true);
+                    let call_expr = ref_expr(ast_builder, &new_key, mock_func_name, None, None);
 
                     return computed_member_expression(ast_builder, call_expr, literal_expr);
                 }
@@ -1401,7 +1425,7 @@ pub fn get_arg<'a>(
             // keyof T
             if let TSType::TSTypeReference(ts_type_ref) = &ts_type_operator_type.type_annotation {
                 let new_key = format!("{}_{}", key_name, ts_type_ref.type_name);
-                let arg_expression = ref_expr(ast_builder, &new_key, mock_func_name, true);
+                let arg_expression = ref_expr(ast_builder, &new_key, mock_func_name, None, None);
 
                 return computed_object_key_member_arg(ast_builder, arg_expression);
             }
@@ -1436,7 +1460,7 @@ pub fn get_arg<'a>(
                     let literal_expr =
                         get_expr_with_ts_literal_type(ast_builder, &ts_literal_type.literal);
                     let new_key = format!("{}_{}", key_name, ts_object_type_ref.type_name);
-                    let call_expr = ref_expr(ast_builder, &new_key, mock_func_name, true);
+                    let call_expr = ref_expr(ast_builder, &new_key, mock_func_name, None, None);
 
                     return computed_member_arg(ast_builder, call_expr, literal_expr);
                 }

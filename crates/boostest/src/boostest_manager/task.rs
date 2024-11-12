@@ -129,6 +129,7 @@ fn get_code(target: Arc<Mutex<Target>>, key_name: Option<String>) -> Option<Stri
                 &allocator,
                 &target_definition.specifier,
                 &locked_target.func_name,
+                &locked_target.name,
                 key_name,
                 &target_source_text,
                 &target_definition.target_type,

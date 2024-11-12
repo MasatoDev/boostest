@@ -26,6 +26,11 @@ pub trait AstBuilderExt<'a> {
     fn move_class<'c>(self, decl: &'c mut Class<'a>) -> Class<'a>;
 
     fn move_ts_type<'c>(self, decl: &'c mut TSType<'a>) -> TSType<'a>;
+
+    fn move_ts_type_parameter_instantiation<'c>(
+        self,
+        decl: &'c mut TSTypeParameterInstantiation<'a>,
+    ) -> TSTypeParameterInstantiation<'a>;
 }
 
 impl<'a> AstBuilderExt<'a> for AstBuilder<'a> {
@@ -90,5 +95,18 @@ impl<'a> AstBuilderExt<'a> for AstBuilder<'a> {
     fn move_ts_type<'c>(self, ts_type: &'c mut TSType<'a>) -> TSType<'a> {
         let empty_ts_type = TSType::TSNullKeyword(self.alloc_ts_null_keyword(Span::default()));
         mem::replace(ts_type, empty_ts_type)
+    }
+
+    fn move_ts_type_parameter_instantiation<'c>(
+        self,
+        ts_type_parameter_instantiation: &'c mut TSTypeParameterInstantiation<'a>,
+    ) -> TSTypeParameterInstantiation<'a> {
+        let empty_ts_type_parameter_instantiation =
+            self.ts_type_parameter_instantiation(Span::default(), self.vec());
+
+        mem::replace(
+            ts_type_parameter_instantiation,
+            empty_ts_type_parameter_instantiation,
+        )
     }
 }
