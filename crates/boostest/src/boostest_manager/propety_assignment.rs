@@ -22,6 +22,7 @@ fn ts_signature_assign(
     read_file_span: Option<Span>,
     key: String,
     ts_signature: &TSSignature<'_>,
+    defined_generics: Vec<String>,
 ) {
     match ts_signature {
         TSSignature::TSPropertySignature(ts_prop_signature) => {
@@ -34,6 +35,8 @@ fn ts_signature_assign(
                         read_file_span,
                         &ts_type_annotation.type_annotation,
                         new_key,
+                        defined_generics,
+                        false,
                     )
                 }
             }
@@ -49,6 +52,10 @@ pub fn ts_type_assign_as_property(
     read_file_span: Option<Span>,
     ts_type: &TSType,
     key: String,
+    defined_generics: Vec<String>,
+
+    // NOTE: for refer inner generic type
+    skip_id_name_of_key: bool,
 ) {
     let TargetReferenceInfo { file_path } = target_reference_info.clone();
 
@@ -59,32 +66,40 @@ pub fn ts_type_assign_as_property(
         TSType::TSTypeReference(ty_ref) if ast_utils::is_boolean_type(&ty_ref) => {}
         TSType::TSTypeReference(ty_ref) => {
             if let TSTypeName::IdentifierReference(identifier) = &ty_ref.type_name {
-                let new_key = format!("{}_{}", key, identifier.name.clone().into_string());
-                target.lock().unwrap().add_property(
-                    identifier.name.clone().into_string(),
-                    new_key,
-                    TargetReference {
-                        span: calc_prop_span(identifier.span, read_file_span),
-                        file_path,
-                        target_supplement: None,
-                    },
-                );
+                // NOTE: handle generic type parameters
+                // key: Partial<HugaType>;
+                if let Some(type_parameters) = &ty_ref.type_parameters {
+                    for param in type_parameters.params.iter() {
+                        ts_type_assign_as_property(
+                            target.clone(),
+                            target_reference_info.clone(),
+                            read_file_span,
+                            param,
+                            key.clone(),
+                            defined_generics.clone(),
+                            false,
+                        );
+                    }
+                }
 
-                // if let Some(type_parameters) = &ty_ref.type_parameters {
-                //     for parameter in type_parameters.params.iter_mut() {
-                //
-                //         let new_generic_key = format!("{}_{}", key, parameter.);
-                //         target.lock().unwrap().add_property(
-                //             identifier.name.clone().into_string(),
-                //             new_key,
-                //             TargetReference {
-                //                 span: calc_prop_span(identifier.span, read_file_span),
-                //                 file_path,
-                //                 target_supplement: None,
-                //             },
-                //         );
-                //     }
-                // }
+                let new_key: String;
+                if skip_id_name_of_key {
+                    new_key = key;
+                } else {
+                    new_key = format!("{}_{}", key, identifier.name.clone().into_string());
+                }
+
+                if !defined_generics.contains(&identifier.name.to_string()) {
+                    target.lock().unwrap().add_property(
+                        identifier.name.clone().into_string(),
+                        new_key,
+                        TargetReference {
+                            span: calc_prop_span(identifier.span, read_file_span),
+                            file_path,
+                            target_supplement: None,
+                        },
+                    );
+                }
             }
         }
 
@@ -139,6 +154,7 @@ pub fn ts_type_assign_as_property(
                     read_file_span,
                     key.clone(),
                     &member,
+                    defined_generics.clone(),
                 );
             }
         }
@@ -150,6 +166,8 @@ pub fn ts_type_assign_as_property(
                     read_file_span,
                     element.to_ts_type(),
                     key.clone(),
+                    defined_generics.clone(),
+                    false,
                 );
             }
         }
@@ -166,6 +184,8 @@ pub fn ts_type_assign_as_property(
                         read_file_span,
                         ts_tuple_type.to_ts_type(),
                         key.clone(),
+                        defined_generics.clone(),
+                        false,
                     );
                 }
             }
@@ -178,6 +198,8 @@ pub fn ts_type_assign_as_property(
                     read_file_span,
                     ts_type,
                     key.clone(),
+                    defined_generics.clone(),
+                    false,
                 );
             }
         }
@@ -230,7 +252,6 @@ pub fn ts_type_assign_as_property(
                 match ts_type {
                     TSType::TSTypeReference(ts_type_ref) => {
                         let new_key = format!("{}_{}", key, ts_type_ref.type_name);
-                        println!("new_key: {}", new_key);
 
                         // TODO: generic type
                         if ["T", "K", "P", "U"]

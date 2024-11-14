@@ -15,6 +15,7 @@ use crate::boostest_generator::ts_type_alias_builder::TSTypeAliasBuilder;
 use crate::boostest_target::target::{TargetSupplement, TargetType};
 
 pub struct CodeGenerator<'a> {
+    pub is_main_target: bool,
     pub specifier: &'a str,
     pub func_name: &'a str,
     pub target_type: &'a TargetType,
@@ -30,6 +31,7 @@ pub struct CodeGenerator<'a> {
 
 impl<'a, 'b: 'a> CodeGenerator<'a> {
     pub fn new(
+        is_main_target: bool,
         allocator: &'b Allocator,
         specifier: &'a str,
         func_name: &'a str,
@@ -40,6 +42,7 @@ impl<'a, 'b: 'a> CodeGenerator<'a> {
         target_supplement: Option<TargetSupplement>,
     ) -> Self {
         Self {
+            is_main_target,
             specifier,
             func_name,
             source_text,
@@ -76,6 +79,7 @@ impl<'a, 'b: 'a> CodeGenerator<'a> {
         let key_name = self.key_name.clone();
 
         let mut ts_type_alias_builder = TSTypeAliasBuilder::new(
+            self.is_main_target,
             self.allocator,
             ts_type_alias_decl,
             self.func_name.to_string(),

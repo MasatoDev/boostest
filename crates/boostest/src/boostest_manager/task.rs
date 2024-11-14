@@ -45,7 +45,7 @@ pub fn handle_main_task(
     for main_target in main_targets {
         let target = main_target.lock().unwrap().target.clone();
 
-        let code = get_code(target.clone(), None);
+        let code = get_code(true, target.clone(), None);
 
         match code {
             Some(code) => {
@@ -78,7 +78,11 @@ pub fn write_ref_properties(
     for children_prop in property_targets.iter() {
         let locked_prop = children_prop.lock().unwrap();
 
-        let code = get_code(locked_prop.target.clone(), locked_prop.key_name.clone());
+        let code = get_code(
+            false,
+            locked_prop.target.clone(),
+            locked_prop.key_name.clone(),
+        );
 
         match code {
             Some(code) => {
@@ -116,7 +120,11 @@ pub fn write_ref_properties(
     Ok(())
 }
 
-fn get_code(target: Arc<Mutex<Target>>, key_name: Option<String>) -> Option<String> {
+fn get_code(
+    is_main_target: bool,
+    target: Arc<Mutex<Target>>,
+    key_name: Option<String>,
+) -> Option<String> {
     let locked_target = target.lock().unwrap();
     match &locked_target.target_definition {
         Some(target_definition) => {
@@ -126,6 +134,7 @@ fn get_code(target: Arc<Mutex<Target>>, key_name: Option<String>) -> Option<Stri
             let allocator = oxc::allocator::Allocator::default();
 
             let mut code_generator = CodeGenerator::new(
+                is_main_target,
                 &allocator,
                 &target_definition.specifier,
                 &locked_target.func_name,

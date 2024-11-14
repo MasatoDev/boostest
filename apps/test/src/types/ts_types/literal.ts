@@ -23,6 +23,17 @@ type KeyOfButterfly = {
   [key in keyof RefType]: key;
 };
 
+export type InngerGeneric<T> = T;
+export type InngerPropGeneric<T> = {
+  name: T;
+};
+
+type InnerGenericInitializer = {
+  name: string;
+  innerGeneric: InngerGeneric<RefType>;
+  innerGenericLiteral: InngerGeneric<"inner generic string">;
+};
+
 export type LiteralTypeAlias = {
   stringLiteral: string;
   numberLiteral: number;
@@ -62,11 +73,15 @@ export type LiteralTypeAlias = {
   indexAccessor: RefType["name"];
   mapperType: Butterfly;
   keyOfMapperType: KeyOfButterfly;
+  nestedPartial: {
+    childPartial: Partial<RefType>;
+  };
+  innserGenericInitializer: InnerGenericInitializer;
 
   /**********************/
   /******* TODO *********/
   /**********************/
-  constructorType: abstract new (...args: any) => any;
+  // constructorType: abstract new (...args: any) => any;
   thisType: ThisType<string>;
   array: Array<string>;
   partial: Partial<RefType>;
@@ -77,12 +92,13 @@ export type LiteralTypeAlias = {
   extract: Extract<string | number, string>;
   exclude: Exclude<string | number, string>;
   nonNullable: NonNullable<string | null>;
-  parameters: Parameters<() => void>;
-  constructorParameters: ConstructorParameters<typeof LiteralTypeClass>;
-  returnType: ReturnType<() => void>;
-  instanceType: InstanceType<typeof LiteralTypeClass>;
   promise: Promise<RefType>;
   refTypeInterface: RefTypeInterface;
+
+  // parameters: Parameters<() => void>;
+  // returnType: ReturnType<() => void>;
+  // constructorParameters: ConstructorParameters<typeof LiteralTypeClass>;
+  // instanceType: InstanceType<typeof LiteralTypeClass>;
   // classType: typeof Hoge;
 };
 

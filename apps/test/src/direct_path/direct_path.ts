@@ -1,10 +1,18 @@
 import {
+  InngerGeneric,
+  InngerPropGeneric,
   LiteralTypeAlias,
   LiteralTypeClass,
   LiteralTypeInterface,
 } from "@/ts_types/literal";
 
+type Temp = {
+  name: string;
+  ver: number;
+};
+
 let _ = boostestLiteralAliasType<LiteralTypeAlias>();
+// let _ = boostestPropGenericType<InngerPropGeneric<Temp>>();
 // let _ = boostestLiteralInterfaceType<LiteralTypeInterface>();
 // let _ = boostestLiteralTypeClass<typeof LiteralTypeClass>(LiteralTypeClass);
 
