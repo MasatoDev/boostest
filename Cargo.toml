@@ -23,7 +23,6 @@ clap = { version = "4.4.7", features = ["derive", "env"] }
 regex = "1.10.4"
 glob = "0.3.1"
 colored = "2"
-indicatif = "0.17.8"
 rayon = "1.10"
 
 self_cell = "1.0.4"
@@ -35,3 +34,4 @@ serde_json = "1.0"
 ropey = "1.6.1"
 
 boostest = { version = "0.0.1", path = "./crates/boostest" }
+spinoff = "0.8.0"

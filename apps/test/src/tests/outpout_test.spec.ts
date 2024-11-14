@@ -1,17 +1,6 @@
-import { expect } from "@jest/globals";
+import { describe, expect } from "@jest/globals";
 import path from "path";
-
 const fs = require("fs");
-
-test("boostest main file output correctly", () => {
-  try {
-    const data = fs.readFileSync("./src/main_test_test_data.ts", "utf-8");
-
-    expect(data).toMatchSnapshot();
-  } catch (err) {
-    console.log("err", err);
-  }
-});
 
 function getFilesRecursively(dir: string): string[] {
   let results: string[] = [];
@@ -28,14 +17,16 @@ function getFilesRecursively(dir: string): string[] {
   return results;
 }
 
-test("boostest invest dir output correctly", () => {
+describe("boostest all dir output correctly", () => {
   try {
-    const files = getFilesRecursively("./src/invest");
+    const files = getFilesRecursively(".");
     const testFiles = files.filter((file) => file.includes("_test_data"));
 
     testFiles.forEach((file) => {
       const data = fs.readFileSync(file, "utf-8");
-      expect(data).toMatchSnapshot();
+      test(`output correctly ${file}`, () => {
+        expect(data).toMatchSnapshot();
+      });
     });
   } catch (err) {
     console.log("err", err);

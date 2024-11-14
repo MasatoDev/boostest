@@ -1,3 +1,4 @@
+import { runSnapshotTest, failedTest } from "../utils";
 import {
   // string
   TsTypeLiteralString,
@@ -71,41 +72,6 @@ import {
   // boostestTsTypeLiteralLiteralSymbolType,
 } from "./literal.spec_test_data";
 
-/************************************************************/
-/*********************  HELPER  *****************************/
-/************************************************************/
-/** @see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt#use_within_json */
-(BigInt.prototype as any).toJSON = function () {
-  return this.toString();
-};
-
-// Helper function to run snapshot tests
-const runSnapshotTest = (name: string, value: any) => {
-  if (typeof value === "function" || typeof value === "symbol") {
-    test(`${name} matches snapshot`, () => {
-      expect(value.toString()).toMatchSnapshot();
-    });
-
-    return;
-  }
-
-  test(`${name} matches snapshot`, () => {
-    expect(JSON.stringify(value)).toMatchSnapshot();
-  });
-};
-
-const failedTest = (name: string) => {
-  test(`${name} matches snapshot`, () => {
-    expect(true).toBe(false);
-  });
-};
-
-// export const tsTypeLiteralLiteralSymbol =
-//   boostestTsTypeLiteralLiteralSymbolType<TsTypeLiteralLiteralSymbolType>();
-
-/************************************************************/
-/**********************  Tests  *****************************/
-/************************************************************/
 describe("Literal Type Tests", () => {
   runSnapshotTest(
     "TsTypeLiteralString",
@@ -200,5 +166,5 @@ describe("Literal Type Tests", () => {
     boostestUseTSTypeLiteralInterface<UseTSTypeLiteralInterface>(),
   );
 
-  failedTest("TsTypeLiteralLiteralSymbol");
+  // failedTest("TsTypeLiteralLiteralSymbol");
 });

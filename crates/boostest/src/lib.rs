@@ -11,13 +11,15 @@ use boostest_utils::{
     tsserver::TSServerCache,
 };
 use colored::*;
-use indicatif::{ProgressBar, ProgressStyle};
+use spinoff::{spinners, Color, Spinner};
 use std::{
     path::Path,
     sync::{Arc, Mutex},
 };
 
 pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
+    let mut spinner = Spinner::new(spinners::Dots, "Start!", Color::Blue);
+
     let mut setting = setting::get_setting().unwrap_or(Setting {
         target: None,
         name: None,
@@ -56,26 +58,14 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
     let tsserver_cache = Arc::new(Mutex::new(TSServerCache::new()));
 
     for (path_buf, _file) in contents {
-        let progress_bar = ProgressBar::new(4);
-        progress_bar.set_style(
-            ProgressStyle::with_template("{spinner:.green} [{bar:40.cyan/blue}] {msg}")
-                .unwrap()
-                .tick_strings(&[
-                    "▹▹▹▹▹",
-                    "▸▹▹▹▹",
-                    "▹▸▹▹▹",
-                    "▹▹▸▹▹",
-                    "▹▹▹▸▹",
-                    "▹▹▹▹▸",
-                    "▪▪▪▪▪",
-                ]),
+        spinner.update(
+            spinners::Dots2,
+            format!(
+                "Handling File: {}",
+                path_buf.file_name().unwrap().to_string_lossy()
+            ),
+            None,
         );
-
-        progress_bar.inc(1);
-        progress_bar.set_message(format!(
-            "Detecting: {}",
-            path_buf.file_name().unwrap().to_string_lossy()
-        ));
 
         let path = path_buf.as_path();
 
@@ -89,11 +79,14 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
             a.cmp(&b)
         });
 
-        progress_bar.inc(1);
-        progress_bar.set_message(format!(
-            "Resolving: {}",
-            path_buf.file_name().unwrap().to_string_lossy()
-        ));
+        spinner.update(
+            spinners::Dots2,
+            format!(
+                "Handling File:  {}",
+                path_buf.file_name().unwrap().to_string_lossy()
+            ),
+            None,
+        );
 
         main_targets_resolve(
             &main_targets,
@@ -102,11 +95,14 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
             tsserver_cache.clone(),
         );
 
-        progress_bar.inc(1);
-        progress_bar.set_message(format!(
-            "Generating Code: {}",
-            path_buf.file_name().unwrap().to_string_lossy()
-        ));
+        spinner.update(
+            spinners::Dots2,
+            format!(
+                "Handling File:  {}",
+                path_buf.file_name().unwrap().to_string_lossy()
+            ),
+            None,
+        );
 
         if let Err(e) = handle_main_task(main_targets, path, &out_file_name) {
             println!(
@@ -115,10 +111,6 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
                 e
             );
         }
-
-        progress_bar.finish_with_message(format!(
-            "Done: {}",
-            path_buf.file_name().unwrap().to_string_lossy()
-        ));
     }
+    spinner.success("Done!");
 }

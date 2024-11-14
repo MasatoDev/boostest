@@ -1192,8 +1192,13 @@ pub fn get_expression<'a>(
                     false,
                     vec![],
                 );
-                let spread_expr = ast_builder.alloc_spread_element(SPAN, expr);
+
+                let obj_ts_type = ast_builder.ts_type_object_keyword(SPAN);
+                let as_expr = ast_builder.expression_ts_as(SPAN, expr, obj_ts_type);
+                let spread_expr = ast_builder.alloc_spread_element(SPAN, as_expr);
+
                 let obj_prop_expr = ObjectPropertyKind::SpreadProperty(spread_expr);
+
                 temp_expr.push(obj_prop_expr);
             }
             ast_builder.expression_object(SPAN, temp_expr, None)
@@ -1224,7 +1229,6 @@ pub fn get_expression<'a>(
             if let Some(ts_type) = &ts_mapped_type.type_parameter.constraint {
                 match ts_type {
                     TSType::TSTypeReference(ts_type_ref) => {
-                        // TODO: check key name
                         let new_key =
                             format!("{}_{}_{}", key_name, ts_type_ref.type_name, mock_func_name);
                         let object_id = ast_builder.expression_identifier_reference(SPAN, new_key);
@@ -1585,7 +1589,10 @@ pub fn get_arg<'a>(
                     false,
                     vec![],
                 );
-                let spread_expr = ast_builder.alloc_spread_element(SPAN, expr);
+
+                let obj_ts_type = ast_builder.ts_type_object_keyword(SPAN);
+                let as_expr = ast_builder.expression_ts_as(SPAN, expr, obj_ts_type);
+                let spread_expr = ast_builder.alloc_spread_element(SPAN, as_expr);
                 let obj_prop_expr = ObjectPropertyKind::SpreadProperty(spread_expr);
                 temp_expr.push(obj_prop_expr);
             }

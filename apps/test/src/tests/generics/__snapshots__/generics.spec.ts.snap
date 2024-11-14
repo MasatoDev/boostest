@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Generics Tests Generic matches snapshot 1`] = `"{"name":{"name":"test string data","ver":10}}"`;
+
+exports[`Generics Tests GenericsInterface matches snapshot 1`] = `"{"partial":{"name":"","ver":""}}"`;
+
+exports[`Generics Tests GenericsTypeAlias matches snapshot 1`] = `"{"partial":{"name":"","ver":""}}"`;
+
+exports[`GenericsClass matches snapshot 1`] = `"{}"`;

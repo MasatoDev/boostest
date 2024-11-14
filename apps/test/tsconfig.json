@@ -9,6 +9,7 @@
     "isolatedModules": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
     "paths": {
       "@/*": ["./src/types/*"]
     }

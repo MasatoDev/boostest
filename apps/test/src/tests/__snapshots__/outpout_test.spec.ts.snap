@@ -1,0 +1,2638 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/direct_path/direct_path_test_data.ts 1`] = `
+"export function boostestTsTypeLiteralString<T>() {
+	return "test string data";
+}
+
+"
+`;
+
+exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/call_signature/call_signature.spec_test_data.ts 1`] = `
+"export function boostestCallSignature<T>() {
+	return (name: string, age: number) => {};
+}
+
+export function boostestCallSignatureInterface<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function boostestMathOperations<T>(args?: Partial<T>): T {
+	return {
+		"add": (a: number, b: number) => {
+			return 10;
+		},
+		"multiply": (a: number, b: number) => {
+			return 10;
+		},
+		...args
+	} as T;
+}
+
+export function boostestSingleCallSignature<T>() {
+	return (name: string, age: number) => {
+		return null;
+	};
+}
+
+"
+`;
+
+exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/class/class.spec_test_data.ts 1`] = `
+"export function boostestArgObjClass<T extends abstract new (...args: any) => any>(ArgObjClass): T {
+	return new ArgObjClass({
+		"name": "test string data",
+		"age": 10
+	}, {
+		"obj_key": object_obj_key_ObjKey_boostestArgObjClass(),
+		"obj_key2": object_obj_key2_ObjKey_boostestArgObjClass()
+	});
+}
+
+export function object_obj_key_ObjKey_boostestArgObjClass<T>(args?: Partial<T>): T {
+	return {
+		"obj_name": "test string data",
+		"obj_val": 10,
+		...args
+	} as T;
+}
+
+export function object_obj_key2_ObjKey_boostestArgObjClass<T>(args?: Partial<T>): T {
+	return {
+		"obj_name": "test string data",
+		"obj_val": 10,
+		...args
+	} as T;
+}
+
+export function boostestArgObjClass2<T extends abstract new (...args: any) => any>(ArgObjClass2): T {
+	return new ArgObjClass2({
+		"name": "test string data",
+		"age": 10
+	}, {
+		"obj_key": object_obj_key_ObjKey_boostestArgObjClass2(),
+		"obj_key2": object_obj_key2_ObjKey_boostestArgObjClass2()
+	});
+}
+
+export function object_obj_key_ObjKey_boostestArgObjClass2<T>(args?: Partial<T>): T {
+	return {
+		"obj_name": "test string data",
+		"obj_val": 10,
+		...args
+	} as T;
+}
+
+export function object_obj_key2_ObjKey_boostestArgObjClass2<T>(args?: Partial<T>): T {
+	return {
+		"obj_name": "test string data",
+		"obj_val": 10,
+		...args
+	} as T;
+}
+
+export function boostestConstructorSignature<T>() {
+	return {};
+}
+
+export function boostestConstructorSignatureInterface<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function boostestInnerConstructorSignature<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+"
+`;
+
+exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/common_js/common_js.spec_test_data.ts 1`] = `
+"export function boostestCommonCjs<T>(args?: Partial<T>): T {
+	return {
+		"id": 10,
+		"name": "test string data",
+		...args
+	} as T;
+}
+
+"
+`;
+
+exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/generics/generics.spec_test_data.ts 1`] = `
+"export function boostestGeneric<T>(args?: Partial<T>): T {
+	return {
+		"name": zero_boostestGeneric(),
+		...args
+	} as T;
+}
+
+export function zero_boostestGeneric<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function boostestGenericsAliasType<T>(args?: Partial<T>): T {
+	return {
+		"partial": partial_Partial_boostestGenericsAliasType(() => {
+			return partial_RefType_boostestGenericsAliasType();
+		}),
+		...args
+	} as T;
+}
+
+export function partial_RefType_boostestGenericsAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function partial_Partial_boostestGenericsAliasType<T>(Partial_T_boostestGenericsAliasType: any, args?: Partial<T>) {
+	return Object.keys(Partial_T_boostestGenericsAliasType()).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: ""
+		};
+	}, {});
+}
+
+export function boostestGenericsInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"partial": partial_Partial_boostestGenericsInterfaceType(() => {
+			return partial_RefType_boostestGenericsInterfaceType();
+		}),
+		...args
+	} as T;
+}
+
+export function partial_RefType_boostestGenericsInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function partial_Partial_boostestGenericsInterfaceType<T>(Partial_T_boostestGenericsInterfaceType: any, args?: Partial<T>) {
+	return Object.keys(Partial_T_boostestGenericsInterfaceType()).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: ""
+		};
+	}, {});
+}
+
+export function boostestGenericsTypeClass<T extends abstract new (...args: any) => any>(GenericsClass): T {
+	return new GenericsClass();
+}
+
+"
+`;
+
+exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/index_signature/index_signature.spec_test_data.ts 1`] = `
+"export function boostestIndexSignature<T>(args?: Partial<T>): T {
+	return {
+		"test string data": 10,
+		10: 10,
+		...args
+	} as T;
+}
+
+"
+`;
+
+exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/literal/literal.spec_test_data.ts 1`] = `
+"export function boostestTsLiteralArrayUnionType<T>() {
+	return [];
+}
+
+export function boostestTsLiteralBooleanUnionType<T>() {
+	return true;
+}
+
+export function boostestTsLiteralFunctionUnionType<T>() {
+	return (x: number) => {
+		return 10;
+	};
+}
+
+export function boostestTsLiteralNumberUnionType<T>() {
+	return 1;
+}
+
+export function boostestTsLiteralObjectUnionType<T>() {
+	return { "type": "A" };
+}
+
+export function boostestTsLiteralTypeStringUnionType<T>() {
+	return "A";
+}
+
+export function boostestTsTypeLiteralArray<T>() {
+	return [];
+}
+
+export function boostestTsTypeLiteralBoolean<T>() {
+	return true;
+}
+
+export function boostestTsTypeLiteralFunction<T>() {
+	return () => {};
+}
+
+export function boostestTsTypeLiteralLiteralArrayType<T>() {
+	return [
+		1,
+		2,
+		3
+	];
+}
+
+export function boostestTsTypeLiteralLiteralBooleanType<T>() {
+	return true;
+}
+
+export function boostestTsTypeLiteralLiteralFunctionType<T>() {
+	return () => {};
+}
+
+export function boostestTsTypeLiteralLiteralNumberType<T>() {
+	return 42;
+}
+
+export function boostestTsTypeLiteralLiteralObjectType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"age": 10,
+		...args
+	} as T;
+}
+
+export function boostestTsTypeLiteralLiteralTypeString<T>() {
+	return "string";
+}
+
+export function boostestTsTypeLiteralNull<T>() {
+	return null;
+}
+
+export function boostestTsTypeLiteralNumber<T>() {
+	return 10;
+}
+
+export function boostestTsTypeLiteralObject<T>() {
+	return {};
+}
+
+export function boostestTsTypeLiteralString<T>() {
+	return "test string data";
+}
+
+export function boostestTsTypeLiteralSymbol<T>() {
+	return Symbol();
+}
+
+export function boostestTsTypeLiteralUndefined<T>() {
+	return undefined;
+}
+
+export function boostestUseTSTypeLiteralAlias<T>(args?: Partial<T>): T {
+	return {
+		"literalString": literalString_TsTypeLiteralString_boostestUseTSTypeLiteralAlias(),
+		"literalLiteralString": literalLiteralString_TsTypeLiteralLiteralTypeString_boostestUseTSTypeLiteralAlias(),
+		"literalStringUnion": literalStringUnion_TsLiteralTypeStringUnionType_boostestUseTSTypeLiteralAlias(),
+		"literalNumber": literalNumber_TsTypeLiteralNumber_boostestUseTSTypeLiteralAlias(),
+		"literalLiteralNumber": literalLiteralNumber_TsTypeLiteralLiteralNumberType_boostestUseTSTypeLiteralAlias(),
+		"literalNumberUnion": literalNumberUnion_TsLiteralNumberUnionType_boostestUseTSTypeLiteralAlias(),
+		"literalBoolean": literalBoolean_TsTypeLiteralBoolean_boostestUseTSTypeLiteralAlias(),
+		"literalLiteralBoolean": literalLiteralBoolean_TsTypeLiteralLiteralBooleanType_boostestUseTSTypeLiteralAlias(),
+		"literalBooleanUnion": literalBooleanUnion_TsLiteralBooleanUnionType_boostestUseTSTypeLiteralAlias(),
+		"literalNull": literalNull_TsTypeLiteralNull_boostestUseTSTypeLiteralAlias(),
+		"literalUndefined": literalUndefined_TsTypeLiteralUndefined_boostestUseTSTypeLiteralAlias(),
+		"literalArray": literalArray_TsTypeLiteralArray_boostestUseTSTypeLiteralAlias(),
+		"literalLiteralArray": literalLiteralArray_TsTypeLiteralLiteralArrayType_boostestUseTSTypeLiteralAlias(),
+		"literalArrayUnion": literalArrayUnion_TsLiteralArrayUnionType_boostestUseTSTypeLiteralAlias(),
+		"literalObject": literalObject_TsTypeLiteralObject_boostestUseTSTypeLiteralAlias(),
+		"literalLiteralObject": literalLiteralObject_TsTypeLiteralLiteralObjectType_boostestUseTSTypeLiteralAlias(),
+		"literalObjectUnion": literalObjectUnion_TsLiteralObjectUnionType_boostestUseTSTypeLiteralAlias(),
+		"literalFunction": literalFunction_TsTypeLiteralFunction_boostestUseTSTypeLiteralAlias(),
+		"literalLiteralFunction": literalLiteralFunction_TsTypeLiteralLiteralFunctionType_boostestUseTSTypeLiteralAlias(),
+		"literalFunctionUnion": literalFunctionUnion_TsLiteralFunctionUnionType_boostestUseTSTypeLiteralAlias(),
+		"literalBigInt": literalBigInt_TsTypeLiteralBigInt_boostestUseTSTypeLiteralAlias(),
+		"literalLiteralBigInt": literalLiteralBigInt_TsTypeLiteralLiteralBigIntType_boostestUseTSTypeLiteralAlias(),
+		"literalBigIntUnion": literalBigIntUnion_TsLiteralBigIntUnionType_boostestUseTSTypeLiteralAlias(),
+		"literalSymbol": literalSymbol_TsTypeLiteralSymbol_boostestUseTSTypeLiteralAlias(),
+		...args
+	} as T;
+}
+
+export function literalString_TsTypeLiteralString_boostestUseTSTypeLiteralAlias<T>() {
+	return "test string data";
+}
+
+export function literalLiteralString_TsTypeLiteralLiteralTypeString_boostestUseTSTypeLiteralAlias<T>() {
+	return "string";
+}
+
+export function literalStringUnion_TsLiteralTypeStringUnionType_boostestUseTSTypeLiteralAlias<T>() {
+	return "A";
+}
+
+export function literalNumber_TsTypeLiteralNumber_boostestUseTSTypeLiteralAlias<T>() {
+	return 10;
+}
+
+export function literalLiteralNumber_TsTypeLiteralLiteralNumberType_boostestUseTSTypeLiteralAlias<T>() {
+	return 42;
+}
+
+export function literalNumberUnion_TsLiteralNumberUnionType_boostestUseTSTypeLiteralAlias<T>() {
+	return 1;
+}
+
+export function literalBoolean_TsTypeLiteralBoolean_boostestUseTSTypeLiteralAlias<T>() {
+	return true;
+}
+
+export function literalLiteralBoolean_TsTypeLiteralLiteralBooleanType_boostestUseTSTypeLiteralAlias<T>() {
+	return true;
+}
+
+export function literalBooleanUnion_TsLiteralBooleanUnionType_boostestUseTSTypeLiteralAlias<T>() {
+	return true;
+}
+
+export function literalNull_TsTypeLiteralNull_boostestUseTSTypeLiteralAlias<T>() {
+	return null;
+}
+
+export function literalUndefined_TsTypeLiteralUndefined_boostestUseTSTypeLiteralAlias<T>() {
+	return undefined;
+}
+
+export function literalArray_TsTypeLiteralArray_boostestUseTSTypeLiteralAlias<T>() {
+	return [];
+}
+
+export function literalLiteralArray_TsTypeLiteralLiteralArrayType_boostestUseTSTypeLiteralAlias<T>() {
+	return [
+		1,
+		2,
+		3
+	];
+}
+
+export function literalArrayUnion_TsLiteralArrayUnionType_boostestUseTSTypeLiteralAlias<T>() {
+	return [];
+}
+
+export function literalObject_TsTypeLiteralObject_boostestUseTSTypeLiteralAlias<T>() {
+	return {};
+}
+
+export function literalLiteralObject_TsTypeLiteralLiteralObjectType_boostestUseTSTypeLiteralAlias<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"age": 10,
+		...args
+	} as T;
+}
+
+export function literalObjectUnion_TsLiteralObjectUnionType_boostestUseTSTypeLiteralAlias<T>() {
+	return { "type": "A" };
+}
+
+export function literalFunction_TsTypeLiteralFunction_boostestUseTSTypeLiteralAlias<T>() {
+	return () => {};
+}
+
+export function literalLiteralFunction_TsTypeLiteralLiteralFunctionType_boostestUseTSTypeLiteralAlias<T>() {
+	return () => {};
+}
+
+export function literalFunctionUnion_TsLiteralFunctionUnionType_boostestUseTSTypeLiteralAlias<T>() {
+	return (x: number) => {
+		return 10;
+	};
+}
+
+export function literalBigInt_TsTypeLiteralBigInt_boostestUseTSTypeLiteralAlias<T>() {
+	return 9007199254740991;
+}
+
+export function literalLiteralBigInt_TsTypeLiteralLiteralBigIntType_boostestUseTSTypeLiteralAlias<T>() {
+	return 123n;
+}
+
+export function literalBigIntUnion_TsLiteralBigIntUnionType_boostestUseTSTypeLiteralAlias<T>() {
+	return 1n;
+}
+
+export function literalSymbol_TsTypeLiteralSymbol_boostestUseTSTypeLiteralAlias<T>() {
+	return Symbol();
+}
+
+export function boostestUseTSTypeLiteralInterface<T>(args?: Partial<T>): T {
+	return {
+		"literalString": literalString_TsTypeLiteralString_boostestUseTSTypeLiteralInterface(),
+		"literalLiteralString": literalLiteralString_TsTypeLiteralLiteralTypeString_boostestUseTSTypeLiteralInterface(),
+		"literalStringUnion": literalStringUnion_TsLiteralTypeStringUnionType_boostestUseTSTypeLiteralInterface(),
+		"literalNumber": literalNumber_TsTypeLiteralNumber_boostestUseTSTypeLiteralInterface(),
+		"literalLiteralNumber": literalLiteralNumber_TsTypeLiteralLiteralNumberType_boostestUseTSTypeLiteralInterface(),
+		"literalNumberUnion": literalNumberUnion_TsLiteralNumberUnionType_boostestUseTSTypeLiteralInterface(),
+		"literalBoolean": literalBoolean_TsTypeLiteralBoolean_boostestUseTSTypeLiteralInterface(),
+		"literalLiteralBoolean": literalLiteralBoolean_TsTypeLiteralLiteralBooleanType_boostestUseTSTypeLiteralInterface(),
+		"literalBooleanUnion": literalBooleanUnion_TsLiteralBooleanUnionType_boostestUseTSTypeLiteralInterface(),
+		"literalNull": literalNull_TsTypeLiteralNull_boostestUseTSTypeLiteralInterface(),
+		"literalUndefined": literalUndefined_TsTypeLiteralUndefined_boostestUseTSTypeLiteralInterface(),
+		"literalArray": literalArray_TsTypeLiteralArray_boostestUseTSTypeLiteralInterface(),
+		"literalLiteralArray": literalLiteralArray_TsTypeLiteralLiteralArrayType_boostestUseTSTypeLiteralInterface(),
+		"literalArrayUnion": literalArrayUnion_TsLiteralArrayUnionType_boostestUseTSTypeLiteralInterface(),
+		"literalObject": literalObject_TsTypeLiteralObject_boostestUseTSTypeLiteralInterface(),
+		"literalLiteralObject": literalLiteralObject_TsTypeLiteralLiteralObjectType_boostestUseTSTypeLiteralInterface(),
+		"literalObjectUnion": literalObjectUnion_TsLiteralObjectUnionType_boostestUseTSTypeLiteralInterface(),
+		"literalFunction": literalFunction_TsTypeLiteralFunction_boostestUseTSTypeLiteralInterface(),
+		"literalLiteralFunction": literalLiteralFunction_TsTypeLiteralLiteralFunctionType_boostestUseTSTypeLiteralInterface(),
+		"literalFunctionUnion": literalFunctionUnion_TsLiteralFunctionUnionType_boostestUseTSTypeLiteralInterface(),
+		"literalBigInt": literalBigInt_TsTypeLiteralBigInt_boostestUseTSTypeLiteralInterface(),
+		"literalLiteralBigInt": literalLiteralBigInt_TsTypeLiteralLiteralBigIntType_boostestUseTSTypeLiteralInterface(),
+		"literalBigIntUnion": literalBigIntUnion_TsLiteralBigIntUnionType_boostestUseTSTypeLiteralInterface(),
+		"literalSymbol": literalSymbol_TsTypeLiteralSymbol_boostestUseTSTypeLiteralInterface(),
+		...args
+	} as T;
+}
+
+export function literalString_TsTypeLiteralString_boostestUseTSTypeLiteralInterface<T>() {
+	return "test string data";
+}
+
+export function literalLiteralString_TsTypeLiteralLiteralTypeString_boostestUseTSTypeLiteralInterface<T>() {
+	return "string";
+}
+
+export function literalStringUnion_TsLiteralTypeStringUnionType_boostestUseTSTypeLiteralInterface<T>() {
+	return "A";
+}
+
+export function literalNumber_TsTypeLiteralNumber_boostestUseTSTypeLiteralInterface<T>() {
+	return 10;
+}
+
+export function literalLiteralNumber_TsTypeLiteralLiteralNumberType_boostestUseTSTypeLiteralInterface<T>() {
+	return 42;
+}
+
+export function literalNumberUnion_TsLiteralNumberUnionType_boostestUseTSTypeLiteralInterface<T>() {
+	return 1;
+}
+
+export function literalBoolean_TsTypeLiteralBoolean_boostestUseTSTypeLiteralInterface<T>() {
+	return true;
+}
+
+export function literalLiteralBoolean_TsTypeLiteralLiteralBooleanType_boostestUseTSTypeLiteralInterface<T>() {
+	return true;
+}
+
+export function literalBooleanUnion_TsLiteralBooleanUnionType_boostestUseTSTypeLiteralInterface<T>() {
+	return true;
+}
+
+export function literalNull_TsTypeLiteralNull_boostestUseTSTypeLiteralInterface<T>() {
+	return null;
+}
+
+export function literalUndefined_TsTypeLiteralUndefined_boostestUseTSTypeLiteralInterface<T>() {
+	return undefined;
+}
+
+export function literalArray_TsTypeLiteralArray_boostestUseTSTypeLiteralInterface<T>() {
+	return [];
+}
+
+export function literalLiteralArray_TsTypeLiteralLiteralArrayType_boostestUseTSTypeLiteralInterface<T>() {
+	return [
+		1,
+		2,
+		3
+	];
+}
+
+export function literalArrayUnion_TsLiteralArrayUnionType_boostestUseTSTypeLiteralInterface<T>() {
+	return [];
+}
+
+export function literalObject_TsTypeLiteralObject_boostestUseTSTypeLiteralInterface<T>() {
+	return {};
+}
+
+export function literalLiteralObject_TsTypeLiteralLiteralObjectType_boostestUseTSTypeLiteralInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"age": 10,
+		...args
+	} as T;
+}
+
+export function literalObjectUnion_TsLiteralObjectUnionType_boostestUseTSTypeLiteralInterface<T>() {
+	return { "type": "A" };
+}
+
+export function literalFunction_TsTypeLiteralFunction_boostestUseTSTypeLiteralInterface<T>() {
+	return () => {};
+}
+
+export function literalLiteralFunction_TsTypeLiteralLiteralFunctionType_boostestUseTSTypeLiteralInterface<T>() {
+	return () => {};
+}
+
+export function literalFunctionUnion_TsLiteralFunctionUnionType_boostestUseTSTypeLiteralInterface<T>() {
+	return (x: number) => {
+		return 10;
+	};
+}
+
+export function literalBigInt_TsTypeLiteralBigInt_boostestUseTSTypeLiteralInterface<T>() {
+	return 9007199254740991;
+}
+
+export function literalLiteralBigInt_TsTypeLiteralLiteralBigIntType_boostestUseTSTypeLiteralInterface<T>() {
+	return 123n;
+}
+
+export function literalBigIntUnion_TsLiteralBigIntUnionType_boostestUseTSTypeLiteralInterface<T>() {
+	return 1n;
+}
+
+export function literalSymbol_TsTypeLiteralSymbol_boostestUseTSTypeLiteralInterface<T>() {
+	return Symbol();
+}
+
+"
+`;
+
+exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/nestes_type/nested_type.spec_test_data.ts 1`] = `
+"export function boostestNestedInterface<T>(args?: Partial<T>): T {
+	return {
+		"a": 10,
+		"b": "test string data",
+		"c": {
+			"d": true,
+			"e": {
+				"f": 10,
+				"g": "test string data",
+				"h": {
+					"i": 10,
+					"j": {
+						"k": true,
+						"l": []
+					}
+				}
+			},
+			"m": {
+				"n": [],
+				"o": "test string data"
+			}
+		},
+		"p": {
+			"q": { "r": 10 },
+			"s": {
+				"t": true,
+				"u": {
+					"v": 10,
+					"w": "test string data"
+				}
+			}
+		},
+		"x": [],
+		"literalType": "option1",
+		"mixedType": {
+			...{ "a": 10 } as object,
+			...{ "b": "test string data" } as object
+		},
+		"conditionalType": "active",
+		"extended": {
+			"id": 10,
+			"info": {
+				"description": "test string data",
+				"tags": [],
+				"settings": {
+					"mode": "auto",
+					"level": 1,
+					"extras": {
+						"feature": true,
+						"nestedRef": extended_info_settings_extras_nestedRef_NestedRefType_boostestNestedInterface()
+					}
+				}
+			}
+		},
+		...args
+	} as T;
+}
+
+export function extended_info_settings_extras_nestedRef_NestedRefType_boostestNestedInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "NestedRefType",
+		"deep": deep_DeepType_boostestNestedInterface(),
+		...args
+	} as T;
+}
+
+export function deep_DeepType_boostestNestedInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "deeptype",
+		...args
+	} as T;
+}
+
+export function boostestNestedPropClass<T extends abstract new (...args: any) => any>(NestedPropClass): T {
+	return new NestedPropClass({
+		"a": 10,
+		"b": "test string data",
+		"c": {
+			"d": true,
+			"e": {
+				"f": 10,
+				"g": "test string data",
+				"h": {
+					"i": 10,
+					"j": {
+						"k": true,
+						"l": []
+					}
+				}
+			},
+			"m": {
+				"n": [],
+				"o": "test string data"
+			}
+		},
+		"p": {
+			"q": { "r": 10 },
+			"s": {
+				"t": true,
+				"u": {
+					"v": 10,
+					"w": "test string data"
+				}
+			}
+		},
+		"x": [],
+		"literalType": "option1",
+		"mixedType": {
+			...{ "a": 10 } as object,
+			...{ "b": "test string data" } as object
+		},
+		"conditionalType": "active",
+		"extended": {
+			"id": 10,
+			"info": {
+				"description": "test string data",
+				"tags": [],
+				"settings": {
+					"mode": "auto",
+					"level": 1,
+					"extras": {
+						"feature": true,
+						"nestedRef": huga_extended_info_settings_extras_nestedRef_NestedRefType_boostestNestedPropClass()
+					}
+				}
+			}
+		}
+	});
+}
+
+export function huga_extended_info_settings_extras_nestedRef_NestedRefType_boostestNestedPropClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "NestedRefType",
+		...args
+	} as T;
+}
+
+export function boostestNestedType<T>(args?: Partial<T>): T {
+	return {
+		"a": 10,
+		"b": "test string data",
+		"c": {
+			"d": true,
+			"e": {
+				"f": 10,
+				"g": "test string data",
+				"h": {
+					"i": 10,
+					"j": {
+						"k": true,
+						"l": []
+					}
+				}
+			},
+			"m": {
+				"n": [],
+				"o": "test string data"
+			}
+		},
+		"p": {
+			"q": { "r": 10 },
+			"s": {
+				"t": true,
+				"u": {
+					"v": 10,
+					"w": "test string data"
+				}
+			}
+		},
+		"x": [],
+		"literalType": "option1",
+		"mixedType": {
+			...{ "a": 10 } as object,
+			...{ "b": "test string data" } as object
+		},
+		"conditionalType": "active",
+		"extended": {
+			"id": 10,
+			"info": {
+				"description": "test string data",
+				"tags": [],
+				"settings": {
+					"mode": "auto",
+					"level": 1,
+					"extras": {
+						"feature": true,
+						"nestedRef": extended_info_settings_extras_nestedRef_NestedRefType_boostestNestedType()
+					}
+				}
+			}
+		},
+		...args
+	} as T;
+}
+
+export function extended_info_settings_extras_nestedRef_NestedRefType_boostestNestedType<T>(args?: Partial<T>): T {
+	return {
+		"name": "NestedRefType",
+		"deep": deep_DeepType_boostestNestedType(),
+		...args
+	} as T;
+}
+
+export function deep_DeepType_boostestNestedType<T>(args?: Partial<T>): T {
+	return {
+		"name": "deeptype",
+		...args
+	} as T;
+}
+
+"
+`;
+
+exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/outer_packages/outer_packages.spec_test_data.ts 1`] = `
+"export function boostestFormDataVisitorHelpers<T>(args?: Partial<T>): T {
+	return {
+		"defaultVisitor": defaultVisitor_SerializerVisitor_boostestFormDataVisitorHelpers(),
+		"convertValue": (value: any) => {
+			return "any";
+		},
+		"isVisitable": (value: any) => {
+			return true;
+		},
+		...args
+	} as T;
+}
+
+export function defaultVisitor_SerializerVisitor_boostestFormDataVisitorHelpers<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function boostestHandler<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function boostestParamHandler<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function boostestRequest<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function boostestResponse<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function boostestResponseType<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+"
+`;
+
+exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/renamed/renamed.spec_test_data.ts 1`] = `
+"export function boostestRenamedComplexChipsType<T>() {
+	return RenamedComplexChipsType_ComplexChipsType_boostestRenamedComplexChipsType();
+}
+
+export function RenamedComplexChipsType_ComplexChipsType_boostestRenamedComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"age": 10,
+		"sex": 1,
+		"short_name": "john",
+		"favorite": favorite_CalbeeLightlySalted_boostestRenamedComplexChipsType(),
+		"mostFav": mostFav_PringlesSourCreamAndOnion_boostestRenamedComplexChipsType(),
+		"func": () => {},
+		"undefinedKey": undefined,
+		"anyKey": "any",
+		"nullKey": null,
+		"optionalKey": "test string data",
+		"unknownKey": undefined,
+		"thisKey": thisKey_ThisType_boostestRenamedComplexChipsType(() => {
+			return thisKey_LayClassic_boostestRenamedComplexChipsType();
+		}),
+		"conditionalKey": conditionalKey_KettleBrandSeaSaltAndVinegar_boostestRenamedComplexChipsType(),
+		"objectKey": {},
+		"voidKey": null,
+		"indexedKey": indexedKey_PotatoChip_boostestRenamedComplexChipsType()["name"],
+		"intersectionKey": {
+			...intersectionKey_LayClassic_boostestRenamedComplexChipsType() as object,
+			...intersectionKey_KoikeyaPridePotato_boostestRenamedComplexChipsType() as object
+		},
+		"arrayKey": [],
+		...args
+	} as T;
+}
+
+export function favorite_CalbeeLightlySalted_boostestRenamedComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function mostFav_PringlesSourCreamAndOnion_boostestRenamedComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "Pringles Sour Cream & Onion 😀",
+		"price": 200,
+		...args
+	} as T;
+}
+
+export function thisKey_LayClassic_boostestRenamedComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function thisKey_ThisType_boostestRenamedComplexChipsType<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestRenamedComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
+		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestRenamedComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function intersectionKey_LayClassic_boostestRenamedComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function intersectionKey_KoikeyaPridePotato_boostestRenamedComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+export function boostestRenamedNestedPropClass<T extends abstract new (...args: any) => any>(ClassObj): T {
+	return new ClassObj({ "anoChips": huga_anoChips_ComplexInterfaceChips_boostestRenamedNestedPropClass() });
+}
+
+export function huga_anoChips_ComplexInterfaceChips_boostestRenamedNestedPropClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"age": 10,
+		"sex": 1,
+		"short_name": "john",
+		"favorite": favorite_CalbeeLightlySalted_boostestRenamedNestedPropClass(),
+		"mostFav": mostFav_PringlesSourCreamAndOnion_boostestRenamedNestedPropClass(),
+		"func": () => {},
+		"undefinedKey": undefined,
+		"anyKey": "any",
+		"nullKey": null,
+		"optionalKey": "test string data",
+		"unknownKey": undefined,
+		"thisKey": thisKey_ThisType_boostestRenamedNestedPropClass(() => {
+			return thisKey_LayClassic_boostestRenamedNestedPropClass();
+		}),
+		"conditionalKey": conditionalKey_KettleBrandSeaSaltAndVinegar_boostestRenamedNestedPropClass(),
+		"objectKey": {},
+		"voidKey": null,
+		"indexedKey": indexedKey_PotatoChip_boostestRenamedNestedPropClass()["name"],
+		"intersectionKey": {
+			...intersectionKey_LayClassic_boostestRenamedNestedPropClass() as object,
+			...intersectionKey_KoikeyaPridePotato_boostestRenamedNestedPropClass() as object
+		},
+		"arrayKey": [],
+		...args
+	} as T;
+}
+
+export function favorite_CalbeeLightlySalted_boostestRenamedNestedPropClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function mostFav_PringlesSourCreamAndOnion_boostestRenamedNestedPropClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Pringles Sour Cream & Onion 😀",
+		"price": 200,
+		...args
+	} as T;
+}
+
+export function thisKey_LayClassic_boostestRenamedNestedPropClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function thisKey_ThisType_boostestRenamedNestedPropClass<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestRenamedNestedPropClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
+		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestRenamedNestedPropClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function intersectionKey_LayClassic_boostestRenamedNestedPropClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function intersectionKey_KoikeyaPridePotato_boostestRenamedNestedPropClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+"
+`;
+
+exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/standard/standard.spec_test_data.ts 1`] = `
+"export function boostestLiteralAliasType<T>(args?: Partial<T>): T {
+	return {
+		"stringLiteral": "test string data",
+		"numberLiteral": 10,
+		"bigintLiteral": 9007199254740991,
+		"booleanLiteral": true,
+		"nullLiteral": null,
+		"undefinedId": undefined,
+		"anyLiteral": "any",
+		"unknownLiteral": undefined,
+		"neverLiteral": null,
+		"objectLiteral": {},
+		"voidLiteral": null,
+		"functionLiteral": () => {},
+		"arrayLiteral": [],
+		"referenceLiteral": referenceLiteral_RefType_boostestLiteralAliasType(),
+		"unionType": "test string data",
+		"conditionalType": true,
+		"tsLiteralString": "string",
+		"tsLiteralNumber": 20,
+		"tsBigInt": 10000000000000n,
+		"tsLiteralBoolean": true,
+		"tsNullLiteral": null,
+		"tsObject": {},
+		"tsArray": [],
+		"symbolLiteral": Symbol(),
+		"tsTuple": [
+			"test string data",
+			10,
+			"any",
+			tsTuple_RefType_boostestLiteralAliasType(),
+			tsTuple_RefTypeInterface_boostestLiteralAliasType()
+		],
+		"tsNamedTuple": [
+			"test string data",
+			10,
+			tsNamedTuple_RefType_boostestLiteralAliasType(),
+			tsNamedTuple_RefTypeInterface_boostestLiteralAliasType()
+		],
+		"intersectionType": {
+			...intersectionType_RefType_boostestLiteralAliasType() as object,
+			...intersectionType_RefTypeInterface_boostestLiteralAliasType() as object,
+			...{
+				"name": "test string data",
+				"age": 10
+			} as object
+		},
+		"keyof": Object.keys(keyof_RefType_boostestLiteralAliasType())[0],
+		"indexAccessor": indexAccessor_RefType_boostestLiteralAliasType()["name"],
+		"mapperType": mapperType_Butterfly_boostestLiteralAliasType(),
+		"keyOfMapperType": keyOfMapperType_KeyOfButterfly_boostestLiteralAliasType(),
+		...args
+	} as T;
+}
+
+export function referenceLiteral_RefType_boostestLiteralAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function tsTuple_RefType_boostestLiteralAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function tsTuple_RefTypeInterface_boostestLiteralAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function tsNamedTuple_RefType_boostestLiteralAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function tsNamedTuple_RefTypeInterface_boostestLiteralAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function intersectionType_RefType_boostestLiteralAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function intersectionType_RefTypeInterface_boostestLiteralAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function keyof_RefType_boostestLiteralAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function indexAccessor_RefType_boostestLiteralAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function mapperType_Butterfly_boostestLiteralAliasType<T>() {
+	return Butterfly_SystemSupportLanguage_boostestLiteralAliasType().reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: ""
+		};
+	}, {});
+}
+
+export function Butterfly_SystemSupportLanguage_boostestLiteralAliasType<T>() {
+	return [
+		"en",
+		"fr",
+		"it",
+		"es"
+	];
+}
+
+export function keyOfMapperType_KeyOfButterfly_boostestLiteralAliasType<T>() {
+	return Object.keys(KeyOfButterfly_RefType_boostestLiteralAliasType()).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: ""
+		};
+	}, {});
+}
+
+export function KeyOfButterfly_RefType_boostestLiteralAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function boostestLiteralInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"stringLiteral": "test string data",
+		"numberLiteral": 10,
+		"bigintLiteral": 9007199254740991,
+		"booleanLiteral": true,
+		"nullLiteral": null,
+		"undefinedId": undefined,
+		"anyLiteral": "any",
+		"unknownLiteral": undefined,
+		"neverLiteral": null,
+		"objectLiteral": {},
+		"voidLiteral": null,
+		"functionLiteral": () => {},
+		"arrayLiteral": [],
+		"referenceLiteral": referenceLiteral_RefType_boostestLiteralInterfaceType(),
+		"unionType": "test string data",
+		"conditionalType": true,
+		"tsLiteralString": "string",
+		"tsLiteralNumber": 20,
+		"tsBigInt": 10000000000000n,
+		"tsLiteralBoolean": true,
+		"tsNullLiteral": null,
+		"tsObject": {},
+		"tsArray": [],
+		"symbolLiteral": Symbol(),
+		"tsTuple": [
+			"test string data",
+			10,
+			"any",
+			tsTuple_RefType_boostestLiteralInterfaceType(),
+			tsTuple_RefTypeInterface_boostestLiteralInterfaceType()
+		],
+		"tsNamedTuple": [
+			"test string data",
+			10,
+			tsNamedTuple_RefType_boostestLiteralInterfaceType(),
+			tsNamedTuple_RefTypeInterface_boostestLiteralInterfaceType()
+		],
+		"intersectionType": {
+			...intersectionType_RefType_boostestLiteralInterfaceType() as object,
+			...intersectionType_RefTypeInterface_boostestLiteralInterfaceType() as object,
+			...{
+				"name": "test string data",
+				"age": 10
+			} as object
+		},
+		"keyof": Object.keys(keyof_RefType_boostestLiteralInterfaceType())[0],
+		"indexAccessor": indexAccessor_RefType_boostestLiteralInterfaceType()["name"],
+		"mapperType": mapperType_Butterfly_boostestLiteralInterfaceType(),
+		"keyOfMapperType": keyOfMapperType_KeyOfButterfly_boostestLiteralInterfaceType(),
+		...args
+	} as T;
+}
+
+export function referenceLiteral_RefType_boostestLiteralInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function tsTuple_RefType_boostestLiteralInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function tsTuple_RefTypeInterface_boostestLiteralInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function tsNamedTuple_RefType_boostestLiteralInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function tsNamedTuple_RefTypeInterface_boostestLiteralInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function intersectionType_RefType_boostestLiteralInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function intersectionType_RefTypeInterface_boostestLiteralInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function keyof_RefType_boostestLiteralInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function indexAccessor_RefType_boostestLiteralInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function mapperType_Butterfly_boostestLiteralInterfaceType<T>() {
+	return Butterfly_SystemSupportLanguage_boostestLiteralInterfaceType().reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: ""
+		};
+	}, {});
+}
+
+export function Butterfly_SystemSupportLanguage_boostestLiteralInterfaceType<T>() {
+	return [
+		"en",
+		"fr",
+		"it",
+		"es"
+	];
+}
+
+export function keyOfMapperType_KeyOfButterfly_boostestLiteralInterfaceType<T>() {
+	return Object.keys(KeyOfButterfly_RefType_boostestLiteralInterfaceType()).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: ""
+		};
+	}, {});
+}
+
+export function KeyOfButterfly_RefType_boostestLiteralInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function boostestLiteralTypeClass<T extends abstract new (...args: any) => any>(LiteralTypeClass): T {
+	return new LiteralTypeClass("test string data", 10, 9007199254740991, true, null, undefined, "any", undefined, null, {}, null, () => {}, [], referenceLiteral_RefType_boostestLiteralTypeClass(), "test string data", "string", 20, 10000000000000n, true, null, {}, [], Symbol(), [
+		"test string data",
+		10,
+		"any",
+		tsTuple_RefType_boostestLiteralTypeClass(),
+		tsTuple_RefTypeInterface_boostestLiteralTypeClass(),
+		"test string data"
+	], [
+		"test string data",
+		10,
+		tsNamedTuple_RefType_boostestLiteralTypeClass(),
+		tsNamedTuple_RefTypeInterface_boostestLiteralTypeClass(),
+		10
+	], {
+		...intersectionType_RefType_boostestLiteralTypeClass() as object,
+		...intersectionType_RefTypeInterface_boostestLiteralTypeClass() as object,
+		...{
+			"name": "test string data",
+			"age": 10
+		} as object
+	}, false, Object.keys(keyof_RefType_boostestLiteralTypeClass())[0], indexAccessor_RefType_boostestLiteralTypeClass()["name"], mapperType_Butterfly_boostestLiteralTypeClass(), keyOfMapperType_KeyOfButterfly_boostestLiteralTypeClass());
+}
+
+export function referenceLiteral_RefType_boostestLiteralTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function tsTuple_RefType_boostestLiteralTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function tsTuple_RefTypeInterface_boostestLiteralTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function tsNamedTuple_RefType_boostestLiteralTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function tsNamedTuple_RefTypeInterface_boostestLiteralTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function intersectionType_RefType_boostestLiteralTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function intersectionType_RefTypeInterface_boostestLiteralTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function keyof_RefType_boostestLiteralTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function indexAccessor_RefType_boostestLiteralTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function mapperType_Butterfly_boostestLiteralTypeClass<T>() {
+	return Butterfly_SystemSupportLanguage_boostestLiteralTypeClass().reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: ""
+		};
+	}, {});
+}
+
+export function Butterfly_SystemSupportLanguage_boostestLiteralTypeClass<T>() {
+	return [
+		"en",
+		"fr",
+		"it",
+		"es"
+	];
+}
+
+export function keyOfMapperType_KeyOfButterfly_boostestLiteralTypeClass<T>() {
+	return Object.keys(KeyOfButterfly_RefType_boostestLiteralTypeClass()).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: ""
+		};
+	}, {});
+}
+
+export function KeyOfButterfly_RefType_boostestLiteralTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+"
+`;
+
+exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/union/union.spec_test_data.ts 1`] = `
+"export function boostestTSAliasMixUnionObjType<T>(args?: Partial<T>): T {
+	return {
+		"ref_type": ref_type_TSAliasMixUnionType_boostestTSAliasMixUnionObjType(),
+		"type": 5e4,
+		...args
+	} as T;
+}
+
+export function ref_type_TSAliasMixUnionType_boostestTSAliasMixUnionObjType<T>() {
+	return 5e4;
+}
+
+export function boostestTSAliasMixUnionType<T>() {
+	return 5e4;
+}
+
+export function boostestTSAliasStringUnionType<T>() {
+	return "A";
+}
+
+export function boostestTSInterfaceMixUnionType<T>(args?: Partial<T>): T {
+	return {
+		"type": 5e4,
+		...args
+	} as T;
+}
+
+export function boostestTSInterfaceStringUnionType<T>(args?: Partial<T>): T {
+	return {
+		"type": "A",
+		...args
+	} as T;
+}
+
+"
+`;
+
+exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/various_export_impot/various_export_import.spec_test_data.ts 1`] = `
+"export function boostestAccessorClass<T extends abstract new (...args: any) => any>(AccessorClass): T {
+	return new AccessorClass("test string data", 10, 10);
+}
+
+export function boostestAnoExportDefaultClass<T extends abstract new (...args: any) => any>(ExportDefaultClass): T {
+	return new ExportDefaultClass("test string data", chips_ComplexInterfaceChips_boostestAnoExportDefaultClass());
+}
+
+export function chips_ComplexInterfaceChips_boostestAnoExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"age": 10,
+		"sex": 1,
+		"short_name": "john",
+		"favorite": favorite_CalbeeLightlySalted_boostestAnoExportDefaultClass(),
+		"mostFav": mostFav_PringlesSourCreamAndOnion_boostestAnoExportDefaultClass(),
+		"func": () => {},
+		"undefinedKey": undefined,
+		"anyKey": "any",
+		"nullKey": null,
+		"optionalKey": "test string data",
+		"unknownKey": undefined,
+		"thisKey": thisKey_ThisType_boostestAnoExportDefaultClass(() => {
+			return thisKey_LayClassic_boostestAnoExportDefaultClass();
+		}),
+		"conditionalKey": conditionalKey_KettleBrandSeaSaltAndVinegar_boostestAnoExportDefaultClass(),
+		"objectKey": {},
+		"voidKey": null,
+		"indexedKey": indexedKey_PotatoChip_boostestAnoExportDefaultClass()["name"],
+		"intersectionKey": {
+			...intersectionKey_LayClassic_boostestAnoExportDefaultClass() as object,
+			...intersectionKey_KoikeyaPridePotato_boostestAnoExportDefaultClass() as object
+		},
+		"arrayKey": [],
+		...args
+	} as T;
+}
+
+export function favorite_CalbeeLightlySalted_boostestAnoExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function mostFav_PringlesSourCreamAndOnion_boostestAnoExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Pringles Sour Cream & Onion 😀",
+		"price": 200,
+		...args
+	} as T;
+}
+
+export function thisKey_LayClassic_boostestAnoExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function thisKey_ThisType_boostestAnoExportDefaultClass<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestAnoExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
+		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestAnoExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function intersectionKey_LayClassic_boostestAnoExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function intersectionKey_KoikeyaPridePotato_boostestAnoExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+export function boostestAnoExportDefaultInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"chips": chips_ComplexInterfaceChips_boostestAnoExportDefaultInterface(),
+		...args
+	} as T;
+}
+
+export function chips_ComplexInterfaceChips_boostestAnoExportDefaultInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"age": 10,
+		"sex": 1,
+		"short_name": "john",
+		"favorite": favorite_CalbeeLightlySalted_boostestAnoExportDefaultInterface(),
+		"mostFav": mostFav_PringlesSourCreamAndOnion_boostestAnoExportDefaultInterface(),
+		"func": () => {},
+		"undefinedKey": undefined,
+		"anyKey": "any",
+		"nullKey": null,
+		"optionalKey": "test string data",
+		"unknownKey": undefined,
+		"thisKey": thisKey_ThisType_boostestAnoExportDefaultInterface(() => {
+			return thisKey_LayClassic_boostestAnoExportDefaultInterface();
+		}),
+		"conditionalKey": conditionalKey_KettleBrandSeaSaltAndVinegar_boostestAnoExportDefaultInterface(),
+		"objectKey": {},
+		"voidKey": null,
+		"indexedKey": indexedKey_PotatoChip_boostestAnoExportDefaultInterface()["name"],
+		"intersectionKey": {
+			...intersectionKey_LayClassic_boostestAnoExportDefaultInterface() as object,
+			...intersectionKey_KoikeyaPridePotato_boostestAnoExportDefaultInterface() as object
+		},
+		"arrayKey": [],
+		...args
+	} as T;
+}
+
+export function favorite_CalbeeLightlySalted_boostestAnoExportDefaultInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function mostFav_PringlesSourCreamAndOnion_boostestAnoExportDefaultInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Pringles Sour Cream & Onion 😀",
+		"price": 200,
+		...args
+	} as T;
+}
+
+export function thisKey_LayClassic_boostestAnoExportDefaultInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function thisKey_ThisType_boostestAnoExportDefaultInterface<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestAnoExportDefaultInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
+		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestAnoExportDefaultInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function intersectionKey_LayClassic_boostestAnoExportDefaultInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function intersectionKey_KoikeyaPridePotato_boostestAnoExportDefaultInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+export function boostestAnoExportNamedDeclClass<T extends abstract new (...args: any) => any>(ExportNamedDeclClass): T {
+	return new ExportNamedDeclClass("test string data", chips_ComplexInterfaceChips_boostestAnoExportNamedDeclClass());
+}
+
+export function chips_ComplexInterfaceChips_boostestAnoExportNamedDeclClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"age": 10,
+		"sex": 1,
+		"short_name": "john",
+		"favorite": favorite_CalbeeLightlySalted_boostestAnoExportNamedDeclClass(),
+		"mostFav": mostFav_PringlesSourCreamAndOnion_boostestAnoExportNamedDeclClass(),
+		"func": () => {},
+		"undefinedKey": undefined,
+		"anyKey": "any",
+		"nullKey": null,
+		"optionalKey": "test string data",
+		"unknownKey": undefined,
+		"thisKey": thisKey_ThisType_boostestAnoExportNamedDeclClass(() => {
+			return thisKey_LayClassic_boostestAnoExportNamedDeclClass();
+		}),
+		"conditionalKey": conditionalKey_KettleBrandSeaSaltAndVinegar_boostestAnoExportNamedDeclClass(),
+		"objectKey": {},
+		"voidKey": null,
+		"indexedKey": indexedKey_PotatoChip_boostestAnoExportNamedDeclClass()["name"],
+		"intersectionKey": {
+			...intersectionKey_LayClassic_boostestAnoExportNamedDeclClass() as object,
+			...intersectionKey_KoikeyaPridePotato_boostestAnoExportNamedDeclClass() as object
+		},
+		"arrayKey": [],
+		...args
+	} as T;
+}
+
+export function favorite_CalbeeLightlySalted_boostestAnoExportNamedDeclClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function mostFav_PringlesSourCreamAndOnion_boostestAnoExportNamedDeclClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Pringles Sour Cream & Onion 😀",
+		"price": 200,
+		...args
+	} as T;
+}
+
+export function thisKey_LayClassic_boostestAnoExportNamedDeclClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function thisKey_ThisType_boostestAnoExportNamedDeclClass<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestAnoExportNamedDeclClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
+		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestAnoExportNamedDeclClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function intersectionKey_LayClassic_boostestAnoExportNamedDeclClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function intersectionKey_KoikeyaPridePotato_boostestAnoExportNamedDeclClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+export function boostestAnoMixInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"chips": chips_ComplexInterfaceChips_boostestAnoMixInterface(),
+		...args
+	} as T;
+}
+
+export function chips_ComplexInterfaceChips_boostestAnoMixInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"age": 10,
+		"sex": 1,
+		"short_name": "john",
+		"favorite": favorite_CalbeeLightlySalted_boostestAnoMixInterface(),
+		"mostFav": mostFav_PringlesSourCreamAndOnion_boostestAnoMixInterface(),
+		"func": () => {},
+		"undefinedKey": undefined,
+		"anyKey": "any",
+		"nullKey": null,
+		"optionalKey": "test string data",
+		"unknownKey": undefined,
+		"thisKey": thisKey_ThisType_boostestAnoMixInterface(() => {
+			return thisKey_LayClassic_boostestAnoMixInterface();
+		}),
+		"conditionalKey": conditionalKey_KettleBrandSeaSaltAndVinegar_boostestAnoMixInterface(),
+		"objectKey": {},
+		"voidKey": null,
+		"indexedKey": indexedKey_PotatoChip_boostestAnoMixInterface()["name"],
+		"intersectionKey": {
+			...intersectionKey_LayClassic_boostestAnoMixInterface() as object,
+			...intersectionKey_KoikeyaPridePotato_boostestAnoMixInterface() as object
+		},
+		"arrayKey": [],
+		...args
+	} as T;
+}
+
+export function favorite_CalbeeLightlySalted_boostestAnoMixInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function mostFav_PringlesSourCreamAndOnion_boostestAnoMixInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Pringles Sour Cream & Onion 😀",
+		"price": 200,
+		...args
+	} as T;
+}
+
+export function thisKey_LayClassic_boostestAnoMixInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function thisKey_ThisType_boostestAnoMixInterface<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestAnoMixInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
+		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestAnoMixInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function intersectionKey_LayClassic_boostestAnoMixInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function intersectionKey_KoikeyaPridePotato_boostestAnoMixInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+export function boostestComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"age": 10,
+		"sex": 1,
+		"short_name": "john",
+		"favorite": favorite_CalbeeLightlySalted_boostestComplexChipsType(),
+		"mostFav": mostFav_PringlesSourCreamAndOnion_boostestComplexChipsType(),
+		"func": () => {},
+		"undefinedKey": undefined,
+		"anyKey": "any",
+		"nullKey": null,
+		"optionalKey": "test string data",
+		"unknownKey": undefined,
+		"thisKey": thisKey_ThisType_boostestComplexChipsType(() => {
+			return thisKey_LayClassic_boostestComplexChipsType();
+		}),
+		"conditionalKey": conditionalKey_KettleBrandSeaSaltAndVinegar_boostestComplexChipsType(),
+		"objectKey": {},
+		"voidKey": null,
+		"indexedKey": indexedKey_PotatoChip_boostestComplexChipsType()["name"],
+		"intersectionKey": {
+			...intersectionKey_LayClassic_boostestComplexChipsType() as object,
+			...intersectionKey_KoikeyaPridePotato_boostestComplexChipsType() as object
+		},
+		"arrayKey": [],
+		...args
+	} as T;
+}
+
+export function favorite_CalbeeLightlySalted_boostestComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function mostFav_PringlesSourCreamAndOnion_boostestComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "Pringles Sour Cream & Onion 😀",
+		"price": 200,
+		...args
+	} as T;
+}
+
+export function thisKey_LayClassic_boostestComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function thisKey_ThisType_boostestComplexChipsType<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
+		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function intersectionKey_LayClassic_boostestComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function intersectionKey_KoikeyaPridePotato_boostestComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+export function boostestExportDefaultClass<T extends abstract new (...args: any) => any>(ExportDefaultClass): T {
+	return new ExportDefaultClass("test string data", chips_ComplexInterfaceChips_boostestExportDefaultClass());
+}
+
+export function chips_ComplexInterfaceChips_boostestExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"age": 10,
+		"sex": 1,
+		"short_name": "john",
+		"favorite": favorite_CalbeeLightlySalted_boostestExportDefaultClass(),
+		"mostFav": mostFav_PringlesSourCreamAndOnion_boostestExportDefaultClass(),
+		"func": () => {},
+		"undefinedKey": undefined,
+		"anyKey": "any",
+		"nullKey": null,
+		"optionalKey": "test string data",
+		"unknownKey": undefined,
+		"thisKey": thisKey_ThisType_boostestExportDefaultClass(() => {
+			return thisKey_LayClassic_boostestExportDefaultClass();
+		}),
+		"conditionalKey": conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportDefaultClass(),
+		"objectKey": {},
+		"voidKey": null,
+		"indexedKey": indexedKey_PotatoChip_boostestExportDefaultClass()["name"],
+		"intersectionKey": {
+			...intersectionKey_LayClassic_boostestExportDefaultClass() as object,
+			...intersectionKey_KoikeyaPridePotato_boostestExportDefaultClass() as object
+		},
+		"arrayKey": [],
+		...args
+	} as T;
+}
+
+export function favorite_CalbeeLightlySalted_boostestExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function mostFav_PringlesSourCreamAndOnion_boostestExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Pringles Sour Cream & Onion 😀",
+		"price": 200,
+		...args
+	} as T;
+}
+
+export function thisKey_LayClassic_boostestExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function thisKey_ThisType_boostestExportDefaultClass<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
+		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function intersectionKey_LayClassic_boostestExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function intersectionKey_KoikeyaPridePotato_boostestExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+export function boostestExportDefaultClassWithDecl<T extends abstract new (...args: any) => any>(ExportDefaultClassWithDecl): T {
+	return new ExportDefaultClassWithDecl("test string data", chips_ComplexInterfaceChips_boostestExportDefaultClassWithDecl());
+}
+
+export function chips_ComplexInterfaceChips_boostestExportDefaultClassWithDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"age": 10,
+		"sex": 1,
+		"short_name": "john",
+		"favorite": favorite_CalbeeLightlySalted_boostestExportDefaultClassWithDecl(),
+		"mostFav": mostFav_PringlesSourCreamAndOnion_boostestExportDefaultClassWithDecl(),
+		"func": () => {},
+		"undefinedKey": undefined,
+		"anyKey": "any",
+		"nullKey": null,
+		"optionalKey": "test string data",
+		"unknownKey": undefined,
+		"thisKey": thisKey_ThisType_boostestExportDefaultClassWithDecl(() => {
+			return thisKey_LayClassic_boostestExportDefaultClassWithDecl();
+		}),
+		"conditionalKey": conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportDefaultClassWithDecl(),
+		"objectKey": {},
+		"voidKey": null,
+		"indexedKey": indexedKey_PotatoChip_boostestExportDefaultClassWithDecl()["name"],
+		"intersectionKey": {
+			...intersectionKey_LayClassic_boostestExportDefaultClassWithDecl() as object,
+			...intersectionKey_KoikeyaPridePotato_boostestExportDefaultClassWithDecl() as object
+		},
+		"arrayKey": [],
+		...args
+	} as T;
+}
+
+export function favorite_CalbeeLightlySalted_boostestExportDefaultClassWithDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function mostFav_PringlesSourCreamAndOnion_boostestExportDefaultClassWithDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Pringles Sour Cream & Onion 😀",
+		"price": 200,
+		...args
+	} as T;
+}
+
+export function thisKey_LayClassic_boostestExportDefaultClassWithDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function thisKey_ThisType_boostestExportDefaultClassWithDecl<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportDefaultClassWithDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
+		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestExportDefaultClassWithDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function intersectionKey_LayClassic_boostestExportDefaultClassWithDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function intersectionKey_KoikeyaPridePotato_boostestExportDefaultClassWithDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+export function boostestExportDefaultNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"chips": chips_ComplexInterfaceChips_boostestExportDefaultNamedDecl(),
+		...args
+	} as T;
+}
+
+export function chips_ComplexInterfaceChips_boostestExportDefaultNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"age": 10,
+		"sex": 1,
+		"short_name": "john",
+		"favorite": favorite_CalbeeLightlySalted_boostestExportDefaultNamedDecl(),
+		"mostFav": mostFav_PringlesSourCreamAndOnion_boostestExportDefaultNamedDecl(),
+		"func": () => {},
+		"undefinedKey": undefined,
+		"anyKey": "any",
+		"nullKey": null,
+		"optionalKey": "test string data",
+		"unknownKey": undefined,
+		"thisKey": thisKey_ThisType_boostestExportDefaultNamedDecl(() => {
+			return thisKey_LayClassic_boostestExportDefaultNamedDecl();
+		}),
+		"conditionalKey": conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportDefaultNamedDecl(),
+		"objectKey": {},
+		"voidKey": null,
+		"indexedKey": indexedKey_PotatoChip_boostestExportDefaultNamedDecl()["name"],
+		"intersectionKey": {
+			...intersectionKey_LayClassic_boostestExportDefaultNamedDecl() as object,
+			...intersectionKey_KoikeyaPridePotato_boostestExportDefaultNamedDecl() as object
+		},
+		"arrayKey": [],
+		...args
+	} as T;
+}
+
+export function favorite_CalbeeLightlySalted_boostestExportDefaultNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function mostFav_PringlesSourCreamAndOnion_boostestExportDefaultNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Pringles Sour Cream & Onion 😀",
+		"price": 200,
+		...args
+	} as T;
+}
+
+export function thisKey_LayClassic_boostestExportDefaultNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function thisKey_ThisType_boostestExportDefaultNamedDecl<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportDefaultNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
+		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestExportDefaultNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function intersectionKey_LayClassic_boostestExportDefaultNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function intersectionKey_KoikeyaPridePotato_boostestExportDefaultNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+export function boostestExportNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"age": 10,
+		"sex": 1,
+		"short_name": "john",
+		"favorite": favorite_CalbeeLightlySalted_boostestExportNamedDecl(),
+		"mostFav": mostFav_PringlesSourCreamAndOnion_boostestExportNamedDecl(),
+		"func": () => {},
+		"undefinedKey": undefined,
+		"anyKey": "any",
+		"nullKey": null,
+		"optionalKey": "test string data",
+		"unknownKey": undefined,
+		"thisKey": thisKey_ThisType_boostestExportNamedDecl(() => {
+			return thisKey_LayClassic_boostestExportNamedDecl();
+		}),
+		"conditionalKey": conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportNamedDecl(),
+		"objectKey": {},
+		"voidKey": null,
+		"indexedKey": indexedKey_PotatoChip_boostestExportNamedDecl()["name"],
+		"intersectionKey": {
+			...intersectionKey_LayClassic_boostestExportNamedDecl() as object,
+			...intersectionKey_KoikeyaPridePotato_boostestExportNamedDecl() as object
+		},
+		"arrayKey": [],
+		...args
+	} as T;
+}
+
+export function favorite_CalbeeLightlySalted_boostestExportNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function mostFav_PringlesSourCreamAndOnion_boostestExportNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Pringles Sour Cream & Onion 😀",
+		"price": 200,
+		...args
+	} as T;
+}
+
+export function thisKey_LayClassic_boostestExportNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function thisKey_ThisType_boostestExportNamedDecl<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
+		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestExportNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function intersectionKey_LayClassic_boostestExportNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function intersectionKey_KoikeyaPridePotato_boostestExportNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+export function boostestExportNamedDeclInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"chips": chips_ComplexInterfaceChips_boostestExportNamedDeclInterface(),
+		...args
+	} as T;
+}
+
+export function chips_ComplexInterfaceChips_boostestExportNamedDeclInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"age": 10,
+		"sex": 1,
+		"short_name": "john",
+		"favorite": favorite_CalbeeLightlySalted_boostestExportNamedDeclInterface(),
+		"mostFav": mostFav_PringlesSourCreamAndOnion_boostestExportNamedDeclInterface(),
+		"func": () => {},
+		"undefinedKey": undefined,
+		"anyKey": "any",
+		"nullKey": null,
+		"optionalKey": "test string data",
+		"unknownKey": undefined,
+		"thisKey": thisKey_ThisType_boostestExportNamedDeclInterface(() => {
+			return thisKey_LayClassic_boostestExportNamedDeclInterface();
+		}),
+		"conditionalKey": conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportNamedDeclInterface(),
+		"objectKey": {},
+		"voidKey": null,
+		"indexedKey": indexedKey_PotatoChip_boostestExportNamedDeclInterface()["name"],
+		"intersectionKey": {
+			...intersectionKey_LayClassic_boostestExportNamedDeclInterface() as object,
+			...intersectionKey_KoikeyaPridePotato_boostestExportNamedDeclInterface() as object
+		},
+		"arrayKey": [],
+		...args
+	} as T;
+}
+
+export function favorite_CalbeeLightlySalted_boostestExportNamedDeclInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function mostFav_PringlesSourCreamAndOnion_boostestExportNamedDeclInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Pringles Sour Cream & Onion 😀",
+		"price": 200,
+		...args
+	} as T;
+}
+
+export function thisKey_LayClassic_boostestExportNamedDeclInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function thisKey_ThisType_boostestExportNamedDeclInterface<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportNamedDeclInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
+		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestExportNamedDeclInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function intersectionKey_LayClassic_boostestExportNamedDeclInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function intersectionKey_KoikeyaPridePotato_boostestExportNamedDeclInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+export function boostestMixClassFirst<T extends abstract new (...args: any) => any>(MixClassFirst): T {
+	return new MixClassFirst("test string data");
+}
+
+export function boostestMixClassFirst2<T extends abstract new (...args: any) => any>(MixClassFirst2): T {
+	return new MixClassFirst2("test string data");
+}
+
+export function boostestMixClassSecond<T extends abstract new (...args: any) => any>(MixClassSecond): T {
+	return new MixClassSecond("test string data");
+}
+
+export function boostestMixClassSecond2<T extends abstract new (...args: any) => any>(MixClassSecond2): T {
+	return new MixClassSecond2("test string data");
+}
+
+export function boostestMixCompTSAlias<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"age": 10,
+		"sex": 1,
+		"short_name": "john",
+		"favorite": favorite_CalbeeLightlySalted_boostestMixCompTSAlias(),
+		"mostFav": mostFav_PringlesSourCreamAndOnion_boostestMixCompTSAlias(),
+		"func": () => {},
+		"undefinedKey": undefined,
+		"anyKey": "any",
+		"nullKey": null,
+		"optionalKey": "test string data",
+		"unknownKey": undefined,
+		"thisKey": thisKey_ThisType_boostestMixCompTSAlias(() => {
+			return thisKey_LayClassic_boostestMixCompTSAlias();
+		}),
+		"conditionalKey": conditionalKey_KettleBrandSeaSaltAndVinegar_boostestMixCompTSAlias(),
+		"objectKey": {},
+		"voidKey": null,
+		"indexedKey": indexedKey_PotatoChip_boostestMixCompTSAlias()["name"],
+		"intersectionKey": {
+			...intersectionKey_LayClassic_boostestMixCompTSAlias() as object,
+			...intersectionKey_KoikeyaPridePotato_boostestMixCompTSAlias() as object
+		},
+		"arrayKey": [],
+		...args
+	} as T;
+}
+
+export function favorite_CalbeeLightlySalted_boostestMixCompTSAlias<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function mostFav_PringlesSourCreamAndOnion_boostestMixCompTSAlias<T>(args?: Partial<T>): T {
+	return {
+		"name": "Pringles Sour Cream & Onion 😀",
+		"price": 200,
+		...args
+	} as T;
+}
+
+export function thisKey_LayClassic_boostestMixCompTSAlias<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function thisKey_ThisType_boostestMixCompTSAlias<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestMixCompTSAlias<T>(args?: Partial<T>): T {
+	return {
+		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
+		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestMixCompTSAlias<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function intersectionKey_LayClassic_boostestMixCompTSAlias<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function intersectionKey_KoikeyaPridePotato_boostestMixCompTSAlias<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+export function boostestMixInterfaceFirst<T>(args?: Partial<T>): T {
+	return {
+		"name": "MixInterfaceFirst",
+		...args
+	} as T;
+}
+
+export function boostestMixInterfaceFirst2<T>(args?: Partial<T>): T {
+	return {
+		"name": "MixInterfaceFirst2",
+		...args
+	} as T;
+}
+
+export function boostestMixInterfaceSecond<T>(args?: Partial<T>): T {
+	return {
+		"name": "MixInterfaceSecond",
+		...args
+	} as T;
+}
+
+export function boostestMixInterfaceSecond2<T>(args?: Partial<T>): T {
+	return {
+		"name": "MixInterfaceSecond2",
+		...args
+	} as T;
+}
+
+export function boostestMixTSAliasFirst<T>(args?: Partial<T>): T {
+	return {
+		"name": "MixTSAliasFirst",
+		...args
+	} as T;
+}
+
+export function boostestMixTSAliasFirst2<T>(args?: Partial<T>): T {
+	return {
+		"name": "MixTSAliasFirst2",
+		...args
+	} as T;
+}
+
+export function boostestMixTSAliasSecond<T>(args?: Partial<T>): T {
+	return {
+		"name": "MixTsAliasSecond",
+		...args
+	} as T;
+}
+
+export function boostestMixTSAliasSecond2<T>(args?: Partial<T>): T {
+	return {
+		"name": "MixTSAliasSecond2",
+		...args
+	} as T;
+}
+
+"
+`;

@@ -1,12 +1,13 @@
 import { expect } from "@jest/globals";
 const fs = require("fs");
 
-it.skip("boostest direct path output correctly", () => {
+it("boostest direct path output correctly", () => {
   try {
     const data = fs.readFileSync(
       "./src/direct_path/direct_path_test_data.ts",
       "utf-8",
     );
+    console.log("data", data);
 
     expect(data).toMatchSnapshot();
   } catch (err) {

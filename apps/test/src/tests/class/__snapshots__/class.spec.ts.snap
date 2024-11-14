@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Class Tests ArgObjClass matches snapshot 1`] = `"{"name":"test string data","age":10,"obj_key":{"obj_name":"test string data","obj_val":10},"obj_key2":{"obj_name":"test string data","obj_val":10}}"`;
+
+exports[`Class Tests ArgObjClass2 matches snapshot 1`] = `"{"name":"test string data","age":10,"obj_key":{"obj_name":"test string data","obj_val":10},"obj_key2":{"obj_name":"test string data","obj_val":10}}"`;
+
+exports[`Class Tests ConstructorSignature matches snapshot 1`] = `"{}"`;
+
+exports[`Class Tests ConstructorSignatureInterface matches snapshot 1`] = `"{}"`;
+
+exports[`Class Tests InnerConstructorSignature matches snapshot 1`] = `"{}"`;

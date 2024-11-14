@@ -120,7 +120,6 @@ impl TargetResolver {
         project_root_path: &Option<PathBuf>,
         ts_server_cache: Arc<Mutex<TSServerCache>>,
     ) {
-        //TODO: 途中で追加される未解決のpropがある可能性あり。
         self.status = ResolveStatus::Start;
         let file_path = self
             .target
@@ -351,9 +350,6 @@ impl<'a> VisitMut<'a> for TargetResolver {
                     self.visit_ts_interface_declaration(decl);
                 }
 
-                /********/
-                /* TODO */
-                /********/
                 Statement::VariableDeclaration(var_decl) => {
                     var_decl.declarations.iter_mut().for_each(|decl| {
                         match &decl.id.kind {
@@ -375,8 +371,6 @@ impl<'a> VisitMut<'a> for TargetResolver {
                             _ => {}
                         };
                     });
-
-                    // TODO: support named change `const huga  = hoge;`
                 }
                 Statement::TSExportAssignment(ts_export_assignment) => {
                     if let Some(identifier) =
@@ -545,8 +539,6 @@ impl<'a> VisitMut<'a> for TargetResolver {
                             _ => {}
                         };
                     });
-
-                    // TODO: support named change `const huga  = hoge;`
                 }
                 _ => {
                     // println!("Another Statement {:?}", export_named_decl);
@@ -685,16 +677,6 @@ impl<'a> VisitMut<'a> for TargetResolver {
                     }
                 }
             }
-            // TODO
-            /*
-            type MyType = {
-              [key: string]: number; // TSIndexSignature
-              name: string;           // TSPropertySignature
-              sayHello(): void;       // TSMethodSignature
-              new (name: string): MyType; // TSConstructSignatureDeclaration
-              (message: string): string; // TSCallSignatureDeclaration
-            };
-            */
             TSSignature::TSCallSignatureDeclaration(_) => {}
             _ => {}
         }
@@ -895,7 +877,6 @@ pub fn resolve_target(
                         }
                     }
 
-                    // TODO: use same program ast
                     if next_import.need_reload {
                         read_file_path = PathBuf::from(target_file_path);
                     }
