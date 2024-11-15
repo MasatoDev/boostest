@@ -1093,61 +1093,121 @@ pub fn get_expression<'a>(
         TSType::TSUndefinedKeyword(_) => undefined_expr(ast_builder),
         TSType::TSUnknownKeyword(_) => undefined_expr(ast_builder),
         TSType::TSConditionalType(ref mut ts_conditional_type) => {
-            let mut ts_type = ast_builder.move_ts_type(&mut ts_conditional_type.true_type);
+            // check_type extends extends_type ? true_type : false_type;
+            let true_type = ast_builder.move_ts_type(&mut ts_conditional_type.true_type);
+            let false_type = ast_builder.move_ts_type(&mut ts_conditional_type.false_type);
+            let check_type = ast_builder.move_ts_type(&mut ts_conditional_type.check_type);
+            let extends_type = ast_builder.move_ts_type(&mut ts_conditional_type.extends_type);
 
-            // TODO:
-            // if let TSType::TSTypeReference(_) = ts_type {
-            //     ts_type = ast_builder.move_ts_type(&mut ts_conditional_type.false_type);
-            // }
-
-            get_expression(
+            let true_expr = get_arg(
                 false,
                 ast_builder,
-                ts_type,
+                true_type,
                 key_name,
                 mock_func_name,
-                false,
                 vec![],
-            )
+            );
+
+            let false_expr = get_arg(
+                false,
+                ast_builder,
+                false_type,
+                key_name,
+                mock_func_name,
+                vec![],
+            );
+
+            let check_expr = get_arg(
+                false,
+                ast_builder,
+                check_type,
+                key_name,
+                mock_func_name,
+                vec![],
+            );
+
+            let extends_expr = get_arg(
+                false,
+                ast_builder,
+                extends_type,
+                key_name,
+                mock_func_name,
+                vec![],
+            );
+
+            let mut temp_expr = ast_builder.vec();
+            temp_expr.push(check_expr);
+            temp_expr.push(extends_expr);
+            temp_expr.push(true_expr);
+            temp_expr.push(false_expr);
+
+            let new_callee = ast_builder.expression_identifier_reference(SPAN, "extendsUtil");
+            let type_parameters: Option<allocator::Box<TSTypeParameterInstantiation<'a>>> = None;
+            ast_builder.expression_call(SPAN, new_callee, type_parameters, temp_expr, false)
         }
         TSType::TSUnionType(box_ts_union_type) => {
-            if is_mapped_type {
-                let mut new_elements = ast_builder.vec();
-
-                let ts_union_type = &mut box_ts_union_type.unbox();
-                for ts_type in ts_union_type.types.iter_mut() {
-                    let new_ts_type = ast_builder.move_ts_type(ts_type);
-                    let new = get_expression(
-                        false,
-                        ast_builder,
-                        new_ts_type,
-                        key_name,
-                        mock_func_name,
-                        false,
-                        vec![],
-                    );
-                    let array_expr = ArrayExpressionElement::from(new);
-                    new_elements.push(array_expr);
-                }
-
-                return array_expr(ast_builder, Some(new_elements));
-            }
+            // FIXME: unionは全て配列に
+            // if is_mapped_type {
+            let mut new_elements = ast_builder.vec();
 
             let ts_union_type = &mut box_ts_union_type.unbox();
-            let first_union_type = ts_union_type.types.first_mut();
-            if let Some(first_type) = first_union_type {
-                let ts_type = ast_builder.move_ts_type(first_type);
+            for ts_type in ts_union_type.types.iter_mut() {
+                let new_ts_type = ast_builder.move_ts_type(ts_type);
                 let new = get_expression(
                     false,
                     ast_builder,
-                    ts_type,
+                    new_ts_type,
                     key_name,
                     mock_func_name,
                     false,
                     vec![],
                 );
-                return new;
+                let array_expr = ArrayExpressionElement::from(new);
+                new_elements.push(array_expr);
             }
+
+            return array_expr(ast_builder, Some(new_elements));
+            // }
+
+            let ts_union_type = &mut box_ts_union_type.unbox();
+
+            let non_null_types = ts_union_type.types.iter_mut().find(|x| {
+                if let TSType::TSNullKeyword(_) = x {
+                    return false;
+                }
+                if let TSType::TSUndefinedKeyword(_) = x {
+                    return false;
+                }
+                true
+            });
+
+            if let Some(target_ts_type) = non_null_types {
+                let ts_type = ast_builder.move_ts_type(target_ts_type);
+                return get_expression(
+                    is_main_target,
+                    ast_builder,
+                    ts_type,
+                    key_name,
+                    mock_func_name,
+                    false,
+                    generic,
+                );
+            }
+
+            // let first_union_type = ts_union_type.types.first_mut();
+            // if let Some(first_type) = first_union_type {
+            //     let ts_type = ast_builder.move_ts_type(first_type);
+            //     let new = get_expression(
+            //         false,
+            //         ast_builder,
+            //         ts_type,
+            //         key_name,
+            //         mock_func_name,
+            //         false,
+            //         vec![],
+            //     );
+            //     return new;
+            // }
             // fallback
             null_expr(ast_builder)
         }
@@ -1205,25 +1265,21 @@ pub fn get_expression<'a>(
             let mut temp_expr = ast_builder.vec();
             for ts_type in ts_intersection_type.types.iter_mut() {
                 let new_ts_type = ast_builder.move_ts_type(ts_type);
-                let expr = get_expression(
+                let expr = get_arg(
                     false,
                     ast_builder,
                     new_ts_type,
                     key_name,
                     mock_func_name,
-                    false,
-                    vec![],
+                    generic.clone(),
                 );
 
-                let obj_ts_type = ast_builder.ts_type_object_keyword(SPAN);
-                let as_expr = ast_builder.expression_ts_as(SPAN, expr, obj_ts_type);
-                let spread_expr = ast_builder.alloc_spread_element(SPAN, as_expr);
-
-                let obj_prop_expr = ObjectPropertyKind::SpreadProperty(spread_expr);
-
-                temp_expr.push(obj_prop_expr);
+                temp_expr.push(expr);
             }
-            ast_builder.expression_object(SPAN, temp_expr, None)
+
+            let new_callee = ast_builder.expression_identifier_reference(SPAN, "intersectionUtil");
+            let type_parameters: Option<allocator::Box<TSTypeParameterInstantiation<'a>>> = None;
+            ast_builder.expression_call(SPAN, new_callee, type_parameters, temp_expr, false)
         }
         TSType::TSTypeOperatorType(ts_type_operator_type) => {
             // keyof T
@@ -1240,14 +1296,7 @@ pub fn get_expression<'a>(
             // TODO
             ast_builder.expression_object(SPAN, ast_builder.vec(), None)
         }
-        TSType::TSMappedType(mut ts_mapped_type) => {
-            // println!("TSMappedType:{:?}", ts_mapped_type);
-            // {[K in keyof T]: T[K]}
-            // TODO
-            // ts_mapped_type.type_parameter.constraint
-            //
-            //
-
+        TSType::TSMappedType(ts_mapped_type) => {
             let TSMappedType {
                 type_parameter,
                 mut type_annotation,
@@ -1255,21 +1304,36 @@ pub fn get_expression<'a>(
             } = ts_mapped_type.unbox();
 
             if let Some(value_ts_type) = &mut type_annotation {
-                let moved_value_ts_type = ast_builder.move_ts_type(value_ts_type);
-
                 if let Some(ts_type) = &type_parameter.constraint {
-                    let value_expr = get_expression(
-                        is_main_target,
-                        ast_builder,
-                        moved_value_ts_type,
-                        key_name,
-                        mock_func_name,
-                        is_mapped_type,
-                        generic,
-                    );
+                    // TODO: 全てhogehoge()[cur]になっているため、普通の参照のパターンの場合もサポートする
+                    // keyが[P in keyof T]: T[P]のようにキー一致の場合はcurを使う
+                    // [P in keyof T]: Hoge[P]の場合はcurを使う, Hogeの参照をおく必要がある
+                    // [P in keyof T]: stringなどの場合は適宜
+                    // [P in keyof T]: Hoge[otherkey]の場合は存在するのか？
+                    // [P in Huga]: Huga[P]の場合？
+                    // [P in Huga]: Huga[otherkey]の場合？そんなことある？
+
+                    let moved_value_ts_type = ast_builder.move_ts_type(value_ts_type);
 
                     match ts_type {
+                        /*
+                         * NOTE: handle [K in Hoge]: ???
+                         * case4: { [P in HogeRef]: HogeRef }
+                         * case5: { [P in HogeRef]: string }
+                         * case6: { [P in HogeRef]: T }
+                         * x-case: { [P in T]: ??? } // Type 'T' is not assignable to type 'string' | 'number' | "symbol"
+                         */
                         TSType::TSTypeReference(ts_type_ref) => {
+                            let value_expr = get_expression(
+                                is_main_target,
+                                ast_builder,
+                                moved_value_ts_type,
+                                key_name,
+                                mock_func_name,
+                                is_mapped_type,
+                                generic,
+                            );
+
                             let new_key = format!(
                                 "{}_{}_{}",
                                 key_name, ts_type_ref.type_name, mock_func_name
@@ -1293,19 +1357,72 @@ pub fn get_expression<'a>(
                                 value_expr,
                             );
                         }
+
+                        /*
+                         * NOTE: handle [K in keyof T]: ???
+                         * case1: { [P in keyof T]: T[P] }
+                         * case2: { [P in keyof T]: HogeRef[P] }
+                         * case3: { [P in keyof T]: string }
+                         * x-case: { [P in keyof T]: T[otherkey] }
+                         * x-case: { [P in keyof T]: HogeRef[otherkey] }
+                         */
                         TSType::TSTypeOperatorType(ts_type_operator_type) => {
                             if let TSType::TSTypeReference(ts_type_ref) =
                                 &ts_type_operator_type.type_annotation
                             {
                                 let new_key = format!("{}_{}", key_name, ts_type_ref.type_name);
-                                let arg_expression =
+                                let mut value_expr: Option<Expression<'a>> = None;
+
+                                if let TSType::TSIndexedAccessType(ts_indexed_access_type) =
+                                    &moved_value_ts_type
+                                {
+                                    if let TSType::TSTypeReference(index_type) =
+                                        &ts_indexed_access_type.index_type
+                                    {
+                                        let base_key_name = &type_parameter.name;
+                                        let param_key_name = &index_type.type_name;
+
+                                        if base_key_name.to_string() == param_key_name.to_string() {
+                                            let obj_expr = ref_expr(
+                                                ast_builder,
+                                                &new_key,
+                                                mock_func_name,
+                                                None,
+                                                None,
+                                            );
+                                            let cur = ast_builder
+                                                .expression_identifier_reference(SPAN, "cur");
+                                            value_expr = Some(computed_member_expression(
+                                                ast_builder,
+                                                obj_expr,
+                                                cur,
+                                            ))
+                                        }
+                                    }
+                                }
+
+                                if value_expr.is_none() {
+                                    value_expr = Some(get_expression(
+                                        is_main_target,
+                                        ast_builder,
+                                        moved_value_ts_type,
+                                        key_name,
+                                        mock_func_name,
+                                        is_mapped_type,
+                                        generic,
+                                    ));
+                                }
+
+                                let arg_expression_main =
                                     ref_expr(ast_builder, &new_key, mock_func_name, None, None);
-                                let obj_expr =
-                                    computed_object_full_key_member(ast_builder, arg_expression);
+                                let obj_expr_main = computed_object_full_key_member(
+                                    ast_builder,
+                                    arg_expression_main,
+                                );
                                 return union_full_member_obj_expr(
                                     ast_builder,
-                                    obj_expr,
-                                    value_expr,
+                                    obj_expr_main,
+                                    value_expr.unwrap(),
                                 );
                             }
                         }
@@ -1527,14 +1644,36 @@ pub fn get_arg<'a>(
 
                     for parameter in type_parameters.params.iter_mut() {
                         let arg_ts_type = ast_builder.move_ts_type(parameter);
-                        let arg = get_arg(
+                        let arg_expr = get_expression(
                             is_main_target,
                             ast_builder,
                             arg_ts_type,
                             key_name,
                             mock_func_name,
+                            false,
                             generic.clone(),
                         );
+
+                        /* NOTE: generic_assigned_val is called, so prop is needed wrapping.
+
+                                "key": partial_Partial_boostestLiteralAliasType(() => {
+                                    return generic_assigned_val();
+                                }),
+                        */
+                        let (params, body) = function_parts(ast_builder, None, Some(arg_expr));
+                        let arrow_func_expr = ArrowFunctionExpression {
+                            span: SPAN,
+                            expression: false,
+                            r#async: false,
+                            params,
+                            body,
+                            type_parameters: None,
+                            return_type: None,
+                            scope_id: Cell::default(),
+                        };
+                        let r = ast_builder.alloc(arrow_func_expr);
+                        let arg = Argument::ArrowFunctionExpression(r);
+
                         arguments.push(arg);
                     }
 
@@ -1569,9 +1708,19 @@ pub fn get_arg<'a>(
         }
         TSType::TSUnionType(box_ts_union_type) => {
             let ts_union_type = &mut box_ts_union_type.unbox();
-            let first_union_type = ts_union_type.types.first_mut();
-            if let Some(first_type) = first_union_type {
-                let ts_type = ast_builder.move_ts_type(first_type);
+
+            let non_null_types = ts_union_type.types.iter_mut().find(|x| {
+                if let TSType::TSNullKeyword(_) = x {
+                    return false;
+                }
+                if let TSType::TSUndefinedKeyword(_) = x {
+                    return false;
+                }
+                true
+            });
+
+            if let Some(target_ts_type) = non_null_types {
+                let ts_type = ast_builder.move_ts_type(target_ts_type);
                 return get_arg(
                     is_main_target,
                     ast_builder,
@@ -1633,24 +1782,28 @@ pub fn get_arg<'a>(
             let mut temp_expr = ast_builder.vec();
             for ts_type in ts_intersection_type.types.iter_mut() {
                 let new_ts_type = ast_builder.move_ts_type(ts_type);
-                let expr = get_expression(
+                let expr = get_arg(
                     false,
                     ast_builder,
                     new_ts_type,
                     key_name,
                     mock_func_name,
-                    false,
-                    vec![],
+                    generic.clone(),
                 );
 
-                let obj_ts_type = ast_builder.ts_type_object_keyword(SPAN);
-                let as_expr = ast_builder.expression_ts_as(SPAN, expr, obj_ts_type);
-                let spread_expr = ast_builder.alloc_spread_element(SPAN, as_expr);
-                let obj_prop_expr = ObjectPropertyKind::SpreadProperty(spread_expr);
-                temp_expr.push(obj_prop_expr);
+                temp_expr.push(expr);
             }
 
-            object_arg(ast_builder, Some(temp_expr))
+            let new_callee = ast_builder.expression_identifier_reference(SPAN, "intersectionUtil");
+            let type_parameters: Option<allocator::Box<TSTypeParameterInstantiation<'a>>> = None;
+
+            Argument::CallExpression(ast_builder.alloc(CallExpression {
+                span: SPAN,
+                callee: new_callee,
+                arguments: temp_expr,
+                optional: false,
+                type_parameters,
+            }))
         }
         TSType::TSLiteralType(literal_type) => {
             get_arg_with_ts_literal_type(ast_builder, &literal_type.literal)

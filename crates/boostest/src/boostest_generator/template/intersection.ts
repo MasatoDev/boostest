@@ -1,14 +1,11 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`boostest direct path output correctly 1`] = `
-"function isNullOrUndefined(value) {
+function isNullOrUndefined(value) {
   return value === undefined || value === null;
 }
 function emptyObj(value) {
   if (isNullOrUndefined(value)) return false;
   return typeof value === "object" && Object.keys(value).length === 0;
 }
-function intersection_util(...args) {
+function intersectionUtil(...args) {
   let values = args;
   // If it includes {}, filter out null and undefined, and also remove {}
   const includesEmptyObj = values.some((val) => emptyObj(val));
@@ -37,9 +34,3 @@ function intersection_util(...args) {
 
   return values[0];
 }
-export function boostestTsTypeLiteralString<T>() {
-	return "test string data";
-}
-
-"
-`;

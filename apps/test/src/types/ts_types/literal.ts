@@ -14,16 +14,6 @@ class Hoge {
   }
 }
 
-type SystemSupportLanguage = "en" | "fr" | "it" | "es";
-
-type Butterfly = {
-  [key in SystemSupportLanguage]: string;
-};
-
-type KeyOfButterfly = {
-  [key in keyof RefType]: RefType[key];
-};
-
 export type LiteralTypeAlias = {
   stringLiteral: string;
   numberLiteral: number;
@@ -61,8 +51,6 @@ export type LiteralTypeAlias = {
   intersectionType: RefType & RefTypeInterface & { name: string; age: number };
   keyof: keyof RefType;
   indexAccessor: RefType["name"];
-  mapperType: Butterfly;
-  keyOfMapperType: KeyOfButterfly;
 
   /**********************/
   /******* FIXME: *******/
@@ -110,8 +98,6 @@ export type LiteralTypeInterface = {
   intersectionType: RefType & RefTypeInterface & { name: string; age: number };
   keyof: keyof RefType;
   indexAccessor: RefType["name"];
-  mapperType: Butterfly;
-  keyOfMapperType: KeyOfButterfly;
 
   /**********************/
   /******* FIXME: *******/
@@ -162,8 +148,6 @@ export class LiteralTypeClass {
 
     public keyof: keyof RefType,
     public indexAccessor: RefType["name"],
-    public mapperType: Butterfly,
-    public keyOfMapperType: KeyOfButterfly,
 
     /**********************/
     /******* FIXME: *******/

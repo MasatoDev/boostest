@@ -24,24 +24,41 @@ type InnerGenericInitializer = {
   innerGenericLiteral: InngerGeneric<"inner generic string">;
 };
 
+type SystemSupportLanguage = "en" | "fr" | "it" | "es";
+
+type Butterfly = {
+  [key in SystemSupportLanguage]: string;
+};
+
+type ButterflyWithGenerics<T> = {
+  [key in SystemSupportLanguage]: T;
+};
+
+type KeyOfButterfly = {
+  [key in keyof RefType]: RefType[key];
+};
+
 export type GenericsTypeAlias = {
+  mapperType: Butterfly;
+  keyOfMapperType: KeyOfButterfly;
+  innserGenericInitializer: InnerGenericInitializer;
+  butterflyWithGenerics: ButterflyWithGenerics<string>;
+  nonNullable: NonNullable<undefined | string | null>;
+  nestedPartial: {
+    childPartial: Partial<RefType>;
+  };
+  partial: Partial<RefType>;
+  required: Required<RefType>;
+  readonly: Readonly<RefType>;
   /**********************/
   /******* FIXME: *******/
   /**********************/
-  // nestedPartial: {
-  //   childPartial: Partial<RefType>;
-  // };
-  // innserGenericInitializer: InnerGenericInitializer;
   // thisType: ThisType<string>;
   // array: Array<string>;
-  partial: Partial<RefType>;
-  // required: Required<RefType>;
-  // readonly: Readonly<RefType>;
   // pick: Pick<RefType, "name">;
   // omit: Omit<RefType, "name">;
-  // extract: Extract<string | number, string>;
-  // exclude: Exclude<string | number, string>;
-  // nonNullable: NonNullable<string | null>;
+  extract: Extract<"A" | "B" | "C" | "D" | "E", "D" | "E">;
+  exclude: Exclude<Grade, "A">;
   // promise: Promise<RefType>;
 
   // parameters: Parameters<() => void>;
@@ -50,24 +67,30 @@ export type GenericsTypeAlias = {
   // instanceType: InstanceType<typeof LiteralTypeClass>;
 };
 
+type Grade = "A" | "B" | "C" | "D" | "E";
+
 export type GenericsInterface = {
+  innserGenericInitializer: InnerGenericInitializer;
+  mapperType: Butterfly;
+  keyOfMapperType: KeyOfButterfly;
+  butterflyWithGenerics: ButterflyWithGenerics<string>;
+  nonNullable: NonNullable<undefined | string | null>;
+  nestedPartial: {
+    childPartial: Partial<RefType>;
+  };
+  partial: Partial<RefType>;
+  required: Required<RefType>;
+  readonly: Readonly<RefType>;
   /**********************/
   /******* FIXME: *******/
   /**********************/
-  // nestedPartial: {
-  //   childPartial: Partial<RefType>;
-  // };
   // innserGenericInitializer: InnerGenericInitializer;
   // thisType: ThisType<string>;
   // array: Array<string>;
-  partial: Partial<RefType>;
-  // required: Required<RefType>;
-  // readonly: Readonly<RefType>;
   // pick: Pick<RefType, "name">;
   // omit: Omit<RefType, "name">;
-  // extract: Extract<string | number, string>;
-  // exclude: Exclude<string | number, string>;
-  // nonNullable: NonNullable<string | null>;
+  extract: Extract<"A" | "B" | "C" | "D" | "E", "D" | "E">;
+  exclude: Exclude<Grade, "A">;
   // parameters: Parameters<() => void>;
   // constructorParameters: ConstructorParameters<typeof LiteralTypeClass>;
   // returnType: ReturnType<() => void>;
@@ -76,27 +99,33 @@ export type GenericsInterface = {
 };
 
 export class GenericsClass {
-  constructor() /**********************/
-  /******* FIXME: *******/
-  /**********************/
-  // public nestedPartial: {
-  //   childPartial: Partial<RefType>;
-  // },
-  // public innserGenericInitializer: InnerGenericInitializer,
-  // public thisType: ThisType<string>,
-  // public array: Array<string>,
-  // public partial: Partial<RefType>,
-  // public required: Required<RefType>,
-  // public readonly: Readonly<RefType>,
-  // public pick: Pick<RefType, "name">,
-  // public omit: Omit<RefType, "name">,
-  // public extract: Extract<string | number, string>,
-  // public exclude: Exclude<string | number, string>,
-  // public nonNullable: NonNullable<string | null>,
-  // public parameters: Parameters<() => void>,
-  // public constructorParameters: ConstructorParameters<typeof Hoge>,
-  // public returnType: ReturnType<() => void>,
-  // public instanceType: InstanceType<typeof Hoge>,
-  // public promise: Promise<RefType>,
-  {}
+  constructor(
+    public innserGenericInitializer: InnerGenericInitializer,
+    public mapperType: Butterfly,
+    public keyOfMapperType: KeyOfButterfly,
+    public butterflyWithGenerics: ButterflyWithGenerics<string>,
+    public nonNullable: NonNullable<undefined | string | null>,
+    public nestedPartial: {
+      childPartial: Partial<RefType>;
+    },
+    public partial: Partial<RefType>,
+    public required: Required<RefType>,
+    public readonly: Readonly<RefType>,
+
+    /**********************/
+    /******* FIXME: *******/
+    /**********************/
+    // public innserGenericInitializer: InnerGenericInitializer,
+    // public thisType: ThisType<string>,
+    // public array: Array<string>,
+    // public pick: Pick<RefType, "name">,
+    // public omit: Omit<RefType, "name">,
+    // public extract: Extract<string | number, string>,
+    // public exclude: Exclude<string | number, string>,
+    // public parameters: Parameters<() => void>,
+    // public constructorParameters: ConstructorParameters<typeof Hoge>,
+    // public returnType: ReturnType<() => void>,
+    // public instanceType: InstanceType<typeof Hoge>,
+    // public promise: Promise<RefType>,
+  ) {}
 }

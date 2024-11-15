@@ -24,8 +24,8 @@ describe("Generics Tests", () => {
     "GenericsInterface",
     boostestGenericsInterfaceType<GenericsInterface>(),
   );
+  runSnapshotTest(
+    "GenericsClass",
+    boostestGenericsTypeClass<typeof GenericsClass>(GenericsClass),
+  );
 });
-runSnapshotTest(
-  "GenericsClass",
-  boostestGenericsTypeClass<typeof GenericsClass>(GenericsClass),
-);

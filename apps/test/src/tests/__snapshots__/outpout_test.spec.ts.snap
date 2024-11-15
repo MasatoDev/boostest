@@ -1,7 +1,43 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/direct_path/direct_path_test_data.ts 1`] = `
-"export function boostestTsTypeLiteralString<T>() {
+"function isNullOrUndefined(value) {
+  return value === undefined || value === null;
+}
+function emptyObj(value) {
+  if (isNullOrUndefined(value)) return false;
+  return typeof value === "object" && Object.keys(value).length === 0;
+}
+function intersection_util(...args) {
+  let values = args;
+  // If it includes {}, filter out null and undefined, and also remove {}
+  const includesEmptyObj = values.some((val) => emptyObj(val));
+
+  if (includesEmptyObj) {
+    values = values.filter((val) => !isNullOrUndefined(val) && !emptyObj(val));
+  }
+
+  if (values.length === 0) return null;
+  // null or undefined cannot match, so treat as "never" (return null)
+  if (values.some((val) => isNullOrUndefined(val))) {
+    return null;
+  }
+
+  if (values.length === 1) return values[0];
+
+  const firstType = typeof values[0];
+  const isSameType = values.every((value) => typeof value === firstType);
+
+  // Different types cannot be handled, so treat as "never" (return null)
+  if (!isSameType) return null;
+
+  if (firstType === "object" && values.every((value) => value !== null)) {
+    return values.reduce((acc, value) => ({ ...acc, ...value }), {});
+  }
+
+  return values[0];
+}
+export function boostestTsTypeLiteralString<T>() {
 	return "test string data";
 }
 
@@ -9,7 +45,43 @@ exports[`boostest all dir output correctly output correctly /Users/tanakamasato/
 `;
 
 exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/call_signature/call_signature.spec_test_data.ts 1`] = `
-"export function boostestCallSignature<T>() {
+"function isNullOrUndefined(value) {
+  return value === undefined || value === null;
+}
+function emptyObj(value) {
+  if (isNullOrUndefined(value)) return false;
+  return typeof value === "object" && Object.keys(value).length === 0;
+}
+function intersection_util(...args) {
+  let values = args;
+  // If it includes {}, filter out null and undefined, and also remove {}
+  const includesEmptyObj = values.some((val) => emptyObj(val));
+
+  if (includesEmptyObj) {
+    values = values.filter((val) => !isNullOrUndefined(val) && !emptyObj(val));
+  }
+
+  if (values.length === 0) return null;
+  // null or undefined cannot match, so treat as "never" (return null)
+  if (values.some((val) => isNullOrUndefined(val))) {
+    return null;
+  }
+
+  if (values.length === 1) return values[0];
+
+  const firstType = typeof values[0];
+  const isSameType = values.every((value) => typeof value === firstType);
+
+  // Different types cannot be handled, so treat as "never" (return null)
+  if (!isSameType) return null;
+
+  if (firstType === "object" && values.every((value) => value !== null)) {
+    return values.reduce((acc, value) => ({ ...acc, ...value }), {});
+  }
+
+  return values[0];
+}
+export function boostestCallSignature<T>() {
 	return (name: string, age: number) => {};
 }
 
@@ -39,7 +111,43 @@ export function boostestSingleCallSignature<T>() {
 `;
 
 exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/class/class.spec_test_data.ts 1`] = `
-"export function boostestArgObjClass<T extends abstract new (...args: any) => any>(ArgObjClass): T {
+"function isNullOrUndefined(value) {
+  return value === undefined || value === null;
+}
+function emptyObj(value) {
+  if (isNullOrUndefined(value)) return false;
+  return typeof value === "object" && Object.keys(value).length === 0;
+}
+function intersection_util(...args) {
+  let values = args;
+  // If it includes {}, filter out null and undefined, and also remove {}
+  const includesEmptyObj = values.some((val) => emptyObj(val));
+
+  if (includesEmptyObj) {
+    values = values.filter((val) => !isNullOrUndefined(val) && !emptyObj(val));
+  }
+
+  if (values.length === 0) return null;
+  // null or undefined cannot match, so treat as "never" (return null)
+  if (values.some((val) => isNullOrUndefined(val))) {
+    return null;
+  }
+
+  if (values.length === 1) return values[0];
+
+  const firstType = typeof values[0];
+  const isSameType = values.every((value) => typeof value === firstType);
+
+  // Different types cannot be handled, so treat as "never" (return null)
+  if (!isSameType) return null;
+
+  if (firstType === "object" && values.every((value) => value !== null)) {
+    return values.reduce((acc, value) => ({ ...acc, ...value }), {});
+  }
+
+  return values[0];
+}
+export function boostestArgObjClass<T extends abstract new (...args: any) => any>(ArgObjClass): T {
 	return new ArgObjClass({
 		"name": "test string data",
 		"age": 10
@@ -107,7 +215,43 @@ export function boostestInnerConstructorSignature<T>(args?: Partial<T>): T {
 `;
 
 exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/common_js/common_js.spec_test_data.ts 1`] = `
-"export function boostestCommonCjs<T>(args?: Partial<T>): T {
+"function isNullOrUndefined(value) {
+  return value === undefined || value === null;
+}
+function emptyObj(value) {
+  if (isNullOrUndefined(value)) return false;
+  return typeof value === "object" && Object.keys(value).length === 0;
+}
+function intersection_util(...args) {
+  let values = args;
+  // If it includes {}, filter out null and undefined, and also remove {}
+  const includesEmptyObj = values.some((val) => emptyObj(val));
+
+  if (includesEmptyObj) {
+    values = values.filter((val) => !isNullOrUndefined(val) && !emptyObj(val));
+  }
+
+  if (values.length === 0) return null;
+  // null or undefined cannot match, so treat as "never" (return null)
+  if (values.some((val) => isNullOrUndefined(val))) {
+    return null;
+  }
+
+  if (values.length === 1) return values[0];
+
+  const firstType = typeof values[0];
+  const isSameType = values.every((value) => typeof value === firstType);
+
+  // Different types cannot be handled, so treat as "never" (return null)
+  if (!isSameType) return null;
+
+  if (firstType === "object" && values.every((value) => value !== null)) {
+    return values.reduce((acc, value) => ({ ...acc, ...value }), {});
+  }
+
+  return values[0];
+}
+export function boostestCommonCjs<T>(args?: Partial<T>): T {
 	return {
 		"id": 10,
 		"name": "test string data",
@@ -119,7 +263,43 @@ exports[`boostest all dir output correctly output correctly /Users/tanakamasato/
 `;
 
 exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/generics/generics.spec_test_data.ts 1`] = `
-"export function boostestGeneric<T>(args?: Partial<T>): T {
+"function isNullOrUndefined(value) {
+  return value === undefined || value === null;
+}
+function emptyObj(value) {
+  if (isNullOrUndefined(value)) return false;
+  return typeof value === "object" && Object.keys(value).length === 0;
+}
+function intersection_util(...args) {
+  let values = args;
+  // If it includes {}, filter out null and undefined, and also remove {}
+  const includesEmptyObj = values.some((val) => emptyObj(val));
+
+  if (includesEmptyObj) {
+    values = values.filter((val) => !isNullOrUndefined(val) && !emptyObj(val));
+  }
+
+  if (values.length === 0) return null;
+  // null or undefined cannot match, so treat as "never" (return null)
+  if (values.some((val) => isNullOrUndefined(val))) {
+    return null;
+  }
+
+  if (values.length === 1) return values[0];
+
+  const firstType = typeof values[0];
+  const isSameType = values.every((value) => typeof value === firstType);
+
+  // Different types cannot be handled, so treat as "never" (return null)
+  if (!isSameType) return null;
+
+  if (firstType === "object" && values.every((value) => value !== null)) {
+    return values.reduce((acc, value) => ({ ...acc, ...value }), {});
+  }
+
+  return values[0];
+}
+export function boostestGeneric<T>(args?: Partial<T>): T {
 	return {
 		"name": zero_boostestGeneric(),
 		...args
@@ -136,11 +316,132 @@ export function zero_boostestGeneric<T>(args?: Partial<T>): T {
 
 export function boostestGenericsAliasType<T>(args?: Partial<T>): T {
 	return {
+		"mapperType": mapperType_Butterfly_boostestGenericsAliasType(),
+		"keyOfMapperType": keyOfMapperType_KeyOfButterfly_boostestGenericsAliasType(),
+		"innserGenericInitializer": innserGenericInitializer_InnerGenericInitializer_boostestGenericsAliasType(),
+		"butterflyWithGenerics": butterflyWithGenerics_ButterflyWithGenerics_boostestGenericsAliasType(() => {
+			return "test string data";
+		}),
+		"nonNullable": nonNullable_NonNullable_boostestGenericsAliasType(() => {
+			return "test string data";
+		}),
+		"nestedPartial": { "childPartial": nestedPartial_childPartial_Partial_boostestGenericsAliasType(() => {
+			return nestedPartial_childPartial_RefType_boostestGenericsAliasType();
+		}) },
 		"partial": partial_Partial_boostestGenericsAliasType(() => {
 			return partial_RefType_boostestGenericsAliasType();
 		}),
+		"required": required_Required_boostestGenericsAliasType(() => {
+			return required_RefType_boostestGenericsAliasType();
+		}),
+		"readonly": readonly_Readonly_boostestGenericsAliasType(() => {
+			return readonly_RefType_boostestGenericsAliasType();
+		}),
 		...args
 	} as T;
+}
+
+export function mapperType_Butterfly_boostestGenericsAliasType<T>() {
+	return Butterfly_SystemSupportLanguage_boostestGenericsAliasType().reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: "test string data"
+		};
+	}, {});
+}
+
+export function Butterfly_SystemSupportLanguage_boostestGenericsAliasType<T>() {
+	return [
+		"en",
+		"fr",
+		"it",
+		"es"
+	];
+}
+
+export function keyOfMapperType_KeyOfButterfly_boostestGenericsAliasType<T>() {
+	return Object.keys(KeyOfButterfly_RefType_boostestGenericsAliasType()).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: KeyOfButterfly_RefType_boostestGenericsAliasType()[cur]
+		};
+	}, {});
+}
+
+export function KeyOfButterfly_RefType_boostestGenericsAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function innserGenericInitializer_InnerGenericInitializer_boostestGenericsAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"innerGeneric": innerGeneric_InngerGeneric_boostestGenericsAliasType(() => {
+			return innerGeneric_RefType_boostestGenericsAliasType();
+		}),
+		"innerGenericLiteral": innerGenericLiteral_InngerGeneric_boostestGenericsAliasType(() => {
+			return "inner generic string";
+		}),
+		...args
+	} as T;
+}
+
+export function innerGeneric_RefType_boostestGenericsAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function innerGeneric_InngerGeneric_boostestGenericsAliasType<T>(InngerGeneric_T_boostestGenericsAliasType: any, args?: Partial<T>) {
+	return InngerGeneric_T_boostestGenericsAliasType();
+}
+
+export function innerGenericLiteral_InngerGeneric_boostestGenericsAliasType<T>(InngerGeneric_T_boostestGenericsAliasType: any, args?: Partial<T>) {
+	return InngerGeneric_T_boostestGenericsAliasType();
+}
+
+export function butterflyWithGenerics_ButterflyWithGenerics_boostestGenericsAliasType<T>(ButterflyWithGenerics_T_boostestGenericsAliasType: any, args?: Partial<T>) {
+	return ButterflyWithGenerics_SystemSupportLanguage_boostestGenericsAliasType().reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: ButterflyWithGenerics_T_boostestGenericsAliasType()
+		};
+	}, {});
+}
+
+export function ButterflyWithGenerics_SystemSupportLanguage_boostestGenericsAliasType<T>() {
+	return [
+		"en",
+		"fr",
+		"it",
+		"es"
+	];
+}
+
+export function nonNullable_NonNullable_boostestGenericsAliasType<T>(NonNullable_T_boostestGenericsAliasType: any, args?: Partial<T>) {
+	return intersection_util(NonNullable_T_boostestGenericsAliasType(), {});
+}
+
+export function nestedPartial_childPartial_RefType_boostestGenericsAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function nestedPartial_childPartial_Partial_boostestGenericsAliasType<T>(Partial_T_boostestGenericsAliasType: any, args?: Partial<T>) {
+	return Object.keys(Partial_T_boostestGenericsAliasType()).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: Partial_T_boostestGenericsAliasType()[cur]
+		};
+	}, {});
 }
 
 export function partial_RefType_boostestGenericsAliasType<T>(args?: Partial<T>): T {
@@ -155,18 +456,169 @@ export function partial_Partial_boostestGenericsAliasType<T>(Partial_T_boostestG
 	return Object.keys(Partial_T_boostestGenericsAliasType()).reduce((acc: any, cur) => {
 		return {
 			...acc,
-			[cur]: ""
+			[cur]: Partial_T_boostestGenericsAliasType()[cur]
+		};
+	}, {});
+}
+
+export function required_RefType_boostestGenericsAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function required_Required_boostestGenericsAliasType<T>(Required_T_boostestGenericsAliasType: any, args?: Partial<T>) {
+	return Object.keys(Required_T_boostestGenericsAliasType()).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: Required_T_boostestGenericsAliasType()[cur]
+		};
+	}, {});
+}
+
+export function readonly_RefType_boostestGenericsAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function readonly_Readonly_boostestGenericsAliasType<T>(Readonly_T_boostestGenericsAliasType: any, args?: Partial<T>) {
+	return Object.keys(Readonly_T_boostestGenericsAliasType()).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: Readonly_T_boostestGenericsAliasType()[cur]
 		};
 	}, {});
 }
 
 export function boostestGenericsInterfaceType<T>(args?: Partial<T>): T {
 	return {
+		"innserGenericInitializer": innserGenericInitializer_InnerGenericInitializer_boostestGenericsInterfaceType(),
+		"mapperType": mapperType_Butterfly_boostestGenericsInterfaceType(),
+		"keyOfMapperType": keyOfMapperType_KeyOfButterfly_boostestGenericsInterfaceType(),
+		"butterflyWithGenerics": butterflyWithGenerics_ButterflyWithGenerics_boostestGenericsInterfaceType(() => {
+			return "test string data";
+		}),
+		"nestedPartial": { "childPartial": nestedPartial_childPartial_Partial_boostestGenericsInterfaceType(() => {
+			return nestedPartial_childPartial_RefType_boostestGenericsInterfaceType();
+		}) },
 		"partial": partial_Partial_boostestGenericsInterfaceType(() => {
 			return partial_RefType_boostestGenericsInterfaceType();
 		}),
+		"required": required_Required_boostestGenericsInterfaceType(() => {
+			return required_RefType_boostestGenericsInterfaceType();
+		}),
+		"readonly": readonly_Readonly_boostestGenericsInterfaceType(() => {
+			return readonly_RefType_boostestGenericsInterfaceType();
+		}),
+		"nonNullable": nonNullable_NonNullable_boostestGenericsInterfaceType(() => {
+			return "test string data";
+		}),
 		...args
 	} as T;
+}
+
+export function innserGenericInitializer_InnerGenericInitializer_boostestGenericsInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"innerGeneric": innerGeneric_InngerGeneric_boostestGenericsInterfaceType(() => {
+			return innerGeneric_RefType_boostestGenericsInterfaceType();
+		}),
+		"innerGenericLiteral": innerGenericLiteral_InngerGeneric_boostestGenericsInterfaceType(() => {
+			return "inner generic string";
+		}),
+		...args
+	} as T;
+}
+
+export function innerGeneric_RefType_boostestGenericsInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function innerGeneric_InngerGeneric_boostestGenericsInterfaceType<T>(InngerGeneric_T_boostestGenericsInterfaceType: any, args?: Partial<T>) {
+	return InngerGeneric_T_boostestGenericsInterfaceType();
+}
+
+export function innerGenericLiteral_InngerGeneric_boostestGenericsInterfaceType<T>(InngerGeneric_T_boostestGenericsInterfaceType: any, args?: Partial<T>) {
+	return InngerGeneric_T_boostestGenericsInterfaceType();
+}
+
+export function mapperType_Butterfly_boostestGenericsInterfaceType<T>() {
+	return Butterfly_SystemSupportLanguage_boostestGenericsInterfaceType().reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: "test string data"
+		};
+	}, {});
+}
+
+export function Butterfly_SystemSupportLanguage_boostestGenericsInterfaceType<T>() {
+	return [
+		"en",
+		"fr",
+		"it",
+		"es"
+	];
+}
+
+export function keyOfMapperType_KeyOfButterfly_boostestGenericsInterfaceType<T>() {
+	return Object.keys(KeyOfButterfly_RefType_boostestGenericsInterfaceType()).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: KeyOfButterfly_RefType_boostestGenericsInterfaceType()[cur]
+		};
+	}, {});
+}
+
+export function KeyOfButterfly_RefType_boostestGenericsInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function butterflyWithGenerics_ButterflyWithGenerics_boostestGenericsInterfaceType<T>(ButterflyWithGenerics_T_boostestGenericsInterfaceType: any, args?: Partial<T>) {
+	return ButterflyWithGenerics_SystemSupportLanguage_boostestGenericsInterfaceType().reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: ButterflyWithGenerics_T_boostestGenericsInterfaceType()
+		};
+	}, {});
+}
+
+export function ButterflyWithGenerics_SystemSupportLanguage_boostestGenericsInterfaceType<T>() {
+	return [
+		"en",
+		"fr",
+		"it",
+		"es"
+	];
+}
+
+export function nestedPartial_childPartial_RefType_boostestGenericsInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function nestedPartial_childPartial_Partial_boostestGenericsInterfaceType<T>(Partial_T_boostestGenericsInterfaceType: any, args?: Partial<T>) {
+	return Object.keys(Partial_T_boostestGenericsInterfaceType()).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: Partial_T_boostestGenericsInterfaceType()[cur]
+		};
+	}, {});
 }
 
 export function partial_RefType_boostestGenericsInterfaceType<T>(args?: Partial<T>): T {
@@ -181,20 +633,260 @@ export function partial_Partial_boostestGenericsInterfaceType<T>(Partial_T_boost
 	return Object.keys(Partial_T_boostestGenericsInterfaceType()).reduce((acc: any, cur) => {
 		return {
 			...acc,
-			[cur]: ""
+			[cur]: Partial_T_boostestGenericsInterfaceType()[cur]
 		};
 	}, {});
 }
 
+export function required_RefType_boostestGenericsInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function required_Required_boostestGenericsInterfaceType<T>(Required_T_boostestGenericsInterfaceType: any, args?: Partial<T>) {
+	return Object.keys(Required_T_boostestGenericsInterfaceType()).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: Required_T_boostestGenericsInterfaceType()[cur]
+		};
+	}, {});
+}
+
+export function readonly_RefType_boostestGenericsInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function readonly_Readonly_boostestGenericsInterfaceType<T>(Readonly_T_boostestGenericsInterfaceType: any, args?: Partial<T>) {
+	return Object.keys(Readonly_T_boostestGenericsInterfaceType()).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: Readonly_T_boostestGenericsInterfaceType()[cur]
+		};
+	}, {});
+}
+
+export function nonNullable_NonNullable_boostestGenericsInterfaceType<T>(NonNullable_T_boostestGenericsInterfaceType: any, args?: Partial<T>) {
+	return intersection_util(NonNullable_T_boostestGenericsInterfaceType(), {});
+}
+
 export function boostestGenericsTypeClass<T extends abstract new (...args: any) => any>(GenericsClass): T {
-	return new GenericsClass();
+	return new GenericsClass(innserGenericInitializer_InnerGenericInitializer_boostestGenericsTypeClass(), mapperType_Butterfly_boostestGenericsTypeClass(), keyOfMapperType_KeyOfButterfly_boostestGenericsTypeClass(), butterflyWithGenerics_ButterflyWithGenerics_boostestGenericsTypeClass(() => {
+		return "test string data";
+	}), { "childPartial": nestedPartial_childPartial_Partial_boostestGenericsTypeClass(() => {
+		return nestedPartial_childPartial_RefType_boostestGenericsTypeClass();
+	}) }, partial_Partial_boostestGenericsTypeClass(() => {
+		return partial_RefType_boostestGenericsTypeClass();
+	}), required_Required_boostestGenericsTypeClass(() => {
+		return required_RefType_boostestGenericsTypeClass();
+	}), readonly_Readonly_boostestGenericsTypeClass(() => {
+		return readonly_RefType_boostestGenericsTypeClass();
+	}), nonNullable_NonNullable_boostestGenericsTypeClass(() => {
+		return "test string data";
+	}));
+}
+
+export function innserGenericInitializer_InnerGenericInitializer_boostestGenericsTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"innerGeneric": innerGeneric_InngerGeneric_boostestGenericsTypeClass(() => {
+			return innerGeneric_RefType_boostestGenericsTypeClass();
+		}),
+		"innerGenericLiteral": innerGenericLiteral_InngerGeneric_boostestGenericsTypeClass(() => {
+			return "inner generic string";
+		}),
+		...args
+	} as T;
+}
+
+export function innerGeneric_RefType_boostestGenericsTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function innerGeneric_InngerGeneric_boostestGenericsTypeClass<T>(InngerGeneric_T_boostestGenericsTypeClass: any, args?: Partial<T>) {
+	return InngerGeneric_T_boostestGenericsTypeClass();
+}
+
+export function innerGenericLiteral_InngerGeneric_boostestGenericsTypeClass<T>(InngerGeneric_T_boostestGenericsTypeClass: any, args?: Partial<T>) {
+	return InngerGeneric_T_boostestGenericsTypeClass();
+}
+
+export function mapperType_Butterfly_boostestGenericsTypeClass<T>() {
+	return Butterfly_SystemSupportLanguage_boostestGenericsTypeClass().reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: "test string data"
+		};
+	}, {});
+}
+
+export function Butterfly_SystemSupportLanguage_boostestGenericsTypeClass<T>() {
+	return [
+		"en",
+		"fr",
+		"it",
+		"es"
+	];
+}
+
+export function keyOfMapperType_KeyOfButterfly_boostestGenericsTypeClass<T>() {
+	return Object.keys(KeyOfButterfly_RefType_boostestGenericsTypeClass()).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: KeyOfButterfly_RefType_boostestGenericsTypeClass()[cur]
+		};
+	}, {});
+}
+
+export function KeyOfButterfly_RefType_boostestGenericsTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function butterflyWithGenerics_ButterflyWithGenerics_boostestGenericsTypeClass<T>(ButterflyWithGenerics_T_boostestGenericsTypeClass: any, args?: Partial<T>) {
+	return ButterflyWithGenerics_SystemSupportLanguage_boostestGenericsTypeClass().reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: ButterflyWithGenerics_T_boostestGenericsTypeClass()
+		};
+	}, {});
+}
+
+export function ButterflyWithGenerics_SystemSupportLanguage_boostestGenericsTypeClass<T>() {
+	return [
+		"en",
+		"fr",
+		"it",
+		"es"
+	];
+}
+
+export function nestedPartial_childPartial_RefType_boostestGenericsTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function nestedPartial_childPartial_Partial_boostestGenericsTypeClass<T>(Partial_T_boostestGenericsTypeClass: any, args?: Partial<T>) {
+	return Object.keys(Partial_T_boostestGenericsTypeClass()).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: Partial_T_boostestGenericsTypeClass()[cur]
+		};
+	}, {});
+}
+
+export function partial_RefType_boostestGenericsTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function partial_Partial_boostestGenericsTypeClass<T>(Partial_T_boostestGenericsTypeClass: any, args?: Partial<T>) {
+	return Object.keys(Partial_T_boostestGenericsTypeClass()).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: Partial_T_boostestGenericsTypeClass()[cur]
+		};
+	}, {});
+}
+
+export function required_RefType_boostestGenericsTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function required_Required_boostestGenericsTypeClass<T>(Required_T_boostestGenericsTypeClass: any, args?: Partial<T>) {
+	return Object.keys(Required_T_boostestGenericsTypeClass()).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: Required_T_boostestGenericsTypeClass()[cur]
+		};
+	}, {});
+}
+
+export function readonly_RefType_boostestGenericsTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function readonly_Readonly_boostestGenericsTypeClass<T>(Readonly_T_boostestGenericsTypeClass: any, args?: Partial<T>) {
+	return Object.keys(Readonly_T_boostestGenericsTypeClass()).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: Readonly_T_boostestGenericsTypeClass()[cur]
+		};
+	}, {});
+}
+
+export function nonNullable_NonNullable_boostestGenericsTypeClass<T>(NonNullable_T_boostestGenericsTypeClass: any, args?: Partial<T>) {
+	return intersection_util(NonNullable_T_boostestGenericsTypeClass(), {});
 }
 
 "
 `;
 
 exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/index_signature/index_signature.spec_test_data.ts 1`] = `
-"export function boostestIndexSignature<T>(args?: Partial<T>): T {
+"function isNullOrUndefined(value) {
+  return value === undefined || value === null;
+}
+function emptyObj(value) {
+  if (isNullOrUndefined(value)) return false;
+  return typeof value === "object" && Object.keys(value).length === 0;
+}
+function intersection_util(...args) {
+  let values = args;
+  // If it includes {}, filter out null and undefined, and also remove {}
+  const includesEmptyObj = values.some((val) => emptyObj(val));
+
+  if (includesEmptyObj) {
+    values = values.filter((val) => !isNullOrUndefined(val) && !emptyObj(val));
+  }
+
+  if (values.length === 0) return null;
+  // null or undefined cannot match, so treat as "never" (return null)
+  if (values.some((val) => isNullOrUndefined(val))) {
+    return null;
+  }
+
+  if (values.length === 1) return values[0];
+
+  const firstType = typeof values[0];
+  const isSameType = values.every((value) => typeof value === firstType);
+
+  // Different types cannot be handled, so treat as "never" (return null)
+  if (!isSameType) return null;
+
+  if (firstType === "object" && values.every((value) => value !== null)) {
+    return values.reduce((acc, value) => ({ ...acc, ...value }), {});
+  }
+
+  return values[0];
+}
+export function boostestIndexSignature<T>(args?: Partial<T>): T {
 	return {
 		"test string data": 10,
 		10: 10,
@@ -205,8 +897,126 @@ exports[`boostest all dir output correctly output correctly /Users/tanakamasato/
 "
 `;
 
+exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/insersection/intersection.spec_test_data.ts 1`] = `
+"function isNullOrUndefined(value) {
+  return value === undefined || value === null;
+}
+function emptyObj(value) {
+  if (isNullOrUndefined(value)) return false;
+  return typeof value === "object" && Object.keys(value).length === 0;
+}
+function intersection_util(...args) {
+  let values = args;
+  // If it includes {}, filter out null and undefined, and also remove {}
+  const includesEmptyObj = values.some((val) => emptyObj(val));
+
+  if (includesEmptyObj) {
+    values = values.filter((val) => !isNullOrUndefined(val) && !emptyObj(val));
+  }
+
+  if (values.length === 0) return null;
+  // null or undefined cannot match, so treat as "never" (return null)
+  if (values.some((val) => isNullOrUndefined(val))) {
+    return null;
+  }
+
+  if (values.length === 1) return values[0];
+
+  const firstType = typeof values[0];
+  const isSameType = values.every((value) => typeof value === firstType);
+
+  // Different types cannot be handled, so treat as "never" (return null)
+  if (!isSameType) return null;
+
+  if (firstType === "object" && values.every((value) => value !== null)) {
+    return values.reduce((acc, value) => ({ ...acc, ...value }), {});
+  }
+
+  return values[0];
+}
+export function boostestIntersectionClass<T extends abstract new (...args: any) => any>(IntersectionClass): T {
+	return new IntersectionClass(intersection_util("test string data", 10), intersection_util({ "name": "test string data" }, { "ver": 10 }), intersection_util("test string data", "hoga"), nonNullable_NonNullable_boostestIntersectionClass(() => {
+		return "test string data";
+	}));
+}
+
+export function nonNullable_NonNullable_boostestIntersectionClass<T>(NonNullable_T_boostestIntersectionClass: any, args?: Partial<T>) {
+	return intersection_util(NonNullable_T_boostestIntersectionClass(), {});
+}
+
+export function boostestIntersectionInterface<T>(args?: Partial<T>): T {
+	return {
+		"intersction": intersection_util("test string data", 10),
+		"intersction_obj": intersection_util({ "name": "test string data" }, { "ver": 10 }),
+		"intersction_string": intersection_util("test string data", "hoga"),
+		"nonNullable": nonNullable_NonNullable_boostestIntersectionInterface(() => {
+			return "test string data";
+		}),
+		...args
+	} as T;
+}
+
+export function nonNullable_NonNullable_boostestIntersectionInterface<T>(NonNullable_T_boostestIntersectionInterface: any, args?: Partial<T>) {
+	return intersection_util(NonNullable_T_boostestIntersectionInterface(), {});
+}
+
+export function boostestIntersectionTypeAlias<T>(args?: Partial<T>): T {
+	return {
+		"intersction": intersection_util("test string data", 10),
+		"intersction_obj": intersection_util({ "name": "test string data" }, { "ver": 10 }),
+		"intersction_string": intersection_util("test string data", "hoga"),
+		"nonNullable": nonNullable_NonNullable_boostestIntersectionTypeAlias(() => {
+			return "test string data";
+		}),
+		...args
+	} as T;
+}
+
+export function nonNullable_NonNullable_boostestIntersectionTypeAlias<T>(NonNullable_T_boostestIntersectionTypeAlias: any, args?: Partial<T>) {
+	return intersection_util(NonNullable_T_boostestIntersectionTypeAlias(), {});
+}
+
+"
+`;
+
 exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/literal/literal.spec_test_data.ts 1`] = `
-"export function boostestTsLiteralArrayUnionType<T>() {
+"function isNullOrUndefined(value) {
+  return value === undefined || value === null;
+}
+function emptyObj(value) {
+  if (isNullOrUndefined(value)) return false;
+  return typeof value === "object" && Object.keys(value).length === 0;
+}
+function intersection_util(...args) {
+  let values = args;
+  // If it includes {}, filter out null and undefined, and also remove {}
+  const includesEmptyObj = values.some((val) => emptyObj(val));
+
+  if (includesEmptyObj) {
+    values = values.filter((val) => !isNullOrUndefined(val) && !emptyObj(val));
+  }
+
+  if (values.length === 0) return null;
+  // null or undefined cannot match, so treat as "never" (return null)
+  if (values.some((val) => isNullOrUndefined(val))) {
+    return null;
+  }
+
+  if (values.length === 1) return values[0];
+
+  const firstType = typeof values[0];
+  const isSameType = values.every((value) => typeof value === firstType);
+
+  // Different types cannot be handled, so treat as "never" (return null)
+  if (!isSameType) return null;
+
+  if (firstType === "object" && values.every((value) => value !== null)) {
+    return values.reduce((acc, value) => ({ ...acc, ...value }), {});
+  }
+
+  return values[0];
+}
+export function boostestTsLiteralArrayUnionType<T>() {
 	return [];
 }
 
@@ -576,7 +1386,43 @@ export function literalSymbol_TsTypeLiteralSymbol_boostestUseTSTypeLiteralInterf
 `;
 
 exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/nestes_type/nested_type.spec_test_data.ts 1`] = `
-"export function boostestNestedInterface<T>(args?: Partial<T>): T {
+"function isNullOrUndefined(value) {
+  return value === undefined || value === null;
+}
+function emptyObj(value) {
+  if (isNullOrUndefined(value)) return false;
+  return typeof value === "object" && Object.keys(value).length === 0;
+}
+function intersection_util(...args) {
+  let values = args;
+  // If it includes {}, filter out null and undefined, and also remove {}
+  const includesEmptyObj = values.some((val) => emptyObj(val));
+
+  if (includesEmptyObj) {
+    values = values.filter((val) => !isNullOrUndefined(val) && !emptyObj(val));
+  }
+
+  if (values.length === 0) return null;
+  // null or undefined cannot match, so treat as "never" (return null)
+  if (values.some((val) => isNullOrUndefined(val))) {
+    return null;
+  }
+
+  if (values.length === 1) return values[0];
+
+  const firstType = typeof values[0];
+  const isSameType = values.every((value) => typeof value === firstType);
+
+  // Different types cannot be handled, so treat as "never" (return null)
+  if (!isSameType) return null;
+
+  if (firstType === "object" && values.every((value) => value !== null)) {
+    return values.reduce((acc, value) => ({ ...acc, ...value }), {});
+  }
+
+  return values[0];
+}
+export function boostestNestedInterface<T>(args?: Partial<T>): T {
 	return {
 		"a": 10,
 		"b": "test string data",
@@ -610,10 +1456,7 @@ exports[`boostest all dir output correctly output correctly /Users/tanakamasato/
 		},
 		"x": [],
 		"literalType": "option1",
-		"mixedType": {
-			...{ "a": 10 } as object,
-			...{ "b": "test string data" } as object
-		},
+		"mixedType": intersection_util({ "a": 10 }, { "b": "test string data" }),
 		"conditionalType": "active",
 		"extended": {
 			"id": 10,
@@ -683,10 +1526,7 @@ export function boostestNestedPropClass<T extends abstract new (...args: any) =>
 		},
 		"x": [],
 		"literalType": "option1",
-		"mixedType": {
-			...{ "a": 10 } as object,
-			...{ "b": "test string data" } as object
-		},
+		"mixedType": intersection_util({ "a": 10 }, { "b": "test string data" }),
 		"conditionalType": "active",
 		"extended": {
 			"id": 10,
@@ -747,10 +1587,7 @@ export function boostestNestedType<T>(args?: Partial<T>): T {
 		},
 		"x": [],
 		"literalType": "option1",
-		"mixedType": {
-			...{ "a": 10 } as object,
-			...{ "b": "test string data" } as object
-		},
+		"mixedType": intersection_util({ "a": 10 }, { "b": "test string data" }),
 		"conditionalType": "active",
 		"extended": {
 			"id": 10,
@@ -790,7 +1627,43 @@ export function deep_DeepType_boostestNestedType<T>(args?: Partial<T>): T {
 `;
 
 exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/outer_packages/outer_packages.spec_test_data.ts 1`] = `
-"export function boostestFormDataVisitorHelpers<T>(args?: Partial<T>): T {
+"function isNullOrUndefined(value) {
+  return value === undefined || value === null;
+}
+function emptyObj(value) {
+  if (isNullOrUndefined(value)) return false;
+  return typeof value === "object" && Object.keys(value).length === 0;
+}
+function intersection_util(...args) {
+  let values = args;
+  // If it includes {}, filter out null and undefined, and also remove {}
+  const includesEmptyObj = values.some((val) => emptyObj(val));
+
+  if (includesEmptyObj) {
+    values = values.filter((val) => !isNullOrUndefined(val) && !emptyObj(val));
+  }
+
+  if (values.length === 0) return null;
+  // null or undefined cannot match, so treat as "never" (return null)
+  if (values.some((val) => isNullOrUndefined(val))) {
+    return null;
+  }
+
+  if (values.length === 1) return values[0];
+
+  const firstType = typeof values[0];
+  const isSameType = values.every((value) => typeof value === firstType);
+
+  // Different types cannot be handled, so treat as "never" (return null)
+  if (!isSameType) return null;
+
+  if (firstType === "object" && values.every((value) => value !== null)) {
+    return values.reduce((acc, value) => ({ ...acc, ...value }), {});
+  }
+
+  return values[0];
+}
+export function boostestFormDataVisitorHelpers<T>(args?: Partial<T>): T {
 	return {
 		"defaultVisitor": defaultVisitor_SerializerVisitor_boostestFormDataVisitorHelpers(),
 		"convertValue": (value: any) => {
@@ -831,7 +1704,43 @@ export function boostestResponseType<T>(args?: Partial<T>): T {
 `;
 
 exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/renamed/renamed.spec_test_data.ts 1`] = `
-"export function boostestRenamedComplexChipsType<T>() {
+"function isNullOrUndefined(value) {
+  return value === undefined || value === null;
+}
+function emptyObj(value) {
+  if (isNullOrUndefined(value)) return false;
+  return typeof value === "object" && Object.keys(value).length === 0;
+}
+function intersection_util(...args) {
+  let values = args;
+  // If it includes {}, filter out null and undefined, and also remove {}
+  const includesEmptyObj = values.some((val) => emptyObj(val));
+
+  if (includesEmptyObj) {
+    values = values.filter((val) => !isNullOrUndefined(val) && !emptyObj(val));
+  }
+
+  if (values.length === 0) return null;
+  // null or undefined cannot match, so treat as "never" (return null)
+  if (values.some((val) => isNullOrUndefined(val))) {
+    return null;
+  }
+
+  if (values.length === 1) return values[0];
+
+  const firstType = typeof values[0];
+  const isSameType = values.every((value) => typeof value === firstType);
+
+  // Different types cannot be handled, so treat as "never" (return null)
+  if (!isSameType) return null;
+
+  if (firstType === "object" && values.every((value) => value !== null)) {
+    return values.reduce((acc, value) => ({ ...acc, ...value }), {});
+  }
+
+  return values[0];
+}
+export function boostestRenamedComplexChipsType<T>() {
 	return RenamedComplexChipsType_ComplexChipsType_boostestRenamedComplexChipsType();
 }
 
@@ -856,10 +1765,7 @@ export function RenamedComplexChipsType_ComplexChipsType_boostestRenamedComplexC
 		"objectKey": {},
 		"voidKey": null,
 		"indexedKey": indexedKey_PotatoChip_boostestRenamedComplexChipsType()["name"],
-		"intersectionKey": {
-			...intersectionKey_LayClassic_boostestRenamedComplexChipsType() as object,
-			...intersectionKey_KoikeyaPridePotato_boostestRenamedComplexChipsType() as object
-		},
+		"intersectionKey": intersection_util(intersectionKey_LayClassic_boostestRenamedComplexChipsType(), intersectionKey_KoikeyaPridePotato_boostestRenamedComplexChipsType()),
 		"arrayKey": [],
 		...args
 	} as T;
@@ -950,10 +1856,7 @@ export function huga_anoChips_ComplexInterfaceChips_boostestRenamedNestedPropCla
 		"objectKey": {},
 		"voidKey": null,
 		"indexedKey": indexedKey_PotatoChip_boostestRenamedNestedPropClass()["name"],
-		"intersectionKey": {
-			...intersectionKey_LayClassic_boostestRenamedNestedPropClass() as object,
-			...intersectionKey_KoikeyaPridePotato_boostestRenamedNestedPropClass() as object
-		},
+		"intersectionKey": intersection_util(intersectionKey_LayClassic_boostestRenamedNestedPropClass(), intersectionKey_KoikeyaPridePotato_boostestRenamedNestedPropClass()),
 		"arrayKey": [],
 		...args
 	} as T;
@@ -1023,7 +1926,43 @@ export function intersectionKey_KoikeyaPridePotato_boostestRenamedNestedPropClas
 `;
 
 exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/standard/standard.spec_test_data.ts 1`] = `
-"export function boostestLiteralAliasType<T>(args?: Partial<T>): T {
+"function isNullOrUndefined(value) {
+  return value === undefined || value === null;
+}
+function emptyObj(value) {
+  if (isNullOrUndefined(value)) return false;
+  return typeof value === "object" && Object.keys(value).length === 0;
+}
+function intersection_util(...args) {
+  let values = args;
+  // If it includes {}, filter out null and undefined, and also remove {}
+  const includesEmptyObj = values.some((val) => emptyObj(val));
+
+  if (includesEmptyObj) {
+    values = values.filter((val) => !isNullOrUndefined(val) && !emptyObj(val));
+  }
+
+  if (values.length === 0) return null;
+  // null or undefined cannot match, so treat as "never" (return null)
+  if (values.some((val) => isNullOrUndefined(val))) {
+    return null;
+  }
+
+  if (values.length === 1) return values[0];
+
+  const firstType = typeof values[0];
+  const isSameType = values.every((value) => typeof value === firstType);
+
+  // Different types cannot be handled, so treat as "never" (return null)
+  if (!isSameType) return null;
+
+  if (firstType === "object" && values.every((value) => value !== null)) {
+    return values.reduce((acc, value) => ({ ...acc, ...value }), {});
+  }
+
+  return values[0];
+}
+export function boostestLiteralAliasType<T>(args?: Partial<T>): T {
 	return {
 		"stringLiteral": "test string data",
 		"numberLiteral": 10,
@@ -1062,18 +2001,12 @@ exports[`boostest all dir output correctly output correctly /Users/tanakamasato/
 			tsNamedTuple_RefType_boostestLiteralAliasType(),
 			tsNamedTuple_RefTypeInterface_boostestLiteralAliasType()
 		],
-		"intersectionType": {
-			...intersectionType_RefType_boostestLiteralAliasType() as object,
-			...intersectionType_RefTypeInterface_boostestLiteralAliasType() as object,
-			...{
-				"name": "test string data",
-				"age": 10
-			} as object
-		},
+		"intersectionType": intersection_util(intersectionType_RefType_boostestLiteralAliasType(), intersectionType_RefTypeInterface_boostestLiteralAliasType(), {
+			"name": "test string data",
+			"age": 10
+		}),
 		"keyof": Object.keys(keyof_RefType_boostestLiteralAliasType())[0],
 		"indexAccessor": indexAccessor_RefType_boostestLiteralAliasType()["name"],
-		"mapperType": mapperType_Butterfly_boostestLiteralAliasType(),
-		"keyOfMapperType": keyOfMapperType_KeyOfButterfly_boostestLiteralAliasType(),
 		...args
 	} as T;
 }
@@ -1150,41 +2083,6 @@ export function indexAccessor_RefType_boostestLiteralAliasType<T>(args?: Partial
 	} as T;
 }
 
-export function mapperType_Butterfly_boostestLiteralAliasType<T>() {
-	return Butterfly_SystemSupportLanguage_boostestLiteralAliasType().reduce((acc: any, cur) => {
-		return {
-			...acc,
-			[cur]: ""
-		};
-	}, {});
-}
-
-export function Butterfly_SystemSupportLanguage_boostestLiteralAliasType<T>() {
-	return [
-		"en",
-		"fr",
-		"it",
-		"es"
-	];
-}
-
-export function keyOfMapperType_KeyOfButterfly_boostestLiteralAliasType<T>() {
-	return Object.keys(KeyOfButterfly_RefType_boostestLiteralAliasType()).reduce((acc: any, cur) => {
-		return {
-			...acc,
-			[cur]: ""
-		};
-	}, {});
-}
-
-export function KeyOfButterfly_RefType_boostestLiteralAliasType<T>(args?: Partial<T>): T {
-	return {
-		"name": "test string data",
-		"ver": 10,
-		...args
-	} as T;
-}
-
 export function boostestLiteralInterfaceType<T>(args?: Partial<T>): T {
 	return {
 		"stringLiteral": "test string data",
@@ -1224,18 +2122,12 @@ export function boostestLiteralInterfaceType<T>(args?: Partial<T>): T {
 			tsNamedTuple_RefType_boostestLiteralInterfaceType(),
 			tsNamedTuple_RefTypeInterface_boostestLiteralInterfaceType()
 		],
-		"intersectionType": {
-			...intersectionType_RefType_boostestLiteralInterfaceType() as object,
-			...intersectionType_RefTypeInterface_boostestLiteralInterfaceType() as object,
-			...{
-				"name": "test string data",
-				"age": 10
-			} as object
-		},
+		"intersectionType": intersection_util(intersectionType_RefType_boostestLiteralInterfaceType(), intersectionType_RefTypeInterface_boostestLiteralInterfaceType(), {
+			"name": "test string data",
+			"age": 10
+		}),
 		"keyof": Object.keys(keyof_RefType_boostestLiteralInterfaceType())[0],
 		"indexAccessor": indexAccessor_RefType_boostestLiteralInterfaceType()["name"],
-		"mapperType": mapperType_Butterfly_boostestLiteralInterfaceType(),
-		"keyOfMapperType": keyOfMapperType_KeyOfButterfly_boostestLiteralInterfaceType(),
 		...args
 	} as T;
 }
@@ -1312,41 +2204,6 @@ export function indexAccessor_RefType_boostestLiteralInterfaceType<T>(args?: Par
 	} as T;
 }
 
-export function mapperType_Butterfly_boostestLiteralInterfaceType<T>() {
-	return Butterfly_SystemSupportLanguage_boostestLiteralInterfaceType().reduce((acc: any, cur) => {
-		return {
-			...acc,
-			[cur]: ""
-		};
-	}, {});
-}
-
-export function Butterfly_SystemSupportLanguage_boostestLiteralInterfaceType<T>() {
-	return [
-		"en",
-		"fr",
-		"it",
-		"es"
-	];
-}
-
-export function keyOfMapperType_KeyOfButterfly_boostestLiteralInterfaceType<T>() {
-	return Object.keys(KeyOfButterfly_RefType_boostestLiteralInterfaceType()).reduce((acc: any, cur) => {
-		return {
-			...acc,
-			[cur]: ""
-		};
-	}, {});
-}
-
-export function KeyOfButterfly_RefType_boostestLiteralInterfaceType<T>(args?: Partial<T>): T {
-	return {
-		"name": "test string data",
-		"ver": 10,
-		...args
-	} as T;
-}
-
 export function boostestLiteralTypeClass<T extends abstract new (...args: any) => any>(LiteralTypeClass): T {
 	return new LiteralTypeClass("test string data", 10, 9007199254740991, true, null, undefined, "any", undefined, null, {}, null, () => {}, [], referenceLiteral_RefType_boostestLiteralTypeClass(), "test string data", "string", 20, 10000000000000n, true, null, {}, [], Symbol(), [
 		"test string data",
@@ -1361,14 +2218,10 @@ export function boostestLiteralTypeClass<T extends abstract new (...args: any) =
 		tsNamedTuple_RefType_boostestLiteralTypeClass(),
 		tsNamedTuple_RefTypeInterface_boostestLiteralTypeClass(),
 		10
-	], {
-		...intersectionType_RefType_boostestLiteralTypeClass() as object,
-		...intersectionType_RefTypeInterface_boostestLiteralTypeClass() as object,
-		...{
-			"name": "test string data",
-			"age": 10
-		} as object
-	}, false, Object.keys(keyof_RefType_boostestLiteralTypeClass())[0], indexAccessor_RefType_boostestLiteralTypeClass()["name"], mapperType_Butterfly_boostestLiteralTypeClass(), keyOfMapperType_KeyOfButterfly_boostestLiteralTypeClass());
+	], intersection_util(intersectionType_RefType_boostestLiteralTypeClass(), intersectionType_RefTypeInterface_boostestLiteralTypeClass(), {
+		"name": "test string data",
+		"age": 10
+	}), false, Object.keys(keyof_RefType_boostestLiteralTypeClass())[0], indexAccessor_RefType_boostestLiteralTypeClass()["name"]);
 }
 
 export function referenceLiteral_RefType_boostestLiteralTypeClass<T>(args?: Partial<T>): T {
@@ -1443,46 +2296,47 @@ export function indexAccessor_RefType_boostestLiteralTypeClass<T>(args?: Partial
 	} as T;
 }
 
-export function mapperType_Butterfly_boostestLiteralTypeClass<T>() {
-	return Butterfly_SystemSupportLanguage_boostestLiteralTypeClass().reduce((acc: any, cur) => {
-		return {
-			...acc,
-			[cur]: ""
-		};
-	}, {});
-}
-
-export function Butterfly_SystemSupportLanguage_boostestLiteralTypeClass<T>() {
-	return [
-		"en",
-		"fr",
-		"it",
-		"es"
-	];
-}
-
-export function keyOfMapperType_KeyOfButterfly_boostestLiteralTypeClass<T>() {
-	return Object.keys(KeyOfButterfly_RefType_boostestLiteralTypeClass()).reduce((acc: any, cur) => {
-		return {
-			...acc,
-			[cur]: ""
-		};
-	}, {});
-}
-
-export function KeyOfButterfly_RefType_boostestLiteralTypeClass<T>(args?: Partial<T>): T {
-	return {
-		"name": "test string data",
-		"ver": 10,
-		...args
-	} as T;
-}
-
 "
 `;
 
 exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/union/union.spec_test_data.ts 1`] = `
-"export function boostestTSAliasMixUnionObjType<T>(args?: Partial<T>): T {
+"function isNullOrUndefined(value) {
+  return value === undefined || value === null;
+}
+function emptyObj(value) {
+  if (isNullOrUndefined(value)) return false;
+  return typeof value === "object" && Object.keys(value).length === 0;
+}
+function intersection_util(...args) {
+  let values = args;
+  // If it includes {}, filter out null and undefined, and also remove {}
+  const includesEmptyObj = values.some((val) => emptyObj(val));
+
+  if (includesEmptyObj) {
+    values = values.filter((val) => !isNullOrUndefined(val) && !emptyObj(val));
+  }
+
+  if (values.length === 0) return null;
+  // null or undefined cannot match, so treat as "never" (return null)
+  if (values.some((val) => isNullOrUndefined(val))) {
+    return null;
+  }
+
+  if (values.length === 1) return values[0];
+
+  const firstType = typeof values[0];
+  const isSameType = values.every((value) => typeof value === firstType);
+
+  // Different types cannot be handled, so treat as "never" (return null)
+  if (!isSameType) return null;
+
+  if (firstType === "object" && values.every((value) => value !== null)) {
+    return values.reduce((acc, value) => ({ ...acc, ...value }), {});
+  }
+
+  return values[0];
+}
+export function boostestTSAliasMixUnionObjType<T>(args?: Partial<T>): T {
 	return {
 		"ref_type": ref_type_TSAliasMixUnionType_boostestTSAliasMixUnionObjType(),
 		"type": 5e4,
@@ -1520,7 +2374,43 @@ export function boostestTSInterfaceStringUnionType<T>(args?: Partial<T>): T {
 `;
 
 exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/various_export_impot/various_export_import.spec_test_data.ts 1`] = `
-"export function boostestAccessorClass<T extends abstract new (...args: any) => any>(AccessorClass): T {
+"function isNullOrUndefined(value) {
+  return value === undefined || value === null;
+}
+function emptyObj(value) {
+  if (isNullOrUndefined(value)) return false;
+  return typeof value === "object" && Object.keys(value).length === 0;
+}
+function intersection_util(...args) {
+  let values = args;
+  // If it includes {}, filter out null and undefined, and also remove {}
+  const includesEmptyObj = values.some((val) => emptyObj(val));
+
+  if (includesEmptyObj) {
+    values = values.filter((val) => !isNullOrUndefined(val) && !emptyObj(val));
+  }
+
+  if (values.length === 0) return null;
+  // null or undefined cannot match, so treat as "never" (return null)
+  if (values.some((val) => isNullOrUndefined(val))) {
+    return null;
+  }
+
+  if (values.length === 1) return values[0];
+
+  const firstType = typeof values[0];
+  const isSameType = values.every((value) => typeof value === firstType);
+
+  // Different types cannot be handled, so treat as "never" (return null)
+  if (!isSameType) return null;
+
+  if (firstType === "object" && values.every((value) => value !== null)) {
+    return values.reduce((acc, value) => ({ ...acc, ...value }), {});
+  }
+
+  return values[0];
+}
+export function boostestAccessorClass<T extends abstract new (...args: any) => any>(AccessorClass): T {
 	return new AccessorClass("test string data", 10, 10);
 }
 
@@ -1549,10 +2439,7 @@ export function chips_ComplexInterfaceChips_boostestAnoExportDefaultClass<T>(arg
 		"objectKey": {},
 		"voidKey": null,
 		"indexedKey": indexedKey_PotatoChip_boostestAnoExportDefaultClass()["name"],
-		"intersectionKey": {
-			...intersectionKey_LayClassic_boostestAnoExportDefaultClass() as object,
-			...intersectionKey_KoikeyaPridePotato_boostestAnoExportDefaultClass() as object
-		},
+		"intersectionKey": intersection_util(intersectionKey_LayClassic_boostestAnoExportDefaultClass(), intersectionKey_KoikeyaPridePotato_boostestAnoExportDefaultClass()),
 		"arrayKey": [],
 		...args
 	} as T;
@@ -1647,10 +2534,7 @@ export function chips_ComplexInterfaceChips_boostestAnoExportDefaultInterface<T>
 		"objectKey": {},
 		"voidKey": null,
 		"indexedKey": indexedKey_PotatoChip_boostestAnoExportDefaultInterface()["name"],
-		"intersectionKey": {
-			...intersectionKey_LayClassic_boostestAnoExportDefaultInterface() as object,
-			...intersectionKey_KoikeyaPridePotato_boostestAnoExportDefaultInterface() as object
-		},
+		"intersectionKey": intersection_util(intersectionKey_LayClassic_boostestAnoExportDefaultInterface(), intersectionKey_KoikeyaPridePotato_boostestAnoExportDefaultInterface()),
 		"arrayKey": [],
 		...args
 	} as T;
@@ -1741,10 +2625,7 @@ export function chips_ComplexInterfaceChips_boostestAnoExportNamedDeclClass<T>(a
 		"objectKey": {},
 		"voidKey": null,
 		"indexedKey": indexedKey_PotatoChip_boostestAnoExportNamedDeclClass()["name"],
-		"intersectionKey": {
-			...intersectionKey_LayClassic_boostestAnoExportNamedDeclClass() as object,
-			...intersectionKey_KoikeyaPridePotato_boostestAnoExportNamedDeclClass() as object
-		},
+		"intersectionKey": intersection_util(intersectionKey_LayClassic_boostestAnoExportNamedDeclClass(), intersectionKey_KoikeyaPridePotato_boostestAnoExportNamedDeclClass()),
 		"arrayKey": [],
 		...args
 	} as T;
@@ -1839,10 +2720,7 @@ export function chips_ComplexInterfaceChips_boostestAnoMixInterface<T>(args?: Pa
 		"objectKey": {},
 		"voidKey": null,
 		"indexedKey": indexedKey_PotatoChip_boostestAnoMixInterface()["name"],
-		"intersectionKey": {
-			...intersectionKey_LayClassic_boostestAnoMixInterface() as object,
-			...intersectionKey_KoikeyaPridePotato_boostestAnoMixInterface() as object
-		},
+		"intersectionKey": intersection_util(intersectionKey_LayClassic_boostestAnoMixInterface(), intersectionKey_KoikeyaPridePotato_boostestAnoMixInterface()),
 		"arrayKey": [],
 		...args
 	} as T;
@@ -1929,10 +2807,7 @@ export function boostestComplexChipsType<T>(args?: Partial<T>): T {
 		"objectKey": {},
 		"voidKey": null,
 		"indexedKey": indexedKey_PotatoChip_boostestComplexChipsType()["name"],
-		"intersectionKey": {
-			...intersectionKey_LayClassic_boostestComplexChipsType() as object,
-			...intersectionKey_KoikeyaPridePotato_boostestComplexChipsType() as object
-		},
+		"intersectionKey": intersection_util(intersectionKey_LayClassic_boostestComplexChipsType(), intersectionKey_KoikeyaPridePotato_boostestComplexChipsType()),
 		"arrayKey": [],
 		...args
 	} as T;
@@ -2023,10 +2898,7 @@ export function chips_ComplexInterfaceChips_boostestExportDefaultClass<T>(args?:
 		"objectKey": {},
 		"voidKey": null,
 		"indexedKey": indexedKey_PotatoChip_boostestExportDefaultClass()["name"],
-		"intersectionKey": {
-			...intersectionKey_LayClassic_boostestExportDefaultClass() as object,
-			...intersectionKey_KoikeyaPridePotato_boostestExportDefaultClass() as object
-		},
+		"intersectionKey": intersection_util(intersectionKey_LayClassic_boostestExportDefaultClass(), intersectionKey_KoikeyaPridePotato_boostestExportDefaultClass()),
 		"arrayKey": [],
 		...args
 	} as T;
@@ -2117,10 +2989,7 @@ export function chips_ComplexInterfaceChips_boostestExportDefaultClassWithDecl<T
 		"objectKey": {},
 		"voidKey": null,
 		"indexedKey": indexedKey_PotatoChip_boostestExportDefaultClassWithDecl()["name"],
-		"intersectionKey": {
-			...intersectionKey_LayClassic_boostestExportDefaultClassWithDecl() as object,
-			...intersectionKey_KoikeyaPridePotato_boostestExportDefaultClassWithDecl() as object
-		},
+		"intersectionKey": intersection_util(intersectionKey_LayClassic_boostestExportDefaultClassWithDecl(), intersectionKey_KoikeyaPridePotato_boostestExportDefaultClassWithDecl()),
 		"arrayKey": [],
 		...args
 	} as T;
@@ -2215,10 +3084,7 @@ export function chips_ComplexInterfaceChips_boostestExportDefaultNamedDecl<T>(ar
 		"objectKey": {},
 		"voidKey": null,
 		"indexedKey": indexedKey_PotatoChip_boostestExportDefaultNamedDecl()["name"],
-		"intersectionKey": {
-			...intersectionKey_LayClassic_boostestExportDefaultNamedDecl() as object,
-			...intersectionKey_KoikeyaPridePotato_boostestExportDefaultNamedDecl() as object
-		},
+		"intersectionKey": intersection_util(intersectionKey_LayClassic_boostestExportDefaultNamedDecl(), intersectionKey_KoikeyaPridePotato_boostestExportDefaultNamedDecl()),
 		"arrayKey": [],
 		...args
 	} as T;
@@ -2305,10 +3171,7 @@ export function boostestExportNamedDecl<T>(args?: Partial<T>): T {
 		"objectKey": {},
 		"voidKey": null,
 		"indexedKey": indexedKey_PotatoChip_boostestExportNamedDecl()["name"],
-		"intersectionKey": {
-			...intersectionKey_LayClassic_boostestExportNamedDecl() as object,
-			...intersectionKey_KoikeyaPridePotato_boostestExportNamedDecl() as object
-		},
+		"intersectionKey": intersection_util(intersectionKey_LayClassic_boostestExportNamedDecl(), intersectionKey_KoikeyaPridePotato_boostestExportNamedDecl()),
 		"arrayKey": [],
 		...args
 	} as T;
@@ -2403,10 +3266,7 @@ export function chips_ComplexInterfaceChips_boostestExportNamedDeclInterface<T>(
 		"objectKey": {},
 		"voidKey": null,
 		"indexedKey": indexedKey_PotatoChip_boostestExportNamedDeclInterface()["name"],
-		"intersectionKey": {
-			...intersectionKey_LayClassic_boostestExportNamedDeclInterface() as object,
-			...intersectionKey_KoikeyaPridePotato_boostestExportNamedDeclInterface() as object
-		},
+		"intersectionKey": intersection_util(intersectionKey_LayClassic_boostestExportNamedDeclInterface(), intersectionKey_KoikeyaPridePotato_boostestExportNamedDeclInterface()),
 		"arrayKey": [],
 		...args
 	} as T;
@@ -2509,10 +3369,7 @@ export function boostestMixCompTSAlias<T>(args?: Partial<T>): T {
 		"objectKey": {},
 		"voidKey": null,
 		"indexedKey": indexedKey_PotatoChip_boostestMixCompTSAlias()["name"],
-		"intersectionKey": {
-			...intersectionKey_LayClassic_boostestMixCompTSAlias() as object,
-			...intersectionKey_KoikeyaPridePotato_boostestMixCompTSAlias() as object
-		},
+		"intersectionKey": intersection_util(intersectionKey_LayClassic_boostestMixCompTSAlias(), intersectionKey_KoikeyaPridePotato_boostestMixCompTSAlias()),
 		"arrayKey": [],
 		...args
 	} as T;
