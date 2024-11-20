@@ -4,6 +4,7 @@ interface RefTypeInterface {
   name: string;
   ver: number;
 }
+
 class Hoge {
   name: string;
   ver: number;
@@ -12,16 +13,6 @@ class Hoge {
     this.ver = ver;
   }
 }
-
-type SystemSupportLanguage = "en" | "fr" | "it" | "es";
-
-type Butterfly = {
-  [key in SystemSupportLanguage]: string;
-};
-
-type KeyOfButterfly = {
-  [key in keyof RefType]: key;
-};
 
 export type LiteralTypeAlias = {
   stringLiteral: string;
@@ -60,30 +51,14 @@ export type LiteralTypeAlias = {
   intersectionType: RefType & RefTypeInterface & { name: string; age: number };
   keyof: keyof RefType;
   indexAccessor: RefType["name"];
-  mapperType: Butterfly;
-  keyOfMapperType: KeyOfButterfly;
 
   /**********************/
-  /******* TODO *********/
+  /******* FIXME: *******/
   /**********************/
-  constructorType: abstract new (...args: any) => any;
-  thisType: ThisType<string>;
-  array: Array<string>;
-  partial: Partial<RefType>;
-  required: Required<RefType>;
-  readonly: Readonly<RefType>;
-  pick: Pick<RefType, "name">;
-  omit: Omit<RefType, "name">;
-  extract: Extract<string | number, string>;
-  exclude: Exclude<string | number, string>;
-  nonNullable: NonNullable<string | null>;
-  parameters: Parameters<() => void>;
-  constructorParameters: ConstructorParameters<typeof LiteralTypeClass>;
-  returnType: ReturnType<() => void>;
-  instanceType: InstanceType<typeof LiteralTypeClass>;
-  promise: Promise<RefType>;
-  refTypeInterface: RefTypeInterface;
+
+  // constructorType: abstract new (...args: any) => any;
   // classType: typeof Hoge;
+  // refTypeInterface: RefTypeInterface;
 };
 
 export type LiteralTypeInterface = {
@@ -123,30 +98,13 @@ export type LiteralTypeInterface = {
   intersectionType: RefType & RefTypeInterface & { name: string; age: number };
   keyof: keyof RefType;
   indexAccessor: RefType["name"];
-  mapperType: Butterfly;
-  keyOfMapperType: KeyOfButterfly;
 
   /**********************/
-  /******* TODO *********/
+  /******* FIXME: *******/
   /**********************/
-  constructorType: abstract new (...args: any) => any;
-  thisType: ThisType<string>;
-  array: Array<string>;
-  partial: Partial<RefType>;
-  required: Required<RefType>;
-  readonly: Readonly<RefType>;
-  pick: Pick<RefType, "name">;
-  omit: Omit<RefType, "name">;
-  extract: Extract<string | number, string>;
-  exclude: Exclude<string | number, string>;
-  nonNullable: NonNullable<string | null>;
-  parameters: Parameters<() => void>;
-  constructorParameters: ConstructorParameters<typeof LiteralTypeClass>;
-  returnType: ReturnType<() => void>;
-  instanceType: InstanceType<typeof LiteralTypeClass>;
-  promise: Promise<RefType>;
-  refTypeInterface: RefTypeInterface;
+  // constructorType: abstract new (...args: any) => any;
   // classType: typeof Hoge;
+  // refTypeInterface: RefTypeInterface;
 };
 
 export class LiteralTypeClass {
@@ -190,30 +148,13 @@ export class LiteralTypeClass {
 
     public keyof: keyof RefType,
     public indexAccessor: RefType["name"],
-    public mapperType: Butterfly,
-    public keyOfMapperType: KeyOfButterfly,
 
     /**********************/
-    /******* TODO *********/
+    /******* FIXME: *******/
     /**********************/
-    public constructorType: abstract new (...args: any) => any,
-    public thisType: ThisType<string>,
-    public array: Array<string>,
-    public partial: Partial<RefType>,
-    public required: Required<RefType>,
-    public readonly: Readonly<RefType>,
-    public pick: Pick<RefType, "name">,
-    public omit: Omit<RefType, "name">,
-    public extract: Extract<string | number, string>,
-    public exclude: Exclude<string | number, string>,
-    public nonNullable: NonNullable<string | null>,
-    public parameters: Parameters<() => void>,
-    public constructorParameters: ConstructorParameters<typeof Hoge>,
-    public returnType: ReturnType<() => void>,
-    public instanceType: InstanceType<typeof Hoge>,
-    public promise: Promise<RefType>,
-    public refTypeInterface: RefTypeInterface,
+    // public constructorType: abstract new (...args: any) => any,
     // public classType: typeof Hoge,
+    // public refTypeInterface: RefTypeInterface,
     //
   ) {}
 }

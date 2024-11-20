@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Outer package Tests FormDataVisitorHelpers matches snapshot 1`] = `"{"defaultVisitor":{}}"`;
+
+exports[`Outer package Tests Request matches snapshot 1`] = `"{}"`;
+
+exports[`Outer package Tests RequestHandler matches snapshot 1`] = `"{}"`;
+
+exports[`Outer package Tests RequestParamHandler matches snapshot 1`] = `"{}"`;
+
+exports[`Outer package Tests Response matches snapshot 1`] = `"{}"`;
+
+exports[`Outer package Tests SerializerVisitor matches snapshot 1`] = `"{}"`;

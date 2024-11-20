@@ -1,0 +1,5675 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/direct_path/direct_path_test_data.ts 1`] = `
+"function isNullOrUndefined(value) {
+  return value === undefined || value === null;
+}
+function emptyObj(value) {
+  if (isNullOrUndefined(value)) return false;
+  return typeof value === "object" && Object.keys(value).length === 0;
+}
+function intersectionUtil(...args) {
+  let values = args;
+  // If it includes {}, filter out null and undefined, and also remove {}
+  const includesEmptyObj = values.some((val) => emptyObj(val));
+
+  if (includesEmptyObj) {
+    values = values.filter((val) => !isNullOrUndefined(val) && !emptyObj(val));
+  }
+
+  if (values.length === 0) return null;
+  // null or undefined cannot match, so treat as "never" (return null)
+  if (values.some((val) => isNullOrUndefined(val))) {
+    return null;
+  }
+
+  if (values.length === 1) return values[0];
+
+  const firstType = typeof values[0];
+  const isSameType = values.every((value) => typeof value === firstType);
+
+  // Different types cannot be handled, so treat as "never" (return null)
+  if (!isSameType) return null;
+
+  if (firstType === "object" && values.every((value) => value !== null)) {
+    return values.reduce((acc, value) => ({ ...acc, ...value }), {});
+  }
+
+  return values[0];
+}
+function ensureArray<T>(input: T | T[]): T[] {
+  return Array.isArray(input) ? input : [input];
+}
+
+function arraysEqual(arr1: any, arr2: any) {
+  if (!Array.isArray(arr1) || !Array.isArray(arr2)) return false;
+  if (arr1.length !== arr2.length) return false;
+  for (let i = 0; i < arr1.length; i++) {
+    if (arr1[i] !== arr2[i]) return false;
+  }
+  return true;
+}
+
+function isAssignableTo(value: any, typeShape: any) {
+  // プリミティブ型またはリテラル値のチェック
+  if (typeof typeShape !== "object" || typeShape === null) {
+    return (
+      value === typeShape ||
+      typeof value === typeShape ||
+      // WARN: Cannot compare different string types such as 'hoge', 'fuga'
+      typeof value === typeof typeShape
+    );
+  }
+
+  // オブジェクト型のチェック
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  // ネストされたプロパティを再帰的にチェック
+  return Object.keys(typeShape).every((key): boolean => {
+    if (!(key in value)) return false; // プロパティが存在しない場合は false
+    return isAssignableTo(value[key], typeShape[key]);
+  });
+}
+function extendsUtil(
+  value: any,
+  typeShape: any,
+  trueVal: any,
+  falseVal: any,
+): any {
+  const isValueArray = Array.isArray(value);
+  const isTypeShapeArray = Array.isArray(typeShape);
+
+  const arrayValue = ensureArray(value);
+  const arrayTypeShape = ensureArray(typeShape);
+  const arrayTrueVal = ensureArray(trueVal);
+  const arrayFalseVal = ensureArray(falseVal);
+
+  const tutn = arraysEqual(arrayValue, arrayTrueVal); // T extends U ? T : never
+  const tunt = arraysEqual(arrayValue, arrayFalseVal); // T extends U ? never : T
+  const tunu = arraysEqual(arrayTypeShape, arrayTrueVal); // T extends U ? never : U
+  const tuun = arraysEqual(arrayTypeShape, arrayFalseVal); // T extends U ? U : never
+  const otherVal = !tutn && !tunt && !tunu && !tuun;
+
+  let resultArray: any[] = [];
+
+  // ユニオン型の場合、配列の各要素をチェック
+  if (isValueArray || isTypeShapeArray) {
+    // Extract<"A"|"B"|"C", "A"|"B">
+    if (tutn) {
+      resultArray = arrayValue.filter((val) => arrayTypeShape.includes(val));
+    } else if (tunt) {
+      resultArray = arrayValue.filter((val) => !arrayTypeShape.includes(val));
+    } else if (tunu) {
+      resultArray = arrayTypeShape.filter((val) => !arrayValue.includes(val));
+    } else if (tuun) {
+      resultArray = arrayTypeShape.filter((val) => arrayValue.includes(val));
+    }
+
+    if (otherVal) {
+      if (resultArray.length === 0) {
+        return falseVal;
+      } else {
+        return trueVal;
+      }
+    }
+
+    return resultArray[0];
+  }
+
+  return isAssignableTo(value, typeShape) ? trueVal : falseVal;
+}
+const isArray = false;
+
+function getFirstNonNullOrUndefined(arr: any[]): any {
+  // Step 1: Filter out undefined and null values
+  const filteredArray = arr.filter(
+    (item) => item !== undefined && item !== null,
+  );
+
+  // Step 2: Check if the filtered array is not empty
+  if (filteredArray.length > 0) {
+    // Step 3: Return the first element of the filtered array
+    return filteredArray[0];
+  } else {
+    // Step 4: Return the first undefined or null element from the original array
+    return arr.find((item) => item === undefined || item === null);
+  }
+}
+
+function getUnionValue(a: any, isArray = false) {
+  return isArray ? a : getFirstNonNullOrUndefined(a);
+}
+export function boostestTsTypeLiteralString<T>(isArray = false) {
+	return "test string data";
+}
+
+"
+`;
+
+exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/call_signature/call_signature.spec_test_data.ts 1`] = `
+"function isNullOrUndefined(value) {
+  return value === undefined || value === null;
+}
+function emptyObj(value) {
+  if (isNullOrUndefined(value)) return false;
+  return typeof value === "object" && Object.keys(value).length === 0;
+}
+function intersectionUtil(...args) {
+  let values = args;
+  // If it includes {}, filter out null and undefined, and also remove {}
+  const includesEmptyObj = values.some((val) => emptyObj(val));
+
+  if (includesEmptyObj) {
+    values = values.filter((val) => !isNullOrUndefined(val) && !emptyObj(val));
+  }
+
+  if (values.length === 0) return null;
+  // null or undefined cannot match, so treat as "never" (return null)
+  if (values.some((val) => isNullOrUndefined(val))) {
+    return null;
+  }
+
+  if (values.length === 1) return values[0];
+
+  const firstType = typeof values[0];
+  const isSameType = values.every((value) => typeof value === firstType);
+
+  // Different types cannot be handled, so treat as "never" (return null)
+  if (!isSameType) return null;
+
+  if (firstType === "object" && values.every((value) => value !== null)) {
+    return values.reduce((acc, value) => ({ ...acc, ...value }), {});
+  }
+
+  return values[0];
+}
+function ensureArray<T>(input: T | T[]): T[] {
+  return Array.isArray(input) ? input : [input];
+}
+
+function arraysEqual(arr1: any, arr2: any) {
+  if (!Array.isArray(arr1) || !Array.isArray(arr2)) return false;
+  if (arr1.length !== arr2.length) return false;
+  for (let i = 0; i < arr1.length; i++) {
+    if (arr1[i] !== arr2[i]) return false;
+  }
+  return true;
+}
+
+function isAssignableTo(value: any, typeShape: any) {
+  // プリミティブ型またはリテラル値のチェック
+  if (typeof typeShape !== "object" || typeShape === null) {
+    return (
+      value === typeShape ||
+      typeof value === typeShape ||
+      // WARN: Cannot compare different string types such as 'hoge', 'fuga'
+      typeof value === typeof typeShape
+    );
+  }
+
+  // オブジェクト型のチェック
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  // ネストされたプロパティを再帰的にチェック
+  return Object.keys(typeShape).every((key): boolean => {
+    if (!(key in value)) return false; // プロパティが存在しない場合は false
+    return isAssignableTo(value[key], typeShape[key]);
+  });
+}
+function extendsUtil(
+  value: any,
+  typeShape: any,
+  trueVal: any,
+  falseVal: any,
+): any {
+  const isValueArray = Array.isArray(value);
+  const isTypeShapeArray = Array.isArray(typeShape);
+
+  const arrayValue = ensureArray(value);
+  const arrayTypeShape = ensureArray(typeShape);
+  const arrayTrueVal = ensureArray(trueVal);
+  const arrayFalseVal = ensureArray(falseVal);
+
+  const tutn = arraysEqual(arrayValue, arrayTrueVal); // T extends U ? T : never
+  const tunt = arraysEqual(arrayValue, arrayFalseVal); // T extends U ? never : T
+  const tunu = arraysEqual(arrayTypeShape, arrayTrueVal); // T extends U ? never : U
+  const tuun = arraysEqual(arrayTypeShape, arrayFalseVal); // T extends U ? U : never
+  const otherVal = !tutn && !tunt && !tunu && !tuun;
+
+  let resultArray: any[] = [];
+
+  // ユニオン型の場合、配列の各要素をチェック
+  if (isValueArray || isTypeShapeArray) {
+    // Extract<"A"|"B"|"C", "A"|"B">
+    if (tutn) {
+      resultArray = arrayValue.filter((val) => arrayTypeShape.includes(val));
+    } else if (tunt) {
+      resultArray = arrayValue.filter((val) => !arrayTypeShape.includes(val));
+    } else if (tunu) {
+      resultArray = arrayTypeShape.filter((val) => !arrayValue.includes(val));
+    } else if (tuun) {
+      resultArray = arrayTypeShape.filter((val) => arrayValue.includes(val));
+    }
+
+    if (otherVal) {
+      if (resultArray.length === 0) {
+        return falseVal;
+      } else {
+        return trueVal;
+      }
+    }
+
+    return resultArray[0];
+  }
+
+  return isAssignableTo(value, typeShape) ? trueVal : falseVal;
+}
+const isArray = false;
+
+function getFirstNonNullOrUndefined(arr: any[]): any {
+  // Step 1: Filter out undefined and null values
+  const filteredArray = arr.filter(
+    (item) => item !== undefined && item !== null,
+  );
+
+  // Step 2: Check if the filtered array is not empty
+  if (filteredArray.length > 0) {
+    // Step 3: Return the first element of the filtered array
+    return filteredArray[0];
+  } else {
+    // Step 4: Return the first undefined or null element from the original array
+    return arr.find((item) => item === undefined || item === null);
+  }
+}
+
+function getUnionValue(a: any, isArray = false) {
+  return isArray ? a : getFirstNonNullOrUndefined(a);
+}
+export function boostestCallSignature<T>(isArray = false) {
+	return (name: string, age: number) => {};
+}
+
+export function boostestCallSignatureInterface<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function boostestMathOperations<T>(args?: Partial<T>): T {
+	return {
+		"add": (a: number, b: number) => {
+			return 10;
+		},
+		"multiply": (a: number, b: number) => {
+			return 10;
+		},
+		...args
+	} as T;
+}
+
+export function boostestSingleCallSignature<T>(isArray = false) {
+	return (name: string, age: number) => {
+		return null;
+	};
+}
+
+"
+`;
+
+exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/class/class.spec_test_data.ts 1`] = `
+"function isNullOrUndefined(value) {
+  return value === undefined || value === null;
+}
+function emptyObj(value) {
+  if (isNullOrUndefined(value)) return false;
+  return typeof value === "object" && Object.keys(value).length === 0;
+}
+function intersectionUtil(...args) {
+  let values = args;
+  // If it includes {}, filter out null and undefined, and also remove {}
+  const includesEmptyObj = values.some((val) => emptyObj(val));
+
+  if (includesEmptyObj) {
+    values = values.filter((val) => !isNullOrUndefined(val) && !emptyObj(val));
+  }
+
+  if (values.length === 0) return null;
+  // null or undefined cannot match, so treat as "never" (return null)
+  if (values.some((val) => isNullOrUndefined(val))) {
+    return null;
+  }
+
+  if (values.length === 1) return values[0];
+
+  const firstType = typeof values[0];
+  const isSameType = values.every((value) => typeof value === firstType);
+
+  // Different types cannot be handled, so treat as "never" (return null)
+  if (!isSameType) return null;
+
+  if (firstType === "object" && values.every((value) => value !== null)) {
+    return values.reduce((acc, value) => ({ ...acc, ...value }), {});
+  }
+
+  return values[0];
+}
+function ensureArray<T>(input: T | T[]): T[] {
+  return Array.isArray(input) ? input : [input];
+}
+
+function arraysEqual(arr1: any, arr2: any) {
+  if (!Array.isArray(arr1) || !Array.isArray(arr2)) return false;
+  if (arr1.length !== arr2.length) return false;
+  for (let i = 0; i < arr1.length; i++) {
+    if (arr1[i] !== arr2[i]) return false;
+  }
+  return true;
+}
+
+function isAssignableTo(value: any, typeShape: any) {
+  // プリミティブ型またはリテラル値のチェック
+  if (typeof typeShape !== "object" || typeShape === null) {
+    return (
+      value === typeShape ||
+      typeof value === typeShape ||
+      // WARN: Cannot compare different string types such as 'hoge', 'fuga'
+      typeof value === typeof typeShape
+    );
+  }
+
+  // オブジェクト型のチェック
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  // ネストされたプロパティを再帰的にチェック
+  return Object.keys(typeShape).every((key): boolean => {
+    if (!(key in value)) return false; // プロパティが存在しない場合は false
+    return isAssignableTo(value[key], typeShape[key]);
+  });
+}
+function extendsUtil(
+  value: any,
+  typeShape: any,
+  trueVal: any,
+  falseVal: any,
+): any {
+  const isValueArray = Array.isArray(value);
+  const isTypeShapeArray = Array.isArray(typeShape);
+
+  const arrayValue = ensureArray(value);
+  const arrayTypeShape = ensureArray(typeShape);
+  const arrayTrueVal = ensureArray(trueVal);
+  const arrayFalseVal = ensureArray(falseVal);
+
+  const tutn = arraysEqual(arrayValue, arrayTrueVal); // T extends U ? T : never
+  const tunt = arraysEqual(arrayValue, arrayFalseVal); // T extends U ? never : T
+  const tunu = arraysEqual(arrayTypeShape, arrayTrueVal); // T extends U ? never : U
+  const tuun = arraysEqual(arrayTypeShape, arrayFalseVal); // T extends U ? U : never
+  const otherVal = !tutn && !tunt && !tunu && !tuun;
+
+  let resultArray: any[] = [];
+
+  // ユニオン型の場合、配列の各要素をチェック
+  if (isValueArray || isTypeShapeArray) {
+    // Extract<"A"|"B"|"C", "A"|"B">
+    if (tutn) {
+      resultArray = arrayValue.filter((val) => arrayTypeShape.includes(val));
+    } else if (tunt) {
+      resultArray = arrayValue.filter((val) => !arrayTypeShape.includes(val));
+    } else if (tunu) {
+      resultArray = arrayTypeShape.filter((val) => !arrayValue.includes(val));
+    } else if (tuun) {
+      resultArray = arrayTypeShape.filter((val) => arrayValue.includes(val));
+    }
+
+    if (otherVal) {
+      if (resultArray.length === 0) {
+        return falseVal;
+      } else {
+        return trueVal;
+      }
+    }
+
+    return resultArray[0];
+  }
+
+  return isAssignableTo(value, typeShape) ? trueVal : falseVal;
+}
+const isArray = false;
+
+function getFirstNonNullOrUndefined(arr: any[]): any {
+  // Step 1: Filter out undefined and null values
+  const filteredArray = arr.filter(
+    (item) => item !== undefined && item !== null,
+  );
+
+  // Step 2: Check if the filtered array is not empty
+  if (filteredArray.length > 0) {
+    // Step 3: Return the first element of the filtered array
+    return filteredArray[0];
+  } else {
+    // Step 4: Return the first undefined or null element from the original array
+    return arr.find((item) => item === undefined || item === null);
+  }
+}
+
+function getUnionValue(a: any, isArray = false) {
+  return isArray ? a : getFirstNonNullOrUndefined(a);
+}
+export function boostestArgObjClass<T extends abstract new (...args: any) => any>(ArgObjClass): T {
+	return new ArgObjClass({
+		"name": "test string data",
+		"age": 10
+	}, {
+		"obj_key": object_obj_key_ObjKey_boostestArgObjClass(isArray),
+		"obj_key2": object_obj_key2_ObjKey_boostestArgObjClass(isArray)
+	});
+}
+
+export function object_obj_key_ObjKey_boostestArgObjClass<T>(args?: Partial<T>): T {
+	return {
+		"obj_name": "test string data",
+		"obj_val": 10,
+		...args
+	} as T;
+}
+
+export function object_obj_key2_ObjKey_boostestArgObjClass<T>(args?: Partial<T>): T {
+	return {
+		"obj_name": "test string data",
+		"obj_val": 10,
+		...args
+	} as T;
+}
+
+export function boostestArgObjClass2<T extends abstract new (...args: any) => any>(ArgObjClass2): T {
+	return new ArgObjClass2({
+		"name": "test string data",
+		"age": 10
+	}, {
+		"obj_key": object_obj_key_ObjKey_boostestArgObjClass2(isArray),
+		"obj_key2": object_obj_key2_ObjKey_boostestArgObjClass2(isArray)
+	});
+}
+
+export function object_obj_key_ObjKey_boostestArgObjClass2<T>(args?: Partial<T>): T {
+	return {
+		"obj_name": "test string data",
+		"obj_val": 10,
+		...args
+	} as T;
+}
+
+export function object_obj_key2_ObjKey_boostestArgObjClass2<T>(args?: Partial<T>): T {
+	return {
+		"obj_name": "test string data",
+		"obj_val": 10,
+		...args
+	} as T;
+}
+
+export function boostestConstructorSignature<T>(isArray = false) {
+	return {};
+}
+
+export function boostestConstructorSignatureInterface<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function boostestInnerConstructorSignature<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+"
+`;
+
+exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/common_js/common_js.spec_test_data.ts 1`] = `
+"function isNullOrUndefined(value) {
+  return value === undefined || value === null;
+}
+function emptyObj(value) {
+  if (isNullOrUndefined(value)) return false;
+  return typeof value === "object" && Object.keys(value).length === 0;
+}
+function intersectionUtil(...args) {
+  let values = args;
+  // If it includes {}, filter out null and undefined, and also remove {}
+  const includesEmptyObj = values.some((val) => emptyObj(val));
+
+  if (includesEmptyObj) {
+    values = values.filter((val) => !isNullOrUndefined(val) && !emptyObj(val));
+  }
+
+  if (values.length === 0) return null;
+  // null or undefined cannot match, so treat as "never" (return null)
+  if (values.some((val) => isNullOrUndefined(val))) {
+    return null;
+  }
+
+  if (values.length === 1) return values[0];
+
+  const firstType = typeof values[0];
+  const isSameType = values.every((value) => typeof value === firstType);
+
+  // Different types cannot be handled, so treat as "never" (return null)
+  if (!isSameType) return null;
+
+  if (firstType === "object" && values.every((value) => value !== null)) {
+    return values.reduce((acc, value) => ({ ...acc, ...value }), {});
+  }
+
+  return values[0];
+}
+function ensureArray<T>(input: T | T[]): T[] {
+  return Array.isArray(input) ? input : [input];
+}
+
+function arraysEqual(arr1: any, arr2: any) {
+  if (!Array.isArray(arr1) || !Array.isArray(arr2)) return false;
+  if (arr1.length !== arr2.length) return false;
+  for (let i = 0; i < arr1.length; i++) {
+    if (arr1[i] !== arr2[i]) return false;
+  }
+  return true;
+}
+
+function isAssignableTo(value: any, typeShape: any) {
+  // プリミティブ型またはリテラル値のチェック
+  if (typeof typeShape !== "object" || typeShape === null) {
+    return (
+      value === typeShape ||
+      typeof value === typeShape ||
+      // WARN: Cannot compare different string types such as 'hoge', 'fuga'
+      typeof value === typeof typeShape
+    );
+  }
+
+  // オブジェクト型のチェック
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  // ネストされたプロパティを再帰的にチェック
+  return Object.keys(typeShape).every((key): boolean => {
+    if (!(key in value)) return false; // プロパティが存在しない場合は false
+    return isAssignableTo(value[key], typeShape[key]);
+  });
+}
+function extendsUtil(
+  value: any,
+  typeShape: any,
+  trueVal: any,
+  falseVal: any,
+): any {
+  const isValueArray = Array.isArray(value);
+  const isTypeShapeArray = Array.isArray(typeShape);
+
+  const arrayValue = ensureArray(value);
+  const arrayTypeShape = ensureArray(typeShape);
+  const arrayTrueVal = ensureArray(trueVal);
+  const arrayFalseVal = ensureArray(falseVal);
+
+  const tutn = arraysEqual(arrayValue, arrayTrueVal); // T extends U ? T : never
+  const tunt = arraysEqual(arrayValue, arrayFalseVal); // T extends U ? never : T
+  const tunu = arraysEqual(arrayTypeShape, arrayTrueVal); // T extends U ? never : U
+  const tuun = arraysEqual(arrayTypeShape, arrayFalseVal); // T extends U ? U : never
+  const otherVal = !tutn && !tunt && !tunu && !tuun;
+
+  let resultArray: any[] = [];
+
+  // ユニオン型の場合、配列の各要素をチェック
+  if (isValueArray || isTypeShapeArray) {
+    // Extract<"A"|"B"|"C", "A"|"B">
+    if (tutn) {
+      resultArray = arrayValue.filter((val) => arrayTypeShape.includes(val));
+    } else if (tunt) {
+      resultArray = arrayValue.filter((val) => !arrayTypeShape.includes(val));
+    } else if (tunu) {
+      resultArray = arrayTypeShape.filter((val) => !arrayValue.includes(val));
+    } else if (tuun) {
+      resultArray = arrayTypeShape.filter((val) => arrayValue.includes(val));
+    }
+
+    if (otherVal) {
+      if (resultArray.length === 0) {
+        return falseVal;
+      } else {
+        return trueVal;
+      }
+    }
+
+    return resultArray[0];
+  }
+
+  return isAssignableTo(value, typeShape) ? trueVal : falseVal;
+}
+const isArray = false;
+
+function getFirstNonNullOrUndefined(arr: any[]): any {
+  // Step 1: Filter out undefined and null values
+  const filteredArray = arr.filter(
+    (item) => item !== undefined && item !== null,
+  );
+
+  // Step 2: Check if the filtered array is not empty
+  if (filteredArray.length > 0) {
+    // Step 3: Return the first element of the filtered array
+    return filteredArray[0];
+  } else {
+    // Step 4: Return the first undefined or null element from the original array
+    return arr.find((item) => item === undefined || item === null);
+  }
+}
+
+function getUnionValue(a: any, isArray = false) {
+  return isArray ? a : getFirstNonNullOrUndefined(a);
+}
+export function boostestCommonCjs<T>(args?: Partial<T>): T {
+	return {
+		"id": 10,
+		"name": "test string data",
+		...args
+	} as T;
+}
+
+"
+`;
+
+exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/generics/generics.spec_test_data.ts 1`] = `
+"function isNullOrUndefined(value) {
+  return value === undefined || value === null;
+}
+function emptyObj(value) {
+  if (isNullOrUndefined(value)) return false;
+  return typeof value === "object" && Object.keys(value).length === 0;
+}
+function intersectionUtil(...args) {
+  let values = args;
+  // If it includes {}, filter out null and undefined, and also remove {}
+  const includesEmptyObj = values.some((val) => emptyObj(val));
+
+  if (includesEmptyObj) {
+    values = values.filter((val) => !isNullOrUndefined(val) && !emptyObj(val));
+  }
+
+  if (values.length === 0) return null;
+  // null or undefined cannot match, so treat as "never" (return null)
+  if (values.some((val) => isNullOrUndefined(val))) {
+    return null;
+  }
+
+  if (values.length === 1) return values[0];
+
+  const firstType = typeof values[0];
+  const isSameType = values.every((value) => typeof value === firstType);
+
+  // Different types cannot be handled, so treat as "never" (return null)
+  if (!isSameType) return null;
+
+  if (firstType === "object" && values.every((value) => value !== null)) {
+    return values.reduce((acc, value) => ({ ...acc, ...value }), {});
+  }
+
+  return values[0];
+}
+function ensureArray<T>(input: T | T[]): T[] {
+  return Array.isArray(input) ? input : [input];
+}
+
+function arraysEqual(arr1: any, arr2: any) {
+  if (!Array.isArray(arr1) || !Array.isArray(arr2)) return false;
+  if (arr1.length !== arr2.length) return false;
+  for (let i = 0; i < arr1.length; i++) {
+    if (arr1[i] !== arr2[i]) return false;
+  }
+  return true;
+}
+
+function isAssignableTo(value: any, typeShape: any) {
+  // プリミティブ型またはリテラル値のチェック
+  if (typeof typeShape !== "object" || typeShape === null) {
+    return (
+      value === typeShape ||
+      typeof value === typeShape ||
+      // WARN: Cannot compare different string types such as 'hoge', 'fuga'
+      typeof value === typeof typeShape
+    );
+  }
+
+  // オブジェクト型のチェック
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  // ネストされたプロパティを再帰的にチェック
+  return Object.keys(typeShape).every((key): boolean => {
+    if (!(key in value)) return false; // プロパティが存在しない場合は false
+    return isAssignableTo(value[key], typeShape[key]);
+  });
+}
+function extendsUtil(
+  value: any,
+  typeShape: any,
+  trueVal: any,
+  falseVal: any,
+): any {
+  const isValueArray = Array.isArray(value);
+  const isTypeShapeArray = Array.isArray(typeShape);
+
+  const arrayValue = ensureArray(value);
+  const arrayTypeShape = ensureArray(typeShape);
+  const arrayTrueVal = ensureArray(trueVal);
+  const arrayFalseVal = ensureArray(falseVal);
+
+  const tutn = arraysEqual(arrayValue, arrayTrueVal); // T extends U ? T : never
+  const tunt = arraysEqual(arrayValue, arrayFalseVal); // T extends U ? never : T
+  const tunu = arraysEqual(arrayTypeShape, arrayTrueVal); // T extends U ? never : U
+  const tuun = arraysEqual(arrayTypeShape, arrayFalseVal); // T extends U ? U : never
+  const otherVal = !tutn && !tunt && !tunu && !tuun;
+
+  let resultArray: any[] = [];
+
+  // ユニオン型の場合、配列の各要素をチェック
+  if (isValueArray || isTypeShapeArray) {
+    // Extract<"A"|"B"|"C", "A"|"B">
+    if (tutn) {
+      resultArray = arrayValue.filter((val) => arrayTypeShape.includes(val));
+    } else if (tunt) {
+      resultArray = arrayValue.filter((val) => !arrayTypeShape.includes(val));
+    } else if (tunu) {
+      resultArray = arrayTypeShape.filter((val) => !arrayValue.includes(val));
+    } else if (tuun) {
+      resultArray = arrayTypeShape.filter((val) => arrayValue.includes(val));
+    }
+
+    if (otherVal) {
+      if (resultArray.length === 0) {
+        return falseVal;
+      } else {
+        return trueVal;
+      }
+    }
+
+    return resultArray[0];
+  }
+
+  return isAssignableTo(value, typeShape) ? trueVal : falseVal;
+}
+const isArray = false;
+
+function getFirstNonNullOrUndefined(arr: any[]): any {
+  // Step 1: Filter out undefined and null values
+  const filteredArray = arr.filter(
+    (item) => item !== undefined && item !== null,
+  );
+
+  // Step 2: Check if the filtered array is not empty
+  if (filteredArray.length > 0) {
+    // Step 3: Return the first element of the filtered array
+    return filteredArray[0];
+  } else {
+    // Step 4: Return the first undefined or null element from the original array
+    return arr.find((item) => item === undefined || item === null);
+  }
+}
+
+function getUnionValue(a: any, isArray = false) {
+  return isArray ? a : getFirstNonNullOrUndefined(a);
+}
+export function boostestGeneric<T>(args?: Partial<T>): T {
+	return {
+		"name": zero_boostestGeneric(),
+		...args
+	} as T;
+}
+
+export function zero_boostestGeneric<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function boostestGenericsAliasType<T>(args?: Partial<T>): T {
+	return {
+		"mapperType": mapperType_Butterfly_boostestGenericsAliasType(isArray),
+		"keyOfMapperType": keyOfMapperType_KeyOfButterfly_boostestGenericsAliasType(isArray),
+		"innserGenericInitializer": innserGenericInitializer_InnerGenericInitializer_boostestGenericsAliasType(isArray),
+		"butterflyWithGenerics": butterflyWithGenerics_ButterflyWithGenerics_boostestGenericsAliasType((isArray?: any) => {
+			return "test string data";
+		}),
+		"nonNullable": nonNullable_NonNullable_boostestGenericsAliasType((isArray?: any) => {
+			return getUnionValue([
+				undefined,
+				"test string data",
+				null
+			], isArray);
+		}),
+		"nestedPartial": { "childPartial": nestedPartial_childPartial_Partial_boostestGenericsAliasType((isArray?: any) => {
+			return nestedPartial_childPartial_RefType_boostestGenericsAliasType(isArray);
+		}) },
+		"partial": partial_Partial_boostestGenericsAliasType((isArray?: any) => {
+			return partial_RefType_boostestGenericsAliasType(isArray);
+		}),
+		"required": required_Required_boostestGenericsAliasType((isArray?: any) => {
+			return required_RefType_boostestGenericsAliasType(isArray);
+		}),
+		"readonly": readonly_Readonly_boostestGenericsAliasType((isArray?: any) => {
+			return readonly_RefType_boostestGenericsAliasType(isArray);
+		}),
+		"extract": extract_Extract_boostestGenericsAliasType((isArray?: any) => {
+			return getUnionValue([
+				"A",
+				"B",
+				"C",
+				"D",
+				"E"
+			], isArray);
+		}, (isArray?: any) => {
+			return getUnionValue(["D", "E"], isArray);
+		}),
+		"extractRefUnion": extractRefUnion_Extract_boostestGenericsAliasType((isArray?: any) => {
+			return extractRefUnion_SystemSupportLanguage_boostestGenericsAliasType(isArray);
+		}, (isArray?: any) => {
+			return getUnionValue(["en", "fr"], isArray);
+		}),
+		"exclude": exclude_Exclude_boostestGenericsAliasType((isArray?: any) => {
+			return exclude_Grade_boostestGenericsAliasType(isArray);
+		}, (isArray?: any) => {
+			return "A";
+		}),
+		"onDirectRefUnionType": onDirectRefUnionType_OnDirectRefUnionType_boostestGenericsAliasType((isArray?: any) => {
+			return "fr";
+		}),
+		...args
+	} as T;
+}
+
+export function mapperType_Butterfly_boostestGenericsAliasType<T>(isArray = false) {
+	return Butterfly_SystemSupportLanguage_boostestGenericsAliasType(true).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: "test string data"
+		};
+	}, {});
+}
+
+export function Butterfly_SystemSupportLanguage_boostestGenericsAliasType<T>(isArray = false) {
+	return getUnionValue([
+		"en",
+		"fr",
+		"it",
+		"es"
+	], isArray);
+}
+
+export function keyOfMapperType_KeyOfButterfly_boostestGenericsAliasType<T>(isArray = false) {
+	return Object.keys(KeyOfButterfly_RefType_boostestGenericsAliasType()).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: KeyOfButterfly_RefType_boostestGenericsAliasType()[cur]
+		};
+	}, {});
+}
+
+export function KeyOfButterfly_RefType_boostestGenericsAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function innserGenericInitializer_InnerGenericInitializer_boostestGenericsAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"innerGeneric": innerGeneric_InngerGeneric_boostestGenericsAliasType((isArray?: any) => {
+			return innerGeneric_RefType_boostestGenericsAliasType(isArray);
+		}),
+		"innerGenericLiteral": innerGenericLiteral_InngerGeneric_boostestGenericsAliasType((isArray?: any) => {
+			return "inner generic string";
+		}),
+		...args
+	} as T;
+}
+
+export function innerGeneric_RefType_boostestGenericsAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function innerGeneric_InngerGeneric_boostestGenericsAliasType<T>(InngerGeneric_T_boostestGenericsAliasType: any, args?: Partial<T>) {
+	return InngerGeneric_T_boostestGenericsAliasType(isArray);
+}
+
+export function innerGenericLiteral_InngerGeneric_boostestGenericsAliasType<T>(InngerGeneric_T_boostestGenericsAliasType: any, args?: Partial<T>) {
+	return InngerGeneric_T_boostestGenericsAliasType(isArray);
+}
+
+export function butterflyWithGenerics_ButterflyWithGenerics_boostestGenericsAliasType<T>(ButterflyWithGenerics_T_boostestGenericsAliasType: any, args?: Partial<T>) {
+	return ButterflyWithGenerics_SystemSupportLanguage_boostestGenericsAliasType(true).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: ButterflyWithGenerics_T_boostestGenericsAliasType(isArray)
+		};
+	}, {});
+}
+
+export function ButterflyWithGenerics_SystemSupportLanguage_boostestGenericsAliasType<T>(isArray = false) {
+	return getUnionValue([
+		"en",
+		"fr",
+		"it",
+		"es"
+	], isArray);
+}
+
+export function nonNullable_NonNullable_boostestGenericsAliasType<T>(NonNullable_T_boostestGenericsAliasType: any, args?: Partial<T>) {
+	return intersectionUtil(NonNullable_T_boostestGenericsAliasType(isArray), {});
+}
+
+export function nestedPartial_childPartial_RefType_boostestGenericsAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function nestedPartial_childPartial_Partial_boostestGenericsAliasType<T>(Partial_T_boostestGenericsAliasType: any, args?: Partial<T>) {
+	return Object.keys(Partial_T_boostestGenericsAliasType()).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: Partial_T_boostestGenericsAliasType()[cur]
+		};
+	}, {});
+}
+
+export function partial_RefType_boostestGenericsAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function partial_Partial_boostestGenericsAliasType<T>(Partial_T_boostestGenericsAliasType: any, args?: Partial<T>) {
+	return Object.keys(Partial_T_boostestGenericsAliasType()).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: Partial_T_boostestGenericsAliasType()[cur]
+		};
+	}, {});
+}
+
+export function required_RefType_boostestGenericsAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function required_Required_boostestGenericsAliasType<T>(Required_T_boostestGenericsAliasType: any, args?: Partial<T>) {
+	return Object.keys(Required_T_boostestGenericsAliasType()).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: Required_T_boostestGenericsAliasType()[cur]
+		};
+	}, {});
+}
+
+export function readonly_RefType_boostestGenericsAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function readonly_Readonly_boostestGenericsAliasType<T>(Readonly_T_boostestGenericsAliasType: any, args?: Partial<T>) {
+	return Object.keys(Readonly_T_boostestGenericsAliasType()).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: Readonly_T_boostestGenericsAliasType()[cur]
+		};
+	}, {});
+}
+
+export function extract_Extract_boostestGenericsAliasType<T>(Extract_T_boostestGenericsAliasType: any, Extract_U_boostestGenericsAliasType: any, args?: Partial<T>) {
+	return extendsUtil(Extract_T_boostestGenericsAliasType(true), Extract_U_boostestGenericsAliasType(true), Extract_T_boostestGenericsAliasType(true), null);
+}
+
+export function extractRefUnion_SystemSupportLanguage_boostestGenericsAliasType<T>(isArray = false) {
+	return getUnionValue([
+		"en",
+		"fr",
+		"it",
+		"es"
+	], isArray);
+}
+
+export function extractRefUnion_Extract_boostestGenericsAliasType<T>(Extract_T_boostestGenericsAliasType: any, Extract_U_boostestGenericsAliasType: any, args?: Partial<T>) {
+	return extendsUtil(Extract_T_boostestGenericsAliasType(true), Extract_U_boostestGenericsAliasType(true), Extract_T_boostestGenericsAliasType(true), null);
+}
+
+export function exclude_Grade_boostestGenericsAliasType<T>(isArray = false) {
+	return getUnionValue([
+		"A",
+		"B",
+		"C",
+		"D",
+		"E"
+	], isArray);
+}
+
+export function exclude_Exclude_boostestGenericsAliasType<T>(Exclude_T_boostestGenericsAliasType: any, Exclude_U_boostestGenericsAliasType: any, args?: Partial<T>) {
+	return extendsUtil(Exclude_T_boostestGenericsAliasType(true), Exclude_U_boostestGenericsAliasType(true), null, Exclude_T_boostestGenericsAliasType(true));
+}
+
+export function onDirectRefUnionType_OnDirectRefUnionType_boostestGenericsAliasType<T>(OnDirectRefUnionType_T_boostestGenericsAliasType: any, args?: Partial<T>) {
+	return extendsUtil(OnDirectRefUnionType_T_boostestGenericsAliasType(true), OnDirectRefUnionType_SystemSupportLanguage_boostestGenericsAliasType(true), OnDirectRefUnionType_T_boostestGenericsAliasType(true), null);
+}
+
+export function OnDirectRefUnionType_SystemSupportLanguage_boostestGenericsAliasType<T>(isArray = false) {
+	return getUnionValue([
+		"en",
+		"fr",
+		"it",
+		"es"
+	], isArray);
+}
+
+export function boostestGenericsInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"innserGenericInitializer": innserGenericInitializer_InnerGenericInitializer_boostestGenericsInterfaceType(isArray),
+		"mapperType": mapperType_Butterfly_boostestGenericsInterfaceType(isArray),
+		"keyOfMapperType": keyOfMapperType_KeyOfButterfly_boostestGenericsInterfaceType(isArray),
+		"butterflyWithGenerics": butterflyWithGenerics_ButterflyWithGenerics_boostestGenericsInterfaceType((isArray?: any) => {
+			return "test string data";
+		}),
+		"nonNullable": nonNullable_NonNullable_boostestGenericsInterfaceType((isArray?: any) => {
+			return getUnionValue([
+				undefined,
+				"test string data",
+				null
+			], isArray);
+		}),
+		"nestedPartial": { "childPartial": nestedPartial_childPartial_Partial_boostestGenericsInterfaceType((isArray?: any) => {
+			return nestedPartial_childPartial_RefType_boostestGenericsInterfaceType(isArray);
+		}) },
+		"partial": partial_Partial_boostestGenericsInterfaceType((isArray?: any) => {
+			return partial_RefType_boostestGenericsInterfaceType(isArray);
+		}),
+		"required": required_Required_boostestGenericsInterfaceType((isArray?: any) => {
+			return required_RefType_boostestGenericsInterfaceType(isArray);
+		}),
+		"readonly": readonly_Readonly_boostestGenericsInterfaceType((isArray?: any) => {
+			return readonly_RefType_boostestGenericsInterfaceType(isArray);
+		}),
+		"extract": extract_Extract_boostestGenericsInterfaceType((isArray?: any) => {
+			return getUnionValue([
+				"A",
+				"B",
+				"C",
+				"D",
+				"E"
+			], isArray);
+		}, (isArray?: any) => {
+			return getUnionValue(["D", "E"], isArray);
+		}),
+		"extractRefUnion": extractRefUnion_Extract_boostestGenericsInterfaceType((isArray?: any) => {
+			return extractRefUnion_SystemSupportLanguage_boostestGenericsInterfaceType(isArray);
+		}, (isArray?: any) => {
+			return getUnionValue(["en", "fr"], isArray);
+		}),
+		"exclude": exclude_Exclude_boostestGenericsInterfaceType((isArray?: any) => {
+			return exclude_Grade_boostestGenericsInterfaceType(isArray);
+		}, (isArray?: any) => {
+			return "A";
+		}),
+		"onDirectRefUnionType": onDirectRefUnionType_OnDirectRefUnionType_boostestGenericsInterfaceType((isArray?: any) => {
+			return "fr";
+		}),
+		...args
+	} as T;
+}
+
+export function innserGenericInitializer_InnerGenericInitializer_boostestGenericsInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"innerGeneric": innerGeneric_InngerGeneric_boostestGenericsInterfaceType((isArray?: any) => {
+			return innerGeneric_RefType_boostestGenericsInterfaceType(isArray);
+		}),
+		"innerGenericLiteral": innerGenericLiteral_InngerGeneric_boostestGenericsInterfaceType((isArray?: any) => {
+			return "inner generic string";
+		}),
+		...args
+	} as T;
+}
+
+export function innerGeneric_RefType_boostestGenericsInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function innerGeneric_InngerGeneric_boostestGenericsInterfaceType<T>(InngerGeneric_T_boostestGenericsInterfaceType: any, args?: Partial<T>) {
+	return InngerGeneric_T_boostestGenericsInterfaceType(isArray);
+}
+
+export function innerGenericLiteral_InngerGeneric_boostestGenericsInterfaceType<T>(InngerGeneric_T_boostestGenericsInterfaceType: any, args?: Partial<T>) {
+	return InngerGeneric_T_boostestGenericsInterfaceType(isArray);
+}
+
+export function mapperType_Butterfly_boostestGenericsInterfaceType<T>(isArray = false) {
+	return Butterfly_SystemSupportLanguage_boostestGenericsInterfaceType(true).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: "test string data"
+		};
+	}, {});
+}
+
+export function Butterfly_SystemSupportLanguage_boostestGenericsInterfaceType<T>(isArray = false) {
+	return getUnionValue([
+		"en",
+		"fr",
+		"it",
+		"es"
+	], isArray);
+}
+
+export function keyOfMapperType_KeyOfButterfly_boostestGenericsInterfaceType<T>(isArray = false) {
+	return Object.keys(KeyOfButterfly_RefType_boostestGenericsInterfaceType()).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: KeyOfButterfly_RefType_boostestGenericsInterfaceType()[cur]
+		};
+	}, {});
+}
+
+export function KeyOfButterfly_RefType_boostestGenericsInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function butterflyWithGenerics_ButterflyWithGenerics_boostestGenericsInterfaceType<T>(ButterflyWithGenerics_T_boostestGenericsInterfaceType: any, args?: Partial<T>) {
+	return ButterflyWithGenerics_SystemSupportLanguage_boostestGenericsInterfaceType(true).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: ButterflyWithGenerics_T_boostestGenericsInterfaceType(isArray)
+		};
+	}, {});
+}
+
+export function ButterflyWithGenerics_SystemSupportLanguage_boostestGenericsInterfaceType<T>(isArray = false) {
+	return getUnionValue([
+		"en",
+		"fr",
+		"it",
+		"es"
+	], isArray);
+}
+
+export function nonNullable_NonNullable_boostestGenericsInterfaceType<T>(NonNullable_T_boostestGenericsInterfaceType: any, args?: Partial<T>) {
+	return intersectionUtil(NonNullable_T_boostestGenericsInterfaceType(isArray), {});
+}
+
+export function nestedPartial_childPartial_RefType_boostestGenericsInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function nestedPartial_childPartial_Partial_boostestGenericsInterfaceType<T>(Partial_T_boostestGenericsInterfaceType: any, args?: Partial<T>) {
+	return Object.keys(Partial_T_boostestGenericsInterfaceType()).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: Partial_T_boostestGenericsInterfaceType()[cur]
+		};
+	}, {});
+}
+
+export function partial_RefType_boostestGenericsInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function partial_Partial_boostestGenericsInterfaceType<T>(Partial_T_boostestGenericsInterfaceType: any, args?: Partial<T>) {
+	return Object.keys(Partial_T_boostestGenericsInterfaceType()).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: Partial_T_boostestGenericsInterfaceType()[cur]
+		};
+	}, {});
+}
+
+export function required_RefType_boostestGenericsInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function required_Required_boostestGenericsInterfaceType<T>(Required_T_boostestGenericsInterfaceType: any, args?: Partial<T>) {
+	return Object.keys(Required_T_boostestGenericsInterfaceType()).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: Required_T_boostestGenericsInterfaceType()[cur]
+		};
+	}, {});
+}
+
+export function readonly_RefType_boostestGenericsInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function readonly_Readonly_boostestGenericsInterfaceType<T>(Readonly_T_boostestGenericsInterfaceType: any, args?: Partial<T>) {
+	return Object.keys(Readonly_T_boostestGenericsInterfaceType()).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: Readonly_T_boostestGenericsInterfaceType()[cur]
+		};
+	}, {});
+}
+
+export function extract_Extract_boostestGenericsInterfaceType<T>(Extract_T_boostestGenericsInterfaceType: any, Extract_U_boostestGenericsInterfaceType: any, args?: Partial<T>) {
+	return extendsUtil(Extract_T_boostestGenericsInterfaceType(true), Extract_U_boostestGenericsInterfaceType(true), Extract_T_boostestGenericsInterfaceType(true), null);
+}
+
+export function extractRefUnion_SystemSupportLanguage_boostestGenericsInterfaceType<T>(isArray = false) {
+	return getUnionValue([
+		"en",
+		"fr",
+		"it",
+		"es"
+	], isArray);
+}
+
+export function extractRefUnion_Extract_boostestGenericsInterfaceType<T>(Extract_T_boostestGenericsInterfaceType: any, Extract_U_boostestGenericsInterfaceType: any, args?: Partial<T>) {
+	return extendsUtil(Extract_T_boostestGenericsInterfaceType(true), Extract_U_boostestGenericsInterfaceType(true), Extract_T_boostestGenericsInterfaceType(true), null);
+}
+
+export function exclude_Grade_boostestGenericsInterfaceType<T>(isArray = false) {
+	return getUnionValue([
+		"A",
+		"B",
+		"C",
+		"D",
+		"E"
+	], isArray);
+}
+
+export function exclude_Exclude_boostestGenericsInterfaceType<T>(Exclude_T_boostestGenericsInterfaceType: any, Exclude_U_boostestGenericsInterfaceType: any, args?: Partial<T>) {
+	return extendsUtil(Exclude_T_boostestGenericsInterfaceType(true), Exclude_U_boostestGenericsInterfaceType(true), null, Exclude_T_boostestGenericsInterfaceType(true));
+}
+
+export function onDirectRefUnionType_OnDirectRefUnionType_boostestGenericsInterfaceType<T>(OnDirectRefUnionType_T_boostestGenericsInterfaceType: any, args?: Partial<T>) {
+	return extendsUtil(OnDirectRefUnionType_T_boostestGenericsInterfaceType(true), OnDirectRefUnionType_SystemSupportLanguage_boostestGenericsInterfaceType(true), OnDirectRefUnionType_T_boostestGenericsInterfaceType(true), null);
+}
+
+export function OnDirectRefUnionType_SystemSupportLanguage_boostestGenericsInterfaceType<T>(isArray = false) {
+	return getUnionValue([
+		"en",
+		"fr",
+		"it",
+		"es"
+	], isArray);
+}
+
+export function boostestGenericsTypeClass<T extends abstract new (...args: any) => any>(GenericsClass): T {
+	return new GenericsClass(innserGenericInitializer_InnerGenericInitializer_boostestGenericsTypeClass(isArray), mapperType_Butterfly_boostestGenericsTypeClass(isArray), keyOfMapperType_KeyOfButterfly_boostestGenericsTypeClass(isArray), butterflyWithGenerics_ButterflyWithGenerics_boostestGenericsTypeClass((isArray?: any) => {
+		return "test string data";
+	}), nonNullable_NonNullable_boostestGenericsTypeClass((isArray?: any) => {
+		return getUnionValue([
+			undefined,
+			"test string data",
+			null
+		], isArray);
+	}), { "childPartial": nestedPartial_childPartial_Partial_boostestGenericsTypeClass((isArray?: any) => {
+		return nestedPartial_childPartial_RefType_boostestGenericsTypeClass(isArray);
+	}) }, partial_Partial_boostestGenericsTypeClass((isArray?: any) => {
+		return partial_RefType_boostestGenericsTypeClass(isArray);
+	}), required_Required_boostestGenericsTypeClass((isArray?: any) => {
+		return required_RefType_boostestGenericsTypeClass(isArray);
+	}), readonly_Readonly_boostestGenericsTypeClass((isArray?: any) => {
+		return readonly_RefType_boostestGenericsTypeClass(isArray);
+	}), extract_Extract_boostestGenericsTypeClass((isArray?: any) => {
+		return getUnionValue([
+			"A",
+			"B",
+			"C",
+			"D",
+			"E"
+		], isArray);
+	}, (isArray?: any) => {
+		return getUnionValue(["D", "E"], isArray);
+	}), extractRefUnion_Extract_boostestGenericsTypeClass((isArray?: any) => {
+		return extractRefUnion_SystemSupportLanguage_boostestGenericsTypeClass(isArray);
+	}, (isArray?: any) => {
+		return getUnionValue(["en", "fr"], isArray);
+	}), exclude_Exclude_boostestGenericsTypeClass((isArray?: any) => {
+		return exclude_Grade_boostestGenericsTypeClass(isArray);
+	}, (isArray?: any) => {
+		return "A";
+	}), onDirectRefUnionType_OnDirectRefUnionType_boostestGenericsTypeClass((isArray?: any) => {
+		return "fr";
+	}));
+}
+
+export function innserGenericInitializer_InnerGenericInitializer_boostestGenericsTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"innerGeneric": innerGeneric_InngerGeneric_boostestGenericsTypeClass((isArray?: any) => {
+			return innerGeneric_RefType_boostestGenericsTypeClass(isArray);
+		}),
+		"innerGenericLiteral": innerGenericLiteral_InngerGeneric_boostestGenericsTypeClass((isArray?: any) => {
+			return "inner generic string";
+		}),
+		...args
+	} as T;
+}
+
+export function innerGeneric_RefType_boostestGenericsTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function innerGeneric_InngerGeneric_boostestGenericsTypeClass<T>(InngerGeneric_T_boostestGenericsTypeClass: any, args?: Partial<T>) {
+	return InngerGeneric_T_boostestGenericsTypeClass(isArray);
+}
+
+export function innerGenericLiteral_InngerGeneric_boostestGenericsTypeClass<T>(InngerGeneric_T_boostestGenericsTypeClass: any, args?: Partial<T>) {
+	return InngerGeneric_T_boostestGenericsTypeClass(isArray);
+}
+
+export function mapperType_Butterfly_boostestGenericsTypeClass<T>(isArray = false) {
+	return Butterfly_SystemSupportLanguage_boostestGenericsTypeClass(true).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: "test string data"
+		};
+	}, {});
+}
+
+export function Butterfly_SystemSupportLanguage_boostestGenericsTypeClass<T>(isArray = false) {
+	return getUnionValue([
+		"en",
+		"fr",
+		"it",
+		"es"
+	], isArray);
+}
+
+export function keyOfMapperType_KeyOfButterfly_boostestGenericsTypeClass<T>(isArray = false) {
+	return Object.keys(KeyOfButterfly_RefType_boostestGenericsTypeClass()).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: KeyOfButterfly_RefType_boostestGenericsTypeClass()[cur]
+		};
+	}, {});
+}
+
+export function KeyOfButterfly_RefType_boostestGenericsTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function butterflyWithGenerics_ButterflyWithGenerics_boostestGenericsTypeClass<T>(ButterflyWithGenerics_T_boostestGenericsTypeClass: any, args?: Partial<T>) {
+	return ButterflyWithGenerics_SystemSupportLanguage_boostestGenericsTypeClass(true).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: ButterflyWithGenerics_T_boostestGenericsTypeClass(isArray)
+		};
+	}, {});
+}
+
+export function ButterflyWithGenerics_SystemSupportLanguage_boostestGenericsTypeClass<T>(isArray = false) {
+	return getUnionValue([
+		"en",
+		"fr",
+		"it",
+		"es"
+	], isArray);
+}
+
+export function nonNullable_NonNullable_boostestGenericsTypeClass<T>(NonNullable_T_boostestGenericsTypeClass: any, args?: Partial<T>) {
+	return intersectionUtil(NonNullable_T_boostestGenericsTypeClass(isArray), {});
+}
+
+export function nestedPartial_childPartial_RefType_boostestGenericsTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function nestedPartial_childPartial_Partial_boostestGenericsTypeClass<T>(Partial_T_boostestGenericsTypeClass: any, args?: Partial<T>) {
+	return Object.keys(Partial_T_boostestGenericsTypeClass()).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: Partial_T_boostestGenericsTypeClass()[cur]
+		};
+	}, {});
+}
+
+export function partial_RefType_boostestGenericsTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function partial_Partial_boostestGenericsTypeClass<T>(Partial_T_boostestGenericsTypeClass: any, args?: Partial<T>) {
+	return Object.keys(Partial_T_boostestGenericsTypeClass()).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: Partial_T_boostestGenericsTypeClass()[cur]
+		};
+	}, {});
+}
+
+export function required_RefType_boostestGenericsTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function required_Required_boostestGenericsTypeClass<T>(Required_T_boostestGenericsTypeClass: any, args?: Partial<T>) {
+	return Object.keys(Required_T_boostestGenericsTypeClass()).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: Required_T_boostestGenericsTypeClass()[cur]
+		};
+	}, {});
+}
+
+export function readonly_RefType_boostestGenericsTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function readonly_Readonly_boostestGenericsTypeClass<T>(Readonly_T_boostestGenericsTypeClass: any, args?: Partial<T>) {
+	return Object.keys(Readonly_T_boostestGenericsTypeClass()).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: Readonly_T_boostestGenericsTypeClass()[cur]
+		};
+	}, {});
+}
+
+export function extract_Extract_boostestGenericsTypeClass<T>(Extract_T_boostestGenericsTypeClass: any, Extract_U_boostestGenericsTypeClass: any, args?: Partial<T>) {
+	return extendsUtil(Extract_T_boostestGenericsTypeClass(true), Extract_U_boostestGenericsTypeClass(true), Extract_T_boostestGenericsTypeClass(true), null);
+}
+
+export function extractRefUnion_SystemSupportLanguage_boostestGenericsTypeClass<T>(isArray = false) {
+	return getUnionValue([
+		"en",
+		"fr",
+		"it",
+		"es"
+	], isArray);
+}
+
+export function extractRefUnion_Extract_boostestGenericsTypeClass<T>(Extract_T_boostestGenericsTypeClass: any, Extract_U_boostestGenericsTypeClass: any, args?: Partial<T>) {
+	return extendsUtil(Extract_T_boostestGenericsTypeClass(true), Extract_U_boostestGenericsTypeClass(true), Extract_T_boostestGenericsTypeClass(true), null);
+}
+
+export function exclude_Grade_boostestGenericsTypeClass<T>(isArray = false) {
+	return getUnionValue([
+		"A",
+		"B",
+		"C",
+		"D",
+		"E"
+	], isArray);
+}
+
+export function exclude_Exclude_boostestGenericsTypeClass<T>(Exclude_T_boostestGenericsTypeClass: any, Exclude_U_boostestGenericsTypeClass: any, args?: Partial<T>) {
+	return extendsUtil(Exclude_T_boostestGenericsTypeClass(true), Exclude_U_boostestGenericsTypeClass(true), null, Exclude_T_boostestGenericsTypeClass(true));
+}
+
+export function onDirectRefUnionType_OnDirectRefUnionType_boostestGenericsTypeClass<T>(OnDirectRefUnionType_T_boostestGenericsTypeClass: any, args?: Partial<T>) {
+	return extendsUtil(OnDirectRefUnionType_T_boostestGenericsTypeClass(true), OnDirectRefUnionType_SystemSupportLanguage_boostestGenericsTypeClass(true), OnDirectRefUnionType_T_boostestGenericsTypeClass(true), null);
+}
+
+export function OnDirectRefUnionType_SystemSupportLanguage_boostestGenericsTypeClass<T>(isArray = false) {
+	return getUnionValue([
+		"en",
+		"fr",
+		"it",
+		"es"
+	], isArray);
+}
+
+"
+`;
+
+exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/index_signature/index_signature.spec_test_data.ts 1`] = `
+"function isNullOrUndefined(value) {
+  return value === undefined || value === null;
+}
+function emptyObj(value) {
+  if (isNullOrUndefined(value)) return false;
+  return typeof value === "object" && Object.keys(value).length === 0;
+}
+function intersectionUtil(...args) {
+  let values = args;
+  // If it includes {}, filter out null and undefined, and also remove {}
+  const includesEmptyObj = values.some((val) => emptyObj(val));
+
+  if (includesEmptyObj) {
+    values = values.filter((val) => !isNullOrUndefined(val) && !emptyObj(val));
+  }
+
+  if (values.length === 0) return null;
+  // null or undefined cannot match, so treat as "never" (return null)
+  if (values.some((val) => isNullOrUndefined(val))) {
+    return null;
+  }
+
+  if (values.length === 1) return values[0];
+
+  const firstType = typeof values[0];
+  const isSameType = values.every((value) => typeof value === firstType);
+
+  // Different types cannot be handled, so treat as "never" (return null)
+  if (!isSameType) return null;
+
+  if (firstType === "object" && values.every((value) => value !== null)) {
+    return values.reduce((acc, value) => ({ ...acc, ...value }), {});
+  }
+
+  return values[0];
+}
+function ensureArray<T>(input: T | T[]): T[] {
+  return Array.isArray(input) ? input : [input];
+}
+
+function arraysEqual(arr1: any, arr2: any) {
+  if (!Array.isArray(arr1) || !Array.isArray(arr2)) return false;
+  if (arr1.length !== arr2.length) return false;
+  for (let i = 0; i < arr1.length; i++) {
+    if (arr1[i] !== arr2[i]) return false;
+  }
+  return true;
+}
+
+function isAssignableTo(value: any, typeShape: any) {
+  // プリミティブ型またはリテラル値のチェック
+  if (typeof typeShape !== "object" || typeShape === null) {
+    return (
+      value === typeShape ||
+      typeof value === typeShape ||
+      // WARN: Cannot compare different string types such as 'hoge', 'fuga'
+      typeof value === typeof typeShape
+    );
+  }
+
+  // オブジェクト型のチェック
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  // ネストされたプロパティを再帰的にチェック
+  return Object.keys(typeShape).every((key): boolean => {
+    if (!(key in value)) return false; // プロパティが存在しない場合は false
+    return isAssignableTo(value[key], typeShape[key]);
+  });
+}
+function extendsUtil(
+  value: any,
+  typeShape: any,
+  trueVal: any,
+  falseVal: any,
+): any {
+  const isValueArray = Array.isArray(value);
+  const isTypeShapeArray = Array.isArray(typeShape);
+
+  const arrayValue = ensureArray(value);
+  const arrayTypeShape = ensureArray(typeShape);
+  const arrayTrueVal = ensureArray(trueVal);
+  const arrayFalseVal = ensureArray(falseVal);
+
+  const tutn = arraysEqual(arrayValue, arrayTrueVal); // T extends U ? T : never
+  const tunt = arraysEqual(arrayValue, arrayFalseVal); // T extends U ? never : T
+  const tunu = arraysEqual(arrayTypeShape, arrayTrueVal); // T extends U ? never : U
+  const tuun = arraysEqual(arrayTypeShape, arrayFalseVal); // T extends U ? U : never
+  const otherVal = !tutn && !tunt && !tunu && !tuun;
+
+  let resultArray: any[] = [];
+
+  // ユニオン型の場合、配列の各要素をチェック
+  if (isValueArray || isTypeShapeArray) {
+    // Extract<"A"|"B"|"C", "A"|"B">
+    if (tutn) {
+      resultArray = arrayValue.filter((val) => arrayTypeShape.includes(val));
+    } else if (tunt) {
+      resultArray = arrayValue.filter((val) => !arrayTypeShape.includes(val));
+    } else if (tunu) {
+      resultArray = arrayTypeShape.filter((val) => !arrayValue.includes(val));
+    } else if (tuun) {
+      resultArray = arrayTypeShape.filter((val) => arrayValue.includes(val));
+    }
+
+    if (otherVal) {
+      if (resultArray.length === 0) {
+        return falseVal;
+      } else {
+        return trueVal;
+      }
+    }
+
+    return resultArray[0];
+  }
+
+  return isAssignableTo(value, typeShape) ? trueVal : falseVal;
+}
+const isArray = false;
+
+function getFirstNonNullOrUndefined(arr: any[]): any {
+  // Step 1: Filter out undefined and null values
+  const filteredArray = arr.filter(
+    (item) => item !== undefined && item !== null,
+  );
+
+  // Step 2: Check if the filtered array is not empty
+  if (filteredArray.length > 0) {
+    // Step 3: Return the first element of the filtered array
+    return filteredArray[0];
+  } else {
+    // Step 4: Return the first undefined or null element from the original array
+    return arr.find((item) => item === undefined || item === null);
+  }
+}
+
+function getUnionValue(a: any, isArray = false) {
+  return isArray ? a : getFirstNonNullOrUndefined(a);
+}
+export function boostestIndexSignature<T>(args?: Partial<T>): T {
+	return {
+		"test string data": 10,
+		10: 10,
+		...args
+	} as T;
+}
+
+"
+`;
+
+exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/insersection/intersection.spec_test_data.ts 1`] = `
+"function isNullOrUndefined(value) {
+  return value === undefined || value === null;
+}
+function emptyObj(value) {
+  if (isNullOrUndefined(value)) return false;
+  return typeof value === "object" && Object.keys(value).length === 0;
+}
+function intersectionUtil(...args) {
+  let values = args;
+  // If it includes {}, filter out null and undefined, and also remove {}
+  const includesEmptyObj = values.some((val) => emptyObj(val));
+
+  if (includesEmptyObj) {
+    values = values.filter((val) => !isNullOrUndefined(val) && !emptyObj(val));
+  }
+
+  if (values.length === 0) return null;
+  // null or undefined cannot match, so treat as "never" (return null)
+  if (values.some((val) => isNullOrUndefined(val))) {
+    return null;
+  }
+
+  if (values.length === 1) return values[0];
+
+  const firstType = typeof values[0];
+  const isSameType = values.every((value) => typeof value === firstType);
+
+  // Different types cannot be handled, so treat as "never" (return null)
+  if (!isSameType) return null;
+
+  if (firstType === "object" && values.every((value) => value !== null)) {
+    return values.reduce((acc, value) => ({ ...acc, ...value }), {});
+  }
+
+  return values[0];
+}
+function ensureArray<T>(input: T | T[]): T[] {
+  return Array.isArray(input) ? input : [input];
+}
+
+function arraysEqual(arr1: any, arr2: any) {
+  if (!Array.isArray(arr1) || !Array.isArray(arr2)) return false;
+  if (arr1.length !== arr2.length) return false;
+  for (let i = 0; i < arr1.length; i++) {
+    if (arr1[i] !== arr2[i]) return false;
+  }
+  return true;
+}
+
+function isAssignableTo(value: any, typeShape: any) {
+  // プリミティブ型またはリテラル値のチェック
+  if (typeof typeShape !== "object" || typeShape === null) {
+    return (
+      value === typeShape ||
+      typeof value === typeShape ||
+      // WARN: Cannot compare different string types such as 'hoge', 'fuga'
+      typeof value === typeof typeShape
+    );
+  }
+
+  // オブジェクト型のチェック
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  // ネストされたプロパティを再帰的にチェック
+  return Object.keys(typeShape).every((key): boolean => {
+    if (!(key in value)) return false; // プロパティが存在しない場合は false
+    return isAssignableTo(value[key], typeShape[key]);
+  });
+}
+function extendsUtil(
+  value: any,
+  typeShape: any,
+  trueVal: any,
+  falseVal: any,
+): any {
+  const isValueArray = Array.isArray(value);
+  const isTypeShapeArray = Array.isArray(typeShape);
+
+  const arrayValue = ensureArray(value);
+  const arrayTypeShape = ensureArray(typeShape);
+  const arrayTrueVal = ensureArray(trueVal);
+  const arrayFalseVal = ensureArray(falseVal);
+
+  const tutn = arraysEqual(arrayValue, arrayTrueVal); // T extends U ? T : never
+  const tunt = arraysEqual(arrayValue, arrayFalseVal); // T extends U ? never : T
+  const tunu = arraysEqual(arrayTypeShape, arrayTrueVal); // T extends U ? never : U
+  const tuun = arraysEqual(arrayTypeShape, arrayFalseVal); // T extends U ? U : never
+  const otherVal = !tutn && !tunt && !tunu && !tuun;
+
+  let resultArray: any[] = [];
+
+  // ユニオン型の場合、配列の各要素をチェック
+  if (isValueArray || isTypeShapeArray) {
+    // Extract<"A"|"B"|"C", "A"|"B">
+    if (tutn) {
+      resultArray = arrayValue.filter((val) => arrayTypeShape.includes(val));
+    } else if (tunt) {
+      resultArray = arrayValue.filter((val) => !arrayTypeShape.includes(val));
+    } else if (tunu) {
+      resultArray = arrayTypeShape.filter((val) => !arrayValue.includes(val));
+    } else if (tuun) {
+      resultArray = arrayTypeShape.filter((val) => arrayValue.includes(val));
+    }
+
+    if (otherVal) {
+      if (resultArray.length === 0) {
+        return falseVal;
+      } else {
+        return trueVal;
+      }
+    }
+
+    return resultArray[0];
+  }
+
+  return isAssignableTo(value, typeShape) ? trueVal : falseVal;
+}
+const isArray = false;
+
+function getFirstNonNullOrUndefined(arr: any[]): any {
+  // Step 1: Filter out undefined and null values
+  const filteredArray = arr.filter(
+    (item) => item !== undefined && item !== null,
+  );
+
+  // Step 2: Check if the filtered array is not empty
+  if (filteredArray.length > 0) {
+    // Step 3: Return the first element of the filtered array
+    return filteredArray[0];
+  } else {
+    // Step 4: Return the first undefined or null element from the original array
+    return arr.find((item) => item === undefined || item === null);
+  }
+}
+
+function getUnionValue(a: any, isArray = false) {
+  return isArray ? a : getFirstNonNullOrUndefined(a);
+}
+export function boostestIntersectionClass<T extends abstract new (...args: any) => any>(IntersectionClass): T {
+	return new IntersectionClass(intersectionUtil("test string data", 10), intersectionUtil({ "name": "test string data" }, { "ver": 10 }), intersectionUtil("test string data", "hoga"), nonNullable_NonNullable_boostestIntersectionClass((isArray?: any) => {
+		return getUnionValue([
+			undefined,
+			"test string data",
+			null
+		], isArray);
+	}));
+}
+
+export function nonNullable_NonNullable_boostestIntersectionClass<T>(NonNullable_T_boostestIntersectionClass: any, args?: Partial<T>) {
+	return intersectionUtil(NonNullable_T_boostestIntersectionClass(isArray), {});
+}
+
+export function boostestIntersectionInterface<T>(args?: Partial<T>): T {
+	return {
+		"intersction": intersectionUtil("test string data", 10),
+		"intersction_obj": intersectionUtil({ "name": "test string data" }, { "ver": 10 }),
+		"intersction_string": intersectionUtil("test string data", "hoga"),
+		"nonNullable": nonNullable_NonNullable_boostestIntersectionInterface((isArray?: any) => {
+			return getUnionValue([
+				undefined,
+				"test string data",
+				null
+			], isArray);
+		}),
+		...args
+	} as T;
+}
+
+export function nonNullable_NonNullable_boostestIntersectionInterface<T>(NonNullable_T_boostestIntersectionInterface: any, args?: Partial<T>) {
+	return intersectionUtil(NonNullable_T_boostestIntersectionInterface(isArray), {});
+}
+
+export function boostestIntersectionTypeAlias<T>(args?: Partial<T>): T {
+	return {
+		"intersction": intersectionUtil("test string data", 10),
+		"intersction_obj": intersectionUtil({ "name": "test string data" }, { "ver": 10 }),
+		"intersction_string": intersectionUtil("test string data", "hoga"),
+		"nonNullable": nonNullable_NonNullable_boostestIntersectionTypeAlias((isArray?: any) => {
+			return getUnionValue([
+				undefined,
+				"test string data",
+				null
+			], isArray);
+		}),
+		...args
+	} as T;
+}
+
+export function nonNullable_NonNullable_boostestIntersectionTypeAlias<T>(NonNullable_T_boostestIntersectionTypeAlias: any, args?: Partial<T>) {
+	return intersectionUtil(NonNullable_T_boostestIntersectionTypeAlias(isArray), {});
+}
+
+"
+`;
+
+exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/literal/literal.spec_test_data.ts 1`] = `
+"function isNullOrUndefined(value) {
+  return value === undefined || value === null;
+}
+function emptyObj(value) {
+  if (isNullOrUndefined(value)) return false;
+  return typeof value === "object" && Object.keys(value).length === 0;
+}
+function intersectionUtil(...args) {
+  let values = args;
+  // If it includes {}, filter out null and undefined, and also remove {}
+  const includesEmptyObj = values.some((val) => emptyObj(val));
+
+  if (includesEmptyObj) {
+    values = values.filter((val) => !isNullOrUndefined(val) && !emptyObj(val));
+  }
+
+  if (values.length === 0) return null;
+  // null or undefined cannot match, so treat as "never" (return null)
+  if (values.some((val) => isNullOrUndefined(val))) {
+    return null;
+  }
+
+  if (values.length === 1) return values[0];
+
+  const firstType = typeof values[0];
+  const isSameType = values.every((value) => typeof value === firstType);
+
+  // Different types cannot be handled, so treat as "never" (return null)
+  if (!isSameType) return null;
+
+  if (firstType === "object" && values.every((value) => value !== null)) {
+    return values.reduce((acc, value) => ({ ...acc, ...value }), {});
+  }
+
+  return values[0];
+}
+function ensureArray<T>(input: T | T[]): T[] {
+  return Array.isArray(input) ? input : [input];
+}
+
+function arraysEqual(arr1: any, arr2: any) {
+  if (!Array.isArray(arr1) || !Array.isArray(arr2)) return false;
+  if (arr1.length !== arr2.length) return false;
+  for (let i = 0; i < arr1.length; i++) {
+    if (arr1[i] !== arr2[i]) return false;
+  }
+  return true;
+}
+
+function isAssignableTo(value: any, typeShape: any) {
+  // プリミティブ型またはリテラル値のチェック
+  if (typeof typeShape !== "object" || typeShape === null) {
+    return (
+      value === typeShape ||
+      typeof value === typeShape ||
+      // WARN: Cannot compare different string types such as 'hoge', 'fuga'
+      typeof value === typeof typeShape
+    );
+  }
+
+  // オブジェクト型のチェック
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  // ネストされたプロパティを再帰的にチェック
+  return Object.keys(typeShape).every((key): boolean => {
+    if (!(key in value)) return false; // プロパティが存在しない場合は false
+    return isAssignableTo(value[key], typeShape[key]);
+  });
+}
+function extendsUtil(
+  value: any,
+  typeShape: any,
+  trueVal: any,
+  falseVal: any,
+): any {
+  const isValueArray = Array.isArray(value);
+  const isTypeShapeArray = Array.isArray(typeShape);
+
+  const arrayValue = ensureArray(value);
+  const arrayTypeShape = ensureArray(typeShape);
+  const arrayTrueVal = ensureArray(trueVal);
+  const arrayFalseVal = ensureArray(falseVal);
+
+  const tutn = arraysEqual(arrayValue, arrayTrueVal); // T extends U ? T : never
+  const tunt = arraysEqual(arrayValue, arrayFalseVal); // T extends U ? never : T
+  const tunu = arraysEqual(arrayTypeShape, arrayTrueVal); // T extends U ? never : U
+  const tuun = arraysEqual(arrayTypeShape, arrayFalseVal); // T extends U ? U : never
+  const otherVal = !tutn && !tunt && !tunu && !tuun;
+
+  let resultArray: any[] = [];
+
+  // ユニオン型の場合、配列の各要素をチェック
+  if (isValueArray || isTypeShapeArray) {
+    // Extract<"A"|"B"|"C", "A"|"B">
+    if (tutn) {
+      resultArray = arrayValue.filter((val) => arrayTypeShape.includes(val));
+    } else if (tunt) {
+      resultArray = arrayValue.filter((val) => !arrayTypeShape.includes(val));
+    } else if (tunu) {
+      resultArray = arrayTypeShape.filter((val) => !arrayValue.includes(val));
+    } else if (tuun) {
+      resultArray = arrayTypeShape.filter((val) => arrayValue.includes(val));
+    }
+
+    if (otherVal) {
+      if (resultArray.length === 0) {
+        return falseVal;
+      } else {
+        return trueVal;
+      }
+    }
+
+    return resultArray[0];
+  }
+
+  return isAssignableTo(value, typeShape) ? trueVal : falseVal;
+}
+const isArray = false;
+
+function getFirstNonNullOrUndefined(arr: any[]): any {
+  // Step 1: Filter out undefined and null values
+  const filteredArray = arr.filter(
+    (item) => item !== undefined && item !== null,
+  );
+
+  // Step 2: Check if the filtered array is not empty
+  if (filteredArray.length > 0) {
+    // Step 3: Return the first element of the filtered array
+    return filteredArray[0];
+  } else {
+    // Step 4: Return the first undefined or null element from the original array
+    return arr.find((item) => item === undefined || item === null);
+  }
+}
+
+function getUnionValue(a: any, isArray = false) {
+  return isArray ? a : getFirstNonNullOrUndefined(a);
+}
+export function boostestTsLiteralArrayUnionType<T>(isArray = false) {
+	return getUnionValue([
+		[],
+		[1],
+		[1, 2]
+	], isArray);
+}
+
+export function boostestTsLiteralBooleanUnionType<T>(isArray = false) {
+	return getUnionValue([true, false], isArray);
+}
+
+export function boostestTsLiteralFunctionUnionType<T>(isArray = false) {
+	return getUnionValue([(x: number) => {
+		return 10;
+	}, (x: string) => {
+		return "test string data";
+	}], isArray);
+}
+
+export function boostestTsLiteralNumberUnionType<T>(isArray = false) {
+	return getUnionValue([
+		1,
+		2,
+		3
+	], isArray);
+}
+
+export function boostestTsLiteralObjectUnionType<T>(isArray = false) {
+	return getUnionValue([{ "type": "A" }, {
+		"type": "B",
+		"value": 10
+	}], isArray);
+}
+
+export function boostestTsLiteralTypeStringUnionType<T>(isArray = false) {
+	return getUnionValue([
+		"A",
+		"B",
+		"C"
+	], isArray);
+}
+
+export function boostestTsTypeLiteralArray<T>(isArray = false) {
+	return [];
+}
+
+export function boostestTsTypeLiteralBoolean<T>(isArray = false) {
+	return true;
+}
+
+export function boostestTsTypeLiteralFunction<T>(isArray = false) {
+	return () => {};
+}
+
+export function boostestTsTypeLiteralLiteralArrayType<T>(isArray = false) {
+	return [
+		1,
+		2,
+		3
+	];
+}
+
+export function boostestTsTypeLiteralLiteralBooleanType<T>(isArray = false) {
+	return true;
+}
+
+export function boostestTsTypeLiteralLiteralFunctionType<T>(isArray = false) {
+	return () => {};
+}
+
+export function boostestTsTypeLiteralLiteralNumberType<T>(isArray = false) {
+	return 42;
+}
+
+export function boostestTsTypeLiteralLiteralObjectType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"age": 10,
+		...args
+	} as T;
+}
+
+export function boostestTsTypeLiteralLiteralTypeString<T>(isArray = false) {
+	return "string";
+}
+
+export function boostestTsTypeLiteralNull<T>(isArray = false) {
+	return null;
+}
+
+export function boostestTsTypeLiteralNumber<T>(isArray = false) {
+	return 10;
+}
+
+export function boostestTsTypeLiteralObject<T>(isArray = false) {
+	return {};
+}
+
+export function boostestTsTypeLiteralString<T>(isArray = false) {
+	return "test string data";
+}
+
+export function boostestTsTypeLiteralSymbol<T>(isArray = false) {
+	return Symbol();
+}
+
+export function boostestTsTypeLiteralUndefined<T>(isArray = false) {
+	return undefined;
+}
+
+export function boostestUseTSTypeLiteralAlias<T>(args?: Partial<T>): T {
+	return {
+		"literalString": literalString_TsTypeLiteralString_boostestUseTSTypeLiteralAlias(isArray),
+		"literalLiteralString": literalLiteralString_TsTypeLiteralLiteralTypeString_boostestUseTSTypeLiteralAlias(isArray),
+		"literalStringUnion": literalStringUnion_TsLiteralTypeStringUnionType_boostestUseTSTypeLiteralAlias(isArray),
+		"literalNumber": literalNumber_TsTypeLiteralNumber_boostestUseTSTypeLiteralAlias(isArray),
+		"literalLiteralNumber": literalLiteralNumber_TsTypeLiteralLiteralNumberType_boostestUseTSTypeLiteralAlias(isArray),
+		"literalNumberUnion": literalNumberUnion_TsLiteralNumberUnionType_boostestUseTSTypeLiteralAlias(isArray),
+		"literalBoolean": literalBoolean_TsTypeLiteralBoolean_boostestUseTSTypeLiteralAlias(isArray),
+		"literalLiteralBoolean": literalLiteralBoolean_TsTypeLiteralLiteralBooleanType_boostestUseTSTypeLiteralAlias(isArray),
+		"literalBooleanUnion": literalBooleanUnion_TsLiteralBooleanUnionType_boostestUseTSTypeLiteralAlias(isArray),
+		"literalNull": literalNull_TsTypeLiteralNull_boostestUseTSTypeLiteralAlias(isArray),
+		"literalUndefined": literalUndefined_TsTypeLiteralUndefined_boostestUseTSTypeLiteralAlias(isArray),
+		"literalArray": literalArray_TsTypeLiteralArray_boostestUseTSTypeLiteralAlias(isArray),
+		"literalLiteralArray": literalLiteralArray_TsTypeLiteralLiteralArrayType_boostestUseTSTypeLiteralAlias(isArray),
+		"literalArrayUnion": literalArrayUnion_TsLiteralArrayUnionType_boostestUseTSTypeLiteralAlias(isArray),
+		"literalObject": literalObject_TsTypeLiteralObject_boostestUseTSTypeLiteralAlias(isArray),
+		"literalLiteralObject": literalLiteralObject_TsTypeLiteralLiteralObjectType_boostestUseTSTypeLiteralAlias(isArray),
+		"literalObjectUnion": literalObjectUnion_TsLiteralObjectUnionType_boostestUseTSTypeLiteralAlias(isArray),
+		"literalFunction": literalFunction_TsTypeLiteralFunction_boostestUseTSTypeLiteralAlias(isArray),
+		"literalLiteralFunction": literalLiteralFunction_TsTypeLiteralLiteralFunctionType_boostestUseTSTypeLiteralAlias(isArray),
+		"literalFunctionUnion": literalFunctionUnion_TsLiteralFunctionUnionType_boostestUseTSTypeLiteralAlias(isArray),
+		"literalBigInt": literalBigInt_TsTypeLiteralBigInt_boostestUseTSTypeLiteralAlias(isArray),
+		"literalLiteralBigInt": literalLiteralBigInt_TsTypeLiteralLiteralBigIntType_boostestUseTSTypeLiteralAlias(isArray),
+		"literalBigIntUnion": literalBigIntUnion_TsLiteralBigIntUnionType_boostestUseTSTypeLiteralAlias(isArray),
+		"literalSymbol": literalSymbol_TsTypeLiteralSymbol_boostestUseTSTypeLiteralAlias(isArray),
+		...args
+	} as T;
+}
+
+export function literalString_TsTypeLiteralString_boostestUseTSTypeLiteralAlias<T>(isArray = false) {
+	return "test string data";
+}
+
+export function literalLiteralString_TsTypeLiteralLiteralTypeString_boostestUseTSTypeLiteralAlias<T>(isArray = false) {
+	return "string";
+}
+
+export function literalStringUnion_TsLiteralTypeStringUnionType_boostestUseTSTypeLiteralAlias<T>(isArray = false) {
+	return getUnionValue([
+		"A",
+		"B",
+		"C"
+	], isArray);
+}
+
+export function literalNumber_TsTypeLiteralNumber_boostestUseTSTypeLiteralAlias<T>(isArray = false) {
+	return 10;
+}
+
+export function literalLiteralNumber_TsTypeLiteralLiteralNumberType_boostestUseTSTypeLiteralAlias<T>(isArray = false) {
+	return 42;
+}
+
+export function literalNumberUnion_TsLiteralNumberUnionType_boostestUseTSTypeLiteralAlias<T>(isArray = false) {
+	return getUnionValue([
+		1,
+		2,
+		3
+	], isArray);
+}
+
+export function literalBoolean_TsTypeLiteralBoolean_boostestUseTSTypeLiteralAlias<T>(isArray = false) {
+	return true;
+}
+
+export function literalLiteralBoolean_TsTypeLiteralLiteralBooleanType_boostestUseTSTypeLiteralAlias<T>(isArray = false) {
+	return true;
+}
+
+export function literalBooleanUnion_TsLiteralBooleanUnionType_boostestUseTSTypeLiteralAlias<T>(isArray = false) {
+	return getUnionValue([true, false], isArray);
+}
+
+export function literalNull_TsTypeLiteralNull_boostestUseTSTypeLiteralAlias<T>(isArray = false) {
+	return null;
+}
+
+export function literalUndefined_TsTypeLiteralUndefined_boostestUseTSTypeLiteralAlias<T>(isArray = false) {
+	return undefined;
+}
+
+export function literalArray_TsTypeLiteralArray_boostestUseTSTypeLiteralAlias<T>(isArray = false) {
+	return [];
+}
+
+export function literalLiteralArray_TsTypeLiteralLiteralArrayType_boostestUseTSTypeLiteralAlias<T>(isArray = false) {
+	return [
+		1,
+		2,
+		3
+	];
+}
+
+export function literalArrayUnion_TsLiteralArrayUnionType_boostestUseTSTypeLiteralAlias<T>(isArray = false) {
+	return getUnionValue([
+		[],
+		[1],
+		[1, 2]
+	], isArray);
+}
+
+export function literalObject_TsTypeLiteralObject_boostestUseTSTypeLiteralAlias<T>(isArray = false) {
+	return {};
+}
+
+export function literalLiteralObject_TsTypeLiteralLiteralObjectType_boostestUseTSTypeLiteralAlias<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"age": 10,
+		...args
+	} as T;
+}
+
+export function literalObjectUnion_TsLiteralObjectUnionType_boostestUseTSTypeLiteralAlias<T>(isArray = false) {
+	return getUnionValue([{ "type": "A" }, {
+		"type": "B",
+		"value": 10
+	}], isArray);
+}
+
+export function literalFunction_TsTypeLiteralFunction_boostestUseTSTypeLiteralAlias<T>(isArray = false) {
+	return () => {};
+}
+
+export function literalLiteralFunction_TsTypeLiteralLiteralFunctionType_boostestUseTSTypeLiteralAlias<T>(isArray = false) {
+	return () => {};
+}
+
+export function literalFunctionUnion_TsLiteralFunctionUnionType_boostestUseTSTypeLiteralAlias<T>(isArray = false) {
+	return getUnionValue([(x: number) => {
+		return 10;
+	}, (x: string) => {
+		return "test string data";
+	}], isArray);
+}
+
+export function literalBigInt_TsTypeLiteralBigInt_boostestUseTSTypeLiteralAlias<T>(isArray = false) {
+	return 9007199254740991;
+}
+
+export function literalLiteralBigInt_TsTypeLiteralLiteralBigIntType_boostestUseTSTypeLiteralAlias<T>(isArray = false) {
+	return 123n;
+}
+
+export function literalBigIntUnion_TsLiteralBigIntUnionType_boostestUseTSTypeLiteralAlias<T>(isArray = false) {
+	return getUnionValue([
+		1n,
+		2n,
+		3n
+	], isArray);
+}
+
+export function literalSymbol_TsTypeLiteralSymbol_boostestUseTSTypeLiteralAlias<T>(isArray = false) {
+	return Symbol();
+}
+
+export function boostestUseTSTypeLiteralInterface<T>(args?: Partial<T>): T {
+	return {
+		"literalString": literalString_TsTypeLiteralString_boostestUseTSTypeLiteralInterface(isArray),
+		"literalLiteralString": literalLiteralString_TsTypeLiteralLiteralTypeString_boostestUseTSTypeLiteralInterface(isArray),
+		"literalStringUnion": literalStringUnion_TsLiteralTypeStringUnionType_boostestUseTSTypeLiteralInterface(isArray),
+		"literalNumber": literalNumber_TsTypeLiteralNumber_boostestUseTSTypeLiteralInterface(isArray),
+		"literalLiteralNumber": literalLiteralNumber_TsTypeLiteralLiteralNumberType_boostestUseTSTypeLiteralInterface(isArray),
+		"literalNumberUnion": literalNumberUnion_TsLiteralNumberUnionType_boostestUseTSTypeLiteralInterface(isArray),
+		"literalBoolean": literalBoolean_TsTypeLiteralBoolean_boostestUseTSTypeLiteralInterface(isArray),
+		"literalLiteralBoolean": literalLiteralBoolean_TsTypeLiteralLiteralBooleanType_boostestUseTSTypeLiteralInterface(isArray),
+		"literalBooleanUnion": literalBooleanUnion_TsLiteralBooleanUnionType_boostestUseTSTypeLiteralInterface(isArray),
+		"literalNull": literalNull_TsTypeLiteralNull_boostestUseTSTypeLiteralInterface(isArray),
+		"literalUndefined": literalUndefined_TsTypeLiteralUndefined_boostestUseTSTypeLiteralInterface(isArray),
+		"literalArray": literalArray_TsTypeLiteralArray_boostestUseTSTypeLiteralInterface(isArray),
+		"literalLiteralArray": literalLiteralArray_TsTypeLiteralLiteralArrayType_boostestUseTSTypeLiteralInterface(isArray),
+		"literalArrayUnion": literalArrayUnion_TsLiteralArrayUnionType_boostestUseTSTypeLiteralInterface(isArray),
+		"literalObject": literalObject_TsTypeLiteralObject_boostestUseTSTypeLiteralInterface(isArray),
+		"literalLiteralObject": literalLiteralObject_TsTypeLiteralLiteralObjectType_boostestUseTSTypeLiteralInterface(isArray),
+		"literalObjectUnion": literalObjectUnion_TsLiteralObjectUnionType_boostestUseTSTypeLiteralInterface(isArray),
+		"literalFunction": literalFunction_TsTypeLiteralFunction_boostestUseTSTypeLiteralInterface(isArray),
+		"literalLiteralFunction": literalLiteralFunction_TsTypeLiteralLiteralFunctionType_boostestUseTSTypeLiteralInterface(isArray),
+		"literalFunctionUnion": literalFunctionUnion_TsLiteralFunctionUnionType_boostestUseTSTypeLiteralInterface(isArray),
+		"literalBigInt": literalBigInt_TsTypeLiteralBigInt_boostestUseTSTypeLiteralInterface(isArray),
+		"literalLiteralBigInt": literalLiteralBigInt_TsTypeLiteralLiteralBigIntType_boostestUseTSTypeLiteralInterface(isArray),
+		"literalBigIntUnion": literalBigIntUnion_TsLiteralBigIntUnionType_boostestUseTSTypeLiteralInterface(isArray),
+		"literalSymbol": literalSymbol_TsTypeLiteralSymbol_boostestUseTSTypeLiteralInterface(isArray),
+		...args
+	} as T;
+}
+
+export function literalString_TsTypeLiteralString_boostestUseTSTypeLiteralInterface<T>(isArray = false) {
+	return "test string data";
+}
+
+export function literalLiteralString_TsTypeLiteralLiteralTypeString_boostestUseTSTypeLiteralInterface<T>(isArray = false) {
+	return "string";
+}
+
+export function literalStringUnion_TsLiteralTypeStringUnionType_boostestUseTSTypeLiteralInterface<T>(isArray = false) {
+	return getUnionValue([
+		"A",
+		"B",
+		"C"
+	], isArray);
+}
+
+export function literalNumber_TsTypeLiteralNumber_boostestUseTSTypeLiteralInterface<T>(isArray = false) {
+	return 10;
+}
+
+export function literalLiteralNumber_TsTypeLiteralLiteralNumberType_boostestUseTSTypeLiteralInterface<T>(isArray = false) {
+	return 42;
+}
+
+export function literalNumberUnion_TsLiteralNumberUnionType_boostestUseTSTypeLiteralInterface<T>(isArray = false) {
+	return getUnionValue([
+		1,
+		2,
+		3
+	], isArray);
+}
+
+export function literalBoolean_TsTypeLiteralBoolean_boostestUseTSTypeLiteralInterface<T>(isArray = false) {
+	return true;
+}
+
+export function literalLiteralBoolean_TsTypeLiteralLiteralBooleanType_boostestUseTSTypeLiteralInterface<T>(isArray = false) {
+	return true;
+}
+
+export function literalBooleanUnion_TsLiteralBooleanUnionType_boostestUseTSTypeLiteralInterface<T>(isArray = false) {
+	return getUnionValue([true, false], isArray);
+}
+
+export function literalNull_TsTypeLiteralNull_boostestUseTSTypeLiteralInterface<T>(isArray = false) {
+	return null;
+}
+
+export function literalUndefined_TsTypeLiteralUndefined_boostestUseTSTypeLiteralInterface<T>(isArray = false) {
+	return undefined;
+}
+
+export function literalArray_TsTypeLiteralArray_boostestUseTSTypeLiteralInterface<T>(isArray = false) {
+	return [];
+}
+
+export function literalLiteralArray_TsTypeLiteralLiteralArrayType_boostestUseTSTypeLiteralInterface<T>(isArray = false) {
+	return [
+		1,
+		2,
+		3
+	];
+}
+
+export function literalArrayUnion_TsLiteralArrayUnionType_boostestUseTSTypeLiteralInterface<T>(isArray = false) {
+	return getUnionValue([
+		[],
+		[1],
+		[1, 2]
+	], isArray);
+}
+
+export function literalObject_TsTypeLiteralObject_boostestUseTSTypeLiteralInterface<T>(isArray = false) {
+	return {};
+}
+
+export function literalLiteralObject_TsTypeLiteralLiteralObjectType_boostestUseTSTypeLiteralInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"age": 10,
+		...args
+	} as T;
+}
+
+export function literalObjectUnion_TsLiteralObjectUnionType_boostestUseTSTypeLiteralInterface<T>(isArray = false) {
+	return getUnionValue([{ "type": "A" }, {
+		"type": "B",
+		"value": 10
+	}], isArray);
+}
+
+export function literalFunction_TsTypeLiteralFunction_boostestUseTSTypeLiteralInterface<T>(isArray = false) {
+	return () => {};
+}
+
+export function literalLiteralFunction_TsTypeLiteralLiteralFunctionType_boostestUseTSTypeLiteralInterface<T>(isArray = false) {
+	return () => {};
+}
+
+export function literalFunctionUnion_TsLiteralFunctionUnionType_boostestUseTSTypeLiteralInterface<T>(isArray = false) {
+	return getUnionValue([(x: number) => {
+		return 10;
+	}, (x: string) => {
+		return "test string data";
+	}], isArray);
+}
+
+export function literalBigInt_TsTypeLiteralBigInt_boostestUseTSTypeLiteralInterface<T>(isArray = false) {
+	return 9007199254740991;
+}
+
+export function literalLiteralBigInt_TsTypeLiteralLiteralBigIntType_boostestUseTSTypeLiteralInterface<T>(isArray = false) {
+	return 123n;
+}
+
+export function literalBigIntUnion_TsLiteralBigIntUnionType_boostestUseTSTypeLiteralInterface<T>(isArray = false) {
+	return getUnionValue([
+		1n,
+		2n,
+		3n
+	], isArray);
+}
+
+export function literalSymbol_TsTypeLiteralSymbol_boostestUseTSTypeLiteralInterface<T>(isArray = false) {
+	return Symbol();
+}
+
+"
+`;
+
+exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/nestes_type/nested_type.spec_test_data.ts 1`] = `
+"function isNullOrUndefined(value) {
+  return value === undefined || value === null;
+}
+function emptyObj(value) {
+  if (isNullOrUndefined(value)) return false;
+  return typeof value === "object" && Object.keys(value).length === 0;
+}
+function intersectionUtil(...args) {
+  let values = args;
+  // If it includes {}, filter out null and undefined, and also remove {}
+  const includesEmptyObj = values.some((val) => emptyObj(val));
+
+  if (includesEmptyObj) {
+    values = values.filter((val) => !isNullOrUndefined(val) && !emptyObj(val));
+  }
+
+  if (values.length === 0) return null;
+  // null or undefined cannot match, so treat as "never" (return null)
+  if (values.some((val) => isNullOrUndefined(val))) {
+    return null;
+  }
+
+  if (values.length === 1) return values[0];
+
+  const firstType = typeof values[0];
+  const isSameType = values.every((value) => typeof value === firstType);
+
+  // Different types cannot be handled, so treat as "never" (return null)
+  if (!isSameType) return null;
+
+  if (firstType === "object" && values.every((value) => value !== null)) {
+    return values.reduce((acc, value) => ({ ...acc, ...value }), {});
+  }
+
+  return values[0];
+}
+function ensureArray<T>(input: T | T[]): T[] {
+  return Array.isArray(input) ? input : [input];
+}
+
+function arraysEqual(arr1: any, arr2: any) {
+  if (!Array.isArray(arr1) || !Array.isArray(arr2)) return false;
+  if (arr1.length !== arr2.length) return false;
+  for (let i = 0; i < arr1.length; i++) {
+    if (arr1[i] !== arr2[i]) return false;
+  }
+  return true;
+}
+
+function isAssignableTo(value: any, typeShape: any) {
+  // プリミティブ型またはリテラル値のチェック
+  if (typeof typeShape !== "object" || typeShape === null) {
+    return (
+      value === typeShape ||
+      typeof value === typeShape ||
+      // WARN: Cannot compare different string types such as 'hoge', 'fuga'
+      typeof value === typeof typeShape
+    );
+  }
+
+  // オブジェクト型のチェック
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  // ネストされたプロパティを再帰的にチェック
+  return Object.keys(typeShape).every((key): boolean => {
+    if (!(key in value)) return false; // プロパティが存在しない場合は false
+    return isAssignableTo(value[key], typeShape[key]);
+  });
+}
+function extendsUtil(
+  value: any,
+  typeShape: any,
+  trueVal: any,
+  falseVal: any,
+): any {
+  const isValueArray = Array.isArray(value);
+  const isTypeShapeArray = Array.isArray(typeShape);
+
+  const arrayValue = ensureArray(value);
+  const arrayTypeShape = ensureArray(typeShape);
+  const arrayTrueVal = ensureArray(trueVal);
+  const arrayFalseVal = ensureArray(falseVal);
+
+  const tutn = arraysEqual(arrayValue, arrayTrueVal); // T extends U ? T : never
+  const tunt = arraysEqual(arrayValue, arrayFalseVal); // T extends U ? never : T
+  const tunu = arraysEqual(arrayTypeShape, arrayTrueVal); // T extends U ? never : U
+  const tuun = arraysEqual(arrayTypeShape, arrayFalseVal); // T extends U ? U : never
+  const otherVal = !tutn && !tunt && !tunu && !tuun;
+
+  let resultArray: any[] = [];
+
+  // ユニオン型の場合、配列の各要素をチェック
+  if (isValueArray || isTypeShapeArray) {
+    // Extract<"A"|"B"|"C", "A"|"B">
+    if (tutn) {
+      resultArray = arrayValue.filter((val) => arrayTypeShape.includes(val));
+    } else if (tunt) {
+      resultArray = arrayValue.filter((val) => !arrayTypeShape.includes(val));
+    } else if (tunu) {
+      resultArray = arrayTypeShape.filter((val) => !arrayValue.includes(val));
+    } else if (tuun) {
+      resultArray = arrayTypeShape.filter((val) => arrayValue.includes(val));
+    }
+
+    if (otherVal) {
+      if (resultArray.length === 0) {
+        return falseVal;
+      } else {
+        return trueVal;
+      }
+    }
+
+    return resultArray[0];
+  }
+
+  return isAssignableTo(value, typeShape) ? trueVal : falseVal;
+}
+const isArray = false;
+
+function getFirstNonNullOrUndefined(arr: any[]): any {
+  // Step 1: Filter out undefined and null values
+  const filteredArray = arr.filter(
+    (item) => item !== undefined && item !== null,
+  );
+
+  // Step 2: Check if the filtered array is not empty
+  if (filteredArray.length > 0) {
+    // Step 3: Return the first element of the filtered array
+    return filteredArray[0];
+  } else {
+    // Step 4: Return the first undefined or null element from the original array
+    return arr.find((item) => item === undefined || item === null);
+  }
+}
+
+function getUnionValue(a: any, isArray = false) {
+  return isArray ? a : getFirstNonNullOrUndefined(a);
+}
+export function boostestNestedInterface<T>(args?: Partial<T>): T {
+	return {
+		"a": 10,
+		"b": "test string data",
+		"c": {
+			"d": true,
+			"e": {
+				"f": 10,
+				"g": "test string data",
+				"h": {
+					"i": 10,
+					"j": {
+						"k": true,
+						"l": []
+					}
+				}
+			},
+			"m": {
+				"n": [],
+				"o": "test string data"
+			}
+		},
+		"p": {
+			"q": { "r": 10 },
+			"s": {
+				"t": true,
+				"u": {
+					"v": 10,
+					"w": "test string data"
+				}
+			}
+		},
+		"x": [],
+		"literalType": getUnionValue([
+			"option1",
+			"option2",
+			"option3"
+		], isArray),
+		"mixedType": intersectionUtil({ "a": 10 }, { "b": "test string data" }),
+		"conditionalType": getUnionValue([
+			"active",
+			"inactive",
+			{
+				"status": "pending",
+				"detail": "test string data"
+			}
+		], isArray),
+		"extended": {
+			"id": 10,
+			"info": {
+				"description": "test string data",
+				"tags": [],
+				"settings": {
+					"mode": getUnionValue(["auto", "manual"], isArray),
+					"level": getUnionValue([
+						1,
+						2,
+						3
+					], isArray),
+					"extras": {
+						"feature": getUnionValue([true, false], isArray),
+						"nestedRef": extended_info_settings_extras_nestedRef_NestedRefType_boostestNestedInterface(isArray)
+					}
+				}
+			}
+		},
+		...args
+	} as T;
+}
+
+export function extended_info_settings_extras_feature_true_boostestNestedInterface<T>() {
+	return {};
+}
+
+export function extended_info_settings_extras_nestedRef_NestedRefType_boostestNestedInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "NestedRefType",
+		"deep": deep_DeepType_boostestNestedInterface(isArray),
+		...args
+	} as T;
+}
+
+export function deep_DeepType_boostestNestedInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "deeptype",
+		...args
+	} as T;
+}
+
+export function boostestNestedPropClass<T extends abstract new (...args: any) => any>(NestedPropClass): T {
+	return new NestedPropClass({
+		"a": 10,
+		"b": "test string data",
+		"c": {
+			"d": true,
+			"e": {
+				"f": 10,
+				"g": "test string data",
+				"h": {
+					"i": 10,
+					"j": {
+						"k": true,
+						"l": []
+					}
+				}
+			},
+			"m": {
+				"n": [],
+				"o": "test string data"
+			}
+		},
+		"p": {
+			"q": { "r": 10 },
+			"s": {
+				"t": true,
+				"u": {
+					"v": 10,
+					"w": "test string data"
+				}
+			}
+		},
+		"x": [],
+		"literalType": getUnionValue([
+			"option1",
+			"option2",
+			"option3"
+		], isArray),
+		"mixedType": intersectionUtil({ "a": 10 }, { "b": "test string data" }),
+		"conditionalType": getUnionValue([
+			"active",
+			"inactive",
+			{
+				"status": "pending",
+				"detail": "test string data"
+			}
+		], isArray),
+		"extended": {
+			"id": 10,
+			"info": {
+				"description": "test string data",
+				"tags": [],
+				"settings": {
+					"mode": getUnionValue(["auto", "manual"], isArray),
+					"level": getUnionValue([
+						1,
+						2,
+						3
+					], isArray),
+					"extras": {
+						"feature": getUnionValue([true, false], isArray),
+						"nestedRef": huga_extended_info_settings_extras_nestedRef_NestedRefType_boostestNestedPropClass(isArray)
+					}
+				}
+			}
+		}
+	});
+}
+
+export function huga_extended_info_settings_extras_feature_true_boostestNestedPropClass<T>() {
+	return {};
+}
+
+export function huga_extended_info_settings_extras_nestedRef_NestedRefType_boostestNestedPropClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "NestedRefType",
+		...args
+	} as T;
+}
+
+export function boostestNestedType<T>(args?: Partial<T>): T {
+	return {
+		"a": 10,
+		"b": "test string data",
+		"c": {
+			"d": true,
+			"e": {
+				"f": 10,
+				"g": "test string data",
+				"h": {
+					"i": 10,
+					"j": {
+						"k": true,
+						"l": []
+					}
+				}
+			},
+			"m": {
+				"n": [],
+				"o": "test string data"
+			}
+		},
+		"p": {
+			"q": { "r": 10 },
+			"s": {
+				"t": true,
+				"u": {
+					"v": 10,
+					"w": "test string data"
+				}
+			}
+		},
+		"x": [],
+		"literalType": getUnionValue([
+			"option1",
+			"option2",
+			"option3"
+		], isArray),
+		"mixedType": intersectionUtil({ "a": 10 }, { "b": "test string data" }),
+		"conditionalType": getUnionValue([
+			"active",
+			"inactive",
+			{
+				"status": "pending",
+				"detail": "test string data"
+			}
+		], isArray),
+		"extended": {
+			"id": 10,
+			"info": {
+				"description": "test string data",
+				"tags": [],
+				"settings": {
+					"mode": getUnionValue(["auto", "manual"], isArray),
+					"level": getUnionValue([
+						1,
+						2,
+						3
+					], isArray),
+					"extras": {
+						"feature": getUnionValue([true, false], isArray),
+						"nestedRef": extended_info_settings_extras_nestedRef_NestedRefType_boostestNestedType(isArray)
+					}
+				}
+			}
+		},
+		...args
+	} as T;
+}
+
+export function extended_info_settings_extras_feature_true_boostestNestedType<T>() {
+	return {};
+}
+
+export function extended_info_settings_extras_nestedRef_NestedRefType_boostestNestedType<T>(args?: Partial<T>): T {
+	return {
+		"name": "NestedRefType",
+		"deep": deep_DeepType_boostestNestedType(isArray),
+		...args
+	} as T;
+}
+
+export function deep_DeepType_boostestNestedType<T>(args?: Partial<T>): T {
+	return {
+		"name": "deeptype",
+		...args
+	} as T;
+}
+
+"
+`;
+
+exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/outer_packages/outer_packages.spec_test_data.ts 1`] = `
+"function isNullOrUndefined(value) {
+  return value === undefined || value === null;
+}
+function emptyObj(value) {
+  if (isNullOrUndefined(value)) return false;
+  return typeof value === "object" && Object.keys(value).length === 0;
+}
+function intersectionUtil(...args) {
+  let values = args;
+  // If it includes {}, filter out null and undefined, and also remove {}
+  const includesEmptyObj = values.some((val) => emptyObj(val));
+
+  if (includesEmptyObj) {
+    values = values.filter((val) => !isNullOrUndefined(val) && !emptyObj(val));
+  }
+
+  if (values.length === 0) return null;
+  // null or undefined cannot match, so treat as "never" (return null)
+  if (values.some((val) => isNullOrUndefined(val))) {
+    return null;
+  }
+
+  if (values.length === 1) return values[0];
+
+  const firstType = typeof values[0];
+  const isSameType = values.every((value) => typeof value === firstType);
+
+  // Different types cannot be handled, so treat as "never" (return null)
+  if (!isSameType) return null;
+
+  if (firstType === "object" && values.every((value) => value !== null)) {
+    return values.reduce((acc, value) => ({ ...acc, ...value }), {});
+  }
+
+  return values[0];
+}
+function ensureArray<T>(input: T | T[]): T[] {
+  return Array.isArray(input) ? input : [input];
+}
+
+function arraysEqual(arr1: any, arr2: any) {
+  if (!Array.isArray(arr1) || !Array.isArray(arr2)) return false;
+  if (arr1.length !== arr2.length) return false;
+  for (let i = 0; i < arr1.length; i++) {
+    if (arr1[i] !== arr2[i]) return false;
+  }
+  return true;
+}
+
+function isAssignableTo(value: any, typeShape: any) {
+  // プリミティブ型またはリテラル値のチェック
+  if (typeof typeShape !== "object" || typeShape === null) {
+    return (
+      value === typeShape ||
+      typeof value === typeShape ||
+      // WARN: Cannot compare different string types such as 'hoge', 'fuga'
+      typeof value === typeof typeShape
+    );
+  }
+
+  // オブジェクト型のチェック
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  // ネストされたプロパティを再帰的にチェック
+  return Object.keys(typeShape).every((key): boolean => {
+    if (!(key in value)) return false; // プロパティが存在しない場合は false
+    return isAssignableTo(value[key], typeShape[key]);
+  });
+}
+function extendsUtil(
+  value: any,
+  typeShape: any,
+  trueVal: any,
+  falseVal: any,
+): any {
+  const isValueArray = Array.isArray(value);
+  const isTypeShapeArray = Array.isArray(typeShape);
+
+  const arrayValue = ensureArray(value);
+  const arrayTypeShape = ensureArray(typeShape);
+  const arrayTrueVal = ensureArray(trueVal);
+  const arrayFalseVal = ensureArray(falseVal);
+
+  const tutn = arraysEqual(arrayValue, arrayTrueVal); // T extends U ? T : never
+  const tunt = arraysEqual(arrayValue, arrayFalseVal); // T extends U ? never : T
+  const tunu = arraysEqual(arrayTypeShape, arrayTrueVal); // T extends U ? never : U
+  const tuun = arraysEqual(arrayTypeShape, arrayFalseVal); // T extends U ? U : never
+  const otherVal = !tutn && !tunt && !tunu && !tuun;
+
+  let resultArray: any[] = [];
+
+  // ユニオン型の場合、配列の各要素をチェック
+  if (isValueArray || isTypeShapeArray) {
+    // Extract<"A"|"B"|"C", "A"|"B">
+    if (tutn) {
+      resultArray = arrayValue.filter((val) => arrayTypeShape.includes(val));
+    } else if (tunt) {
+      resultArray = arrayValue.filter((val) => !arrayTypeShape.includes(val));
+    } else if (tunu) {
+      resultArray = arrayTypeShape.filter((val) => !arrayValue.includes(val));
+    } else if (tuun) {
+      resultArray = arrayTypeShape.filter((val) => arrayValue.includes(val));
+    }
+
+    if (otherVal) {
+      if (resultArray.length === 0) {
+        return falseVal;
+      } else {
+        return trueVal;
+      }
+    }
+
+    return resultArray[0];
+  }
+
+  return isAssignableTo(value, typeShape) ? trueVal : falseVal;
+}
+const isArray = false;
+
+function getFirstNonNullOrUndefined(arr: any[]): any {
+  // Step 1: Filter out undefined and null values
+  const filteredArray = arr.filter(
+    (item) => item !== undefined && item !== null,
+  );
+
+  // Step 2: Check if the filtered array is not empty
+  if (filteredArray.length > 0) {
+    // Step 3: Return the first element of the filtered array
+    return filteredArray[0];
+  } else {
+    // Step 4: Return the first undefined or null element from the original array
+    return arr.find((item) => item === undefined || item === null);
+  }
+}
+
+function getUnionValue(a: any, isArray = false) {
+  return isArray ? a : getFirstNonNullOrUndefined(a);
+}
+export function boostestFormDataVisitorHelpers<T>(args?: Partial<T>): T {
+	return {
+		"defaultVisitor": defaultVisitor_SerializerVisitor_boostestFormDataVisitorHelpers(isArray),
+		"convertValue": (value: any) => {
+			return "any";
+		},
+		"isVisitable": (value: any) => {
+			return true;
+		},
+		...args
+	} as T;
+}
+
+export function defaultVisitor_SerializerVisitor_boostestFormDataVisitorHelpers<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function boostestHandler<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function boostestParamHandler<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function boostestRequest<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function boostestResponse<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function boostestResponseType<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+"
+`;
+
+exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/renamed/renamed.spec_test_data.ts 1`] = `
+"function isNullOrUndefined(value) {
+  return value === undefined || value === null;
+}
+function emptyObj(value) {
+  if (isNullOrUndefined(value)) return false;
+  return typeof value === "object" && Object.keys(value).length === 0;
+}
+function intersectionUtil(...args) {
+  let values = args;
+  // If it includes {}, filter out null and undefined, and also remove {}
+  const includesEmptyObj = values.some((val) => emptyObj(val));
+
+  if (includesEmptyObj) {
+    values = values.filter((val) => !isNullOrUndefined(val) && !emptyObj(val));
+  }
+
+  if (values.length === 0) return null;
+  // null or undefined cannot match, so treat as "never" (return null)
+  if (values.some((val) => isNullOrUndefined(val))) {
+    return null;
+  }
+
+  if (values.length === 1) return values[0];
+
+  const firstType = typeof values[0];
+  const isSameType = values.every((value) => typeof value === firstType);
+
+  // Different types cannot be handled, so treat as "never" (return null)
+  if (!isSameType) return null;
+
+  if (firstType === "object" && values.every((value) => value !== null)) {
+    return values.reduce((acc, value) => ({ ...acc, ...value }), {});
+  }
+
+  return values[0];
+}
+function ensureArray<T>(input: T | T[]): T[] {
+  return Array.isArray(input) ? input : [input];
+}
+
+function arraysEqual(arr1: any, arr2: any) {
+  if (!Array.isArray(arr1) || !Array.isArray(arr2)) return false;
+  if (arr1.length !== arr2.length) return false;
+  for (let i = 0; i < arr1.length; i++) {
+    if (arr1[i] !== arr2[i]) return false;
+  }
+  return true;
+}
+
+function isAssignableTo(value: any, typeShape: any) {
+  // プリミティブ型またはリテラル値のチェック
+  if (typeof typeShape !== "object" || typeShape === null) {
+    return (
+      value === typeShape ||
+      typeof value === typeShape ||
+      // WARN: Cannot compare different string types such as 'hoge', 'fuga'
+      typeof value === typeof typeShape
+    );
+  }
+
+  // オブジェクト型のチェック
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  // ネストされたプロパティを再帰的にチェック
+  return Object.keys(typeShape).every((key): boolean => {
+    if (!(key in value)) return false; // プロパティが存在しない場合は false
+    return isAssignableTo(value[key], typeShape[key]);
+  });
+}
+function extendsUtil(
+  value: any,
+  typeShape: any,
+  trueVal: any,
+  falseVal: any,
+): any {
+  const isValueArray = Array.isArray(value);
+  const isTypeShapeArray = Array.isArray(typeShape);
+
+  const arrayValue = ensureArray(value);
+  const arrayTypeShape = ensureArray(typeShape);
+  const arrayTrueVal = ensureArray(trueVal);
+  const arrayFalseVal = ensureArray(falseVal);
+
+  const tutn = arraysEqual(arrayValue, arrayTrueVal); // T extends U ? T : never
+  const tunt = arraysEqual(arrayValue, arrayFalseVal); // T extends U ? never : T
+  const tunu = arraysEqual(arrayTypeShape, arrayTrueVal); // T extends U ? never : U
+  const tuun = arraysEqual(arrayTypeShape, arrayFalseVal); // T extends U ? U : never
+  const otherVal = !tutn && !tunt && !tunu && !tuun;
+
+  let resultArray: any[] = [];
+
+  // ユニオン型の場合、配列の各要素をチェック
+  if (isValueArray || isTypeShapeArray) {
+    // Extract<"A"|"B"|"C", "A"|"B">
+    if (tutn) {
+      resultArray = arrayValue.filter((val) => arrayTypeShape.includes(val));
+    } else if (tunt) {
+      resultArray = arrayValue.filter((val) => !arrayTypeShape.includes(val));
+    } else if (tunu) {
+      resultArray = arrayTypeShape.filter((val) => !arrayValue.includes(val));
+    } else if (tuun) {
+      resultArray = arrayTypeShape.filter((val) => arrayValue.includes(val));
+    }
+
+    if (otherVal) {
+      if (resultArray.length === 0) {
+        return falseVal;
+      } else {
+        return trueVal;
+      }
+    }
+
+    return resultArray[0];
+  }
+
+  return isAssignableTo(value, typeShape) ? trueVal : falseVal;
+}
+const isArray = false;
+
+function getFirstNonNullOrUndefined(arr: any[]): any {
+  // Step 1: Filter out undefined and null values
+  const filteredArray = arr.filter(
+    (item) => item !== undefined && item !== null,
+  );
+
+  // Step 2: Check if the filtered array is not empty
+  if (filteredArray.length > 0) {
+    // Step 3: Return the first element of the filtered array
+    return filteredArray[0];
+  } else {
+    // Step 4: Return the first undefined or null element from the original array
+    return arr.find((item) => item === undefined || item === null);
+  }
+}
+
+function getUnionValue(a: any, isArray = false) {
+  return isArray ? a : getFirstNonNullOrUndefined(a);
+}
+export function boostestRenamedComplexChipsType<T>(isArray = false) {
+	return RenamedComplexChipsType_ComplexChipsType_boostestRenamedComplexChipsType(isArray);
+}
+
+export function RenamedComplexChipsType_ComplexChipsType_boostestRenamedComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"age": 10,
+		"sex": getUnionValue([1, 2], isArray),
+		"short_name": getUnionValue(["john", "doe"], isArray),
+		"favorite": getUnionValue([favorite_CalbeeLightlySalted_boostestRenamedComplexChipsType(isArray), favorite_KoikeyaPridePotato_boostestRenamedComplexChipsType(isArray)], isArray),
+		"mostFav": mostFav_PringlesSourCreamAndOnion_boostestRenamedComplexChipsType(isArray),
+		"func": () => {},
+		"undefinedKey": undefined,
+		"anyKey": "any",
+		"nullKey": null,
+		"optionalKey": "test string data",
+		"unknownKey": undefined,
+		"thisKey": thisKey_ThisType_boostestRenamedComplexChipsType((isArray?: any) => {
+			return thisKey_LayClassic_boostestRenamedComplexChipsType(isArray);
+		}),
+		"conditionalKey": extendsUtil(conditionalKey_CalbeeLightlySalted_boostestRenamedComplexChipsType(true), conditionalKey_PotatoChip_boostestRenamedComplexChipsType(true), conditionalKey_KettleBrandSeaSaltAndVinegar_boostestRenamedComplexChipsType(true), false),
+		"objectKey": {},
+		"voidKey": null,
+		"indexedKey": indexedKey_PotatoChip_boostestRenamedComplexChipsType()["name"],
+		"intersectionKey": intersectionUtil(intersectionKey_LayClassic_boostestRenamedComplexChipsType(isArray), intersectionKey_KoikeyaPridePotato_boostestRenamedComplexChipsType(isArray)),
+		"arrayKey": [],
+		...args
+	} as T;
+}
+
+export function favorite_CalbeeLightlySalted_boostestRenamedComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function favorite_KoikeyaPridePotato_boostestRenamedComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+export function mostFav_PringlesSourCreamAndOnion_boostestRenamedComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "Pringles Sour Cream & Onion 😀",
+		"price": 200,
+		...args
+	} as T;
+}
+
+export function thisKey_LayClassic_boostestRenamedComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function thisKey_ThisType_boostestRenamedComplexChipsType<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function conditionalKey_CalbeeLightlySalted_boostestRenamedComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function conditionalKey_PotatoChip_boostestRenamedComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestRenamedComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
+		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestRenamedComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function intersectionKey_LayClassic_boostestRenamedComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function intersectionKey_KoikeyaPridePotato_boostestRenamedComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+export function boostestRenamedNestedPropClass<T extends abstract new (...args: any) => any>(ClassObj): T {
+	return new ClassObj({ "anoChips": huga_anoChips_ComplexInterfaceChips_boostestRenamedNestedPropClass(isArray) });
+}
+
+export function huga_anoChips_ComplexInterfaceChips_boostestRenamedNestedPropClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"age": 10,
+		"sex": getUnionValue([1, 2], isArray),
+		"short_name": getUnionValue(["john", "doe"], isArray),
+		"favorite": getUnionValue([favorite_CalbeeLightlySalted_boostestRenamedNestedPropClass(isArray), favorite_KoikeyaPridePotato_boostestRenamedNestedPropClass(isArray)], isArray),
+		"mostFav": mostFav_PringlesSourCreamAndOnion_boostestRenamedNestedPropClass(isArray),
+		"func": () => {},
+		"undefinedKey": undefined,
+		"anyKey": "any",
+		"nullKey": null,
+		"optionalKey": "test string data",
+		"unknownKey": undefined,
+		"thisKey": thisKey_ThisType_boostestRenamedNestedPropClass((isArray?: any) => {
+			return thisKey_LayClassic_boostestRenamedNestedPropClass(isArray);
+		}),
+		"conditionalKey": extendsUtil(conditionalKey_CalbeeLightlySalted_boostestRenamedNestedPropClass(true), conditionalKey_PotatoChip_boostestRenamedNestedPropClass(true), conditionalKey_KettleBrandSeaSaltAndVinegar_boostestRenamedNestedPropClass(true), false),
+		"objectKey": {},
+		"voidKey": null,
+		"indexedKey": indexedKey_PotatoChip_boostestRenamedNestedPropClass()["name"],
+		"intersectionKey": intersectionUtil(intersectionKey_LayClassic_boostestRenamedNestedPropClass(isArray), intersectionKey_KoikeyaPridePotato_boostestRenamedNestedPropClass(isArray)),
+		"arrayKey": [],
+		...args
+	} as T;
+}
+
+export function favorite_CalbeeLightlySalted_boostestRenamedNestedPropClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function favorite_KoikeyaPridePotato_boostestRenamedNestedPropClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+export function mostFav_PringlesSourCreamAndOnion_boostestRenamedNestedPropClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Pringles Sour Cream & Onion 😀",
+		"price": 200,
+		...args
+	} as T;
+}
+
+export function thisKey_LayClassic_boostestRenamedNestedPropClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function thisKey_ThisType_boostestRenamedNestedPropClass<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function conditionalKey_CalbeeLightlySalted_boostestRenamedNestedPropClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function conditionalKey_PotatoChip_boostestRenamedNestedPropClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestRenamedNestedPropClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
+		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestRenamedNestedPropClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function intersectionKey_LayClassic_boostestRenamedNestedPropClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function intersectionKey_KoikeyaPridePotato_boostestRenamedNestedPropClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+"
+`;
+
+exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/standard/standard.spec_test_data.ts 1`] = `
+"function isNullOrUndefined(value) {
+  return value === undefined || value === null;
+}
+function emptyObj(value) {
+  if (isNullOrUndefined(value)) return false;
+  return typeof value === "object" && Object.keys(value).length === 0;
+}
+function intersectionUtil(...args) {
+  let values = args;
+  // If it includes {}, filter out null and undefined, and also remove {}
+  const includesEmptyObj = values.some((val) => emptyObj(val));
+
+  if (includesEmptyObj) {
+    values = values.filter((val) => !isNullOrUndefined(val) && !emptyObj(val));
+  }
+
+  if (values.length === 0) return null;
+  // null or undefined cannot match, so treat as "never" (return null)
+  if (values.some((val) => isNullOrUndefined(val))) {
+    return null;
+  }
+
+  if (values.length === 1) return values[0];
+
+  const firstType = typeof values[0];
+  const isSameType = values.every((value) => typeof value === firstType);
+
+  // Different types cannot be handled, so treat as "never" (return null)
+  if (!isSameType) return null;
+
+  if (firstType === "object" && values.every((value) => value !== null)) {
+    return values.reduce((acc, value) => ({ ...acc, ...value }), {});
+  }
+
+  return values[0];
+}
+function ensureArray<T>(input: T | T[]): T[] {
+  return Array.isArray(input) ? input : [input];
+}
+
+function arraysEqual(arr1: any, arr2: any) {
+  if (!Array.isArray(arr1) || !Array.isArray(arr2)) return false;
+  if (arr1.length !== arr2.length) return false;
+  for (let i = 0; i < arr1.length; i++) {
+    if (arr1[i] !== arr2[i]) return false;
+  }
+  return true;
+}
+
+function isAssignableTo(value: any, typeShape: any) {
+  // プリミティブ型またはリテラル値のチェック
+  if (typeof typeShape !== "object" || typeShape === null) {
+    return (
+      value === typeShape ||
+      typeof value === typeShape ||
+      // WARN: Cannot compare different string types such as 'hoge', 'fuga'
+      typeof value === typeof typeShape
+    );
+  }
+
+  // オブジェクト型のチェック
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  // ネストされたプロパティを再帰的にチェック
+  return Object.keys(typeShape).every((key): boolean => {
+    if (!(key in value)) return false; // プロパティが存在しない場合は false
+    return isAssignableTo(value[key], typeShape[key]);
+  });
+}
+function extendsUtil(
+  value: any,
+  typeShape: any,
+  trueVal: any,
+  falseVal: any,
+): any {
+  const isValueArray = Array.isArray(value);
+  const isTypeShapeArray = Array.isArray(typeShape);
+
+  const arrayValue = ensureArray(value);
+  const arrayTypeShape = ensureArray(typeShape);
+  const arrayTrueVal = ensureArray(trueVal);
+  const arrayFalseVal = ensureArray(falseVal);
+
+  const tutn = arraysEqual(arrayValue, arrayTrueVal); // T extends U ? T : never
+  const tunt = arraysEqual(arrayValue, arrayFalseVal); // T extends U ? never : T
+  const tunu = arraysEqual(arrayTypeShape, arrayTrueVal); // T extends U ? never : U
+  const tuun = arraysEqual(arrayTypeShape, arrayFalseVal); // T extends U ? U : never
+  const otherVal = !tutn && !tunt && !tunu && !tuun;
+
+  let resultArray: any[] = [];
+
+  // ユニオン型の場合、配列の各要素をチェック
+  if (isValueArray || isTypeShapeArray) {
+    // Extract<"A"|"B"|"C", "A"|"B">
+    if (tutn) {
+      resultArray = arrayValue.filter((val) => arrayTypeShape.includes(val));
+    } else if (tunt) {
+      resultArray = arrayValue.filter((val) => !arrayTypeShape.includes(val));
+    } else if (tunu) {
+      resultArray = arrayTypeShape.filter((val) => !arrayValue.includes(val));
+    } else if (tuun) {
+      resultArray = arrayTypeShape.filter((val) => arrayValue.includes(val));
+    }
+
+    if (otherVal) {
+      if (resultArray.length === 0) {
+        return falseVal;
+      } else {
+        return trueVal;
+      }
+    }
+
+    return resultArray[0];
+  }
+
+  return isAssignableTo(value, typeShape) ? trueVal : falseVal;
+}
+const isArray = false;
+
+function getFirstNonNullOrUndefined(arr: any[]): any {
+  // Step 1: Filter out undefined and null values
+  const filteredArray = arr.filter(
+    (item) => item !== undefined && item !== null,
+  );
+
+  // Step 2: Check if the filtered array is not empty
+  if (filteredArray.length > 0) {
+    // Step 3: Return the first element of the filtered array
+    return filteredArray[0];
+  } else {
+    // Step 4: Return the first undefined or null element from the original array
+    return arr.find((item) => item === undefined || item === null);
+  }
+}
+
+function getUnionValue(a: any, isArray = false) {
+  return isArray ? a : getFirstNonNullOrUndefined(a);
+}
+export function boostestLiteralAliasType<T>(args?: Partial<T>): T {
+	return {
+		"stringLiteral": "test string data",
+		"numberLiteral": 10,
+		"bigintLiteral": 9007199254740991,
+		"booleanLiteral": true,
+		"nullLiteral": null,
+		"undefinedId": undefined,
+		"anyLiteral": "any",
+		"unknownLiteral": undefined,
+		"neverLiteral": null,
+		"objectLiteral": {},
+		"voidLiteral": null,
+		"functionLiteral": () => {},
+		"arrayLiteral": [],
+		"referenceLiteral": referenceLiteral_RefType_boostestLiteralAliasType(isArray),
+		"unionType": getUnionValue(["test string data", 10], isArray),
+		"conditionalType": extendsUtil("test string data", 10, true, false),
+		"tsLiteralString": "string",
+		"tsLiteralNumber": 20,
+		"tsBigInt": 10000000000000n,
+		"tsLiteralBoolean": true,
+		"tsNullLiteral": null,
+		"tsObject": {},
+		"tsArray": [],
+		"symbolLiteral": Symbol(),
+		"tsTuple": [
+			"test string data",
+			10,
+			"any",
+			tsTuple_RefType_boostestLiteralAliasType(isArray),
+			tsTuple_RefTypeInterface_boostestLiteralAliasType(isArray)
+		],
+		"tsNamedTuple": [
+			"test string data",
+			10,
+			tsNamedTuple_RefType_boostestLiteralAliasType(isArray),
+			tsNamedTuple_RefTypeInterface_boostestLiteralAliasType(isArray)
+		],
+		"intersectionType": intersectionUtil(intersectionType_RefType_boostestLiteralAliasType(isArray), intersectionType_RefTypeInterface_boostestLiteralAliasType(isArray), {
+			"name": "test string data",
+			"age": 10
+		}),
+		"keyof": Object.keys(keyof_RefType_boostestLiteralAliasType())[0],
+		"indexAccessor": indexAccessor_RefType_boostestLiteralAliasType()["name"],
+		...args
+	} as T;
+}
+
+export function referenceLiteral_RefType_boostestLiteralAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function tsTuple_RefType_boostestLiteralAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function tsTuple_RefTypeInterface_boostestLiteralAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function tsNamedTuple_RefType_boostestLiteralAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function tsNamedTuple_RefTypeInterface_boostestLiteralAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function intersectionType_RefType_boostestLiteralAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function intersectionType_RefTypeInterface_boostestLiteralAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function keyof_RefType_boostestLiteralAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function indexAccessor_RefType_boostestLiteralAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function boostestLiteralInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"stringLiteral": "test string data",
+		"numberLiteral": 10,
+		"bigintLiteral": 9007199254740991,
+		"booleanLiteral": true,
+		"nullLiteral": null,
+		"undefinedId": undefined,
+		"anyLiteral": "any",
+		"unknownLiteral": undefined,
+		"neverLiteral": null,
+		"objectLiteral": {},
+		"voidLiteral": null,
+		"functionLiteral": () => {},
+		"arrayLiteral": [],
+		"referenceLiteral": referenceLiteral_RefType_boostestLiteralInterfaceType(isArray),
+		"unionType": getUnionValue(["test string data", 10], isArray),
+		"conditionalType": extendsUtil("test string data", 10, true, false),
+		"tsLiteralString": "string",
+		"tsLiteralNumber": 20,
+		"tsBigInt": 10000000000000n,
+		"tsLiteralBoolean": true,
+		"tsNullLiteral": null,
+		"tsObject": {},
+		"tsArray": [],
+		"symbolLiteral": Symbol(),
+		"tsTuple": [
+			"test string data",
+			10,
+			"any",
+			tsTuple_RefType_boostestLiteralInterfaceType(isArray),
+			tsTuple_RefTypeInterface_boostestLiteralInterfaceType(isArray)
+		],
+		"tsNamedTuple": [
+			"test string data",
+			10,
+			tsNamedTuple_RefType_boostestLiteralInterfaceType(isArray),
+			tsNamedTuple_RefTypeInterface_boostestLiteralInterfaceType(isArray)
+		],
+		"intersectionType": intersectionUtil(intersectionType_RefType_boostestLiteralInterfaceType(isArray), intersectionType_RefTypeInterface_boostestLiteralInterfaceType(isArray), {
+			"name": "test string data",
+			"age": 10
+		}),
+		"keyof": Object.keys(keyof_RefType_boostestLiteralInterfaceType())[0],
+		"indexAccessor": indexAccessor_RefType_boostestLiteralInterfaceType()["name"],
+		...args
+	} as T;
+}
+
+export function referenceLiteral_RefType_boostestLiteralInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function tsTuple_RefType_boostestLiteralInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function tsTuple_RefTypeInterface_boostestLiteralInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function tsNamedTuple_RefType_boostestLiteralInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function tsNamedTuple_RefTypeInterface_boostestLiteralInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function intersectionType_RefType_boostestLiteralInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function intersectionType_RefTypeInterface_boostestLiteralInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function keyof_RefType_boostestLiteralInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function indexAccessor_RefType_boostestLiteralInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function boostestLiteralTypeClass<T extends abstract new (...args: any) => any>(LiteralTypeClass): T {
+	return new LiteralTypeClass("test string data", 10, 9007199254740991, true, null, undefined, "any", undefined, null, {}, null, () => {}, [], referenceLiteral_RefType_boostestLiteralTypeClass(isArray), "test string data", "string", 20, 10000000000000n, true, null, {}, [], Symbol(), [
+		"test string data",
+		10,
+		"any",
+		tsTuple_RefType_boostestLiteralTypeClass(isArray),
+		tsTuple_RefTypeInterface_boostestLiteralTypeClass(isArray),
+		"test string data"
+	], [
+		"test string data",
+		10,
+		tsNamedTuple_RefType_boostestLiteralTypeClass(isArray),
+		tsNamedTuple_RefTypeInterface_boostestLiteralTypeClass(isArray),
+		10
+	], intersectionUtil(intersectionType_RefType_boostestLiteralTypeClass(isArray), intersectionType_RefTypeInterface_boostestLiteralTypeClass(isArray), {
+		"name": "test string data",
+		"age": 10
+	}), false, Object.keys(keyof_RefType_boostestLiteralTypeClass())[0], indexAccessor_RefType_boostestLiteralTypeClass()["name"]);
+}
+
+export function referenceLiteral_RefType_boostestLiteralTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function tsTuple_RefType_boostestLiteralTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function tsTuple_RefTypeInterface_boostestLiteralTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function tsNamedTuple_RefType_boostestLiteralTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function tsNamedTuple_RefTypeInterface_boostestLiteralTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function intersectionType_RefType_boostestLiteralTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function intersectionType_RefTypeInterface_boostestLiteralTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function keyof_RefType_boostestLiteralTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+export function indexAccessor_RefType_boostestLiteralTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		...args
+	} as T;
+}
+
+"
+`;
+
+exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/union/union.spec_test_data.ts 1`] = `
+"function isNullOrUndefined(value) {
+  return value === undefined || value === null;
+}
+function emptyObj(value) {
+  if (isNullOrUndefined(value)) return false;
+  return typeof value === "object" && Object.keys(value).length === 0;
+}
+function intersectionUtil(...args) {
+  let values = args;
+  // If it includes {}, filter out null and undefined, and also remove {}
+  const includesEmptyObj = values.some((val) => emptyObj(val));
+
+  if (includesEmptyObj) {
+    values = values.filter((val) => !isNullOrUndefined(val) && !emptyObj(val));
+  }
+
+  if (values.length === 0) return null;
+  // null or undefined cannot match, so treat as "never" (return null)
+  if (values.some((val) => isNullOrUndefined(val))) {
+    return null;
+  }
+
+  if (values.length === 1) return values[0];
+
+  const firstType = typeof values[0];
+  const isSameType = values.every((value) => typeof value === firstType);
+
+  // Different types cannot be handled, so treat as "never" (return null)
+  if (!isSameType) return null;
+
+  if (firstType === "object" && values.every((value) => value !== null)) {
+    return values.reduce((acc, value) => ({ ...acc, ...value }), {});
+  }
+
+  return values[0];
+}
+function ensureArray<T>(input: T | T[]): T[] {
+  return Array.isArray(input) ? input : [input];
+}
+
+function arraysEqual(arr1: any, arr2: any) {
+  if (!Array.isArray(arr1) || !Array.isArray(arr2)) return false;
+  if (arr1.length !== arr2.length) return false;
+  for (let i = 0; i < arr1.length; i++) {
+    if (arr1[i] !== arr2[i]) return false;
+  }
+  return true;
+}
+
+function isAssignableTo(value: any, typeShape: any) {
+  // プリミティブ型またはリテラル値のチェック
+  if (typeof typeShape !== "object" || typeShape === null) {
+    return (
+      value === typeShape ||
+      typeof value === typeShape ||
+      // WARN: Cannot compare different string types such as 'hoge', 'fuga'
+      typeof value === typeof typeShape
+    );
+  }
+
+  // オブジェクト型のチェック
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  // ネストされたプロパティを再帰的にチェック
+  return Object.keys(typeShape).every((key): boolean => {
+    if (!(key in value)) return false; // プロパティが存在しない場合は false
+    return isAssignableTo(value[key], typeShape[key]);
+  });
+}
+function extendsUtil(
+  value: any,
+  typeShape: any,
+  trueVal: any,
+  falseVal: any,
+): any {
+  const isValueArray = Array.isArray(value);
+  const isTypeShapeArray = Array.isArray(typeShape);
+
+  const arrayValue = ensureArray(value);
+  const arrayTypeShape = ensureArray(typeShape);
+  const arrayTrueVal = ensureArray(trueVal);
+  const arrayFalseVal = ensureArray(falseVal);
+
+  const tutn = arraysEqual(arrayValue, arrayTrueVal); // T extends U ? T : never
+  const tunt = arraysEqual(arrayValue, arrayFalseVal); // T extends U ? never : T
+  const tunu = arraysEqual(arrayTypeShape, arrayTrueVal); // T extends U ? never : U
+  const tuun = arraysEqual(arrayTypeShape, arrayFalseVal); // T extends U ? U : never
+  const otherVal = !tutn && !tunt && !tunu && !tuun;
+
+  let resultArray: any[] = [];
+
+  // ユニオン型の場合、配列の各要素をチェック
+  if (isValueArray || isTypeShapeArray) {
+    // Extract<"A"|"B"|"C", "A"|"B">
+    if (tutn) {
+      resultArray = arrayValue.filter((val) => arrayTypeShape.includes(val));
+    } else if (tunt) {
+      resultArray = arrayValue.filter((val) => !arrayTypeShape.includes(val));
+    } else if (tunu) {
+      resultArray = arrayTypeShape.filter((val) => !arrayValue.includes(val));
+    } else if (tuun) {
+      resultArray = arrayTypeShape.filter((val) => arrayValue.includes(val));
+    }
+
+    if (otherVal) {
+      if (resultArray.length === 0) {
+        return falseVal;
+      } else {
+        return trueVal;
+      }
+    }
+
+    return resultArray[0];
+  }
+
+  return isAssignableTo(value, typeShape) ? trueVal : falseVal;
+}
+const isArray = false;
+
+function getFirstNonNullOrUndefined(arr: any[]): any {
+  // Step 1: Filter out undefined and null values
+  const filteredArray = arr.filter(
+    (item) => item !== undefined && item !== null,
+  );
+
+  // Step 2: Check if the filtered array is not empty
+  if (filteredArray.length > 0) {
+    // Step 3: Return the first element of the filtered array
+    return filteredArray[0];
+  } else {
+    // Step 4: Return the first undefined or null element from the original array
+    return arr.find((item) => item === undefined || item === null);
+  }
+}
+
+function getUnionValue(a: any, isArray = false) {
+  return isArray ? a : getFirstNonNullOrUndefined(a);
+}
+export function boostestTSAliasMixUnionObjType<T>(args?: Partial<T>): T {
+	return {
+		"ref_type": ref_type_TSAliasMixUnionType_boostestTSAliasMixUnionObjType(isArray),
+		"type": getUnionValue([
+			5e4,
+			"A",
+			1,
+			true,
+			type_TSAliasStringUnionType_boostestTSAliasMixUnionObjType(isArray)
+		], isArray),
+		...args
+	} as T;
+}
+
+export function ref_type_TSAliasMixUnionType_boostestTSAliasMixUnionObjType<T>(isArray = false) {
+	return getUnionValue([
+		5e4,
+		"A",
+		1,
+		true,
+		TSAliasMixUnionType_TSAliasStringUnionType_boostestTSAliasMixUnionObjType(isArray)
+	], isArray);
+}
+
+export function TSAliasMixUnionType_TSAliasStringUnionType_boostestTSAliasMixUnionObjType<T>(isArray = false) {
+	return getUnionValue([
+		"A",
+		"B",
+		"C"
+	], isArray);
+}
+
+export function type_true_boostestTSAliasMixUnionObjType<T>() {
+	return {};
+}
+
+export function type_TSAliasStringUnionType_boostestTSAliasMixUnionObjType<T>(isArray = false) {
+	return getUnionValue([
+		"A",
+		"B",
+		"C"
+	], isArray);
+}
+
+export function boostestTSAliasMixUnionType<T>(isArray = false) {
+	return getUnionValue([
+		5e4,
+		"A",
+		1,
+		true,
+		TSAliasMixUnionType_TSAliasStringUnionType_boostestTSAliasMixUnionType(isArray)
+	], isArray);
+}
+
+export function TSAliasMixUnionType_TSAliasStringUnionType_boostestTSAliasMixUnionType<T>(isArray = false) {
+	return getUnionValue([
+		"A",
+		"B",
+		"C"
+	], isArray);
+}
+
+export function boostestTSAliasStringUnionType<T>(isArray = false) {
+	return getUnionValue([
+		"A",
+		"B",
+		"C"
+	], isArray);
+}
+
+export function boostestTSInterfaceMixUnionType<T>(args?: Partial<T>): T {
+	return {
+		"type": getUnionValue([
+			5e4,
+			"A",
+			1,
+			true,
+			type_TSAliasStringUnionType_boostestTSInterfaceMixUnionType(isArray)
+		], isArray),
+		...args
+	} as T;
+}
+
+export function type_true_boostestTSInterfaceMixUnionType<T>() {
+	return {};
+}
+
+export function type_TSAliasStringUnionType_boostestTSInterfaceMixUnionType<T>(isArray = false) {
+	return getUnionValue([
+		"A",
+		"B",
+		"C"
+	], isArray);
+}
+
+export function boostestTSInterfaceStringUnionType<T>(args?: Partial<T>): T {
+	return {
+		"type": getUnionValue([
+			"A",
+			"B",
+			"C"
+		], isArray),
+		...args
+	} as T;
+}
+
+"
+`;
+
+exports[`boostest all dir output correctly output correctly /Users/tanakamasato/Code/boostest/apps/test/src/tests/various_export_impot/various_export_import.spec_test_data.ts 1`] = `
+"function isNullOrUndefined(value) {
+  return value === undefined || value === null;
+}
+function emptyObj(value) {
+  if (isNullOrUndefined(value)) return false;
+  return typeof value === "object" && Object.keys(value).length === 0;
+}
+function intersectionUtil(...args) {
+  let values = args;
+  // If it includes {}, filter out null and undefined, and also remove {}
+  const includesEmptyObj = values.some((val) => emptyObj(val));
+
+  if (includesEmptyObj) {
+    values = values.filter((val) => !isNullOrUndefined(val) && !emptyObj(val));
+  }
+
+  if (values.length === 0) return null;
+  // null or undefined cannot match, so treat as "never" (return null)
+  if (values.some((val) => isNullOrUndefined(val))) {
+    return null;
+  }
+
+  if (values.length === 1) return values[0];
+
+  const firstType = typeof values[0];
+  const isSameType = values.every((value) => typeof value === firstType);
+
+  // Different types cannot be handled, so treat as "never" (return null)
+  if (!isSameType) return null;
+
+  if (firstType === "object" && values.every((value) => value !== null)) {
+    return values.reduce((acc, value) => ({ ...acc, ...value }), {});
+  }
+
+  return values[0];
+}
+function ensureArray<T>(input: T | T[]): T[] {
+  return Array.isArray(input) ? input : [input];
+}
+
+function arraysEqual(arr1: any, arr2: any) {
+  if (!Array.isArray(arr1) || !Array.isArray(arr2)) return false;
+  if (arr1.length !== arr2.length) return false;
+  for (let i = 0; i < arr1.length; i++) {
+    if (arr1[i] !== arr2[i]) return false;
+  }
+  return true;
+}
+
+function isAssignableTo(value: any, typeShape: any) {
+  // プリミティブ型またはリテラル値のチェック
+  if (typeof typeShape !== "object" || typeShape === null) {
+    return (
+      value === typeShape ||
+      typeof value === typeShape ||
+      // WARN: Cannot compare different string types such as 'hoge', 'fuga'
+      typeof value === typeof typeShape
+    );
+  }
+
+  // オブジェクト型のチェック
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  // ネストされたプロパティを再帰的にチェック
+  return Object.keys(typeShape).every((key): boolean => {
+    if (!(key in value)) return false; // プロパティが存在しない場合は false
+    return isAssignableTo(value[key], typeShape[key]);
+  });
+}
+function extendsUtil(
+  value: any,
+  typeShape: any,
+  trueVal: any,
+  falseVal: any,
+): any {
+  const isValueArray = Array.isArray(value);
+  const isTypeShapeArray = Array.isArray(typeShape);
+
+  const arrayValue = ensureArray(value);
+  const arrayTypeShape = ensureArray(typeShape);
+  const arrayTrueVal = ensureArray(trueVal);
+  const arrayFalseVal = ensureArray(falseVal);
+
+  const tutn = arraysEqual(arrayValue, arrayTrueVal); // T extends U ? T : never
+  const tunt = arraysEqual(arrayValue, arrayFalseVal); // T extends U ? never : T
+  const tunu = arraysEqual(arrayTypeShape, arrayTrueVal); // T extends U ? never : U
+  const tuun = arraysEqual(arrayTypeShape, arrayFalseVal); // T extends U ? U : never
+  const otherVal = !tutn && !tunt && !tunu && !tuun;
+
+  let resultArray: any[] = [];
+
+  // ユニオン型の場合、配列の各要素をチェック
+  if (isValueArray || isTypeShapeArray) {
+    // Extract<"A"|"B"|"C", "A"|"B">
+    if (tutn) {
+      resultArray = arrayValue.filter((val) => arrayTypeShape.includes(val));
+    } else if (tunt) {
+      resultArray = arrayValue.filter((val) => !arrayTypeShape.includes(val));
+    } else if (tunu) {
+      resultArray = arrayTypeShape.filter((val) => !arrayValue.includes(val));
+    } else if (tuun) {
+      resultArray = arrayTypeShape.filter((val) => arrayValue.includes(val));
+    }
+
+    if (otherVal) {
+      if (resultArray.length === 0) {
+        return falseVal;
+      } else {
+        return trueVal;
+      }
+    }
+
+    return resultArray[0];
+  }
+
+  return isAssignableTo(value, typeShape) ? trueVal : falseVal;
+}
+const isArray = false;
+
+function getFirstNonNullOrUndefined(arr: any[]): any {
+  // Step 1: Filter out undefined and null values
+  const filteredArray = arr.filter(
+    (item) => item !== undefined && item !== null,
+  );
+
+  // Step 2: Check if the filtered array is not empty
+  if (filteredArray.length > 0) {
+    // Step 3: Return the first element of the filtered array
+    return filteredArray[0];
+  } else {
+    // Step 4: Return the first undefined or null element from the original array
+    return arr.find((item) => item === undefined || item === null);
+  }
+}
+
+function getUnionValue(a: any, isArray = false) {
+  return isArray ? a : getFirstNonNullOrUndefined(a);
+}
+export function boostestAccessorClass<T extends abstract new (...args: any) => any>(AccessorClass): T {
+	return new AccessorClass("test string data", 10, 10);
+}
+
+export function boostestAnoExportDefaultClass<T extends abstract new (...args: any) => any>(ExportDefaultClass): T {
+	return new ExportDefaultClass("test string data", chips_ComplexInterfaceChips_boostestAnoExportDefaultClass(isArray));
+}
+
+export function chips_ComplexInterfaceChips_boostestAnoExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"age": 10,
+		"sex": getUnionValue([1, 2], isArray),
+		"short_name": getUnionValue(["john", "doe"], isArray),
+		"favorite": getUnionValue([favorite_CalbeeLightlySalted_boostestAnoExportDefaultClass(isArray), favorite_KoikeyaPridePotato_boostestAnoExportDefaultClass(isArray)], isArray),
+		"mostFav": mostFav_PringlesSourCreamAndOnion_boostestAnoExportDefaultClass(isArray),
+		"func": () => {},
+		"undefinedKey": undefined,
+		"anyKey": "any",
+		"nullKey": null,
+		"optionalKey": "test string data",
+		"unknownKey": undefined,
+		"thisKey": thisKey_ThisType_boostestAnoExportDefaultClass((isArray?: any) => {
+			return thisKey_LayClassic_boostestAnoExportDefaultClass(isArray);
+		}),
+		"conditionalKey": extendsUtil(conditionalKey_CalbeeLightlySalted_boostestAnoExportDefaultClass(true), conditionalKey_PotatoChip_boostestAnoExportDefaultClass(true), conditionalKey_KettleBrandSeaSaltAndVinegar_boostestAnoExportDefaultClass(true), false),
+		"objectKey": {},
+		"voidKey": null,
+		"indexedKey": indexedKey_PotatoChip_boostestAnoExportDefaultClass()["name"],
+		"intersectionKey": intersectionUtil(intersectionKey_LayClassic_boostestAnoExportDefaultClass(isArray), intersectionKey_KoikeyaPridePotato_boostestAnoExportDefaultClass(isArray)),
+		"arrayKey": [],
+		...args
+	} as T;
+}
+
+export function favorite_CalbeeLightlySalted_boostestAnoExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function favorite_KoikeyaPridePotato_boostestAnoExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+export function mostFav_PringlesSourCreamAndOnion_boostestAnoExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Pringles Sour Cream & Onion 😀",
+		"price": 200,
+		...args
+	} as T;
+}
+
+export function thisKey_LayClassic_boostestAnoExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function thisKey_ThisType_boostestAnoExportDefaultClass<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function conditionalKey_CalbeeLightlySalted_boostestAnoExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function conditionalKey_PotatoChip_boostestAnoExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestAnoExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
+		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestAnoExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function intersectionKey_LayClassic_boostestAnoExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function intersectionKey_KoikeyaPridePotato_boostestAnoExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+export function boostestAnoExportDefaultInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"chips": chips_ComplexInterfaceChips_boostestAnoExportDefaultInterface(isArray),
+		...args
+	} as T;
+}
+
+export function chips_ComplexInterfaceChips_boostestAnoExportDefaultInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"age": 10,
+		"sex": getUnionValue([1, 2], isArray),
+		"short_name": getUnionValue(["john", "doe"], isArray),
+		"favorite": getUnionValue([favorite_CalbeeLightlySalted_boostestAnoExportDefaultInterface(isArray), favorite_KoikeyaPridePotato_boostestAnoExportDefaultInterface(isArray)], isArray),
+		"mostFav": mostFav_PringlesSourCreamAndOnion_boostestAnoExportDefaultInterface(isArray),
+		"func": () => {},
+		"undefinedKey": undefined,
+		"anyKey": "any",
+		"nullKey": null,
+		"optionalKey": "test string data",
+		"unknownKey": undefined,
+		"thisKey": thisKey_ThisType_boostestAnoExportDefaultInterface((isArray?: any) => {
+			return thisKey_LayClassic_boostestAnoExportDefaultInterface(isArray);
+		}),
+		"conditionalKey": extendsUtil(conditionalKey_CalbeeLightlySalted_boostestAnoExportDefaultInterface(true), conditionalKey_PotatoChip_boostestAnoExportDefaultInterface(true), conditionalKey_KettleBrandSeaSaltAndVinegar_boostestAnoExportDefaultInterface(true), false),
+		"objectKey": {},
+		"voidKey": null,
+		"indexedKey": indexedKey_PotatoChip_boostestAnoExportDefaultInterface()["name"],
+		"intersectionKey": intersectionUtil(intersectionKey_LayClassic_boostestAnoExportDefaultInterface(isArray), intersectionKey_KoikeyaPridePotato_boostestAnoExportDefaultInterface(isArray)),
+		"arrayKey": [],
+		...args
+	} as T;
+}
+
+export function favorite_CalbeeLightlySalted_boostestAnoExportDefaultInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function favorite_KoikeyaPridePotato_boostestAnoExportDefaultInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+export function mostFav_PringlesSourCreamAndOnion_boostestAnoExportDefaultInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Pringles Sour Cream & Onion 😀",
+		"price": 200,
+		...args
+	} as T;
+}
+
+export function thisKey_LayClassic_boostestAnoExportDefaultInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function thisKey_ThisType_boostestAnoExportDefaultInterface<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function conditionalKey_CalbeeLightlySalted_boostestAnoExportDefaultInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function conditionalKey_PotatoChip_boostestAnoExportDefaultInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestAnoExportDefaultInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
+		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestAnoExportDefaultInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function intersectionKey_LayClassic_boostestAnoExportDefaultInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function intersectionKey_KoikeyaPridePotato_boostestAnoExportDefaultInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+export function boostestAnoExportNamedDeclClass<T extends abstract new (...args: any) => any>(ExportNamedDeclClass): T {
+	return new ExportNamedDeclClass("test string data", chips_ComplexInterfaceChips_boostestAnoExportNamedDeclClass(isArray));
+}
+
+export function chips_ComplexInterfaceChips_boostestAnoExportNamedDeclClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"age": 10,
+		"sex": getUnionValue([1, 2], isArray),
+		"short_name": getUnionValue(["john", "doe"], isArray),
+		"favorite": getUnionValue([favorite_CalbeeLightlySalted_boostestAnoExportNamedDeclClass(isArray), favorite_KoikeyaPridePotato_boostestAnoExportNamedDeclClass(isArray)], isArray),
+		"mostFav": mostFav_PringlesSourCreamAndOnion_boostestAnoExportNamedDeclClass(isArray),
+		"func": () => {},
+		"undefinedKey": undefined,
+		"anyKey": "any",
+		"nullKey": null,
+		"optionalKey": "test string data",
+		"unknownKey": undefined,
+		"thisKey": thisKey_ThisType_boostestAnoExportNamedDeclClass((isArray?: any) => {
+			return thisKey_LayClassic_boostestAnoExportNamedDeclClass(isArray);
+		}),
+		"conditionalKey": extendsUtil(conditionalKey_CalbeeLightlySalted_boostestAnoExportNamedDeclClass(true), conditionalKey_PotatoChip_boostestAnoExportNamedDeclClass(true), conditionalKey_KettleBrandSeaSaltAndVinegar_boostestAnoExportNamedDeclClass(true), false),
+		"objectKey": {},
+		"voidKey": null,
+		"indexedKey": indexedKey_PotatoChip_boostestAnoExportNamedDeclClass()["name"],
+		"intersectionKey": intersectionUtil(intersectionKey_LayClassic_boostestAnoExportNamedDeclClass(isArray), intersectionKey_KoikeyaPridePotato_boostestAnoExportNamedDeclClass(isArray)),
+		"arrayKey": [],
+		...args
+	} as T;
+}
+
+export function favorite_CalbeeLightlySalted_boostestAnoExportNamedDeclClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function favorite_KoikeyaPridePotato_boostestAnoExportNamedDeclClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+export function mostFav_PringlesSourCreamAndOnion_boostestAnoExportNamedDeclClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Pringles Sour Cream & Onion 😀",
+		"price": 200,
+		...args
+	} as T;
+}
+
+export function thisKey_LayClassic_boostestAnoExportNamedDeclClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function thisKey_ThisType_boostestAnoExportNamedDeclClass<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function conditionalKey_CalbeeLightlySalted_boostestAnoExportNamedDeclClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function conditionalKey_PotatoChip_boostestAnoExportNamedDeclClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestAnoExportNamedDeclClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
+		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestAnoExportNamedDeclClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function intersectionKey_LayClassic_boostestAnoExportNamedDeclClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function intersectionKey_KoikeyaPridePotato_boostestAnoExportNamedDeclClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+export function boostestAnoMixInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"chips": chips_ComplexInterfaceChips_boostestAnoMixInterface(isArray),
+		...args
+	} as T;
+}
+
+export function chips_ComplexInterfaceChips_boostestAnoMixInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"age": 10,
+		"sex": getUnionValue([1, 2], isArray),
+		"short_name": getUnionValue(["john", "doe"], isArray),
+		"favorite": getUnionValue([favorite_CalbeeLightlySalted_boostestAnoMixInterface(isArray), favorite_KoikeyaPridePotato_boostestAnoMixInterface(isArray)], isArray),
+		"mostFav": mostFav_PringlesSourCreamAndOnion_boostestAnoMixInterface(isArray),
+		"func": () => {},
+		"undefinedKey": undefined,
+		"anyKey": "any",
+		"nullKey": null,
+		"optionalKey": "test string data",
+		"unknownKey": undefined,
+		"thisKey": thisKey_ThisType_boostestAnoMixInterface((isArray?: any) => {
+			return thisKey_LayClassic_boostestAnoMixInterface(isArray);
+		}),
+		"conditionalKey": extendsUtil(conditionalKey_CalbeeLightlySalted_boostestAnoMixInterface(true), conditionalKey_PotatoChip_boostestAnoMixInterface(true), conditionalKey_KettleBrandSeaSaltAndVinegar_boostestAnoMixInterface(true), false),
+		"objectKey": {},
+		"voidKey": null,
+		"indexedKey": indexedKey_PotatoChip_boostestAnoMixInterface()["name"],
+		"intersectionKey": intersectionUtil(intersectionKey_LayClassic_boostestAnoMixInterface(isArray), intersectionKey_KoikeyaPridePotato_boostestAnoMixInterface(isArray)),
+		"arrayKey": [],
+		...args
+	} as T;
+}
+
+export function favorite_CalbeeLightlySalted_boostestAnoMixInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function favorite_KoikeyaPridePotato_boostestAnoMixInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+export function mostFav_PringlesSourCreamAndOnion_boostestAnoMixInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Pringles Sour Cream & Onion 😀",
+		"price": 200,
+		...args
+	} as T;
+}
+
+export function thisKey_LayClassic_boostestAnoMixInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function thisKey_ThisType_boostestAnoMixInterface<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function conditionalKey_CalbeeLightlySalted_boostestAnoMixInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function conditionalKey_PotatoChip_boostestAnoMixInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestAnoMixInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
+		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestAnoMixInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function intersectionKey_LayClassic_boostestAnoMixInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function intersectionKey_KoikeyaPridePotato_boostestAnoMixInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+export function boostestComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"age": 10,
+		"sex": getUnionValue([1, 2], isArray),
+		"short_name": getUnionValue(["john", "doe"], isArray),
+		"favorite": getUnionValue([favorite_CalbeeLightlySalted_boostestComplexChipsType(isArray), favorite_KoikeyaPridePotato_boostestComplexChipsType(isArray)], isArray),
+		"mostFav": mostFav_PringlesSourCreamAndOnion_boostestComplexChipsType(isArray),
+		"func": () => {},
+		"undefinedKey": undefined,
+		"anyKey": "any",
+		"nullKey": null,
+		"optionalKey": "test string data",
+		"unknownKey": undefined,
+		"thisKey": thisKey_ThisType_boostestComplexChipsType((isArray?: any) => {
+			return thisKey_LayClassic_boostestComplexChipsType(isArray);
+		}),
+		"conditionalKey": extendsUtil(conditionalKey_CalbeeLightlySalted_boostestComplexChipsType(true), conditionalKey_PotatoChip_boostestComplexChipsType(true), conditionalKey_KettleBrandSeaSaltAndVinegar_boostestComplexChipsType(true), false),
+		"objectKey": {},
+		"voidKey": null,
+		"indexedKey": indexedKey_PotatoChip_boostestComplexChipsType()["name"],
+		"intersectionKey": intersectionUtil(intersectionKey_LayClassic_boostestComplexChipsType(isArray), intersectionKey_KoikeyaPridePotato_boostestComplexChipsType(isArray)),
+		"arrayKey": [],
+		...args
+	} as T;
+}
+
+export function favorite_CalbeeLightlySalted_boostestComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function favorite_KoikeyaPridePotato_boostestComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+export function mostFav_PringlesSourCreamAndOnion_boostestComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "Pringles Sour Cream & Onion 😀",
+		"price": 200,
+		...args
+	} as T;
+}
+
+export function thisKey_LayClassic_boostestComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function thisKey_ThisType_boostestComplexChipsType<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function conditionalKey_CalbeeLightlySalted_boostestComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function conditionalKey_PotatoChip_boostestComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
+		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function intersectionKey_LayClassic_boostestComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function intersectionKey_KoikeyaPridePotato_boostestComplexChipsType<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+export function boostestExportDefaultClass<T extends abstract new (...args: any) => any>(ExportDefaultClass): T {
+	return new ExportDefaultClass("test string data", chips_ComplexInterfaceChips_boostestExportDefaultClass(isArray));
+}
+
+export function chips_ComplexInterfaceChips_boostestExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"age": 10,
+		"sex": getUnionValue([1, 2], isArray),
+		"short_name": getUnionValue(["john", "doe"], isArray),
+		"favorite": getUnionValue([favorite_CalbeeLightlySalted_boostestExportDefaultClass(isArray), favorite_KoikeyaPridePotato_boostestExportDefaultClass(isArray)], isArray),
+		"mostFav": mostFav_PringlesSourCreamAndOnion_boostestExportDefaultClass(isArray),
+		"func": () => {},
+		"undefinedKey": undefined,
+		"anyKey": "any",
+		"nullKey": null,
+		"optionalKey": "test string data",
+		"unknownKey": undefined,
+		"thisKey": thisKey_ThisType_boostestExportDefaultClass((isArray?: any) => {
+			return thisKey_LayClassic_boostestExportDefaultClass(isArray);
+		}),
+		"conditionalKey": extendsUtil(conditionalKey_CalbeeLightlySalted_boostestExportDefaultClass(true), conditionalKey_PotatoChip_boostestExportDefaultClass(true), conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportDefaultClass(true), false),
+		"objectKey": {},
+		"voidKey": null,
+		"indexedKey": indexedKey_PotatoChip_boostestExportDefaultClass()["name"],
+		"intersectionKey": intersectionUtil(intersectionKey_LayClassic_boostestExportDefaultClass(isArray), intersectionKey_KoikeyaPridePotato_boostestExportDefaultClass(isArray)),
+		"arrayKey": [],
+		...args
+	} as T;
+}
+
+export function favorite_CalbeeLightlySalted_boostestExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function favorite_KoikeyaPridePotato_boostestExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+export function mostFav_PringlesSourCreamAndOnion_boostestExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Pringles Sour Cream & Onion 😀",
+		"price": 200,
+		...args
+	} as T;
+}
+
+export function thisKey_LayClassic_boostestExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function thisKey_ThisType_boostestExportDefaultClass<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function conditionalKey_CalbeeLightlySalted_boostestExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function conditionalKey_PotatoChip_boostestExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
+		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function intersectionKey_LayClassic_boostestExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function intersectionKey_KoikeyaPridePotato_boostestExportDefaultClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+export function boostestExportDefaultClassWithDecl<T extends abstract new (...args: any) => any>(ExportDefaultClassWithDecl): T {
+	return new ExportDefaultClassWithDecl("test string data", chips_ComplexInterfaceChips_boostestExportDefaultClassWithDecl(isArray));
+}
+
+export function chips_ComplexInterfaceChips_boostestExportDefaultClassWithDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"age": 10,
+		"sex": getUnionValue([1, 2], isArray),
+		"short_name": getUnionValue(["john", "doe"], isArray),
+		"favorite": getUnionValue([favorite_CalbeeLightlySalted_boostestExportDefaultClassWithDecl(isArray), favorite_KoikeyaPridePotato_boostestExportDefaultClassWithDecl(isArray)], isArray),
+		"mostFav": mostFav_PringlesSourCreamAndOnion_boostestExportDefaultClassWithDecl(isArray),
+		"func": () => {},
+		"undefinedKey": undefined,
+		"anyKey": "any",
+		"nullKey": null,
+		"optionalKey": "test string data",
+		"unknownKey": undefined,
+		"thisKey": thisKey_ThisType_boostestExportDefaultClassWithDecl((isArray?: any) => {
+			return thisKey_LayClassic_boostestExportDefaultClassWithDecl(isArray);
+		}),
+		"conditionalKey": extendsUtil(conditionalKey_CalbeeLightlySalted_boostestExportDefaultClassWithDecl(true), conditionalKey_PotatoChip_boostestExportDefaultClassWithDecl(true), conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportDefaultClassWithDecl(true), false),
+		"objectKey": {},
+		"voidKey": null,
+		"indexedKey": indexedKey_PotatoChip_boostestExportDefaultClassWithDecl()["name"],
+		"intersectionKey": intersectionUtil(intersectionKey_LayClassic_boostestExportDefaultClassWithDecl(isArray), intersectionKey_KoikeyaPridePotato_boostestExportDefaultClassWithDecl(isArray)),
+		"arrayKey": [],
+		...args
+	} as T;
+}
+
+export function favorite_CalbeeLightlySalted_boostestExportDefaultClassWithDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function favorite_KoikeyaPridePotato_boostestExportDefaultClassWithDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+export function mostFav_PringlesSourCreamAndOnion_boostestExportDefaultClassWithDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Pringles Sour Cream & Onion 😀",
+		"price": 200,
+		...args
+	} as T;
+}
+
+export function thisKey_LayClassic_boostestExportDefaultClassWithDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function thisKey_ThisType_boostestExportDefaultClassWithDecl<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function conditionalKey_CalbeeLightlySalted_boostestExportDefaultClassWithDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function conditionalKey_PotatoChip_boostestExportDefaultClassWithDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportDefaultClassWithDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
+		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestExportDefaultClassWithDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function intersectionKey_LayClassic_boostestExportDefaultClassWithDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function intersectionKey_KoikeyaPridePotato_boostestExportDefaultClassWithDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+export function boostestExportDefaultNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"chips": chips_ComplexInterfaceChips_boostestExportDefaultNamedDecl(isArray),
+		...args
+	} as T;
+}
+
+export function chips_ComplexInterfaceChips_boostestExportDefaultNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"age": 10,
+		"sex": getUnionValue([1, 2], isArray),
+		"short_name": getUnionValue(["john", "doe"], isArray),
+		"favorite": getUnionValue([favorite_CalbeeLightlySalted_boostestExportDefaultNamedDecl(isArray), favorite_KoikeyaPridePotato_boostestExportDefaultNamedDecl(isArray)], isArray),
+		"mostFav": mostFav_PringlesSourCreamAndOnion_boostestExportDefaultNamedDecl(isArray),
+		"func": () => {},
+		"undefinedKey": undefined,
+		"anyKey": "any",
+		"nullKey": null,
+		"optionalKey": "test string data",
+		"unknownKey": undefined,
+		"thisKey": thisKey_ThisType_boostestExportDefaultNamedDecl((isArray?: any) => {
+			return thisKey_LayClassic_boostestExportDefaultNamedDecl(isArray);
+		}),
+		"conditionalKey": extendsUtil(conditionalKey_CalbeeLightlySalted_boostestExportDefaultNamedDecl(true), conditionalKey_PotatoChip_boostestExportDefaultNamedDecl(true), conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportDefaultNamedDecl(true), false),
+		"objectKey": {},
+		"voidKey": null,
+		"indexedKey": indexedKey_PotatoChip_boostestExportDefaultNamedDecl()["name"],
+		"intersectionKey": intersectionUtil(intersectionKey_LayClassic_boostestExportDefaultNamedDecl(isArray), intersectionKey_KoikeyaPridePotato_boostestExportDefaultNamedDecl(isArray)),
+		"arrayKey": [],
+		...args
+	} as T;
+}
+
+export function favorite_CalbeeLightlySalted_boostestExportDefaultNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function favorite_KoikeyaPridePotato_boostestExportDefaultNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+export function mostFav_PringlesSourCreamAndOnion_boostestExportDefaultNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Pringles Sour Cream & Onion 😀",
+		"price": 200,
+		...args
+	} as T;
+}
+
+export function thisKey_LayClassic_boostestExportDefaultNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function thisKey_ThisType_boostestExportDefaultNamedDecl<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function conditionalKey_CalbeeLightlySalted_boostestExportDefaultNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function conditionalKey_PotatoChip_boostestExportDefaultNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportDefaultNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
+		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestExportDefaultNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function intersectionKey_LayClassic_boostestExportDefaultNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function intersectionKey_KoikeyaPridePotato_boostestExportDefaultNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+export function boostestExportNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"age": 10,
+		"sex": getUnionValue([1, 2], isArray),
+		"short_name": getUnionValue(["john", "doe"], isArray),
+		"favorite": getUnionValue([favorite_CalbeeLightlySalted_boostestExportNamedDecl(isArray), favorite_KoikeyaPridePotato_boostestExportNamedDecl(isArray)], isArray),
+		"mostFav": mostFav_PringlesSourCreamAndOnion_boostestExportNamedDecl(isArray),
+		"func": () => {},
+		"undefinedKey": undefined,
+		"anyKey": "any",
+		"nullKey": null,
+		"optionalKey": "test string data",
+		"unknownKey": undefined,
+		"thisKey": thisKey_ThisType_boostestExportNamedDecl((isArray?: any) => {
+			return thisKey_LayClassic_boostestExportNamedDecl(isArray);
+		}),
+		"conditionalKey": extendsUtil(conditionalKey_CalbeeLightlySalted_boostestExportNamedDecl(true), conditionalKey_PotatoChip_boostestExportNamedDecl(true), conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportNamedDecl(true), false),
+		"objectKey": {},
+		"voidKey": null,
+		"indexedKey": indexedKey_PotatoChip_boostestExportNamedDecl()["name"],
+		"intersectionKey": intersectionUtil(intersectionKey_LayClassic_boostestExportNamedDecl(isArray), intersectionKey_KoikeyaPridePotato_boostestExportNamedDecl(isArray)),
+		"arrayKey": [],
+		...args
+	} as T;
+}
+
+export function favorite_CalbeeLightlySalted_boostestExportNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function favorite_KoikeyaPridePotato_boostestExportNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+export function mostFav_PringlesSourCreamAndOnion_boostestExportNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Pringles Sour Cream & Onion 😀",
+		"price": 200,
+		...args
+	} as T;
+}
+
+export function thisKey_LayClassic_boostestExportNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function thisKey_ThisType_boostestExportNamedDecl<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function conditionalKey_CalbeeLightlySalted_boostestExportNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function conditionalKey_PotatoChip_boostestExportNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
+		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestExportNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function intersectionKey_LayClassic_boostestExportNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function intersectionKey_KoikeyaPridePotato_boostestExportNamedDecl<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+export function boostestExportNamedDeclInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"chips": chips_ComplexInterfaceChips_boostestExportNamedDeclInterface(isArray),
+		...args
+	} as T;
+}
+
+export function chips_ComplexInterfaceChips_boostestExportNamedDeclInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"age": 10,
+		"sex": getUnionValue([1, 2], isArray),
+		"short_name": getUnionValue(["john", "doe"], isArray),
+		"favorite": getUnionValue([favorite_CalbeeLightlySalted_boostestExportNamedDeclInterface(isArray), favorite_KoikeyaPridePotato_boostestExportNamedDeclInterface(isArray)], isArray),
+		"mostFav": mostFav_PringlesSourCreamAndOnion_boostestExportNamedDeclInterface(isArray),
+		"func": () => {},
+		"undefinedKey": undefined,
+		"anyKey": "any",
+		"nullKey": null,
+		"optionalKey": "test string data",
+		"unknownKey": undefined,
+		"thisKey": thisKey_ThisType_boostestExportNamedDeclInterface((isArray?: any) => {
+			return thisKey_LayClassic_boostestExportNamedDeclInterface(isArray);
+		}),
+		"conditionalKey": extendsUtil(conditionalKey_CalbeeLightlySalted_boostestExportNamedDeclInterface(true), conditionalKey_PotatoChip_boostestExportNamedDeclInterface(true), conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportNamedDeclInterface(true), false),
+		"objectKey": {},
+		"voidKey": null,
+		"indexedKey": indexedKey_PotatoChip_boostestExportNamedDeclInterface()["name"],
+		"intersectionKey": intersectionUtil(intersectionKey_LayClassic_boostestExportNamedDeclInterface(isArray), intersectionKey_KoikeyaPridePotato_boostestExportNamedDeclInterface(isArray)),
+		"arrayKey": [],
+		...args
+	} as T;
+}
+
+export function favorite_CalbeeLightlySalted_boostestExportNamedDeclInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function favorite_KoikeyaPridePotato_boostestExportNamedDeclInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+export function mostFav_PringlesSourCreamAndOnion_boostestExportNamedDeclInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Pringles Sour Cream & Onion 😀",
+		"price": 200,
+		...args
+	} as T;
+}
+
+export function thisKey_LayClassic_boostestExportNamedDeclInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function thisKey_ThisType_boostestExportNamedDeclInterface<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function conditionalKey_CalbeeLightlySalted_boostestExportNamedDeclInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function conditionalKey_PotatoChip_boostestExportNamedDeclInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportNamedDeclInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
+		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestExportNamedDeclInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function intersectionKey_LayClassic_boostestExportNamedDeclInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function intersectionKey_KoikeyaPridePotato_boostestExportNamedDeclInterface<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+export function boostestMixClassFirst<T extends abstract new (...args: any) => any>(MixClassFirst): T {
+	return new MixClassFirst("test string data");
+}
+
+export function boostestMixClassFirst2<T extends abstract new (...args: any) => any>(MixClassFirst2): T {
+	return new MixClassFirst2("test string data");
+}
+
+export function boostestMixClassSecond<T extends abstract new (...args: any) => any>(MixClassSecond): T {
+	return new MixClassSecond("test string data");
+}
+
+export function boostestMixClassSecond2<T extends abstract new (...args: any) => any>(MixClassSecond2): T {
+	return new MixClassSecond2("test string data");
+}
+
+export function boostestMixCompTSAlias<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"age": 10,
+		"sex": getUnionValue([1, 2], isArray),
+		"short_name": getUnionValue(["john", "doe"], isArray),
+		"favorite": getUnionValue([favorite_CalbeeLightlySalted_boostestMixCompTSAlias(isArray), favorite_KoikeyaPridePotato_boostestMixCompTSAlias(isArray)], isArray),
+		"mostFav": mostFav_PringlesSourCreamAndOnion_boostestMixCompTSAlias(isArray),
+		"func": () => {},
+		"undefinedKey": undefined,
+		"anyKey": "any",
+		"nullKey": null,
+		"optionalKey": "test string data",
+		"unknownKey": undefined,
+		"thisKey": thisKey_ThisType_boostestMixCompTSAlias((isArray?: any) => {
+			return thisKey_LayClassic_boostestMixCompTSAlias(isArray);
+		}),
+		"conditionalKey": extendsUtil(conditionalKey_CalbeeLightlySalted_boostestMixCompTSAlias(true), conditionalKey_PotatoChip_boostestMixCompTSAlias(true), conditionalKey_KettleBrandSeaSaltAndVinegar_boostestMixCompTSAlias(true), false),
+		"objectKey": {},
+		"voidKey": null,
+		"indexedKey": indexedKey_PotatoChip_boostestMixCompTSAlias()["name"],
+		"intersectionKey": intersectionUtil(intersectionKey_LayClassic_boostestMixCompTSAlias(isArray), intersectionKey_KoikeyaPridePotato_boostestMixCompTSAlias(isArray)),
+		"arrayKey": [],
+		...args
+	} as T;
+}
+
+export function favorite_CalbeeLightlySalted_boostestMixCompTSAlias<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function favorite_KoikeyaPridePotato_boostestMixCompTSAlias<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+export function mostFav_PringlesSourCreamAndOnion_boostestMixCompTSAlias<T>(args?: Partial<T>): T {
+	return {
+		"name": "Pringles Sour Cream & Onion 😀",
+		"price": 200,
+		...args
+	} as T;
+}
+
+export function thisKey_LayClassic_boostestMixCompTSAlias<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function thisKey_ThisType_boostestMixCompTSAlias<T>(args?: Partial<T>): T {
+	return { ...args } as T;
+}
+
+export function conditionalKey_CalbeeLightlySalted_boostestMixCompTSAlias<T>(args?: Partial<T>): T {
+	return {
+		"name": "Calbee Lightly Salted",
+		"price": 120,
+		...args
+	} as T;
+}
+
+export function conditionalKey_PotatoChip_boostestMixCompTSAlias<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function conditionalKey_KettleBrandSeaSaltAndVinegar_boostestMixCompTSAlias<T>(args?: Partial<T>): T {
+	return {
+		"name": "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔",
+		"price": 250,
+		...args
+	} as T;
+}
+
+export function indexedKey_PotatoChip_boostestMixCompTSAlias<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"price": 10,
+		...args
+	} as T;
+}
+
+export function intersectionKey_LayClassic_boostestMixCompTSAlias<T>(args?: Partial<T>): T {
+	return {
+		"name": "Lay's Classic",
+		"price": 130,
+		...args
+	} as T;
+}
+
+export function intersectionKey_KoikeyaPridePotato_boostestMixCompTSAlias<T>(args?: Partial<T>): T {
+	return {
+		"name": "Koikeya Pride Potato",
+		"price": 150,
+		...args
+	} as T;
+}
+
+export function boostestMixInterfaceFirst<T>(args?: Partial<T>): T {
+	return {
+		"name": "MixInterfaceFirst",
+		...args
+	} as T;
+}
+
+export function boostestMixInterfaceFirst2<T>(args?: Partial<T>): T {
+	return {
+		"name": "MixInterfaceFirst2",
+		...args
+	} as T;
+}
+
+export function boostestMixInterfaceSecond<T>(args?: Partial<T>): T {
+	return {
+		"name": "MixInterfaceSecond",
+		...args
+	} as T;
+}
+
+export function boostestMixInterfaceSecond2<T>(args?: Partial<T>): T {
+	return {
+		"name": "MixInterfaceSecond2",
+		...args
+	} as T;
+}
+
+export function boostestMixTSAliasFirst<T>(args?: Partial<T>): T {
+	return {
+		"name": "MixTSAliasFirst",
+		...args
+	} as T;
+}
+
+export function boostestMixTSAliasFirst2<T>(args?: Partial<T>): T {
+	return {
+		"name": "MixTSAliasFirst2",
+		...args
+	} as T;
+}
+
+export function boostestMixTSAliasSecond<T>(args?: Partial<T>): T {
+	return {
+		"name": "MixTsAliasSecond",
+		...args
+	} as T;
+}
+
+export function boostestMixTSAliasSecond2<T>(args?: Partial<T>): T {
+	return {
+		"name": "MixTSAliasSecond2",
+		...args
+	} as T;
+}
+
+"
+`;

@@ -1,0 +1,49 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Various Export Methods Tests AccessorClass matches snapshot 1`] = `"{"name":"test string data","age":10,"readonlyAge":10}"`;
+
+exports[`Various Export Methods Tests AnoExportDefaultClass matches snapshot 1`] = `"{"name":"test string data","chips":{"name":"test string data","age":10,"sex":1,"short_name":"john","favorite":{"name":"Calbee Lightly Salted","price":120},"mostFav":{"name":"Pringles Sour Cream & Onion 😀","price":200},"anyKey":"any","nullKey":null,"optionalKey":"test string data","thisKey":{},"conditionalKey":{"name":"Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔","price":250},"objectKey":{},"voidKey":null,"indexedKey":"test string data","intersectionKey":{"name":"Koikeya Pride Potato","price":150},"arrayKey":[]}}"`;
+
+exports[`Various Export Methods Tests AnoExportDefaultInterface matches snapshot 1`] = `"{"name":"overridden","chips":{"name":"test string data","age":10,"sex":1,"short_name":"john","favorite":{"name":"Calbee Lightly Salted","price":120},"mostFav":{"name":"Pringles Sour Cream & Onion 😀","price":200},"anyKey":"any","nullKey":null,"optionalKey":"test string data","thisKey":{},"conditionalKey":{"name":"Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔","price":250},"objectKey":{},"voidKey":null,"indexedKey":"test string data","intersectionKey":{"name":"Koikeya Pride Potato","price":150},"arrayKey":[]}}"`;
+
+exports[`Various Export Methods Tests AnoExportNamedDeclClass matches snapshot 1`] = `"{"name":"test string data","chips":{"name":"test string data","age":10,"sex":1,"short_name":"john","favorite":{"name":"Calbee Lightly Salted","price":120},"mostFav":{"name":"Pringles Sour Cream & Onion 😀","price":200},"anyKey":"any","nullKey":null,"optionalKey":"test string data","thisKey":{},"conditionalKey":{"name":"Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔","price":250},"objectKey":{},"voidKey":null,"indexedKey":"test string data","intersectionKey":{"name":"Koikeya Pride Potato","price":150},"arrayKey":[]}}"`;
+
+exports[`Various Export Methods Tests AnoExportNamedDeclInterface matches snapshot 1`] = `"{"name":"test string data","chips":{"name":"test string data","age":10,"sex":1,"short_name":"john","favorite":{"name":"Calbee Lightly Salted","price":120},"mostFav":{"name":"Pringles Sour Cream & Onion 😀","price":200},"anyKey":"any","nullKey":null,"optionalKey":"test string data","thisKey":{},"conditionalKey":{"name":"Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔","price":250},"objectKey":{},"voidKey":null,"indexedKey":"test string data","intersectionKey":{"name":"Koikeya Pride Potato","price":150},"arrayKey":[]}}"`;
+
+exports[`Various Export Methods Tests ComplexChipsType matches snapshot 1`] = `"{"name":"test string data","age":10,"sex":1,"short_name":"john","favorite":{"name":"Calbee Lightly Salted","price":120},"mostFav":{"name":"Pringles Sour Cream & Onion 😀","price":200},"anyKey":"any","nullKey":null,"optionalKey":"test string data","thisKey":{},"conditionalKey":{"name":"Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔","price":250},"objectKey":{},"voidKey":null,"indexedKey":"test string data","intersectionKey":{"name":"Koikeya Pride Potato","price":150},"arrayKey":[]}"`;
+
+exports[`Various Export Methods Tests ExportDefaultClass matches snapshot 1`] = `"{"name":"test string data","chips":{"name":"test string data","age":10,"sex":1,"short_name":"john","favorite":{"name":"Calbee Lightly Salted","price":120},"mostFav":{"name":"Pringles Sour Cream & Onion 😀","price":200},"anyKey":"any","nullKey":null,"optionalKey":"test string data","thisKey":{},"conditionalKey":{"name":"Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔","price":250},"objectKey":{},"voidKey":null,"indexedKey":"test string data","intersectionKey":{"name":"Koikeya Pride Potato","price":150},"arrayKey":[]}}"`;
+
+exports[`Various Export Methods Tests ExportDefaultClassWithDecl matches snapshot 1`] = `"{"name":"test string data","chips":{"name":"test string data","age":10,"sex":1,"short_name":"john","favorite":{"name":"Calbee Lightly Salted","price":120},"mostFav":{"name":"Pringles Sour Cream & Onion 😀","price":200},"anyKey":"any","nullKey":null,"optionalKey":"test string data","thisKey":{},"conditionalKey":{"name":"Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔","price":250},"objectKey":{},"voidKey":null,"indexedKey":"test string data","intersectionKey":{"name":"Koikeya Pride Potato","price":150},"arrayKey":[]}}"`;
+
+exports[`Various Export Methods Tests ExportDefaultNamedDecl matches snapshot 1`] = `"{"name":"test string data","chips":{"name":"test string data","age":10,"sex":1,"short_name":"john","favorite":{"name":"Calbee Lightly Salted","price":120},"mostFav":{"name":"Pringles Sour Cream & Onion 😀","price":200},"anyKey":"any","nullKey":null,"optionalKey":"test string data","thisKey":{},"conditionalKey":{"name":"Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔","price":250},"objectKey":{},"voidKey":null,"indexedKey":"test string data","intersectionKey":{"name":"Koikeya Pride Potato","price":150},"arrayKey":[]}}"`;
+
+exports[`Various Export Methods Tests ExportNamedDecl matches snapshot 1`] = `"{"name":"test string data","age":10,"sex":1,"short_name":"john","favorite":{"name":"Calbee Lightly Salted","price":120},"mostFav":{"name":"Pringles Sour Cream & Onion 😀","price":200},"anyKey":"any","nullKey":null,"optionalKey":"test string data","thisKey":{},"conditionalKey":{"name":"Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔","price":250},"objectKey":{},"voidKey":null,"indexedKey":"test string data","intersectionKey":{"name":"Koikeya Pride Potato","price":150},"arrayKey":[]}"`;
+
+exports[`Various Export Methods Tests Mix matches snapshot 1`] = `"{"name":"mix","chips":{"name":"test string data","age":10,"sex":1,"short_name":"john","favorite":{"name":"Calbee Lightly Salted","price":120},"mostFav":{"name":"Pringles Sour Cream & Onion 😀","price":200},"anyKey":"any","nullKey":null,"optionalKey":"test string data","thisKey":{},"conditionalKey":{"name":"Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔","price":250},"objectKey":{},"voidKey":null,"indexedKey":"test string data","intersectionKey":{"name":"Koikeya Pride Potato","price":150},"arrayKey":[]}}"`;
+
+exports[`Various Export Methods Tests MixClassFirst matches snapshot 1`] = `"{"name":"test string data"}"`;
+
+exports[`Various Export Methods Tests MixClassFirst2 matches snapshot 1`] = `"{"name":"test string data"}"`;
+
+exports[`Various Export Methods Tests MixClassSecond matches snapshot 1`] = `"{"name":"test string data"}"`;
+
+exports[`Various Export Methods Tests MixClassSecond2 matches snapshot 1`] = `"{"name":"test string data"}"`;
+
+exports[`Various Export Methods Tests MixCompTSAlias matches snapshot 1`] = `"{"name":"mixCompTSAlias","age":10,"sex":1,"short_name":"john","favorite":{"name":"Calbee Lightly Salted","price":120},"mostFav":{"name":"Pringles Sour Cream & Onion 😀","price":200},"anyKey":"any","nullKey":null,"optionalKey":"test string data","thisKey":{},"conditionalKey":{"name":"Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔","price":250},"objectKey":{},"voidKey":null,"indexedKey":"test string data","intersectionKey":{"name":"Koikeya Pride Potato","price":150},"arrayKey":[]}"`;
+
+exports[`Various Export Methods Tests MixInterfaceFirst matches snapshot 1`] = `"{"name":"MixInterfaceFirst"}"`;
+
+exports[`Various Export Methods Tests MixInterfaceFirst2 matches snapshot 1`] = `"{"name":"MixInterfaceFirst2"}"`;
+
+exports[`Various Export Methods Tests MixInterfaceSecond matches snapshot 1`] = `"{"name":"MixInterfaceSecond"}"`;
+
+exports[`Various Export Methods Tests MixInterfaceSecond2 matches snapshot 1`] = `"{"name":"MixInterfaceSecond2"}"`;
+
+exports[`Various Export Methods Tests MixTSAliasFirst matches snapshot 1`] = `"{"name":"MixTSAliasFirst"}"`;
+
+exports[`Various Export Methods Tests MixTSAliasFirst2 matches snapshot 1`] = `"{"name":"MixTSAliasFirst2"}"`;
+
+exports[`Various Export Methods Tests MixTSAliasSecond matches snapshot 1`] = `"{"name":"MixTsAliasSecond"}"`;
+
+exports[`Various Export Methods Tests MixTSAliasSecond2 matches snapshot 1`] = `"{"name":"MixTSAliasSecond2"}"`;

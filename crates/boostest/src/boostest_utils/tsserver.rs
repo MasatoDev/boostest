@@ -65,7 +65,6 @@ pub fn tsserver(
 ) -> Option<(PathBuf, Span)> {
     let mut locked_cache = ts_server_cache.lock().unwrap();
 
-    // TODO: Cache hit check
     if let Some(definition) = locked_cache.get_definition(target_name) {
         return Some((definition.result.0.clone(), definition.result.1.clone()));
     }
@@ -156,7 +155,6 @@ pub fn tsserver(
     // let _ = child.wait().expect("Failed to wait on tsserver");
 }
 
-// TODO:
 fn offset_to_position(offset: u32, source_text: &str) -> Option<Position> {
     let offset = offset as usize;
     let rope = Rope::from_str(source_text);

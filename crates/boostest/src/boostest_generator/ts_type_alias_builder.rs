@@ -2,8 +2,9 @@ use oxc::{
     allocator::Allocator,
     ast::{
         ast::{
-            Declaration, Expression, FunctionBody, Program, Statement, TSPropertySignature,
-            TSSignature, TSType, TSTypeAliasDeclaration,
+            BindingRestElement, Declaration, Expression, FormalParameterKind, FunctionBody,
+            Program, Statement, TSPropertySignature, TSSignature, TSType, TSTypeAliasDeclaration,
+            TSTypeParameterInstantiation,
         },
         AstBuilder, VisitMut,
     },
@@ -14,7 +15,7 @@ use oxc::{
 
 use oxc::allocator;
 
-use crate::boostest_target::target::TargetSupplement;
+use crate::boostest_target::target::{self, TargetSupplement};
 
 use super::extends_ast_builder::AstBuilderExt;
 use super::test_data_factory;
@@ -23,11 +24,14 @@ const SPAN: Span = Span::new(0, 0);
 
 pub struct TypeAliasMockData {
     pub mock_func_name: String,
+    pub target_name: String,
     pub key_name: Option<String>,
     pub target_supplement: Option<TargetSupplement>,
+    pub generic: Vec<String>,
 }
 
 pub struct TSTypeAliasBuilder<'a> {
+    is_main_target: bool,
     mock_data: TypeAliasMockData,
     ast_builder: AstBuilder<'a>,
     ts_type_alias: TSTypeAliasDeclaration<'a>,
@@ -35,9 +39,11 @@ pub struct TSTypeAliasBuilder<'a> {
 
 impl<'a> TSTypeAliasBuilder<'a> {
     pub fn new<'c>(
+        is_main_target: bool,
         allocator: &'a Allocator,
         ts_type_alias: &'c mut TSTypeAliasDeclaration<'a>,
         mock_func_name: String,
+        target_name: String,
         key_name: Option<String>,
         target_supplement: Option<TargetSupplement>,
     ) -> Self {
@@ -46,11 +52,14 @@ impl<'a> TSTypeAliasBuilder<'a> {
 
         let mock_data = TypeAliasMockData {
             mock_func_name,
+            target_name,
             key_name,
             target_supplement,
+            generic: Vec::new(),
         };
 
         Self {
+            is_main_target,
             ast_builder,
             mock_data,
             ts_type_alias: copied,
@@ -136,6 +145,52 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
                         let new_binding = self.ast_builder.binding_identifier(SPAN, name);
 
                         let _ = std::mem::replace(id, new_binding);
+
+                        let mut formal_parameters = self.ast_builder.vec();
+
+                        if let Some(type_parameters) = &self.ts_type_alias.type_parameters {
+                            for parameter in type_parameters.params.iter() {
+                                self.mock_data.generic.push(parameter.name.to_string());
+
+                                // NOTE: main target doesn't need to add generic type parameters
+                                // because it's already added references
+                                if !self.is_main_target {
+                                    let new_arg_name = format!(
+                                        "{}_{}_{}",
+                                        self.mock_data.target_name,
+                                        parameter.name,
+                                        self.mock_data.mock_func_name
+                                    );
+                                    let pattern_kind =
+                                        self.ast_builder.binding_pattern_kind_binding_identifier(
+                                            SPAN,
+                                            new_arg_name,
+                                        );
+                                    let any = self.ast_builder.ts_type_any_keyword(SPAN);
+                                    let type_annotation =
+                                        self.ast_builder.alloc_ts_type_annotation(SPAN, any);
+                                    let pattern = self.ast_builder.binding_pattern(
+                                        pattern_kind,
+                                        Some(type_annotation),
+                                        false,
+                                    );
+                                    let formal_parameter = self.ast_builder.formal_parameter(
+                                        SPAN,
+                                        self.ast_builder.vec(),
+                                        pattern,
+                                        None,
+                                        false,
+                                        false,
+                                    );
+                                    formal_parameters.push(formal_parameter);
+                                }
+                            }
+
+                            let arg_formal_parameter = self.ast_builder.get_spread_arg();
+
+                            func.params.items = formal_parameters;
+                            func.params.items.push(arg_formal_parameter);
+                        }
                     }
                 }
 
@@ -188,11 +243,14 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
                 .move_ts_type(&mut self.ts_type_alias.type_annotation);
 
             let new_expr = test_data_factory::get_expression(
+                self.is_main_target,
                 &self.ast_builder,
                 ts_annotation,
                 &id_name,
                 &self.mock_data.mock_func_name,
                 is_mapped_type,
+                false,
+                self.mock_data.generic.clone(),
             );
 
             let _ = std::mem::replace(expr, new_expr);
@@ -262,11 +320,13 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
                         };
 
                         let new_obj_expr = test_data_factory::handle_ts_signatures(
+                            self.is_main_target,
                             &self.ast_builder,
                             ts_signatures,
                             Some(last),
                             &self.mock_data.mock_func_name,
                             None,
+                            self.mock_data.generic.clone(),
                         );
 
                         let new_ts_as_expr =

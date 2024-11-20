@@ -1,5 +1,10 @@
+type DeepType = {
+  name: "deeptype";
+};
+
 type NestedRefType = {
   name: "NestedRefType";
+  deep: DeepType;
 };
 
 export type NestedType = {
@@ -36,7 +41,7 @@ export type NestedType = {
     };
   };
   x: (number | string)[];
-  y: Record<string, { z: number; aa: boolean }>;
+  // y: Record<string, { z: number; aa: boolean }>;
 
   // Addition of type literals
   literalType: "option1" | "option2" | "option3";
@@ -97,7 +102,7 @@ export type NestedInterface = {
     };
   };
   x: (number | string)[];
-  y: Record<string, { z: number; aa: boolean }>;
+  // y: Record<string, { z: number; aa: boolean }>;
 
   // Addition of type literals
   literalType: "option1" | "option2" | "option3";

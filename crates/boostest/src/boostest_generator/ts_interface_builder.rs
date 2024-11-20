@@ -152,11 +152,13 @@ impl<'a> VisitMut<'a> for TSInterfaceBuilder<'a> {
                         if let Some(last) = obj_expr.properties.pop() {
                             let ts_signatures = &mut self.target_ts_interface.body.body;
                             let new_obj_expr = test_data_factory::handle_ts_signatures(
+                                false,
                                 &self.ast_builder,
                                 ts_signatures,
                                 Some(last),
                                 &self.mock_data.mock_func_name,
                                 None,
+                                vec![],
                             );
 
                             // move_ts_annotation

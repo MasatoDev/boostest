@@ -1,4 +1,4 @@
-use oxc::span::Span;
+use oxc::{ast::Visit, span::Span};
 use std::{
     path::PathBuf,
     sync::{Arc, Mutex},
@@ -6,7 +6,11 @@ use std::{
 
 use oxc::ast::ast::TSTypeParameterInstantiation;
 use oxc::ast::ast::{Argument, CallExpression, TSType::TSTypeReference, TSTypeName};
-use oxc::ast::VisitMut;
+
+use crate::{
+    boostest_manager::propety_assignment::{ts_type_assign_as_property, TargetReferenceInfo},
+    boostest_utils::ast_utils::get_generic_prefix,
+};
 
 #[derive(Debug)]
 pub enum TargetType {
@@ -63,7 +67,7 @@ impl MainTarget {
     ) -> Self {
         Self {
             target: Arc::new(Mutex::new(Target {
-                name: mock_target_name.unwrap_or(String::new()),
+                name: mock_target_name.unwrap_or_default(),
                 func_name: mock_func_name.clone(),
                 target_reference,
                 target_definition: None,
@@ -88,7 +92,7 @@ impl PropertyTarget {
     ) -> Self {
         Self {
             target: Arc::new(Mutex::new(Target {
-                name: mock_target_name.unwrap_or(String::new()),
+                name: mock_target_name.unwrap_or_default(),
                 target_reference,
                 target_definition: None,
                 func_name: mock_func_name.clone(),
@@ -105,19 +109,8 @@ impl Target {
         self.target_definition.is_some()
     }
 
-    pub fn set_target_reference(&mut self, target_reference: TargetReference) {
-        self.target_reference = target_reference;
-    }
-    pub fn set_target_reference_span(&mut self, span: Span) {
-        self.target_reference.span = span
-    }
     pub fn set_target_definition(&mut self, target_definition: TargetDefinition) {
         self.target_definition = Some(target_definition);
-    }
-    pub fn set_target_definition_span(&mut self, span: Span) {
-        if let Some(target_definition) = &mut self.target_definition {
-            target_definition.span = span;
-        }
     }
 
     pub fn add_property(
@@ -137,8 +130,8 @@ impl Target {
     }
 }
 
-impl<'a> VisitMut<'a> for MainTarget {
-    fn visit_call_expression(&mut self, expr: &mut CallExpression<'a>) {
+impl<'a> Visit<'a> for MainTarget {
+    fn visit_call_expression(&mut self, expr: &CallExpression<'a>) {
         let CallExpression {
             type_parameters,
             arguments,
@@ -150,12 +143,12 @@ impl<'a> VisitMut<'a> for MainTarget {
         }
 
         // NOTE: handle first argument only
-        if let Some(first_arg) = arguments.get_mut(0) {
+        if let Some(first_arg) = arguments.first() {
             self.visit_argument(first_arg);
         }
     }
 
-    fn visit_ts_type_parameter_instantiation(&mut self, ty: &mut TSTypeParameterInstantiation<'a>) {
+    fn visit_ts_type_parameter_instantiation(&mut self, ty: &TSTypeParameterInstantiation<'a>) {
         for param in &ty.params {
             if let TSTypeReference(ty_ref) = param {
                 if let TSTypeName::IdentifierReference(identifier) = &ty_ref.type_name {
@@ -163,12 +156,37 @@ impl<'a> VisitMut<'a> for MainTarget {
                         identifier.name.clone().into_string(),
                         identifier.span,
                     );
+
+                    // NOTE: handle generic type parameters
+                    if let Some(type_parameters) = &ty_ref.type_parameters {
+                        let file_path = self
+                            .target
+                            .lock()
+                            .unwrap()
+                            .target_reference
+                            .file_path
+                            .clone();
+
+                        for (index, param) in type_parameters.params.iter().enumerate() {
+                            ts_type_assign_as_property(
+                                self.target.clone(),
+                                TargetReferenceInfo {
+                                    file_path: file_path.clone(),
+                                },
+                                None,
+                                param,
+                                get_generic_prefix(index).to_string(),
+                                vec![],
+                                true,
+                            );
+                        }
+                    }
                 }
             }
         }
     }
 
-    fn visit_argument(&mut self, arg: &mut Argument<'a>) {
+    fn visit_argument(&mut self, arg: &Argument<'a>) {
         match arg {
             Argument::Identifier(identifier) => {
                 self.update_target_reference(

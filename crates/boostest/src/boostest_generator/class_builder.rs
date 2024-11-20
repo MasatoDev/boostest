@@ -104,10 +104,13 @@ impl<'a> ClassBuilder<'a> {
 
         for (key_name, ts_type) in target_data_vec {
             let argument = test_data_factory::get_arg(
+                false,
                 &self.ast_builder,
                 ts_type,
                 key_name.as_str(),
                 &self.mock_data.mock_func_name,
+                vec![],
+                false,
             );
 
             args.push(argument);

@@ -1,0 +1,149 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`boostest direct path output correctly 1`] = `
+"function isNullOrUndefined(value) {
+  return value === undefined || value === null;
+}
+function emptyObj(value) {
+  if (isNullOrUndefined(value)) return false;
+  return typeof value === "object" && Object.keys(value).length === 0;
+}
+function intersectionUtil(...args) {
+  let values = args;
+  // If it includes {}, filter out null and undefined, and also remove {}
+  const includesEmptyObj = values.some((val) => emptyObj(val));
+
+  if (includesEmptyObj) {
+    values = values.filter((val) => !isNullOrUndefined(val) && !emptyObj(val));
+  }
+
+  if (values.length === 0) return null;
+  // null or undefined cannot match, so treat as "never" (return null)
+  if (values.some((val) => isNullOrUndefined(val))) {
+    return null;
+  }
+
+  if (values.length === 1) return values[0];
+
+  const firstType = typeof values[0];
+  const isSameType = values.every((value) => typeof value === firstType);
+
+  // Different types cannot be handled, so treat as "never" (return null)
+  if (!isSameType) return null;
+
+  if (firstType === "object" && values.every((value) => value !== null)) {
+    return values.reduce((acc, value) => ({ ...acc, ...value }), {});
+  }
+
+  return values[0];
+}
+function ensureArray<T>(input: T | T[]): T[] {
+  return Array.isArray(input) ? input : [input];
+}
+
+function arraysEqual(arr1: any, arr2: any) {
+  if (!Array.isArray(arr1) || !Array.isArray(arr2)) return false;
+  if (arr1.length !== arr2.length) return false;
+  for (let i = 0; i < arr1.length; i++) {
+    if (arr1[i] !== arr2[i]) return false;
+  }
+  return true;
+}
+
+function isAssignableTo(value: any, typeShape: any) {
+  // プリミティブ型またはリテラル値のチェック
+  if (typeof typeShape !== "object" || typeShape === null) {
+    return (
+      value === typeShape ||
+      typeof value === typeShape ||
+      // WARN: Cannot compare different string types such as 'hoge', 'fuga'
+      typeof value === typeof typeShape
+    );
+  }
+
+  // オブジェクト型のチェック
+  if (typeof value !== "object" || value === null) {
+    return false;
+  }
+
+  // ネストされたプロパティを再帰的にチェック
+  return Object.keys(typeShape).every((key): boolean => {
+    if (!(key in value)) return false; // プロパティが存在しない場合は false
+    return isAssignableTo(value[key], typeShape[key]);
+  });
+}
+function extendsUtil(
+  value: any,
+  typeShape: any,
+  trueVal: any,
+  falseVal: any,
+): any {
+  const isValueArray = Array.isArray(value);
+  const isTypeShapeArray = Array.isArray(typeShape);
+
+  const arrayValue = ensureArray(value);
+  const arrayTypeShape = ensureArray(typeShape);
+  const arrayTrueVal = ensureArray(trueVal);
+  const arrayFalseVal = ensureArray(falseVal);
+
+  const tutn = arraysEqual(arrayValue, arrayTrueVal); // T extends U ? T : never
+  const tunt = arraysEqual(arrayValue, arrayFalseVal); // T extends U ? never : T
+  const tunu = arraysEqual(arrayTypeShape, arrayTrueVal); // T extends U ? never : U
+  const tuun = arraysEqual(arrayTypeShape, arrayFalseVal); // T extends U ? U : never
+  const otherVal = !tutn && !tunt && !tunu && !tuun;
+
+  let resultArray: any[] = [];
+
+  // ユニオン型の場合、配列の各要素をチェック
+  if (isValueArray || isTypeShapeArray) {
+    // Extract<"A"|"B"|"C", "A"|"B">
+    if (tutn) {
+      resultArray = arrayValue.filter((val) => arrayTypeShape.includes(val));
+    } else if (tunt) {
+      resultArray = arrayValue.filter((val) => !arrayTypeShape.includes(val));
+    } else if (tunu) {
+      resultArray = arrayTypeShape.filter((val) => !arrayValue.includes(val));
+    } else if (tuun) {
+      resultArray = arrayTypeShape.filter((val) => arrayValue.includes(val));
+    }
+
+    if (otherVal) {
+      if (resultArray.length === 0) {
+        return falseVal;
+      } else {
+        return trueVal;
+      }
+    }
+
+    return resultArray[0];
+  }
+
+  return isAssignableTo(value, typeShape) ? trueVal : falseVal;
+}
+const isArray = false;
+
+function getFirstNonNullOrUndefined(arr: any[]): any {
+  // Step 1: Filter out undefined and null values
+  const filteredArray = arr.filter(
+    (item) => item !== undefined && item !== null,
+  );
+
+  // Step 2: Check if the filtered array is not empty
+  if (filteredArray.length > 0) {
+    // Step 3: Return the first element of the filtered array
+    return filteredArray[0];
+  } else {
+    // Step 4: Return the first undefined or null element from the original array
+    return arr.find((item) => item === undefined || item === null);
+  }
+}
+
+function getUnionValue(a: any, isArray = false) {
+  return isArray ? a : getFirstNonNullOrUndefined(a);
+}
+export function boostestTsTypeLiteralString<T>(isArray = false) {
+	return "test string data";
+}
+
+"
+`;
