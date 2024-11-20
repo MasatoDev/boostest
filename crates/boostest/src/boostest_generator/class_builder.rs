@@ -110,6 +110,7 @@ impl<'a> ClassBuilder<'a> {
                 key_name.as_str(),
                 &self.mock_data.mock_func_name,
                 vec![],
+                false,
             );
 
             args.push(argument);

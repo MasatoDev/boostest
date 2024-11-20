@@ -38,6 +38,12 @@ type KeyOfButterfly = {
   [key in keyof RefType]: RefType[key];
 };
 
+type ButterflyWithGenericsForKey<T> = {
+  [key in keyof T]: string;
+};
+
+type OnDirectRefUnionType<T> = T extends SystemSupportLanguage ? T : never;
+
 export type GenericsTypeAlias = {
   mapperType: Butterfly;
   keyOfMapperType: KeyOfButterfly;
@@ -58,7 +64,10 @@ export type GenericsTypeAlias = {
   // pick: Pick<RefType, "name">;
   // omit: Omit<RefType, "name">;
   extract: Extract<"A" | "B" | "C" | "D" | "E", "D" | "E">;
+  extractRefUnion: Extract<SystemSupportLanguage, "en" | "fr">;
   exclude: Exclude<Grade, "A">;
+  onDirectRefUnionType: OnDirectRefUnionType<"fr">;
+  // ButterflyWithGenericsForKey: ButterflyWithGenericsForKey<SystemSupportLanguage>;
   // promise: Promise<RefType>;
 
   // parameters: Parameters<() => void>;
@@ -90,7 +99,9 @@ export type GenericsInterface = {
   // pick: Pick<RefType, "name">;
   // omit: Omit<RefType, "name">;
   extract: Extract<"A" | "B" | "C" | "D" | "E", "D" | "E">;
+  extractRefUnion: Extract<SystemSupportLanguage, "en" | "fr">;
   exclude: Exclude<Grade, "A">;
+  onDirectRefUnionType: OnDirectRefUnionType<"fr">;
   // parameters: Parameters<() => void>;
   // constructorParameters: ConstructorParameters<typeof LiteralTypeClass>;
   // returnType: ReturnType<() => void>;
@@ -115,6 +126,11 @@ export class GenericsClass {
     /**********************/
     /******* FIXME: *******/
     /**********************/
+
+    public extract: Extract<"A" | "B" | "C" | "D" | "E", "D" | "E">,
+    public extractRefUnion: Extract<SystemSupportLanguage, "en" | "fr">,
+    public exclude: Exclude<Grade, "A">,
+    public onDirectRefUnionType: OnDirectRefUnionType<"fr">,
     // public innserGenericInitializer: InnerGenericInitializer,
     // public thisType: ThisType<string>,
     // public array: Array<string>,

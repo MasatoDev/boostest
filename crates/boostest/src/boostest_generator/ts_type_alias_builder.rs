@@ -249,6 +249,7 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
                 &id_name,
                 &self.mock_data.mock_func_name,
                 is_mapped_type,
+                false,
                 self.mock_data.generic.clone(),
             );
 

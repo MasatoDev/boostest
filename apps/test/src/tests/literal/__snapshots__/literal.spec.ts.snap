@@ -6,8 +6,8 @@ exports[`Literal Type Tests TsLiteralBooleanUnionType matches snapshot 1`] = `"t
 
 exports[`Literal Type Tests TsLiteralFunctionUnionType matches snapshot 1`] = `
 "(x) => {
-        return 10;
-    }"
+            return 10;
+        }"
 `;
 
 exports[`Literal Type Tests TsLiteralNumberUnionType matches snapshot 1`] = `"1"`;

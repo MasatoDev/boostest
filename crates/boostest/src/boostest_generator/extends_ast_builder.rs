@@ -35,6 +35,13 @@ pub trait AstBuilderExt<'a> {
     ) -> TSTypeParameterInstantiation<'a>;
 
     fn get_spread_arg(self) -> FormalParameter<'a>;
+
+    fn get_formal_parameter(
+        self,
+        name: &str,
+        type_annotation: TSType<'a>,
+        optional: bool,
+    ) -> FormalParameter<'a>;
 }
 
 impl<'a> AstBuilderExt<'a> for AstBuilder<'a> {
@@ -130,6 +137,18 @@ impl<'a> AstBuilderExt<'a> for AstBuilder<'a> {
         let type_annotation = self.ts_type_annotation(SPAN, type_ref);
 
         let pattern = self.binding_pattern(pattern_kind, Some(type_annotation), true);
+        self.formal_parameter(SPAN, self.vec(), pattern, None, false, false)
+    }
+
+    fn get_formal_parameter(
+        self,
+        name: &str,
+        type_annotation: TSType<'a>,
+        optional: bool,
+    ) -> FormalParameter<'a> {
+        let pattern_kind = self.binding_pattern_kind_binding_identifier(SPAN, name);
+        let allocated_type_annotation = self.alloc_ts_type_annotation(SPAN, type_annotation);
+        let pattern = self.binding_pattern(pattern_kind, Some(allocated_type_annotation), optional);
         self.formal_parameter(SPAN, self.vec(), pattern, None, false, false)
     }
 }

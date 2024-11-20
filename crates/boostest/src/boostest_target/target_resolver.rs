@@ -712,7 +712,78 @@ impl<'a> VisitMut<'a> for TargetResolver {
                     }
                 }
             }
+            TSType::TSUnionType(ts_union_type) => {
+                for ts_type in ts_union_type.types.iter() {
+                    if let TSType::TSTypeReference(ty_ref) = ts_type {
+                        // exclude boolean type
+                        // if ast_utils::is_true_type(ty_ref) {
+                        //     return;
+                        // }
+                        if let TSTypeName::IdentifierReference(identifier) = &ty_ref.type_name {
+                            ts_type_assign_as_property(
+                                self.target.clone(),
+                                TargetReferenceInfo {
+                                    file_path: self.temp_current_read_file_path.clone(),
+                                },
+                                self.read_file_span,
+                                ts_type,
+                                target_name.to_string(),
+                                self.defined_generics.clone(),
+                                false,
+                            );
+                        }
+                    }
+                }
+            }
+            TSType::TSConditionalType(ts_condition_type) => {
+                ts_type_assign_as_property(
+                    self.target.clone(),
+                    TargetReferenceInfo {
+                        file_path: self.temp_current_read_file_path.clone(),
+                    },
+                    self.read_file_span,
+                    &ts_condition_type.check_type,
+                    target_name.to_string(),
+                    self.defined_generics.clone(),
+                    false,
+                );
 
+                ts_type_assign_as_property(
+                    self.target.clone(),
+                    TargetReferenceInfo {
+                        file_path: self.temp_current_read_file_path.clone(),
+                    },
+                    self.read_file_span,
+                    &ts_condition_type.extends_type,
+                    target_name.to_string(),
+                    self.defined_generics.clone(),
+                    false,
+                );
+
+                ts_type_assign_as_property(
+                    self.target.clone(),
+                    TargetReferenceInfo {
+                        file_path: self.temp_current_read_file_path.clone(),
+                    },
+                    self.read_file_span,
+                    &ts_condition_type.true_type,
+                    target_name.to_string(),
+                    self.defined_generics.clone(),
+                    false,
+                );
+
+                ts_type_assign_as_property(
+                    self.target.clone(),
+                    TargetReferenceInfo {
+                        file_path: self.temp_current_read_file_path.clone(),
+                    },
+                    self.read_file_span,
+                    &ts_condition_type.false_type,
+                    target_name.to_string(),
+                    self.defined_generics.clone(),
+                    false,
+                );
+            }
             TSType::TSMappedType(_ts_mapped_type) => {
                 ts_type_assign_as_property(
                     self.target.clone(),

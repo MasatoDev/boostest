@@ -104,33 +104,55 @@ pub fn ts_type_assign_as_property(
         }
 
         TSType::TSConditionalType(ts_condition_type) => {
-            if let TSType::TSTypeReference(ty_ref) = &ts_condition_type.true_type {
-                // exclude boolean type
-                if ast_utils::is_true_type(ty_ref) {
-                    return;
-                }
+            ts_type_assign_as_property(
+                target.clone(),
+                target_reference_info.clone(),
+                read_file_span,
+                &ts_condition_type.check_type,
+                key.clone(),
+                defined_generics.clone(),
+                false,
+            );
 
-                if let TSTypeName::IdentifierReference(identifier) = &ty_ref.type_name {
-                    let new_key = format!("{}_{}", key, identifier.name.clone().into_string());
-                    target.lock().unwrap().add_property(
-                        identifier.name.clone().into_string(),
-                        new_key,
-                        TargetReference {
-                            span: calc_prop_span(identifier.span, read_file_span),
-                            file_path,
-                            target_supplement: None,
-                        },
-                    );
-                }
-            }
+            ts_type_assign_as_property(
+                target.clone(),
+                target_reference_info.clone(),
+                read_file_span,
+                &ts_condition_type.extends_type,
+                key.clone(),
+                defined_generics.clone(),
+                false,
+            );
+
+            ts_type_assign_as_property(
+                target.clone(),
+                target_reference_info.clone(),
+                read_file_span,
+                &ts_condition_type.true_type,
+                key.clone(),
+                defined_generics.clone(),
+                false,
+            );
+
+            ts_type_assign_as_property(
+                target.clone(),
+                target_reference_info.clone(),
+                read_file_span,
+                &ts_condition_type.false_type,
+                key.clone(),
+                defined_generics.clone(),
+                false,
+            );
         }
         TSType::TSUnionType(ts_union_type) => {
-            if let Some(first_union_type) = ts_union_type.types.first() {
-                if let TSType::TSTypeReference(ty_ref) = first_union_type {
+            for ts_type in ts_union_type.types.iter() {
+                let cloned_file_path = file_path.clone();
+
+                if let TSType::TSTypeReference(ty_ref) = ts_type {
                     // exclude boolean type
-                    if ast_utils::is_true_type(ty_ref) {
-                        return;
-                    }
+                    // if ast_utils::is_true_type(ty_ref) {
+                    //     return;
+                    // }
                     if let TSTypeName::IdentifierReference(identifier) = &ty_ref.type_name {
                         let new_key = format!("{}_{}", key, identifier.name.clone().into_string());
                         target.lock().unwrap().add_property(
@@ -138,7 +160,7 @@ pub fn ts_type_assign_as_property(
                             new_key,
                             TargetReference {
                                 span: calc_prop_span(identifier.span, read_file_span),
-                                file_path,
+                                file_path: cloned_file_path,
                                 target_supplement: None,
                             },
                         );
