@@ -37,6 +37,7 @@ fn ts_signature_assign(
                         new_key,
                         defined_generics,
                         false,
+                        false,
                     )
                 }
             }
@@ -56,6 +57,7 @@ pub fn ts_type_assign_as_property(
 
     // NOTE: for refer inner generic type
     skip_id_name_of_key: bool,
+    is_generic_property: bool,
 ) {
     let TargetReferenceInfo { file_path } = target_reference_info.clone();
 
@@ -78,6 +80,7 @@ pub fn ts_type_assign_as_property(
                             key.clone(),
                             defined_generics.clone(),
                             false,
+                            true,
                         );
                     }
                 }
@@ -96,7 +99,7 @@ pub fn ts_type_assign_as_property(
                         TargetReference {
                             span: calc_prop_span(identifier.span, read_file_span),
                             file_path,
-                            target_supplement: None,
+                            target_supplement: gen_target_supplement(false, is_generic_property),
                         },
                     );
                 }
@@ -112,6 +115,7 @@ pub fn ts_type_assign_as_property(
                 key.clone(),
                 defined_generics.clone(),
                 false,
+                is_generic_property,
             );
 
             ts_type_assign_as_property(
@@ -122,6 +126,7 @@ pub fn ts_type_assign_as_property(
                 key.clone(),
                 defined_generics.clone(),
                 false,
+                is_generic_property,
             );
 
             ts_type_assign_as_property(
@@ -132,6 +137,7 @@ pub fn ts_type_assign_as_property(
                 key.clone(),
                 defined_generics.clone(),
                 false,
+                is_generic_property,
             );
 
             ts_type_assign_as_property(
@@ -142,6 +148,7 @@ pub fn ts_type_assign_as_property(
                 key.clone(),
                 defined_generics.clone(),
                 false,
+                is_generic_property,
             );
         }
         TSType::TSUnionType(ts_union_type) => {
@@ -161,7 +168,10 @@ pub fn ts_type_assign_as_property(
                             TargetReference {
                                 span: calc_prop_span(identifier.span, read_file_span),
                                 file_path: cloned_file_path,
-                                target_supplement: None,
+                                target_supplement: gen_target_supplement(
+                                    false,
+                                    is_generic_property,
+                                ),
                             },
                         );
                     }
@@ -190,6 +200,7 @@ pub fn ts_type_assign_as_property(
                     key.clone(),
                     defined_generics.clone(),
                     false,
+                    is_generic_property,
                 );
             }
         }
@@ -208,6 +219,7 @@ pub fn ts_type_assign_as_property(
                         key.clone(),
                         defined_generics.clone(),
                         false,
+                        is_generic_property,
                     );
                 }
             }
@@ -222,6 +234,7 @@ pub fn ts_type_assign_as_property(
                     key.clone(),
                     defined_generics.clone(),
                     false,
+                    is_generic_property,
                 );
             }
         }
@@ -235,7 +248,7 @@ pub fn ts_type_assign_as_property(
                     TargetReference {
                         span: calc_prop_span(identifier.span, read_file_span),
                         file_path,
-                        target_supplement: None,
+                        target_supplement: gen_target_supplement(false, is_generic_property),
                     },
                 )
             }
@@ -249,7 +262,7 @@ pub fn ts_type_assign_as_property(
                     TargetReference {
                         span: calc_prop_span(ts_type_ref.span, read_file_span),
                         file_path,
-                        target_supplement: None,
+                        target_supplement: gen_target_supplement(false, is_generic_property),
                     },
                 )
             }
@@ -264,7 +277,7 @@ pub fn ts_type_assign_as_property(
                     TargetReference {
                         span: calc_prop_span(ts_indexed_access_type.span, read_file_span),
                         file_path,
-                        target_supplement: None,
+                        target_supplement: gen_target_supplement(false, is_generic_property),
                     },
                 )
             }
@@ -288,9 +301,7 @@ pub fn ts_type_assign_as_property(
                             TargetReference {
                                 span: calc_prop_span(ts_type_ref.span, read_file_span),
                                 file_path,
-                                target_supplement: Some(TargetSupplement {
-                                    is_mapped_type: true,
-                                }),
+                                target_supplement: gen_target_supplement(true, is_generic_property),
                             },
                         )
                     }
@@ -313,9 +324,10 @@ pub fn ts_type_assign_as_property(
                                 TargetReference {
                                     span: calc_prop_span(ts_type_ref.span, read_file_span),
                                     file_path,
-                                    target_supplement: Some(TargetSupplement {
-                                        is_mapped_type: true,
-                                    }),
+                                    target_supplement: gen_target_supplement(
+                                        true,
+                                        is_generic_property,
+                                    ),
                                 },
                             )
                         }
@@ -345,4 +357,18 @@ pub fn calc_prop_span(span: Span, read_file_span: Option<Span>) -> Span {
     };
 
     span
+}
+
+pub fn gen_target_supplement(
+    is_mapped_type: bool,
+    is_generic_property: bool,
+) -> Option<TargetSupplement> {
+    if !is_mapped_type && !is_generic_property {
+        return None;
+    }
+
+    Some(TargetSupplement {
+        is_mapped_type,
+        is_generic_property,
+    })
 }

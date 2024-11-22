@@ -30,6 +30,7 @@ pub struct TargetDefinition {
 #[derive(Debug, Clone)]
 pub struct TargetSupplement {
     pub is_mapped_type: bool,
+    pub is_generic_property: bool,
 }
 
 #[derive(Debug)]
@@ -177,6 +178,7 @@ impl<'a> Visit<'a> for MainTarget {
                                 param,
                                 get_generic_prefix(index).to_string(),
                                 vec![],
+                                true,
                                 true,
                             );
                         }

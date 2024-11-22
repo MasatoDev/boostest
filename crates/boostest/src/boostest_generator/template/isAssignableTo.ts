@@ -38,6 +38,7 @@ function extendsUtil(
   typeShape: any,
   trueVal: any,
   falseVal: any,
+  isArray = false,
 ): any {
   const isValueArray = Array.isArray(value);
   const isTypeShapeArray = Array.isArray(typeShape);
@@ -76,7 +77,7 @@ function extendsUtil(
       }
     }
 
-    return resultArray[0];
+    return isArray ? resultArray : resultArray[0];
   }
 
   return isAssignableTo(value, typeShape) ? trueVal : falseVal;

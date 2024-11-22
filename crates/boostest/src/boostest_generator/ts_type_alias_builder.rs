@@ -238,6 +238,13 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
                 .map(|s| s.is_mapped_type)
                 .unwrap_or(false);
 
+            let is_generic_property = self
+                .mock_data
+                .target_supplement
+                .clone()
+                .map(|s| s.is_generic_property)
+                .unwrap_or(false);
+
             let ts_annotation = self
                 .ast_builder
                 .move_ts_type(&mut self.ts_type_alias.type_annotation);
@@ -249,7 +256,7 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
                 &id_name,
                 &self.mock_data.mock_func_name,
                 is_mapped_type,
-                false,
+                is_generic_property,
                 self.mock_data.generic.clone(),
             );
 

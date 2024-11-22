@@ -77,6 +77,7 @@ function extendsUtil(
   typeShape: any,
   trueVal: any,
   falseVal: any,
+  isArray = false,
 ): any {
   const isValueArray = Array.isArray(value);
   const isTypeShapeArray = Array.isArray(typeShape);
@@ -115,7 +116,7 @@ function extendsUtil(
       }
     }
 
-    return resultArray[0];
+    return isArray ? resultArray : resultArray[0];
   }
 
   return isAssignableTo(value, typeShape) ? trueVal : falseVal;
@@ -225,6 +226,7 @@ function extendsUtil(
   typeShape: any,
   trueVal: any,
   falseVal: any,
+  isArray = false,
 ): any {
   const isValueArray = Array.isArray(value);
   const isTypeShapeArray = Array.isArray(typeShape);
@@ -263,7 +265,7 @@ function extendsUtil(
       }
     }
 
-    return resultArray[0];
+    return isArray ? resultArray : resultArray[0];
   }
 
   return isAssignableTo(value, typeShape) ? trueVal : falseVal;
@@ -395,6 +397,7 @@ function extendsUtil(
   typeShape: any,
   trueVal: any,
   falseVal: any,
+  isArray = false,
 ): any {
   const isValueArray = Array.isArray(value);
   const isTypeShapeArray = Array.isArray(typeShape);
@@ -433,7 +436,7 @@ function extendsUtil(
       }
     }
 
-    return resultArray[0];
+    return isArray ? resultArray : resultArray[0];
   }
 
   return isAssignableTo(value, typeShape) ? trueVal : falseVal;
@@ -603,6 +606,7 @@ function extendsUtil(
   typeShape: any,
   trueVal: any,
   falseVal: any,
+  isArray = false,
 ): any {
   const isValueArray = Array.isArray(value);
   const isTypeShapeArray = Array.isArray(typeShape);
@@ -641,7 +645,7 @@ function extendsUtil(
       }
     }
 
-    return resultArray[0];
+    return isArray ? resultArray : resultArray[0];
   }
 
   return isAssignableTo(value, typeShape) ? trueVal : falseVal;
@@ -755,6 +759,7 @@ function extendsUtil(
   typeShape: any,
   trueVal: any,
   falseVal: any,
+  isArray = false,
 ): any {
   const isValueArray = Array.isArray(value);
   const isTypeShapeArray = Array.isArray(typeShape);
@@ -793,7 +798,7 @@ function extendsUtil(
       }
     }
 
-    return resultArray[0];
+    return isArray ? resultArray : resultArray[0];
   }
 
   return isAssignableTo(value, typeShape) ? trueVal : falseVal;
@@ -830,6 +835,7 @@ export function zero_boostestGeneric<T>(args?: Partial<T>): T {
 	return {
 		"name": "test string data",
 		"ver": 10,
+		"age": 10,
 		...args
 	} as T;
 }
@@ -850,16 +856,16 @@ export function boostestGenericsAliasType<T>(args?: Partial<T>): T {
 			], isArray);
 		}),
 		"nestedPartial": { "childPartial": nestedPartial_childPartial_Partial_boostestGenericsAliasType((isArray?: any) => {
-			return nestedPartial_childPartial_RefType_boostestGenericsAliasType(isArray);
+			return nestedPartial_childPartial_RefType_boostestGenericsAliasType(true);
 		}) },
 		"partial": partial_Partial_boostestGenericsAliasType((isArray?: any) => {
-			return partial_RefType_boostestGenericsAliasType(isArray);
+			return partial_RefType_boostestGenericsAliasType(true);
 		}),
 		"required": required_Required_boostestGenericsAliasType((isArray?: any) => {
-			return required_RefType_boostestGenericsAliasType(isArray);
+			return required_RefType_boostestGenericsAliasType(true);
 		}),
 		"readonly": readonly_Readonly_boostestGenericsAliasType((isArray?: any) => {
-			return readonly_RefType_boostestGenericsAliasType(isArray);
+			return readonly_RefType_boostestGenericsAliasType(true);
 		}),
 		"extract": extract_Extract_boostestGenericsAliasType((isArray?: any) => {
 			return getUnionValue([
@@ -873,24 +879,40 @@ export function boostestGenericsAliasType<T>(args?: Partial<T>): T {
 			return getUnionValue(["D", "E"], isArray);
 		}),
 		"extractRefUnion": extractRefUnion_Extract_boostestGenericsAliasType((isArray?: any) => {
-			return extractRefUnion_SystemSupportLanguage_boostestGenericsAliasType(isArray);
+			return extractRefUnion_SystemSupportLanguage_boostestGenericsAliasType(true);
 		}, (isArray?: any) => {
 			return getUnionValue(["en", "fr"], isArray);
 		}),
 		"exclude": exclude_Exclude_boostestGenericsAliasType((isArray?: any) => {
-			return exclude_Grade_boostestGenericsAliasType(isArray);
+			return exclude_Grade_boostestGenericsAliasType(true);
 		}, (isArray?: any) => {
 			return "A";
 		}),
 		"onDirectRefUnionType": onDirectRefUnionType_OnDirectRefUnionType_boostestGenericsAliasType((isArray?: any) => {
 			return "fr";
 		}),
+		"array": ["test string data"],
+		"pick": pick_Pick_boostestGenericsAliasType((isArray?: any) => {
+			return pick_RefType_boostestGenericsAliasType(true);
+		}, (isArray?: any) => {
+			return "name";
+		}),
+		"pickMulti": pickMulti_Pick_boostestGenericsAliasType((isArray?: any) => {
+			return pickMulti_RefType_boostestGenericsAliasType(true);
+		}, (isArray?: any) => {
+			return getUnionValue(["ver", "age"], isArray);
+		}),
+		"omit": omit_Omit_boostestGenericsAliasType((isArray?: any) => {
+			return omit_RefType_boostestGenericsAliasType(true);
+		}, (isArray?: any) => {
+			return "name";
+		}),
 		...args
 	} as T;
 }
 
 export function mapperType_Butterfly_boostestGenericsAliasType<T>(isArray = false) {
-	return Butterfly_SystemSupportLanguage_boostestGenericsAliasType(true).reduce((acc: any, cur) => {
+	return ensureArray(Butterfly_SystemSupportLanguage_boostestGenericsAliasType(true)).reduce((acc: any, cur) => {
 		return {
 			...acc,
 			[cur]: "test string data"
@@ -908,7 +930,7 @@ export function Butterfly_SystemSupportLanguage_boostestGenericsAliasType<T>(isA
 }
 
 export function keyOfMapperType_KeyOfButterfly_boostestGenericsAliasType<T>(isArray = false) {
-	return Object.keys(KeyOfButterfly_RefType_boostestGenericsAliasType()).reduce((acc: any, cur) => {
+	return ensureArray(Object.keys(KeyOfButterfly_RefType_boostestGenericsAliasType())).reduce((acc: any, cur) => {
 		return {
 			...acc,
 			[cur]: KeyOfButterfly_RefType_boostestGenericsAliasType()[cur]
@@ -920,6 +942,7 @@ export function KeyOfButterfly_RefType_boostestGenericsAliasType<T>(args?: Parti
 	return {
 		"name": "test string data",
 		"ver": 10,
+		"age": 10,
 		...args
 	} as T;
 }
@@ -928,7 +951,7 @@ export function innserGenericInitializer_InnerGenericInitializer_boostestGeneric
 	return {
 		"name": "test string data",
 		"innerGeneric": innerGeneric_InngerGeneric_boostestGenericsAliasType((isArray?: any) => {
-			return innerGeneric_RefType_boostestGenericsAliasType(isArray);
+			return innerGeneric_RefType_boostestGenericsAliasType(true);
 		}),
 		"innerGenericLiteral": innerGenericLiteral_InngerGeneric_boostestGenericsAliasType((isArray?: any) => {
 			return "inner generic string";
@@ -941,6 +964,7 @@ export function innerGeneric_RefType_boostestGenericsAliasType<T>(args?: Partial
 	return {
 		"name": "test string data",
 		"ver": 10,
+		"age": 10,
 		...args
 	} as T;
 }
@@ -954,7 +978,7 @@ export function innerGenericLiteral_InngerGeneric_boostestGenericsAliasType<T>(I
 }
 
 export function butterflyWithGenerics_ButterflyWithGenerics_boostestGenericsAliasType<T>(ButterflyWithGenerics_T_boostestGenericsAliasType: any, args?: Partial<T>) {
-	return ButterflyWithGenerics_SystemSupportLanguage_boostestGenericsAliasType(true).reduce((acc: any, cur) => {
+	return ensureArray(ButterflyWithGenerics_SystemSupportLanguage_boostestGenericsAliasType(true)).reduce((acc: any, cur) => {
 		return {
 			...acc,
 			[cur]: ButterflyWithGenerics_T_boostestGenericsAliasType(isArray)
@@ -979,12 +1003,13 @@ export function nestedPartial_childPartial_RefType_boostestGenericsAliasType<T>(
 	return {
 		"name": "test string data",
 		"ver": 10,
+		"age": 10,
 		...args
 	} as T;
 }
 
 export function nestedPartial_childPartial_Partial_boostestGenericsAliasType<T>(Partial_T_boostestGenericsAliasType: any, args?: Partial<T>) {
-	return Object.keys(Partial_T_boostestGenericsAliasType()).reduce((acc: any, cur) => {
+	return ensureArray(Object.keys(Partial_T_boostestGenericsAliasType())).reduce((acc: any, cur) => {
 		return {
 			...acc,
 			[cur]: Partial_T_boostestGenericsAliasType()[cur]
@@ -996,12 +1021,13 @@ export function partial_RefType_boostestGenericsAliasType<T>(args?: Partial<T>):
 	return {
 		"name": "test string data",
 		"ver": 10,
+		"age": 10,
 		...args
 	} as T;
 }
 
 export function partial_Partial_boostestGenericsAliasType<T>(Partial_T_boostestGenericsAliasType: any, args?: Partial<T>) {
-	return Object.keys(Partial_T_boostestGenericsAliasType()).reduce((acc: any, cur) => {
+	return ensureArray(Object.keys(Partial_T_boostestGenericsAliasType())).reduce((acc: any, cur) => {
 		return {
 			...acc,
 			[cur]: Partial_T_boostestGenericsAliasType()[cur]
@@ -1013,12 +1039,13 @@ export function required_RefType_boostestGenericsAliasType<T>(args?: Partial<T>)
 	return {
 		"name": "test string data",
 		"ver": 10,
+		"age": 10,
 		...args
 	} as T;
 }
 
 export function required_Required_boostestGenericsAliasType<T>(Required_T_boostestGenericsAliasType: any, args?: Partial<T>) {
-	return Object.keys(Required_T_boostestGenericsAliasType()).reduce((acc: any, cur) => {
+	return ensureArray(Object.keys(Required_T_boostestGenericsAliasType())).reduce((acc: any, cur) => {
 		return {
 			...acc,
 			[cur]: Required_T_boostestGenericsAliasType()[cur]
@@ -1030,12 +1057,13 @@ export function readonly_RefType_boostestGenericsAliasType<T>(args?: Partial<T>)
 	return {
 		"name": "test string data",
 		"ver": 10,
+		"age": 10,
 		...args
 	} as T;
 }
 
 export function readonly_Readonly_boostestGenericsAliasType<T>(Readonly_T_boostestGenericsAliasType: any, args?: Partial<T>) {
-	return Object.keys(Readonly_T_boostestGenericsAliasType()).reduce((acc: any, cur) => {
+	return ensureArray(Object.keys(Readonly_T_boostestGenericsAliasType())).reduce((acc: any, cur) => {
 		return {
 			...acc,
 			[cur]: Readonly_T_boostestGenericsAliasType()[cur]
@@ -1087,6 +1115,80 @@ export function OnDirectRefUnionType_SystemSupportLanguage_boostestGenericsAlias
 	], isArray);
 }
 
+export function pick_RefType_boostestGenericsAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		"age": 10,
+		...args
+	} as T;
+}
+
+export function pick_Pick_boostestGenericsAliasType<T>(Pick_T_boostestGenericsAliasType: any, Pick_K_boostestGenericsAliasType: any, args?: Partial<T>) {
+	return ensureArray(Pick_K_boostestGenericsAliasType(true)).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: Pick_T_boostestGenericsAliasType()[cur]
+		};
+	}, {});
+}
+
+export function pickMulti_RefType_boostestGenericsAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		"age": 10,
+		...args
+	} as T;
+}
+
+export function pickMulti_Pick_boostestGenericsAliasType<T>(Pick_T_boostestGenericsAliasType: any, Pick_K_boostestGenericsAliasType: any, args?: Partial<T>) {
+	return ensureArray(Pick_K_boostestGenericsAliasType(true)).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: Pick_T_boostestGenericsAliasType()[cur]
+		};
+	}, {});
+}
+
+export function omit_RefType_boostestGenericsAliasType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		"age": 10,
+		...args
+	} as T;
+}
+
+export function omit_Omit_boostestGenericsAliasType<T>(Omit_T_boostestGenericsAliasType: any, Omit_K_boostestGenericsAliasType: any, args?: Partial<T>) {
+	return Omit_Pick_boostestGenericsAliasType((isArray?: any) => {
+		return Omit_T_boostestGenericsAliasType(true);
+	}, (isArray?: any) => {
+		return Omit_Exclude_boostestGenericsAliasType((isArray?: any) => {
+			return Object.keys(Omit_T_boostestGenericsAliasType());
+		}, (isArray?: any) => {
+			return Omit_K_boostestGenericsAliasType(true);
+		});
+	});
+}
+
+export function Omit_T_boostestGenericsAliasType<T>() {
+	return {};
+}
+
+export function Omit_Exclude_boostestGenericsAliasType<T>(Exclude_T_boostestGenericsAliasType: any, Exclude_U_boostestGenericsAliasType: any, args?: Partial<T>) {
+	return extendsUtil(Exclude_T_boostestGenericsAliasType(true), Exclude_U_boostestGenericsAliasType(true), null, Exclude_T_boostestGenericsAliasType(true), true);
+}
+
+export function Omit_Pick_boostestGenericsAliasType<T>(Pick_T_boostestGenericsAliasType: any, Pick_K_boostestGenericsAliasType: any, args?: Partial<T>) {
+	return ensureArray(Pick_K_boostestGenericsAliasType(true)).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: Pick_T_boostestGenericsAliasType()[cur]
+		};
+	}, {});
+}
+
 export function boostestGenericsInterfaceType<T>(args?: Partial<T>): T {
 	return {
 		"innserGenericInitializer": innserGenericInitializer_InnerGenericInitializer_boostestGenericsInterfaceType(isArray),
@@ -1103,16 +1205,16 @@ export function boostestGenericsInterfaceType<T>(args?: Partial<T>): T {
 			], isArray);
 		}),
 		"nestedPartial": { "childPartial": nestedPartial_childPartial_Partial_boostestGenericsInterfaceType((isArray?: any) => {
-			return nestedPartial_childPartial_RefType_boostestGenericsInterfaceType(isArray);
+			return nestedPartial_childPartial_RefType_boostestGenericsInterfaceType(true);
 		}) },
 		"partial": partial_Partial_boostestGenericsInterfaceType((isArray?: any) => {
-			return partial_RefType_boostestGenericsInterfaceType(isArray);
+			return partial_RefType_boostestGenericsInterfaceType(true);
 		}),
 		"required": required_Required_boostestGenericsInterfaceType((isArray?: any) => {
-			return required_RefType_boostestGenericsInterfaceType(isArray);
+			return required_RefType_boostestGenericsInterfaceType(true);
 		}),
 		"readonly": readonly_Readonly_boostestGenericsInterfaceType((isArray?: any) => {
-			return readonly_RefType_boostestGenericsInterfaceType(isArray);
+			return readonly_RefType_boostestGenericsInterfaceType(true);
 		}),
 		"extract": extract_Extract_boostestGenericsInterfaceType((isArray?: any) => {
 			return getUnionValue([
@@ -1126,17 +1228,33 @@ export function boostestGenericsInterfaceType<T>(args?: Partial<T>): T {
 			return getUnionValue(["D", "E"], isArray);
 		}),
 		"extractRefUnion": extractRefUnion_Extract_boostestGenericsInterfaceType((isArray?: any) => {
-			return extractRefUnion_SystemSupportLanguage_boostestGenericsInterfaceType(isArray);
+			return extractRefUnion_SystemSupportLanguage_boostestGenericsInterfaceType(true);
 		}, (isArray?: any) => {
 			return getUnionValue(["en", "fr"], isArray);
 		}),
 		"exclude": exclude_Exclude_boostestGenericsInterfaceType((isArray?: any) => {
-			return exclude_Grade_boostestGenericsInterfaceType(isArray);
+			return exclude_Grade_boostestGenericsInterfaceType(true);
 		}, (isArray?: any) => {
 			return "A";
 		}),
 		"onDirectRefUnionType": onDirectRefUnionType_OnDirectRefUnionType_boostestGenericsInterfaceType((isArray?: any) => {
 			return "fr";
+		}),
+		"array": ["test string data"],
+		"pick": pick_Pick_boostestGenericsInterfaceType((isArray?: any) => {
+			return pick_RefType_boostestGenericsInterfaceType(true);
+		}, (isArray?: any) => {
+			return "name";
+		}),
+		"pickMulti": pickMulti_Pick_boostestGenericsInterfaceType((isArray?: any) => {
+			return pickMulti_RefType_boostestGenericsInterfaceType(true);
+		}, (isArray?: any) => {
+			return getUnionValue(["ver", "age"], isArray);
+		}),
+		"omit": omit_Omit_boostestGenericsInterfaceType((isArray?: any) => {
+			return omit_RefType_boostestGenericsInterfaceType(true);
+		}, (isArray?: any) => {
+			return "name";
 		}),
 		...args
 	} as T;
@@ -1146,7 +1264,7 @@ export function innserGenericInitializer_InnerGenericInitializer_boostestGeneric
 	return {
 		"name": "test string data",
 		"innerGeneric": innerGeneric_InngerGeneric_boostestGenericsInterfaceType((isArray?: any) => {
-			return innerGeneric_RefType_boostestGenericsInterfaceType(isArray);
+			return innerGeneric_RefType_boostestGenericsInterfaceType(true);
 		}),
 		"innerGenericLiteral": innerGenericLiteral_InngerGeneric_boostestGenericsInterfaceType((isArray?: any) => {
 			return "inner generic string";
@@ -1159,6 +1277,7 @@ export function innerGeneric_RefType_boostestGenericsInterfaceType<T>(args?: Par
 	return {
 		"name": "test string data",
 		"ver": 10,
+		"age": 10,
 		...args
 	} as T;
 }
@@ -1172,7 +1291,7 @@ export function innerGenericLiteral_InngerGeneric_boostestGenericsInterfaceType<
 }
 
 export function mapperType_Butterfly_boostestGenericsInterfaceType<T>(isArray = false) {
-	return Butterfly_SystemSupportLanguage_boostestGenericsInterfaceType(true).reduce((acc: any, cur) => {
+	return ensureArray(Butterfly_SystemSupportLanguage_boostestGenericsInterfaceType(true)).reduce((acc: any, cur) => {
 		return {
 			...acc,
 			[cur]: "test string data"
@@ -1190,7 +1309,7 @@ export function Butterfly_SystemSupportLanguage_boostestGenericsInterfaceType<T>
 }
 
 export function keyOfMapperType_KeyOfButterfly_boostestGenericsInterfaceType<T>(isArray = false) {
-	return Object.keys(KeyOfButterfly_RefType_boostestGenericsInterfaceType()).reduce((acc: any, cur) => {
+	return ensureArray(Object.keys(KeyOfButterfly_RefType_boostestGenericsInterfaceType())).reduce((acc: any, cur) => {
 		return {
 			...acc,
 			[cur]: KeyOfButterfly_RefType_boostestGenericsInterfaceType()[cur]
@@ -1202,12 +1321,13 @@ export function KeyOfButterfly_RefType_boostestGenericsInterfaceType<T>(args?: P
 	return {
 		"name": "test string data",
 		"ver": 10,
+		"age": 10,
 		...args
 	} as T;
 }
 
 export function butterflyWithGenerics_ButterflyWithGenerics_boostestGenericsInterfaceType<T>(ButterflyWithGenerics_T_boostestGenericsInterfaceType: any, args?: Partial<T>) {
-	return ButterflyWithGenerics_SystemSupportLanguage_boostestGenericsInterfaceType(true).reduce((acc: any, cur) => {
+	return ensureArray(ButterflyWithGenerics_SystemSupportLanguage_boostestGenericsInterfaceType(true)).reduce((acc: any, cur) => {
 		return {
 			...acc,
 			[cur]: ButterflyWithGenerics_T_boostestGenericsInterfaceType(isArray)
@@ -1232,12 +1352,13 @@ export function nestedPartial_childPartial_RefType_boostestGenericsInterfaceType
 	return {
 		"name": "test string data",
 		"ver": 10,
+		"age": 10,
 		...args
 	} as T;
 }
 
 export function nestedPartial_childPartial_Partial_boostestGenericsInterfaceType<T>(Partial_T_boostestGenericsInterfaceType: any, args?: Partial<T>) {
-	return Object.keys(Partial_T_boostestGenericsInterfaceType()).reduce((acc: any, cur) => {
+	return ensureArray(Object.keys(Partial_T_boostestGenericsInterfaceType())).reduce((acc: any, cur) => {
 		return {
 			...acc,
 			[cur]: Partial_T_boostestGenericsInterfaceType()[cur]
@@ -1249,12 +1370,13 @@ export function partial_RefType_boostestGenericsInterfaceType<T>(args?: Partial<
 	return {
 		"name": "test string data",
 		"ver": 10,
+		"age": 10,
 		...args
 	} as T;
 }
 
 export function partial_Partial_boostestGenericsInterfaceType<T>(Partial_T_boostestGenericsInterfaceType: any, args?: Partial<T>) {
-	return Object.keys(Partial_T_boostestGenericsInterfaceType()).reduce((acc: any, cur) => {
+	return ensureArray(Object.keys(Partial_T_boostestGenericsInterfaceType())).reduce((acc: any, cur) => {
 		return {
 			...acc,
 			[cur]: Partial_T_boostestGenericsInterfaceType()[cur]
@@ -1266,12 +1388,13 @@ export function required_RefType_boostestGenericsInterfaceType<T>(args?: Partial
 	return {
 		"name": "test string data",
 		"ver": 10,
+		"age": 10,
 		...args
 	} as T;
 }
 
 export function required_Required_boostestGenericsInterfaceType<T>(Required_T_boostestGenericsInterfaceType: any, args?: Partial<T>) {
-	return Object.keys(Required_T_boostestGenericsInterfaceType()).reduce((acc: any, cur) => {
+	return ensureArray(Object.keys(Required_T_boostestGenericsInterfaceType())).reduce((acc: any, cur) => {
 		return {
 			...acc,
 			[cur]: Required_T_boostestGenericsInterfaceType()[cur]
@@ -1283,12 +1406,13 @@ export function readonly_RefType_boostestGenericsInterfaceType<T>(args?: Partial
 	return {
 		"name": "test string data",
 		"ver": 10,
+		"age": 10,
 		...args
 	} as T;
 }
 
 export function readonly_Readonly_boostestGenericsInterfaceType<T>(Readonly_T_boostestGenericsInterfaceType: any, args?: Partial<T>) {
-	return Object.keys(Readonly_T_boostestGenericsInterfaceType()).reduce((acc: any, cur) => {
+	return ensureArray(Object.keys(Readonly_T_boostestGenericsInterfaceType())).reduce((acc: any, cur) => {
 		return {
 			...acc,
 			[cur]: Readonly_T_boostestGenericsInterfaceType()[cur]
@@ -1340,6 +1464,80 @@ export function OnDirectRefUnionType_SystemSupportLanguage_boostestGenericsInter
 	], isArray);
 }
 
+export function pick_RefType_boostestGenericsInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		"age": 10,
+		...args
+	} as T;
+}
+
+export function pick_Pick_boostestGenericsInterfaceType<T>(Pick_T_boostestGenericsInterfaceType: any, Pick_K_boostestGenericsInterfaceType: any, args?: Partial<T>) {
+	return ensureArray(Pick_K_boostestGenericsInterfaceType(true)).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: Pick_T_boostestGenericsInterfaceType()[cur]
+		};
+	}, {});
+}
+
+export function pickMulti_RefType_boostestGenericsInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		"age": 10,
+		...args
+	} as T;
+}
+
+export function pickMulti_Pick_boostestGenericsInterfaceType<T>(Pick_T_boostestGenericsInterfaceType: any, Pick_K_boostestGenericsInterfaceType: any, args?: Partial<T>) {
+	return ensureArray(Pick_K_boostestGenericsInterfaceType(true)).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: Pick_T_boostestGenericsInterfaceType()[cur]
+		};
+	}, {});
+}
+
+export function omit_RefType_boostestGenericsInterfaceType<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		"age": 10,
+		...args
+	} as T;
+}
+
+export function omit_Omit_boostestGenericsInterfaceType<T>(Omit_T_boostestGenericsInterfaceType: any, Omit_K_boostestGenericsInterfaceType: any, args?: Partial<T>) {
+	return Omit_Pick_boostestGenericsInterfaceType((isArray?: any) => {
+		return Omit_T_boostestGenericsInterfaceType(true);
+	}, (isArray?: any) => {
+		return Omit_Exclude_boostestGenericsInterfaceType((isArray?: any) => {
+			return Object.keys(Omit_T_boostestGenericsInterfaceType());
+		}, (isArray?: any) => {
+			return Omit_K_boostestGenericsInterfaceType(true);
+		});
+	});
+}
+
+export function Omit_T_boostestGenericsInterfaceType<T>() {
+	return {};
+}
+
+export function Omit_Exclude_boostestGenericsInterfaceType<T>(Exclude_T_boostestGenericsInterfaceType: any, Exclude_U_boostestGenericsInterfaceType: any, args?: Partial<T>) {
+	return extendsUtil(Exclude_T_boostestGenericsInterfaceType(true), Exclude_U_boostestGenericsInterfaceType(true), null, Exclude_T_boostestGenericsInterfaceType(true), true);
+}
+
+export function Omit_Pick_boostestGenericsInterfaceType<T>(Pick_T_boostestGenericsInterfaceType: any, Pick_K_boostestGenericsInterfaceType: any, args?: Partial<T>) {
+	return ensureArray(Pick_K_boostestGenericsInterfaceType(true)).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: Pick_T_boostestGenericsInterfaceType()[cur]
+		};
+	}, {});
+}
+
 export function boostestGenericsTypeClass<T extends abstract new (...args: any) => any>(GenericsClass): T {
 	return new GenericsClass(innserGenericInitializer_InnerGenericInitializer_boostestGenericsTypeClass(isArray), mapperType_Butterfly_boostestGenericsTypeClass(isArray), keyOfMapperType_KeyOfButterfly_boostestGenericsTypeClass(isArray), butterflyWithGenerics_ButterflyWithGenerics_boostestGenericsTypeClass((isArray?: any) => {
 		return "test string data";
@@ -1350,7 +1548,7 @@ export function boostestGenericsTypeClass<T extends abstract new (...args: any) 
 			null
 		], isArray);
 	}), { "childPartial": nestedPartial_childPartial_Partial_boostestGenericsTypeClass((isArray?: any) => {
-		return nestedPartial_childPartial_RefType_boostestGenericsTypeClass(isArray);
+		return nestedPartial_childPartial_RefType_boostestGenericsTypeClass(true);
 	}) }, partial_Partial_boostestGenericsTypeClass((isArray?: any) => {
 		return partial_RefType_boostestGenericsTypeClass(isArray);
 	}), required_Required_boostestGenericsTypeClass((isArray?: any) => {
@@ -1377,6 +1575,18 @@ export function boostestGenericsTypeClass<T extends abstract new (...args: any) 
 		return "A";
 	}), onDirectRefUnionType_OnDirectRefUnionType_boostestGenericsTypeClass((isArray?: any) => {
 		return "fr";
+	}), ["test string data"], pick_Pick_boostestGenericsTypeClass((isArray?: any) => {
+		return pick_RefType_boostestGenericsTypeClass(isArray);
+	}, (isArray?: any) => {
+		return "name";
+	}), pickMulti_Pick_boostestGenericsTypeClass((isArray?: any) => {
+		return pickMulti_RefType_boostestGenericsTypeClass(isArray);
+	}, (isArray?: any) => {
+		return getUnionValue(["ver", "age"], isArray);
+	}), omit_Omit_boostestGenericsTypeClass((isArray?: any) => {
+		return omit_RefType_boostestGenericsTypeClass(isArray);
+	}, (isArray?: any) => {
+		return "name";
 	}));
 }
 
@@ -1384,7 +1594,7 @@ export function innserGenericInitializer_InnerGenericInitializer_boostestGeneric
 	return {
 		"name": "test string data",
 		"innerGeneric": innerGeneric_InngerGeneric_boostestGenericsTypeClass((isArray?: any) => {
-			return innerGeneric_RefType_boostestGenericsTypeClass(isArray);
+			return innerGeneric_RefType_boostestGenericsTypeClass(true);
 		}),
 		"innerGenericLiteral": innerGenericLiteral_InngerGeneric_boostestGenericsTypeClass((isArray?: any) => {
 			return "inner generic string";
@@ -1397,6 +1607,7 @@ export function innerGeneric_RefType_boostestGenericsTypeClass<T>(args?: Partial
 	return {
 		"name": "test string data",
 		"ver": 10,
+		"age": 10,
 		...args
 	} as T;
 }
@@ -1410,7 +1621,7 @@ export function innerGenericLiteral_InngerGeneric_boostestGenericsTypeClass<T>(I
 }
 
 export function mapperType_Butterfly_boostestGenericsTypeClass<T>(isArray = false) {
-	return Butterfly_SystemSupportLanguage_boostestGenericsTypeClass(true).reduce((acc: any, cur) => {
+	return ensureArray(Butterfly_SystemSupportLanguage_boostestGenericsTypeClass(true)).reduce((acc: any, cur) => {
 		return {
 			...acc,
 			[cur]: "test string data"
@@ -1428,7 +1639,7 @@ export function Butterfly_SystemSupportLanguage_boostestGenericsTypeClass<T>(isA
 }
 
 export function keyOfMapperType_KeyOfButterfly_boostestGenericsTypeClass<T>(isArray = false) {
-	return Object.keys(KeyOfButterfly_RefType_boostestGenericsTypeClass()).reduce((acc: any, cur) => {
+	return ensureArray(Object.keys(KeyOfButterfly_RefType_boostestGenericsTypeClass())).reduce((acc: any, cur) => {
 		return {
 			...acc,
 			[cur]: KeyOfButterfly_RefType_boostestGenericsTypeClass()[cur]
@@ -1440,12 +1651,13 @@ export function KeyOfButterfly_RefType_boostestGenericsTypeClass<T>(args?: Parti
 	return {
 		"name": "test string data",
 		"ver": 10,
+		"age": 10,
 		...args
 	} as T;
 }
 
 export function butterflyWithGenerics_ButterflyWithGenerics_boostestGenericsTypeClass<T>(ButterflyWithGenerics_T_boostestGenericsTypeClass: any, args?: Partial<T>) {
-	return ButterflyWithGenerics_SystemSupportLanguage_boostestGenericsTypeClass(true).reduce((acc: any, cur) => {
+	return ensureArray(ButterflyWithGenerics_SystemSupportLanguage_boostestGenericsTypeClass(true)).reduce((acc: any, cur) => {
 		return {
 			...acc,
 			[cur]: ButterflyWithGenerics_T_boostestGenericsTypeClass(isArray)
@@ -1470,12 +1682,13 @@ export function nestedPartial_childPartial_RefType_boostestGenericsTypeClass<T>(
 	return {
 		"name": "test string data",
 		"ver": 10,
+		"age": 10,
 		...args
 	} as T;
 }
 
 export function nestedPartial_childPartial_Partial_boostestGenericsTypeClass<T>(Partial_T_boostestGenericsTypeClass: any, args?: Partial<T>) {
-	return Object.keys(Partial_T_boostestGenericsTypeClass()).reduce((acc: any, cur) => {
+	return ensureArray(Object.keys(Partial_T_boostestGenericsTypeClass())).reduce((acc: any, cur) => {
 		return {
 			...acc,
 			[cur]: Partial_T_boostestGenericsTypeClass()[cur]
@@ -1487,12 +1700,13 @@ export function partial_RefType_boostestGenericsTypeClass<T>(args?: Partial<T>):
 	return {
 		"name": "test string data",
 		"ver": 10,
+		"age": 10,
 		...args
 	} as T;
 }
 
 export function partial_Partial_boostestGenericsTypeClass<T>(Partial_T_boostestGenericsTypeClass: any, args?: Partial<T>) {
-	return Object.keys(Partial_T_boostestGenericsTypeClass()).reduce((acc: any, cur) => {
+	return ensureArray(Object.keys(Partial_T_boostestGenericsTypeClass())).reduce((acc: any, cur) => {
 		return {
 			...acc,
 			[cur]: Partial_T_boostestGenericsTypeClass()[cur]
@@ -1504,12 +1718,13 @@ export function required_RefType_boostestGenericsTypeClass<T>(args?: Partial<T>)
 	return {
 		"name": "test string data",
 		"ver": 10,
+		"age": 10,
 		...args
 	} as T;
 }
 
 export function required_Required_boostestGenericsTypeClass<T>(Required_T_boostestGenericsTypeClass: any, args?: Partial<T>) {
-	return Object.keys(Required_T_boostestGenericsTypeClass()).reduce((acc: any, cur) => {
+	return ensureArray(Object.keys(Required_T_boostestGenericsTypeClass())).reduce((acc: any, cur) => {
 		return {
 			...acc,
 			[cur]: Required_T_boostestGenericsTypeClass()[cur]
@@ -1521,12 +1736,13 @@ export function readonly_RefType_boostestGenericsTypeClass<T>(args?: Partial<T>)
 	return {
 		"name": "test string data",
 		"ver": 10,
+		"age": 10,
 		...args
 	} as T;
 }
 
 export function readonly_Readonly_boostestGenericsTypeClass<T>(Readonly_T_boostestGenericsTypeClass: any, args?: Partial<T>) {
-	return Object.keys(Readonly_T_boostestGenericsTypeClass()).reduce((acc: any, cur) => {
+	return ensureArray(Object.keys(Readonly_T_boostestGenericsTypeClass())).reduce((acc: any, cur) => {
 		return {
 			...acc,
 			[cur]: Readonly_T_boostestGenericsTypeClass()[cur]
@@ -1576,6 +1792,80 @@ export function OnDirectRefUnionType_SystemSupportLanguage_boostestGenericsTypeC
 		"it",
 		"es"
 	], isArray);
+}
+
+export function pick_RefType_boostestGenericsTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		"age": 10,
+		...args
+	} as T;
+}
+
+export function pick_Pick_boostestGenericsTypeClass<T>(Pick_T_boostestGenericsTypeClass: any, Pick_K_boostestGenericsTypeClass: any, args?: Partial<T>) {
+	return ensureArray(Pick_K_boostestGenericsTypeClass(true)).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: Pick_T_boostestGenericsTypeClass()[cur]
+		};
+	}, {});
+}
+
+export function pickMulti_RefType_boostestGenericsTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		"age": 10,
+		...args
+	} as T;
+}
+
+export function pickMulti_Pick_boostestGenericsTypeClass<T>(Pick_T_boostestGenericsTypeClass: any, Pick_K_boostestGenericsTypeClass: any, args?: Partial<T>) {
+	return ensureArray(Pick_K_boostestGenericsTypeClass(true)).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: Pick_T_boostestGenericsTypeClass()[cur]
+		};
+	}, {});
+}
+
+export function omit_RefType_boostestGenericsTypeClass<T>(args?: Partial<T>): T {
+	return {
+		"name": "test string data",
+		"ver": 10,
+		"age": 10,
+		...args
+	} as T;
+}
+
+export function omit_Omit_boostestGenericsTypeClass<T>(Omit_T_boostestGenericsTypeClass: any, Omit_K_boostestGenericsTypeClass: any, args?: Partial<T>) {
+	return Omit_Pick_boostestGenericsTypeClass((isArray?: any) => {
+		return Omit_T_boostestGenericsTypeClass(true);
+	}, (isArray?: any) => {
+		return Omit_Exclude_boostestGenericsTypeClass((isArray?: any) => {
+			return Object.keys(Omit_T_boostestGenericsTypeClass());
+		}, (isArray?: any) => {
+			return Omit_K_boostestGenericsTypeClass(true);
+		});
+	});
+}
+
+export function Omit_T_boostestGenericsTypeClass<T>() {
+	return {};
+}
+
+export function Omit_Exclude_boostestGenericsTypeClass<T>(Exclude_T_boostestGenericsTypeClass: any, Exclude_U_boostestGenericsTypeClass: any, args?: Partial<T>) {
+	return extendsUtil(Exclude_T_boostestGenericsTypeClass(true), Exclude_U_boostestGenericsTypeClass(true), null, Exclude_T_boostestGenericsTypeClass(true), true);
+}
+
+export function Omit_Pick_boostestGenericsTypeClass<T>(Pick_T_boostestGenericsTypeClass: any, Pick_K_boostestGenericsTypeClass: any, args?: Partial<T>) {
+	return ensureArray(Pick_K_boostestGenericsTypeClass(true)).reduce((acc: any, cur) => {
+		return {
+			...acc,
+			[cur]: Pick_T_boostestGenericsTypeClass()[cur]
+		};
+	}, {});
 }
 
 "
@@ -1658,6 +1948,7 @@ function extendsUtil(
   typeShape: any,
   trueVal: any,
   falseVal: any,
+  isArray = false,
 ): any {
   const isValueArray = Array.isArray(value);
   const isTypeShapeArray = Array.isArray(typeShape);
@@ -1696,7 +1987,7 @@ function extendsUtil(
       }
     }
 
-    return resultArray[0];
+    return isArray ? resultArray : resultArray[0];
   }
 
   return isAssignableTo(value, typeShape) ? trueVal : falseVal;
@@ -1810,6 +2101,7 @@ function extendsUtil(
   typeShape: any,
   trueVal: any,
   falseVal: any,
+  isArray = false,
 ): any {
   const isValueArray = Array.isArray(value);
   const isTypeShapeArray = Array.isArray(typeShape);
@@ -1848,7 +2140,7 @@ function extendsUtil(
       }
     }
 
-    return resultArray[0];
+    return isArray ? resultArray : resultArray[0];
   }
 
   return isAssignableTo(value, typeShape) ? trueVal : falseVal;
@@ -2008,6 +2300,7 @@ function extendsUtil(
   typeShape: any,
   trueVal: any,
   falseVal: any,
+  isArray = false,
 ): any {
   const isValueArray = Array.isArray(value);
   const isTypeShapeArray = Array.isArray(typeShape);
@@ -2046,7 +2339,7 @@ function extendsUtil(
       }
     }
 
-    return resultArray[0];
+    return isArray ? resultArray : resultArray[0];
   }
 
   return isAssignableTo(value, typeShape) ? trueVal : falseVal;
@@ -2577,6 +2870,7 @@ function extendsUtil(
   typeShape: any,
   trueVal: any,
   falseVal: any,
+  isArray = false,
 ): any {
   const isValueArray = Array.isArray(value);
   const isTypeShapeArray = Array.isArray(typeShape);
@@ -2615,7 +2909,7 @@ function extendsUtil(
       }
     }
 
-    return resultArray[0];
+    return isArray ? resultArray : resultArray[0];
   }
 
   return isAssignableTo(value, typeShape) ? trueVal : falseVal;
@@ -2979,6 +3273,7 @@ function extendsUtil(
   typeShape: any,
   trueVal: any,
   falseVal: any,
+  isArray = false,
 ): any {
   const isValueArray = Array.isArray(value);
   const isTypeShapeArray = Array.isArray(typeShape);
@@ -3017,7 +3312,7 @@ function extendsUtil(
       }
     }
 
-    return resultArray[0];
+    return isArray ? resultArray : resultArray[0];
   }
 
   return isAssignableTo(value, typeShape) ? trueVal : falseVal;
@@ -3160,6 +3455,7 @@ function extendsUtil(
   typeShape: any,
   trueVal: any,
   falseVal: any,
+  isArray = false,
 ): any {
   const isValueArray = Array.isArray(value);
   const isTypeShapeArray = Array.isArray(typeShape);
@@ -3198,7 +3494,7 @@ function extendsUtil(
       }
     }
 
-    return resultArray[0];
+    return isArray ? resultArray : resultArray[0];
   }
 
   return isAssignableTo(value, typeShape) ? trueVal : falseVal;
@@ -3243,7 +3539,7 @@ export function RenamedComplexChipsType_ComplexChipsType_boostestRenamedComplexC
 		"optionalKey": "test string data",
 		"unknownKey": undefined,
 		"thisKey": thisKey_ThisType_boostestRenamedComplexChipsType((isArray?: any) => {
-			return thisKey_LayClassic_boostestRenamedComplexChipsType(isArray);
+			return thisKey_LayClassic_boostestRenamedComplexChipsType(true);
 		}),
 		"conditionalKey": extendsUtil(conditionalKey_CalbeeLightlySalted_boostestRenamedComplexChipsType(true), conditionalKey_PotatoChip_boostestRenamedComplexChipsType(true), conditionalKey_KettleBrandSeaSaltAndVinegar_boostestRenamedComplexChipsType(true), false),
 		"objectKey": {},
@@ -3358,7 +3654,7 @@ export function huga_anoChips_ComplexInterfaceChips_boostestRenamedNestedPropCla
 		"optionalKey": "test string data",
 		"unknownKey": undefined,
 		"thisKey": thisKey_ThisType_boostestRenamedNestedPropClass((isArray?: any) => {
-			return thisKey_LayClassic_boostestRenamedNestedPropClass(isArray);
+			return thisKey_LayClassic_boostestRenamedNestedPropClass(true);
 		}),
 		"conditionalKey": extendsUtil(conditionalKey_CalbeeLightlySalted_boostestRenamedNestedPropClass(true), conditionalKey_PotatoChip_boostestRenamedNestedPropClass(true), conditionalKey_KettleBrandSeaSaltAndVinegar_boostestRenamedNestedPropClass(true), false),
 		"objectKey": {},
@@ -3534,6 +3830,7 @@ function extendsUtil(
   typeShape: any,
   trueVal: any,
   falseVal: any,
+  isArray = false,
 ): any {
   const isValueArray = Array.isArray(value);
   const isTypeShapeArray = Array.isArray(typeShape);
@@ -3572,7 +3869,7 @@ function extendsUtil(
       }
     }
 
-    return resultArray[0];
+    return isArray ? resultArray : resultArray[0];
   }
 
   return isAssignableTo(value, typeShape) ? trueVal : falseVal;
@@ -3651,6 +3948,7 @@ export function referenceLiteral_RefType_boostestLiteralAliasType<T>(args?: Part
 	return {
 		"name": "test string data",
 		"ver": 10,
+		"age": 10,
 		...args
 	} as T;
 }
@@ -3659,6 +3957,7 @@ export function tsTuple_RefType_boostestLiteralAliasType<T>(args?: Partial<T>): 
 	return {
 		"name": "test string data",
 		"ver": 10,
+		"age": 10,
 		...args
 	} as T;
 }
@@ -3675,6 +3974,7 @@ export function tsNamedTuple_RefType_boostestLiteralAliasType<T>(args?: Partial<
 	return {
 		"name": "test string data",
 		"ver": 10,
+		"age": 10,
 		...args
 	} as T;
 }
@@ -3691,6 +3991,7 @@ export function intersectionType_RefType_boostestLiteralAliasType<T>(args?: Part
 	return {
 		"name": "test string data",
 		"ver": 10,
+		"age": 10,
 		...args
 	} as T;
 }
@@ -3707,6 +4008,7 @@ export function keyof_RefType_boostestLiteralAliasType<T>(args?: Partial<T>): T 
 	return {
 		"name": "test string data",
 		"ver": 10,
+		"age": 10,
 		...args
 	} as T;
 }
@@ -3715,6 +4017,7 @@ export function indexAccessor_RefType_boostestLiteralAliasType<T>(args?: Partial
 	return {
 		"name": "test string data",
 		"ver": 10,
+		"age": 10,
 		...args
 	} as T;
 }
@@ -3772,6 +4075,7 @@ export function referenceLiteral_RefType_boostestLiteralInterfaceType<T>(args?: 
 	return {
 		"name": "test string data",
 		"ver": 10,
+		"age": 10,
 		...args
 	} as T;
 }
@@ -3780,6 +4084,7 @@ export function tsTuple_RefType_boostestLiteralInterfaceType<T>(args?: Partial<T
 	return {
 		"name": "test string data",
 		"ver": 10,
+		"age": 10,
 		...args
 	} as T;
 }
@@ -3796,6 +4101,7 @@ export function tsNamedTuple_RefType_boostestLiteralInterfaceType<T>(args?: Part
 	return {
 		"name": "test string data",
 		"ver": 10,
+		"age": 10,
 		...args
 	} as T;
 }
@@ -3812,6 +4118,7 @@ export function intersectionType_RefType_boostestLiteralInterfaceType<T>(args?: 
 	return {
 		"name": "test string data",
 		"ver": 10,
+		"age": 10,
 		...args
 	} as T;
 }
@@ -3828,6 +4135,7 @@ export function keyof_RefType_boostestLiteralInterfaceType<T>(args?: Partial<T>)
 	return {
 		"name": "test string data",
 		"ver": 10,
+		"age": 10,
 		...args
 	} as T;
 }
@@ -3836,6 +4144,7 @@ export function indexAccessor_RefType_boostestLiteralInterfaceType<T>(args?: Par
 	return {
 		"name": "test string data",
 		"ver": 10,
+		"age": 10,
 		...args
 	} as T;
 }
@@ -3864,6 +4173,7 @@ export function referenceLiteral_RefType_boostestLiteralTypeClass<T>(args?: Part
 	return {
 		"name": "test string data",
 		"ver": 10,
+		"age": 10,
 		...args
 	} as T;
 }
@@ -3872,6 +4182,7 @@ export function tsTuple_RefType_boostestLiteralTypeClass<T>(args?: Partial<T>): 
 	return {
 		"name": "test string data",
 		"ver": 10,
+		"age": 10,
 		...args
 	} as T;
 }
@@ -3888,6 +4199,7 @@ export function tsNamedTuple_RefType_boostestLiteralTypeClass<T>(args?: Partial<
 	return {
 		"name": "test string data",
 		"ver": 10,
+		"age": 10,
 		...args
 	} as T;
 }
@@ -3904,6 +4216,7 @@ export function intersectionType_RefType_boostestLiteralTypeClass<T>(args?: Part
 	return {
 		"name": "test string data",
 		"ver": 10,
+		"age": 10,
 		...args
 	} as T;
 }
@@ -3920,6 +4233,7 @@ export function keyof_RefType_boostestLiteralTypeClass<T>(args?: Partial<T>): T 
 	return {
 		"name": "test string data",
 		"ver": 10,
+		"age": 10,
 		...args
 	} as T;
 }
@@ -3928,6 +4242,7 @@ export function indexAccessor_RefType_boostestLiteralTypeClass<T>(args?: Partial
 	return {
 		"name": "test string data",
 		"ver": 10,
+		"age": 10,
 		...args
 	} as T;
 }
@@ -4012,6 +4327,7 @@ function extendsUtil(
   typeShape: any,
   trueVal: any,
   falseVal: any,
+  isArray = false,
 ): any {
   const isValueArray = Array.isArray(value);
   const isTypeShapeArray = Array.isArray(typeShape);
@@ -4050,7 +4366,7 @@ function extendsUtil(
       }
     }
 
-    return resultArray[0];
+    return isArray ? resultArray : resultArray[0];
   }
 
   return isAssignableTo(value, typeShape) ? trueVal : falseVal;
@@ -4262,6 +4578,7 @@ function extendsUtil(
   typeShape: any,
   trueVal: any,
   falseVal: any,
+  isArray = false,
 ): any {
   const isValueArray = Array.isArray(value);
   const isTypeShapeArray = Array.isArray(typeShape);
@@ -4300,7 +4617,7 @@ function extendsUtil(
       }
     }
 
-    return resultArray[0];
+    return isArray ? resultArray : resultArray[0];
   }
 
   return isAssignableTo(value, typeShape) ? trueVal : falseVal;
@@ -4349,7 +4666,7 @@ export function chips_ComplexInterfaceChips_boostestAnoExportDefaultClass<T>(arg
 		"optionalKey": "test string data",
 		"unknownKey": undefined,
 		"thisKey": thisKey_ThisType_boostestAnoExportDefaultClass((isArray?: any) => {
-			return thisKey_LayClassic_boostestAnoExportDefaultClass(isArray);
+			return thisKey_LayClassic_boostestAnoExportDefaultClass(true);
 		}),
 		"conditionalKey": extendsUtil(conditionalKey_CalbeeLightlySalted_boostestAnoExportDefaultClass(true), conditionalKey_PotatoChip_boostestAnoExportDefaultClass(true), conditionalKey_KettleBrandSeaSaltAndVinegar_boostestAnoExportDefaultClass(true), false),
 		"objectKey": {},
@@ -4468,7 +4785,7 @@ export function chips_ComplexInterfaceChips_boostestAnoExportDefaultInterface<T>
 		"optionalKey": "test string data",
 		"unknownKey": undefined,
 		"thisKey": thisKey_ThisType_boostestAnoExportDefaultInterface((isArray?: any) => {
-			return thisKey_LayClassic_boostestAnoExportDefaultInterface(isArray);
+			return thisKey_LayClassic_boostestAnoExportDefaultInterface(true);
 		}),
 		"conditionalKey": extendsUtil(conditionalKey_CalbeeLightlySalted_boostestAnoExportDefaultInterface(true), conditionalKey_PotatoChip_boostestAnoExportDefaultInterface(true), conditionalKey_KettleBrandSeaSaltAndVinegar_boostestAnoExportDefaultInterface(true), false),
 		"objectKey": {},
@@ -4583,7 +4900,7 @@ export function chips_ComplexInterfaceChips_boostestAnoExportNamedDeclClass<T>(a
 		"optionalKey": "test string data",
 		"unknownKey": undefined,
 		"thisKey": thisKey_ThisType_boostestAnoExportNamedDeclClass((isArray?: any) => {
-			return thisKey_LayClassic_boostestAnoExportNamedDeclClass(isArray);
+			return thisKey_LayClassic_boostestAnoExportNamedDeclClass(true);
 		}),
 		"conditionalKey": extendsUtil(conditionalKey_CalbeeLightlySalted_boostestAnoExportNamedDeclClass(true), conditionalKey_PotatoChip_boostestAnoExportNamedDeclClass(true), conditionalKey_KettleBrandSeaSaltAndVinegar_boostestAnoExportNamedDeclClass(true), false),
 		"objectKey": {},
@@ -4702,7 +5019,7 @@ export function chips_ComplexInterfaceChips_boostestAnoMixInterface<T>(args?: Pa
 		"optionalKey": "test string data",
 		"unknownKey": undefined,
 		"thisKey": thisKey_ThisType_boostestAnoMixInterface((isArray?: any) => {
-			return thisKey_LayClassic_boostestAnoMixInterface(isArray);
+			return thisKey_LayClassic_boostestAnoMixInterface(true);
 		}),
 		"conditionalKey": extendsUtil(conditionalKey_CalbeeLightlySalted_boostestAnoMixInterface(true), conditionalKey_PotatoChip_boostestAnoMixInterface(true), conditionalKey_KettleBrandSeaSaltAndVinegar_boostestAnoMixInterface(true), false),
 		"objectKey": {},
@@ -4813,7 +5130,7 @@ export function boostestComplexChipsType<T>(args?: Partial<T>): T {
 		"optionalKey": "test string data",
 		"unknownKey": undefined,
 		"thisKey": thisKey_ThisType_boostestComplexChipsType((isArray?: any) => {
-			return thisKey_LayClassic_boostestComplexChipsType(isArray);
+			return thisKey_LayClassic_boostestComplexChipsType(true);
 		}),
 		"conditionalKey": extendsUtil(conditionalKey_CalbeeLightlySalted_boostestComplexChipsType(true), conditionalKey_PotatoChip_boostestComplexChipsType(true), conditionalKey_KettleBrandSeaSaltAndVinegar_boostestComplexChipsType(true), false),
 		"objectKey": {},
@@ -4928,7 +5245,7 @@ export function chips_ComplexInterfaceChips_boostestExportDefaultClass<T>(args?:
 		"optionalKey": "test string data",
 		"unknownKey": undefined,
 		"thisKey": thisKey_ThisType_boostestExportDefaultClass((isArray?: any) => {
-			return thisKey_LayClassic_boostestExportDefaultClass(isArray);
+			return thisKey_LayClassic_boostestExportDefaultClass(true);
 		}),
 		"conditionalKey": extendsUtil(conditionalKey_CalbeeLightlySalted_boostestExportDefaultClass(true), conditionalKey_PotatoChip_boostestExportDefaultClass(true), conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportDefaultClass(true), false),
 		"objectKey": {},
@@ -5043,7 +5360,7 @@ export function chips_ComplexInterfaceChips_boostestExportDefaultClassWithDecl<T
 		"optionalKey": "test string data",
 		"unknownKey": undefined,
 		"thisKey": thisKey_ThisType_boostestExportDefaultClassWithDecl((isArray?: any) => {
-			return thisKey_LayClassic_boostestExportDefaultClassWithDecl(isArray);
+			return thisKey_LayClassic_boostestExportDefaultClassWithDecl(true);
 		}),
 		"conditionalKey": extendsUtil(conditionalKey_CalbeeLightlySalted_boostestExportDefaultClassWithDecl(true), conditionalKey_PotatoChip_boostestExportDefaultClassWithDecl(true), conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportDefaultClassWithDecl(true), false),
 		"objectKey": {},
@@ -5162,7 +5479,7 @@ export function chips_ComplexInterfaceChips_boostestExportDefaultNamedDecl<T>(ar
 		"optionalKey": "test string data",
 		"unknownKey": undefined,
 		"thisKey": thisKey_ThisType_boostestExportDefaultNamedDecl((isArray?: any) => {
-			return thisKey_LayClassic_boostestExportDefaultNamedDecl(isArray);
+			return thisKey_LayClassic_boostestExportDefaultNamedDecl(true);
 		}),
 		"conditionalKey": extendsUtil(conditionalKey_CalbeeLightlySalted_boostestExportDefaultNamedDecl(true), conditionalKey_PotatoChip_boostestExportDefaultNamedDecl(true), conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportDefaultNamedDecl(true), false),
 		"objectKey": {},
@@ -5273,7 +5590,7 @@ export function boostestExportNamedDecl<T>(args?: Partial<T>): T {
 		"optionalKey": "test string data",
 		"unknownKey": undefined,
 		"thisKey": thisKey_ThisType_boostestExportNamedDecl((isArray?: any) => {
-			return thisKey_LayClassic_boostestExportNamedDecl(isArray);
+			return thisKey_LayClassic_boostestExportNamedDecl(true);
 		}),
 		"conditionalKey": extendsUtil(conditionalKey_CalbeeLightlySalted_boostestExportNamedDecl(true), conditionalKey_PotatoChip_boostestExportNamedDecl(true), conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportNamedDecl(true), false),
 		"objectKey": {},
@@ -5392,7 +5709,7 @@ export function chips_ComplexInterfaceChips_boostestExportNamedDeclInterface<T>(
 		"optionalKey": "test string data",
 		"unknownKey": undefined,
 		"thisKey": thisKey_ThisType_boostestExportNamedDeclInterface((isArray?: any) => {
-			return thisKey_LayClassic_boostestExportNamedDeclInterface(isArray);
+			return thisKey_LayClassic_boostestExportNamedDeclInterface(true);
 		}),
 		"conditionalKey": extendsUtil(conditionalKey_CalbeeLightlySalted_boostestExportNamedDeclInterface(true), conditionalKey_PotatoChip_boostestExportNamedDeclInterface(true), conditionalKey_KettleBrandSeaSaltAndVinegar_boostestExportNamedDeclInterface(true), false),
 		"objectKey": {},
@@ -5519,7 +5836,7 @@ export function boostestMixCompTSAlias<T>(args?: Partial<T>): T {
 		"optionalKey": "test string data",
 		"unknownKey": undefined,
 		"thisKey": thisKey_ThisType_boostestMixCompTSAlias((isArray?: any) => {
-			return thisKey_LayClassic_boostestMixCompTSAlias(isArray);
+			return thisKey_LayClassic_boostestMixCompTSAlias(true);
 		}),
 		"conditionalKey": extendsUtil(conditionalKey_CalbeeLightlySalted_boostestMixCompTSAlias(true), conditionalKey_PotatoChip_boostestMixCompTSAlias(true), conditionalKey_KettleBrandSeaSaltAndVinegar_boostestMixCompTSAlias(true), false),
 		"objectKey": {},
