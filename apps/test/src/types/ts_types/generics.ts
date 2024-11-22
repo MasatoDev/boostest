@@ -56,17 +56,17 @@ export type GenericsTypeAlias = {
   partial: Partial<RefType>;
   required: Required<RefType>;
   readonly: Readonly<RefType>;
-  /**********************/
-  /******* FIXME: *******/
-  /**********************/
-  // thisType: ThisType<string>;
-  // array: Array<string>;
-  // pick: Pick<RefType, "name">;
-  // omit: Omit<RefType, "name">;
   extract: Extract<"A" | "B" | "C" | "D" | "E", "D" | "E">;
   extractRefUnion: Extract<SystemSupportLanguage, "en" | "fr">;
   exclude: Exclude<Grade, "A">;
   onDirectRefUnionType: OnDirectRefUnionType<"fr">;
+  array: Array<string>;
+  pick: Pick<RefType, "name">;
+  pickMulti: Pick<RefType, "ver" | "age">;
+  omit: Omit<RefType, "name">;
+  /**********************/
+  /******* FIXME: *******/
+  /**********************/
   // ButterflyWithGenericsForKey: ButterflyWithGenericsForKey<SystemSupportLanguage>;
   // promise: Promise<RefType>;
 
@@ -74,6 +74,7 @@ export type GenericsTypeAlias = {
   // returnType: ReturnType<() => void>;
   // constructorParameters: ConstructorParameters<typeof LiteralTypeClass>;
   // instanceType: InstanceType<typeof LiteralTypeClass>;
+  // thisType: ThisType<string>;
 };
 
 type Grade = "A" | "B" | "C" | "D" | "E";
@@ -90,18 +91,19 @@ export type GenericsInterface = {
   partial: Partial<RefType>;
   required: Required<RefType>;
   readonly: Readonly<RefType>;
+  extract: Extract<"A" | "B" | "C" | "D" | "E", "D" | "E">;
+  extractRefUnion: Extract<SystemSupportLanguage, "en" | "fr">;
+  exclude: Exclude<Grade, "A">;
+  onDirectRefUnionType: OnDirectRefUnionType<"fr">;
+  array: Array<string>;
+  pick: Pick<RefType, "name">;
+  pickMulti: Pick<RefType, "ver" | "age">;
+  omit: Omit<RefType, "name">;
   /**********************/
   /******* FIXME: *******/
   /**********************/
   // innserGenericInitializer: InnerGenericInitializer;
   // thisType: ThisType<string>;
-  // array: Array<string>;
-  // pick: Pick<RefType, "name">;
-  // omit: Omit<RefType, "name">;
-  extract: Extract<"A" | "B" | "C" | "D" | "E", "D" | "E">;
-  extractRefUnion: Extract<SystemSupportLanguage, "en" | "fr">;
-  exclude: Exclude<Grade, "A">;
-  onDirectRefUnionType: OnDirectRefUnionType<"fr">;
   // parameters: Parameters<() => void>;
   // constructorParameters: ConstructorParameters<typeof LiteralTypeClass>;
   // returnType: ReturnType<() => void>;
@@ -122,20 +124,21 @@ export class GenericsClass {
     public partial: Partial<RefType>,
     public required: Required<RefType>,
     public readonly: Readonly<RefType>,
+    public extract: Extract<"A" | "B" | "C" | "D" | "E", "D" | "E">,
+    public extractRefUnion: Extract<SystemSupportLanguage, "en" | "fr">,
+    public exclude: Exclude<Grade, "A">,
+    public onDirectRefUnionType: OnDirectRefUnionType<"fr">,
+    public array: Array<string>,
+    public pick: Pick<RefType, "name">,
+    public pickMulti: Pick<RefType, "ver" | "age">,
+    public omit: Omit<RefType, "name">,
 
     /**********************/
     /******* FIXME: *******/
     /**********************/
 
-    public extract: Extract<"A" | "B" | "C" | "D" | "E", "D" | "E">,
-    public extractRefUnion: Extract<SystemSupportLanguage, "en" | "fr">,
-    public exclude: Exclude<Grade, "A">,
-    public onDirectRefUnionType: OnDirectRefUnionType<"fr">,
     // public innserGenericInitializer: InnerGenericInitializer,
     // public thisType: ThisType<string>,
-    // public array: Array<string>,
-    // public pick: Pick<RefType, "name">,
-    // public omit: Omit<RefType, "name">,
     // public extract: Extract<string | number, string>,
     // public exclude: Exclude<string | number, string>,
     // public parameters: Parameters<() => void>,

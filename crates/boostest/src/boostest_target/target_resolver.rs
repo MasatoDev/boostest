@@ -306,6 +306,17 @@ impl TargetResolver {
     pub fn is_loaded_file_d_ts(import: &Import) -> bool {
         import.loaded && import.index_d_ts_loaded && import.file_d_ts_loaded
     }
+
+    pub fn is_generic_property(&self) -> bool {
+        self.target
+            .lock()
+            .unwrap()
+            .target_reference
+            .target_supplement
+            .clone()
+            .map(|s| s.is_generic_property)
+            .unwrap_or(false)
+    }
 }
 
 /*************************************************/
@@ -616,6 +627,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
                                     id.name.to_string(),
                                     self.defined_generics.clone(),
                                     false,
+                                    self.is_generic_property(),
                                 );
                             }
                         }
@@ -631,6 +643,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
                                     String::from("object"),
                                     self.defined_generics.clone(),
                                     false,
+                                    self.is_generic_property(),
                                 );
                             }
                         }
@@ -673,6 +686,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
                             key_name.to_string(),
                             self.defined_generics.clone(),
                             false,
+                            self.is_generic_property(),
                         );
                     }
                 }
@@ -708,6 +722,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
                             target_name.to_string(),
                             self.defined_generics.clone(),
                             false,
+                            self.is_generic_property(),
                         );
                     }
                 }
@@ -730,6 +745,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
                                 target_name.to_string(),
                                 self.defined_generics.clone(),
                                 false,
+                                self.is_generic_property(),
                             );
                         }
                     }
@@ -746,6 +762,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
                     target_name.to_string(),
                     self.defined_generics.clone(),
                     false,
+                    self.is_generic_property(),
                 );
 
                 ts_type_assign_as_property(
@@ -758,6 +775,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
                     target_name.to_string(),
                     self.defined_generics.clone(),
                     false,
+                    self.is_generic_property(),
                 );
 
                 ts_type_assign_as_property(
@@ -770,6 +788,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
                     target_name.to_string(),
                     self.defined_generics.clone(),
                     false,
+                    self.is_generic_property(),
                 );
 
                 ts_type_assign_as_property(
@@ -782,6 +801,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
                     target_name.to_string(),
                     self.defined_generics.clone(),
                     false,
+                    self.is_generic_property(),
                 );
             }
             TSType::TSMappedType(_ts_mapped_type) => {
@@ -795,6 +815,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
                     target_name.to_string(),
                     self.defined_generics.clone(),
                     false,
+                    self.is_generic_property(),
                 );
             }
             _ => {}
