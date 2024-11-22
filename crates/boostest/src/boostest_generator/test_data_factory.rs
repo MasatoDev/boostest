@@ -1442,10 +1442,12 @@ pub fn get_expression<'a>(
             }
             ast_builder.expression_object(SPAN, ast_builder.vec(), None)
         }
-        TSType::TSInferType(_ts_infer_type) => {
+        TSType::TSInferType(ts_infer) => {
+            println!("ts_infer: {:?}", ts_infer);
             // infer R ? R : never
             // TODO
-            ast_builder.expression_object(SPAN, ast_builder.vec(), None)
+            // ast_builder.expression_object(SPAN, ast_builder.vec(), None)
+            string_expr(ast_builder, None)
         }
         TSType::TSMappedType(ts_mapped_type) => {
             let TSMappedType {
@@ -2183,10 +2185,12 @@ pub fn get_arg<'a>(
             // TODO
             object_arg(ast_builder, None)
         }
-        TSType::TSInferType(_) => {
+        TSType::TSInferType(ts_infer) => {
+            println!("ts_infer: {:?}", ts_infer);
             // infer R ? R : never
             // TODO
-            object_arg(ast_builder, None)
+            // object_arg(ast_builder, None)
+            string_arg(ast_builder, None)
         }
         TSType::JSDocNullableType(_) => {
             // TODO

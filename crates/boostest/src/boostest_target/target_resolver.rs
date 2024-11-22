@@ -24,6 +24,7 @@ use super::super::boostest_manager::propety_assignment::{
 };
 use super::super::boostest_utils::{module_resolver::resolve_specifier, tsserver::tsserver};
 
+use super::infer_resolver::InferResolver;
 use super::target::{Target, TargetDefinition, TargetType};
 
 use crate::boostest_utils::buf::{source_text_from_span, utf16_span_to_utf8_span};
@@ -136,6 +137,15 @@ impl TargetResolver {
             1,
             ts_server_cache,
         );
+    }
+
+    pub fn resolve_infer(&mut self) {
+        if let Some(target_def) = &self.target.lock().unwrap().target_definition {
+            let infer = InferResolver::new().resolve(target_def.file_path.clone(), target_def.span);
+            if let Some(infer) = infer {
+                self.defined_generics.push(infer);
+            }
+        }
     }
 
     /*****************/
@@ -576,6 +586,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
                         file_path: self.temp_current_read_file_path.clone(),
                         target_type: TargetType::Class,
                     });
+                self.resolve_infer();
                 self.status = ResolveStatus::Resolved;
 
                 self.visit_class_body(&mut class.body);
@@ -833,8 +844,6 @@ impl<'a> VisitMut<'a> for TargetResolver {
                 }
             }
 
-            self.visit_ts_type(&mut decl.type_annotation);
-
             self.target
                 .lock()
                 .unwrap()
@@ -844,6 +853,8 @@ impl<'a> VisitMut<'a> for TargetResolver {
                     file_path: self.temp_current_read_file_path.clone(),
                     target_type: TargetType::TSTypeAlias,
                 });
+            self.resolve_infer();
+            self.visit_ts_type(&mut decl.type_annotation);
             self.status = ResolveStatus::Resolved;
         }
     }
@@ -865,6 +876,8 @@ impl<'a> VisitMut<'a> for TargetResolver {
                     file_path: self.temp_current_read_file_path.clone(),
                     target_type: TargetType::TSInterface,
                 });
+
+            self.resolve_infer();
             self.status = ResolveStatus::Resolved;
 
             for ts_signature in decl.body.body.iter_mut() {

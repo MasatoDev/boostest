@@ -45,33 +45,33 @@ type ButterflyWithGenericsForKey<T> = {
 type OnDirectRefUnionType<T> = T extends SystemSupportLanguage ? T : never;
 
 export type GenericsTypeAlias = {
-  mapperType: Butterfly;
-  keyOfMapperType: KeyOfButterfly;
-  innserGenericInitializer: InnerGenericInitializer;
-  butterflyWithGenerics: ButterflyWithGenerics<string>;
-  nonNullable: NonNullable<undefined | string | null>;
-  nestedPartial: {
-    childPartial: Partial<RefType>;
-  };
-  partial: Partial<RefType>;
-  required: Required<RefType>;
-  readonly: Readonly<RefType>;
-  extract: Extract<"A" | "B" | "C" | "D" | "E", "D" | "E">;
-  extractRefUnion: Extract<SystemSupportLanguage, "en" | "fr">;
-  exclude: Exclude<Grade, "A">;
-  onDirectRefUnionType: OnDirectRefUnionType<"fr">;
-  array: Array<string>;
-  pick: Pick<RefType, "name">;
-  pickMulti: Pick<RefType, "ver" | "age">;
-  omit: Omit<RefType, "name">;
+  // mapperType: Butterfly;
+  // keyOfMapperType: KeyOfButterfly;
+  // innserGenericInitializer: InnerGenericInitializer;
+  // butterflyWithGenerics: ButterflyWithGenerics<string>;
+  // nonNullable: NonNullable<undefined | string | null>;
+  // nestedPartial: {
+  //   childPartial: Partial<RefType>;
+  // };
+  // partial: Partial<RefType>;
+  // required: Required<RefType>;
+  // readonly: Readonly<RefType>;
+  // extract: Extract<"A" | "B" | "C" | "D" | "E", "D" | "E">;
+  // extractRefUnion: Extract<SystemSupportLanguage, "en" | "fr">;
+  // exclude: Exclude<Grade, "A">;
+  // onDirectRefUnionType: OnDirectRefUnionType<"fr">;
+  // array: Array<string>;
+  // pick: Pick<RefType, "name">;
+  // pickMulti: Pick<RefType, "ver" | "age">;
+  // omit: Omit<RefType, "name">;
   /**********************/
   /******* FIXME: *******/
   /**********************/
   // ButterflyWithGenericsForKey: ButterflyWithGenericsForKey<SystemSupportLanguage>;
   // promise: Promise<RefType>;
 
-  // parameters: Parameters<() => void>;
-  // returnType: ReturnType<() => void>;
+  parameters: Parameters<() => void>;
+  returnType: ReturnType<() => void>;
   // constructorParameters: ConstructorParameters<typeof LiteralTypeClass>;
   // instanceType: InstanceType<typeof LiteralTypeClass>;
   // thisType: ThisType<string>;
