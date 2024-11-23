@@ -1054,12 +1054,12 @@ pub fn get_expression<'a>(
         }
         TSType::TSTypeReference(mut ts_type_ref) if ast_utils::is_array_type(&ts_type_ref) => {
             if let Some(allocated_type_parameters) = &mut ts_type_ref.type_parameters {
-                let mut type_parameters =
-                    ast_builder.move_ts_type_parameter_instantiation(allocated_type_parameters);
+                // let mut type_parameters =
+                //     ast_builder.move_ts_type_parameter_instantiation(allocated_type_parameters);
 
                 let mut arguments = ast_builder.vec();
 
-                for parameter in type_parameters.params.iter_mut() {
+                for parameter in allocated_type_parameters.params.iter_mut() {
                     let arg_ts_type = ast_builder.move_ts_type(parameter);
                     let arg_expr = get_expression(
                         is_main_target,

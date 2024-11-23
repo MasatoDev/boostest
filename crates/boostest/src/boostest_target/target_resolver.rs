@@ -5,11 +5,14 @@ use oxc::parser::Parser;
 use oxc::span::{SourceType, Span};
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
+use std::thread;
+use std::time::Duration;
 
 use oxc::ast::ast::{
     BindingPatternKind, Class, ClassBody, ExportDefaultDeclaration, ExportDefaultDeclarationKind,
     ExportNamedDeclaration, MethodDefinition, PropertyDefinition, TSInterfaceDeclaration,
-    TSModuleReference, TSSignature, TSType, TSTypeAliasDeclaration, TSTypeAnnotation, TSTypeName,
+    TSModuleReference, TSSignature, TSTupleElement, TSType, TSTypeAliasDeclaration,
+    TSTypeAnnotation, TSTypeName, TSTypeQueryExprName,
 };
 use oxc::ast::{
     ast::{
@@ -24,11 +27,12 @@ use super::super::boostest_manager::propety_assignment::{
 };
 use super::super::boostest_utils::{module_resolver::resolve_specifier, tsserver::tsserver};
 
-use super::target::{Target, TargetDefinition, TargetType};
+use super::target::{Target, TargetDefinition, TargetReference, TargetType};
 
+use crate::boostest_manager::propety_assignment::gen_target_supplement;
 use crate::boostest_utils::buf::{source_text_from_span, utf16_span_to_utf8_span};
-use crate::boostest_utils::file_utils;
 use crate::boostest_utils::tsserver::TSServerCache;
+use crate::boostest_utils::{ast_utils, file_utils};
 
 /**
 
@@ -138,6 +142,26 @@ impl TargetResolver {
         );
     }
 
+    pub fn add_prop_with_retry(
+        &mut self,
+        name: String,
+        key_name: String,
+        target_reference: TargetReference,
+    ) {
+        loop {
+            match self.target.clone().lock() {
+                Ok(mut target) => {
+                    target.add_property(name, key_name, target_reference);
+                    break;
+                }
+                Err(_) => {
+                    // ロック取得に失敗した場合、少し待ってからリトライ
+                    thread::sleep(Duration::from_millis(10));
+                }
+            }
+        }
+    }
+
     /*****************/
     /*    status     */
     /*****************/
@@ -221,7 +245,7 @@ impl TargetResolver {
             return last.local.to_string();
         }
 
-        self.target.lock().unwrap().name.to_string()
+        self.target.clone().lock().unwrap().name.to_string()
     }
 
     pub fn get_next_import(&mut self) -> Option<&mut Import> {
@@ -674,22 +698,24 @@ impl<'a> VisitMut<'a> for TargetResolver {
     fn visit_ts_signature(&mut self, signature: &mut TSSignature<'a>) {
         match signature {
             TSSignature::TSPropertySignature(ts_prop_signature) => {
-                for annotation in ts_prop_signature.type_annotation.iter() {
-                    if let Some(key_name) = ts_prop_signature.key.name() {
-                        ts_type_assign_as_property(
-                            self.target.clone(),
-                            TargetReferenceInfo {
-                                file_path: self.temp_current_read_file_path.clone(),
-                            },
-                            self.read_file_span,
-                            &annotation.type_annotation,
-                            key_name.to_string(),
-                            self.defined_generics.clone(),
-                            false,
-                            self.is_generic_property(),
-                        );
-                    }
+                // if let Some(key_name) = ts_prop_signature.key.name() {
+                for annotation in &mut ts_prop_signature.type_annotation.iter_mut() {
+                    self.visit_ts_type(&mut annotation.type_annotation);
+
+                    // ts_type_assign_as_property(
+                    //     self.target.clone(),
+                    //     TargetReferenceInfo {
+                    //         file_path: self.temp_current_read_file_path.clone(),
+                    //     },
+                    //     self.read_file_span,
+                    //     &annotation.type_annotation,
+                    //     key_name.to_string(),
+                    //     self.defined_generics.clone(),
+                    //     false,
+                    //     self.is_generic_property(),
+                    // );
                 }
+                // }
             }
             TSSignature::TSCallSignatureDeclaration(_) => {}
             _ => {}
@@ -702,121 +728,135 @@ impl<'a> VisitMut<'a> for TargetResolver {
 
         // NOTE: handle mock target property
         match ts_type {
+            TSType::TSTypeReference(ty_ref) if ast_utils::is_defined_type(&ty_ref) => {}
+            TSType::TSTypeReference(ty_ref) if ast_utils::is_function_type(&ty_ref) => {}
+            TSType::TSTypeReference(ty_ref) if ast_utils::is_array_type(&ty_ref) => {}
+            TSType::TSTypeReference(ty_ref) if ast_utils::is_boolean_type(&ty_ref) => {}
+            TSType::TSTypeReference(ts_type_ref) => {
+                if let Some(type_parameters) = &mut ts_type_ref.type_parameters {
+                    for param in type_parameters.params.iter_mut() {
+                        self.visit_ts_type(param);
+                    }
+                }
+
+                if let TSTypeName::IdentifierReference(identifier) = &mut ts_type_ref.type_name {
+                    let id_name = identifier.name.clone().into_string();
+                    let new_key = format!("{}_{}", target_name.clone(), id_name);
+
+                    if !self.defined_generics.contains(&id_name) {
+                        let target_ref = TargetReference {
+                            span: calc_prop_span(identifier.span, self.read_file_span),
+                            file_path: self.temp_current_read_file_path.clone(),
+                            target_supplement: gen_target_supplement(
+                                false,
+                                self.is_generic_property(),
+                            ),
+                        };
+
+                        self.add_prop_with_retry(id_name, new_key, target_ref);
+                    }
+                }
+            }
             TSType::TSTypeLiteral(ts_type_literal) => {
                 for ts_signature in ts_type_literal.members.iter_mut() {
                     self.visit_ts_signature(ts_signature);
                 }
             }
-
-            TSType::TSTypeReference(ts_type_ref) => {
-                if let TSTypeName::IdentifierReference(identifier) = &ts_type_ref.type_name {
-                    // NOTE: handle reftype exclude generic type parameters
-                    if !self.defined_generics.contains(&identifier.name.to_string()) {
-                        ts_type_assign_as_property(
-                            self.target.clone(),
-                            TargetReferenceInfo {
-                                file_path: self.temp_current_read_file_path.clone(),
-                            },
-                            self.read_file_span,
-                            ts_type,
-                            target_name.to_string(),
-                            self.defined_generics.clone(),
-                            false,
-                            self.is_generic_property(),
-                        );
-                    }
-                }
+            TSType::TSConditionalType(ts_condition_type) => {
+                self.visit_ts_type(&mut ts_condition_type.check_type);
+                self.visit_ts_type(&mut ts_condition_type.extends_type);
+                self.visit_ts_type(&mut ts_condition_type.true_type);
+                self.visit_ts_type(&mut ts_condition_type.false_type);
             }
             TSType::TSUnionType(ts_union_type) => {
-                for ts_type in ts_union_type.types.iter() {
-                    if let TSType::TSTypeReference(ty_ref) = ts_type {
-                        // exclude boolean type
-                        // if ast_utils::is_true_type(ty_ref) {
-                        //     return;
-                        // }
-                        if let TSTypeName::IdentifierReference(identifier) = &ty_ref.type_name {
-                            ts_type_assign_as_property(
-                                self.target.clone(),
-                                TargetReferenceInfo {
-                                    file_path: self.temp_current_read_file_path.clone(),
-                                },
-                                self.read_file_span,
-                                ts_type,
-                                target_name.to_string(),
-                                self.defined_generics.clone(),
-                                false,
-                                self.is_generic_property(),
-                            );
-                        }
+                for ts_type in ts_union_type.types.iter_mut() {
+                    self.visit_ts_type(ts_type);
+                }
+            }
+            TSType::TSTupleType(ts_tuple_type) => {
+                for element in ts_tuple_type.element_types.iter_mut() {
+                    self.visit_ts_type(element.to_ts_type_mut());
+                }
+            }
+            TSType::TSNamedTupleMember(ts_named_tuple_member) => {
+                match &mut ts_named_tuple_member.element_type {
+                    TSTupleElement::TSOptionalType(_) => {
+                        // &ts_named_tuple_member.element_type,
+                    }
+                    TSTupleElement::TSRestType(_) => {}
+                    mut ts_tuple_type => {
+                        self.visit_ts_type(ts_tuple_type.to_ts_type_mut());
                     }
                 }
             }
-            TSType::TSConditionalType(ts_condition_type) => {
-                ts_type_assign_as_property(
-                    self.target.clone(),
-                    TargetReferenceInfo {
-                        file_path: self.temp_current_read_file_path.clone(),
-                    },
-                    self.read_file_span,
-                    &ts_condition_type.check_type,
-                    target_name.to_string(),
-                    self.defined_generics.clone(),
-                    false,
-                    self.is_generic_property(),
-                );
-
-                ts_type_assign_as_property(
-                    self.target.clone(),
-                    TargetReferenceInfo {
-                        file_path: self.temp_current_read_file_path.clone(),
-                    },
-                    self.read_file_span,
-                    &ts_condition_type.extends_type,
-                    target_name.to_string(),
-                    self.defined_generics.clone(),
-                    false,
-                    self.is_generic_property(),
-                );
-
-                ts_type_assign_as_property(
-                    self.target.clone(),
-                    TargetReferenceInfo {
-                        file_path: self.temp_current_read_file_path.clone(),
-                    },
-                    self.read_file_span,
-                    &ts_condition_type.true_type,
-                    target_name.to_string(),
-                    self.defined_generics.clone(),
-                    false,
-                    self.is_generic_property(),
-                );
-
-                ts_type_assign_as_property(
-                    self.target.clone(),
-                    TargetReferenceInfo {
-                        file_path: self.temp_current_read_file_path.clone(),
-                    },
-                    self.read_file_span,
-                    &ts_condition_type.false_type,
-                    target_name.to_string(),
-                    self.defined_generics.clone(),
-                    false,
-                    self.is_generic_property(),
-                );
+            TSType::TSIntersectionType(ts_intersection_type) => {
+                for ts_type in ts_intersection_type.types.iter_mut() {
+                    self.visit_ts_type(ts_type);
+                }
             }
-            TSType::TSMappedType(_ts_mapped_type) => {
-                ts_type_assign_as_property(
-                    self.target.clone(),
-                    TargetReferenceInfo {
+            TSType::TSTypeQuery(ts_type_query) => {
+                if let TSTypeQueryExprName::IdentifierReference(identifier) =
+                    &ts_type_query.expr_name
+                {
+                    let new_key = format!(
+                        "{}_{}",
+                        target_name.clone(),
+                        identifier.name.clone().into_string()
+                    );
+
+                    let target_ref = TargetReference {
+                        span: calc_prop_span(identifier.span, self.read_file_span),
                         file_path: self.temp_current_read_file_path.clone(),
-                    },
-                    self.read_file_span,
-                    ts_type,
-                    target_name.to_string(),
-                    self.defined_generics.clone(),
-                    false,
-                    self.is_generic_property(),
-                );
+                        target_supplement: gen_target_supplement(false, self.is_generic_property()),
+                    };
+                    self.add_prop_with_retry(
+                        identifier.name.clone().into_string(),
+                        new_key,
+                        target_ref,
+                    );
+                }
+            }
+            TSType::TSTypeOperatorType(ts_type_operator_type) => {
+                if let TSType::TSTypeReference(ts_type_ref) = &ts_type_operator_type.type_annotation
+                {
+                    let new_key = format!("{}_{}", target_name.clone(), ts_type_ref.type_name);
+
+                    let target_ref = TargetReference {
+                        span: calc_prop_span(ts_type_ref.span, self.read_file_span),
+                        file_path: self.temp_current_read_file_path.clone(),
+                        target_supplement: gen_target_supplement(false, self.is_generic_property()),
+                    };
+
+                    self.add_prop_with_retry(
+                        ts_type_ref.type_name.to_string(),
+                        new_key,
+                        target_ref,
+                    );
+                }
+            }
+            TSType::TSIndexedAccessType(ts_indexed_access_type) => {
+                if let TSType::TSTypeReference(ts_object_type_ref) =
+                    &ts_indexed_access_type.object_type
+                {
+                    let new_key =
+                        format!("{}_{}", target_name.clone(), ts_object_type_ref.type_name);
+
+                    let target_ref = TargetReference {
+                        span: calc_prop_span(ts_indexed_access_type.span, self.read_file_span),
+                        file_path: self.temp_current_read_file_path.clone(),
+                        target_supplement: gen_target_supplement(false, self.is_generic_property()),
+                    };
+                    self.add_prop_with_retry(
+                        ts_object_type_ref.type_name.to_string(),
+                        new_key,
+                        target_ref,
+                    );
+                }
+            }
+            TSType::TSMappedType(ts_mapped_type) => {
+                if let Some(ts_type) = &mut ts_mapped_type.type_parameter.constraint {
+                    self.visit_ts_type(ts_type);
+                }
             }
             _ => {}
         }

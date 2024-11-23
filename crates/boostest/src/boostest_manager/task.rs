@@ -41,13 +41,13 @@ pub fn handle_main_task(
 
     let mut f: File = File::create(&path)?;
 
-    let intersection_bytes = include_bytes!("../boostest_generator/template/intersection.ts");
-    f.write_all(intersection_bytes)?;
-    let is_assignable_to_bytes = include_bytes!("../boostest_generator/template/isAssignableTo.ts");
-    f.write_all(is_assignable_to_bytes)?;
-    let get_union_value_to_bytes =
-        include_bytes!("../boostest_generator/template/getUnionValue.ts");
-    f.write_all(get_union_value_to_bytes)?;
+    // let intersection_bytes = include_bytes!("../boostest_generator/template/intersection.ts");
+    // f.write_all(intersection_bytes)?;
+    // let is_assignable_to_bytes = include_bytes!("../boostest_generator/template/isAssignableTo.ts");
+    // f.write_all(is_assignable_to_bytes)?;
+    // let get_union_value_to_bytes =
+    //     include_bytes!("../boostest_generator/template/getUnionValue.ts");
+    // f.write_all(get_union_value_to_bytes)?;
 
     // NOTE: if this loop change to multi-thread, the f(file) is need change to Arc<Mutex<File>>
     for main_target in main_targets {
