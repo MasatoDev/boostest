@@ -31,6 +31,7 @@ pub struct CodeGenerator<'a> {
     target_name: &'a str,
     key_name: Option<String>,
     prop_key_name: Option<String>,
+    defined_generics: Vec<String>,
     source_text: &'a str,
     allocator: &'a Allocator,
     ast_builder: AstBuilder<'a>,
@@ -48,6 +49,7 @@ impl<'a, 'b: 'a> CodeGenerator<'a> {
         func_name: &'a str,
         target_name: &'a str,
         key_name: Option<String>,
+        defined_generics: Vec<String>,
         source_text: &'a str,
         target_type: &'a TargetType,
         target_supplement: Option<TargetSupplement>,
@@ -60,6 +62,7 @@ impl<'a, 'b: 'a> CodeGenerator<'a> {
             source_text,
             target_name,
             key_name,
+            defined_generics,
             prop_key_name: None,
             target_type,
             allocator,
@@ -288,12 +291,20 @@ impl<'a> VisitMut<'a> for CodeGenerator<'a> {
             TSType::TSTypeReference(ref mut ts_type_ref) => {
                 if let TSTypeName::IdentifierReference(identifier) = &mut ts_type_ref.type_name {
                     let id_name = identifier.name.clone();
+
+                    let easy_name = format!("{}_{}", self.target_name, id_name);
+
                     let new_parent_key = match parent_key_name.clone() {
-                        Some(p_key) if p_key.is_empty() => id_name.to_string(),
+                        Some(p_key) if p_key.is_empty() => easy_name,
                         Some(p_key) => format!("{}_{}", p_key, id_name),
-                        None => id_name.to_string(),
+                        None => easy_name,
                     };
-                    identifier.name = self.ast_builder.atom(&new_parent_key);
+
+                    println!("defined_generics {:?}", self.defined_generics);
+
+                    if !self.defined_generics.contains(&id_name.to_string()) {
+                        identifier.name = self.ast_builder.atom(&new_parent_key);
+                    }
                 }
 
                 // if let Some(type_params) = &mut ts_type_ref.type_parameters {

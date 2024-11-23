@@ -25,6 +25,7 @@ pub struct TargetDefinition {
     pub file_path: PathBuf,
     pub span: Span,
     pub target_type: TargetType,
+    pub defined_generics: Vec<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -112,6 +113,12 @@ impl Target {
 
     pub fn set_target_definition(&mut self, target_definition: TargetDefinition) {
         self.target_definition = Some(target_definition);
+    }
+
+    pub fn add_generics(&mut self, word: String) {
+        if let Some(df) = &mut self.target_definition {
+            df.defined_generics.push(word);
+        }
     }
 
     pub fn add_property(

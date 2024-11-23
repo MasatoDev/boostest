@@ -148,6 +148,7 @@ fn get_code(
                 &locked_target.func_name,
                 &locked_target.name,
                 key_name,
+                target_definition.defined_generics.clone(),
                 &target_source_text,
                 &target_definition.target_type,
                 locked_target.target_reference.target_supplement.clone(),
