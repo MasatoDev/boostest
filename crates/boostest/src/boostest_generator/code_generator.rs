@@ -287,6 +287,9 @@ impl<'a> VisitMut<'a> for CodeGenerator<'a> {
         let parent_key_name = self.prop_key_name.clone();
 
         match it {
+            TSType::TSTypeReference(ty_ref) if ast_utils::is_defined_type(&ty_ref) => {}
+            TSType::TSTypeReference(ty_ref) if ast_utils::is_function_type(&ty_ref) => {}
+            TSType::TSTypeReference(ty_ref) if ast_utils::is_boolean_type(&ty_ref) => {}
             TSType::TSTypeReference(ts_type_ref) if ast_utils::is_array_type(ts_type_ref) => {}
             TSType::TSTypeReference(ref mut ts_type_ref) => {
                 if let TSTypeName::IdentifierReference(identifier) = &mut ts_type_ref.type_name {
