@@ -44,7 +44,7 @@ fn main_target_resolve(
 ) {
     let main_target = main_target.lock().unwrap();
 
-    TargetResolver::new(main_target.target.clone()).resolve(
+    TargetResolver::new(main_target.target.clone(), None).resolve(
         &ts_config_path,
         &project_root_path,
         tsserver_cache.clone(),
@@ -88,11 +88,11 @@ fn property_target_resolve(
 ) -> Result<()> {
     let property_target = property_target.lock().unwrap();
 
-    TargetResolver::new(property_target.target.clone()).resolve(
-        &ts_config_path,
-        &project_root_path,
-        tsserver_cache.clone(),
-    );
+    TargetResolver::new(
+        property_target.target.clone(),
+        property_target.key_name.clone(),
+    )
+    .resolve(&ts_config_path, &project_root_path, tsserver_cache.clone());
 
     let mut handles = vec![];
 

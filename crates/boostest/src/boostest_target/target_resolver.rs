@@ -85,6 +85,10 @@ pub struct Import {
 pub struct TargetResolver {
     pub target: Arc<Mutex<Target>>,
     pub defined_generics: Vec<String>,
+    pub key_name: Option<String>,
+    pub prop_key_name: Option<String>,
+    pub specifier: String,
+
     pub status: ResolveStatus,
     pub read_file_span: Option<Span>,
 
@@ -104,10 +108,13 @@ pub struct TargetResolver {
 }
 
 impl TargetResolver {
-    pub fn new(target: Arc<Mutex<Target>>) -> Self {
+    pub fn new(target: Arc<Mutex<Target>>, key_name: Option<String>) -> Self {
         Self {
             target,
             defined_generics: Vec::new(),
+            key_name,
+            prop_key_name: None,
+            specifier: String::new(),
             status: ResolveStatus::Nothing,
             import: Vec::new(),
             use_tsserver: false,
@@ -140,6 +147,14 @@ impl TargetResolver {
             1,
             ts_server_cache,
         );
+    }
+
+    pub fn update_prop_key_name(&mut self, key_name: String) {
+        self.prop_key_name = Some(key_name);
+    }
+
+    pub fn clear_prop_key_name(&mut self) {
+        self.prop_key_name = None;
     }
 
     pub fn add_prop_with_retry(
@@ -589,8 +604,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
     /*************************************************/
     fn visit_class(&mut self, class: &mut Class<'a>) {
         if let Some(identifier) = &class.id {
-            if self.use_tsserver || identifier.name.to_string() == self.get_decl_name_for_resolve()
-            {
+            if self.use_tsserver || identifier.name == self.get_decl_name_for_resolve() {
                 self.target
                     .lock()
                     .unwrap()
@@ -600,6 +614,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
                         file_path: self.temp_current_read_file_path.clone(),
                         target_type: TargetType::Class,
                     });
+                self.specifier = identifier.name.to_string();
                 self.status = ResolveStatus::Resolved;
 
                 self.visit_class_body(&mut class.body);
@@ -695,10 +710,35 @@ impl<'a> VisitMut<'a> for TargetResolver {
     //     }
     // }
 
+    fn visit_ts_signatures(&mut self, it: &mut AllocVec<'a, TSSignature<'a>>) {
+        for el in it.iter_mut() {
+            if self.prop_key_name.is_none() {
+                self.update_prop_key_name(self.key_name.clone().unwrap_or_default());
+                self.visit_ts_signature(el);
+                self.clear_prop_key_name();
+            } else {
+                self.clear_prop_key_name();
+                self.visit_ts_signature(el);
+            }
+        }
+    }
+
     fn visit_ts_signature(&mut self, signature: &mut TSSignature<'a>) {
+        let parent_key_name = self.prop_key_name.clone();
+
         match signature {
             TSSignature::TSPropertySignature(ts_prop_signature) => {
                 // if let Some(key_name) = ts_prop_signature.key.name() {
+                if let Some(prop_key) = ts_prop_signature.key.name() {
+                    let new_parent_key = match parent_key_name {
+                        Some(p_key) if p_key.is_empty() => prop_key.to_string(),
+                        Some(p_key) => format!("{}_{}", p_key, prop_key),
+                        None => prop_key.to_string(),
+                    };
+
+                    self.update_prop_key_name(new_parent_key.clone());
+                }
+
                 for annotation in &mut ts_prop_signature.type_annotation.iter_mut() {
                     self.visit_ts_type(&mut annotation.type_annotation);
 
@@ -725,6 +765,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
     fn visit_ts_type(&mut self, ts_type: &mut TSType<'a>) {
         // NOTE: already checked name equals target name
         let target_name = self.get_decl_name_for_resolve();
+        let parent_key_name = self.prop_key_name.clone();
 
         // NOTE: handle mock target property
         match ts_type {
@@ -741,6 +782,13 @@ impl<'a> VisitMut<'a> for TargetResolver {
 
                 if let TSTypeName::IdentifierReference(identifier) = &mut ts_type_ref.type_name {
                     let id_name = identifier.name.clone().into_string();
+
+                    let new_parent_key = match parent_key_name.clone() {
+                        Some(p_key) if p_key.is_empty() => id_name.to_string(),
+                        Some(p_key) => format!("{}_{}", p_key, id_name),
+                        None => id_name.to_string(),
+                    };
+
                     let new_key = format!("{}_{}", target_name.clone(), id_name);
 
                     if !self.defined_generics.contains(&id_name) {
@@ -753,14 +801,12 @@ impl<'a> VisitMut<'a> for TargetResolver {
                             ),
                         };
 
-                        self.add_prop_with_retry(id_name, new_key, target_ref);
+                        self.add_prop_with_retry(id_name, new_parent_key, target_ref);
                     }
                 }
             }
             TSType::TSTypeLiteral(ts_type_literal) => {
-                for ts_signature in ts_type_literal.members.iter_mut() {
-                    self.visit_ts_signature(ts_signature);
-                }
+                self.visit_ts_signatures(&mut ts_type_literal.members);
             }
             TSType::TSConditionalType(ts_condition_type) => {
                 self.visit_ts_type(&mut ts_condition_type.check_type);
@@ -884,6 +930,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
                     file_path: self.temp_current_read_file_path.clone(),
                     target_type: TargetType::TSTypeAlias,
                 });
+            self.specifier = decl.id.name.to_string();
             self.status = ResolveStatus::Resolved;
         }
     }
@@ -905,11 +952,10 @@ impl<'a> VisitMut<'a> for TargetResolver {
                     file_path: self.temp_current_read_file_path.clone(),
                     target_type: TargetType::TSInterface,
                 });
+            self.specifier = decl.id.name.to_string();
             self.status = ResolveStatus::Resolved;
 
-            for ts_signature in decl.body.body.iter_mut() {
-                self.visit_ts_signature(ts_signature);
-            }
+            self.visit_ts_signatures(&mut decl.body.body);
         }
     }
 }
