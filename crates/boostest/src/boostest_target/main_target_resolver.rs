@@ -90,7 +90,7 @@ fn property_target_resolve(
 
     TargetResolver::new(
         property_target.target.clone(),
-        property_target.key_name.clone(),
+        property_target.parent_key_name.clone(),
     )
     .resolve(&ts_config_path, &project_root_path, tsserver_cache.clone());
 

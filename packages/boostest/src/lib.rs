@@ -1,4 +1,4 @@
-use boostest::call_boostest;
+use boostest::{call_boostest, generate};
 use std::path::Path;
 
 #[macro_use]
@@ -13,4 +13,9 @@ pub fn boostest(path: String, ts_config_path: Option<String>) {
   }
 
   call_boostest(path, None);
+}
+
+#[napi]
+pub fn generatetest() -> String {
+  generate()
 }

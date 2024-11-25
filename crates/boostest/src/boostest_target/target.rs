@@ -58,7 +58,8 @@ pub struct MainTarget {
 #[derive(Debug)]
 pub struct PropertyTarget {
     pub target: Arc<Mutex<Target>>,
-    pub key_name: Option<String>,
+    pub parent_key_name: Option<String>,
+    pub key_name: String,
 }
 
 impl MainTarget {
@@ -89,7 +90,8 @@ impl PropertyTarget {
     fn new(
         mock_func_name: String,
         mock_target_name: Option<String>,
-        prop_key_name: Option<String>,
+        parent_key_name: Option<String>,
+        key_name: String,
         target_reference: TargetReference,
     ) -> Self {
         Self {
@@ -100,7 +102,8 @@ impl PropertyTarget {
                 func_name: mock_func_name.clone(),
                 ref_properties: Vec::new(),
             })),
-            key_name: prop_key_name,
+            parent_key_name,
+            key_name,
         }
     }
 }
@@ -124,13 +127,15 @@ impl Target {
     pub fn add_property(
         &mut self,
         name: String,
+        parent_key_name: Option<String>,
         key_name: String,
         target_reference: TargetReference,
     ) {
         let new_prop = PropertyTarget::new(
             self.func_name.clone(),
             Some(name),
-            Some(key_name),
+            parent_key_name,
+            key_name,
             target_reference,
         );
 

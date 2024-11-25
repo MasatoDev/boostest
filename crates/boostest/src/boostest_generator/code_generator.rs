@@ -130,6 +130,7 @@ impl<'a, 'b: 'a> CodeGenerator<'a> {
         if let Some(p_key) = &self.key_name {
             new_name = p_key.to_string();
         }
+
         new_name
     }
 }
@@ -297,6 +298,7 @@ impl<'a> VisitMut<'a> for CodeGenerator<'a> {
 
                     let easy_name = format!("{}_{}", self.target_name, id_name);
 
+                    // FIXME: 名前の処理を共通化して関数名を追加し重複を避ける
                     let new_parent_key = match parent_key_name.clone() {
                         Some(p_key) if p_key.is_empty() => easy_name,
                         Some(p_key) => format!("{}_{}", p_key, id_name),

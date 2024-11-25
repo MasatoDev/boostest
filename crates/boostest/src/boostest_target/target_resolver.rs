@@ -85,8 +85,9 @@ pub struct Import {
 pub struct TargetResolver {
     pub target: Arc<Mutex<Target>>,
     pub defined_generics: Vec<String>,
+
+    pub parent_key_name: Option<String>,
     pub key_name: Option<String>,
-    pub prop_key_name: Option<String>,
 
     pub status: ResolveStatus,
     pub read_file_span: Option<Span>,
@@ -107,12 +108,12 @@ pub struct TargetResolver {
 }
 
 impl TargetResolver {
-    pub fn new(target: Arc<Mutex<Target>>, key_name: Option<String>) -> Self {
+    pub fn new(target: Arc<Mutex<Target>>, parent_key_name: Option<String>) -> Self {
         Self {
             target,
             defined_generics: Vec::new(),
-            key_name,
-            prop_key_name: None,
+            parent_key_name,
+            key_name: None,
             status: ResolveStatus::Nothing,
             import: Vec::new(),
             use_tsserver: false,
@@ -147,17 +148,18 @@ impl TargetResolver {
         );
     }
 
-    pub fn update_prop_key_name(&mut self, key_name: String) {
-        self.prop_key_name = Some(key_name);
+    pub fn update_key_name(&mut self, key_name: String) {
+        self.key_name = Some(key_name);
     }
 
-    pub fn clear_prop_key_name(&mut self) {
-        self.prop_key_name = None;
+    pub fn clear_key_name(&mut self) {
+        self.key_name = None;
     }
 
     pub fn add_prop_with_retry(
         &mut self,
         name: String,
+        parent_key_name: String,
         key_name: String,
         target_reference: TargetReference,
     ) {
@@ -165,7 +167,7 @@ impl TargetResolver {
             loop {
                 match self.target.clone().lock() {
                     Ok(mut target) => {
-                        target.add_property(name, key_name, target_reference);
+                        target.add_property(name, key_name, key_name, target_reference);
                         break;
                     }
                     Err(_) => {

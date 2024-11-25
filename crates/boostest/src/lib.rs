@@ -114,3 +114,8 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
     }
     spinner.success("Done!");
 }
+
+pub fn generate() -> String {
+    println!("generate");
+    "hoge".to_string()
+}
