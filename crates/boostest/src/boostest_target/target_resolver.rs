@@ -31,6 +31,7 @@ use super::target::{Target, TargetDefinition, TargetReference, TargetType};
 
 use crate::boostest_manager::propety_assignment::gen_target_supplement;
 use crate::boostest_utils::buf::{source_text_from_span, utf16_span_to_utf8_span};
+use crate::boostest_utils::id_name::get_parent_key_name;
 use crate::boostest_utils::tsserver::TSServerCache;
 use crate::boostest_utils::{ast_utils, file_utils};
 
@@ -156,18 +157,27 @@ impl TargetResolver {
         self.key_name = None;
     }
 
+    pub fn get_target_name(&self) -> String {
+        self.target.clone().lock().unwrap().name.to_string()
+    }
+
     pub fn add_prop_with_retry(
         &mut self,
-        name: String,
-        parent_key_name: String,
-        key_name: String,
+        key_name: Option<String>,
+        id: String,
         target_reference: TargetReference,
     ) {
-        if !self.defined_generics.contains(&name) {
+        if !self.defined_generics.contains(&id) {
+            let target_name = self.get_target_name();
             loop {
                 match self.target.clone().lock() {
                     Ok(mut target) => {
-                        target.add_property(name, key_name, key_name, target_reference);
+                        let new_parent_key_name = get_parent_key_name(
+                            self.parent_key_name.clone(),
+                            key_name,
+                            target_name,
+                        );
+                        target.add_property(id, Some(new_parent_key_name), target_reference);
                         break;
                     }
                     Err(_) => {
@@ -655,37 +665,15 @@ impl<'a> VisitMut<'a> for TargetResolver {
         if let Some(key_name) = method.key.name() {
             if key_name == "constructor" {
                 for formal_parameter in method.value.params.items.iter_mut() {
-                    match &formal_parameter.pattern.kind {
+                    match &mut formal_parameter.pattern.kind {
                         BindingPatternKind::BindingIdentifier(id) => {
-                            if let Some(ts_type) = &formal_parameter.pattern.type_annotation {
-                                ts_type_assign_as_property(
-                                    self.target.clone(),
-                                    TargetReferenceInfo {
-                                        file_path: self.temp_current_read_file_path.clone(),
-                                    },
-                                    self.read_file_span,
-                                    &ts_type.type_annotation,
-                                    id.name.to_string(),
-                                    self.defined_generics.clone(),
-                                    false,
-                                    self.is_generic_property(),
-                                );
+                            if let Some(ts_type) = &mut formal_parameter.pattern.type_annotation {
+                                self.visit_ts_type(&mut ts_type.type_annotation);
                             }
                         }
                         BindingPatternKind::ObjectPattern(_) => {
-                            if let Some(ts_type) = &formal_parameter.pattern.type_annotation {
-                                ts_type_assign_as_property(
-                                    self.target.clone(),
-                                    TargetReferenceInfo {
-                                        file_path: self.temp_current_read_file_path.clone(),
-                                    },
-                                    self.read_file_span,
-                                    &ts_type.type_annotation,
-                                    String::from("object"),
-                                    self.defined_generics.clone(),
-                                    false,
-                                    self.is_generic_property(),
-                                );
+                            if let Some(ts_type) = &mut formal_parameter.pattern.type_annotation {
+                                self.visit_ts_type(&mut ts_type.type_annotation);
                             }
                         }
                         _ => {}
@@ -714,31 +702,22 @@ impl<'a> VisitMut<'a> for TargetResolver {
 
     fn visit_ts_signatures(&mut self, it: &mut AllocVec<'a, TSSignature<'a>>) {
         for el in it.iter_mut() {
-            if self.prop_key_name.is_none() {
-                self.update_prop_key_name(self.key_name.clone().unwrap_or_default());
+            if self.key_name.is_none() {
                 self.visit_ts_signature(el);
-                self.clear_prop_key_name();
+                self.clear_key_name();
             } else {
-                self.clear_prop_key_name();
+                self.clear_key_name();
                 self.visit_ts_signature(el);
             }
         }
     }
 
     fn visit_ts_signature(&mut self, signature: &mut TSSignature<'a>) {
-        let parent_key_name = self.prop_key_name.clone();
-
         match signature {
             TSSignature::TSPropertySignature(ts_prop_signature) => {
                 // if let Some(key_name) = ts_prop_signature.key.name() {
                 if let Some(prop_key) = ts_prop_signature.key.name() {
-                    let new_parent_key = match parent_key_name {
-                        Some(p_key) if p_key.is_empty() => prop_key.to_string(),
-                        Some(p_key) => format!("{}_{}", p_key, prop_key),
-                        None => prop_key.to_string(),
-                    };
-
-                    self.update_prop_key_name(new_parent_key.clone());
+                    self.update_key_name(prop_key.to_string());
                 }
 
                 for annotation in &mut ts_prop_signature.type_annotation.iter_mut() {
@@ -767,7 +746,6 @@ impl<'a> VisitMut<'a> for TargetResolver {
     fn visit_ts_type(&mut self, ts_type: &mut TSType<'a>) {
         // NOTE: already checked name equals target name
         let target_name = self.get_decl_name_for_resolve();
-        let parent_key_name = self.prop_key_name.clone();
 
         // NOTE: handle mock target property
         match ts_type {
@@ -785,21 +763,13 @@ impl<'a> VisitMut<'a> for TargetResolver {
                 if let TSTypeName::IdentifierReference(identifier) = &mut ts_type_ref.type_name {
                     let id_name = identifier.name.clone().into_string();
 
-                    let easy_name = format!("{}_{}", target_name.clone(), id_name);
-
-                    let new_parent_key = match parent_key_name.clone() {
-                        Some(p_key) if p_key.is_empty() => easy_name,
-                        Some(p_key) => format!("{}_{}", p_key, id_name),
-                        None => easy_name,
-                    };
-
                     let target_ref = TargetReference {
                         span: calc_prop_span(identifier.span, self.read_file_span),
                         file_path: self.temp_current_read_file_path.clone(),
                         target_supplement: gen_target_supplement(false, self.is_generic_property()),
                     };
 
-                    self.add_prop_with_retry(id_name, new_parent_key, target_ref);
+                    self.add_prop_with_retry(self.key_name.clone(), id_name, target_ref);
                 }
             }
             TSType::TSTypeLiteral(ts_type_literal) => {
@@ -841,20 +811,14 @@ impl<'a> VisitMut<'a> for TargetResolver {
                 if let TSTypeQueryExprName::IdentifierReference(identifier) =
                     &ts_type_query.expr_name
                 {
-                    let new_key = format!(
-                        "{}_{}",
-                        target_name.clone(),
-                        identifier.name.clone().into_string()
-                    );
-
                     let target_ref = TargetReference {
                         span: calc_prop_span(identifier.span, self.read_file_span),
                         file_path: self.temp_current_read_file_path.clone(),
                         target_supplement: gen_target_supplement(false, self.is_generic_property()),
                     };
                     self.add_prop_with_retry(
+                        self.key_name.clone(),
                         identifier.name.clone().into_string(),
-                        new_key,
                         target_ref,
                     );
                 }
@@ -862,8 +826,6 @@ impl<'a> VisitMut<'a> for TargetResolver {
             TSType::TSTypeOperatorType(ts_type_operator_type) => {
                 if let TSType::TSTypeReference(ts_type_ref) = &ts_type_operator_type.type_annotation
                 {
-                    let new_key = format!("{}_{}", target_name.clone(), ts_type_ref.type_name);
-
                     let target_ref = TargetReference {
                         span: calc_prop_span(ts_type_ref.span, self.read_file_span),
                         file_path: self.temp_current_read_file_path.clone(),
@@ -871,8 +833,8 @@ impl<'a> VisitMut<'a> for TargetResolver {
                     };
 
                     self.add_prop_with_retry(
+                        self.key_name.clone(),
                         ts_type_ref.type_name.to_string(),
-                        new_key,
                         target_ref,
                     );
                 }
@@ -881,17 +843,14 @@ impl<'a> VisitMut<'a> for TargetResolver {
                 if let TSType::TSTypeReference(ts_object_type_ref) =
                     &ts_indexed_access_type.object_type
                 {
-                    let new_key =
-                        format!("{}_{}", target_name.clone(), ts_object_type_ref.type_name);
-
                     let target_ref = TargetReference {
-                        span: calc_prop_span(ts_indexed_access_type.span, self.read_file_span),
+                        span: calc_prop_span(ts_object_type_ref.span, self.read_file_span),
                         file_path: self.temp_current_read_file_path.clone(),
                         target_supplement: gen_target_supplement(false, self.is_generic_property()),
                     };
                     self.add_prop_with_retry(
+                        self.key_name.clone(),
                         ts_object_type_ref.type_name.to_string(),
-                        new_key,
                         target_ref,
                     );
                 }
@@ -907,6 +866,10 @@ impl<'a> VisitMut<'a> for TargetResolver {
                     .push(ts_mapped_type.type_parameter.name.to_string());
 
                 if let Some(ts_type) = &mut ts_mapped_type.type_parameter.constraint {
+                    self.visit_ts_type(ts_type);
+                }
+
+                if let Some(ts_type) = &mut ts_mapped_type.type_annotation {
                     self.visit_ts_type(ts_type);
                 }
             }

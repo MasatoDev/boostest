@@ -35,3 +35,9 @@ ropey = "1.6.1"
 
 boostest = { version = "0.0.1", path = "./crates/boostest" }
 spinoff = "0.8.0"
+
+sha2 = "0.10"
+
+
+napi = { version = "2.12.2", default-features = false, features = ["napi4"] }
+napi-derive = "2.12.2"

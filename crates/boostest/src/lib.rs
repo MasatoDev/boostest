@@ -4,20 +4,27 @@ mod boostest_target;
 mod boostest_utils;
 
 use boostest_manager::{target_detector::TargetDetector, task::handle_main_task};
-use boostest_target::main_target_resolver::main_targets_resolve;
-use boostest_utils::{
+use boostest_target::{
+    main_target_resolver::main_targets_resolve, output::handle_output_main_task,
+};
+pub use boostest_utils::{
     file_utils,
+    napi::OutputCode,
     setting::{self, Setting},
     tsserver::TSServerCache,
 };
 use colored::*;
 use spinoff::{spinners, Color, Spinner};
 use std::{
+    collections::HashMap,
     path::Path,
     sync::{Arc, Mutex},
 };
 
-pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
+pub fn resolve_target(
+    path: String,
+    ts_config_path: Option<&Path>,
+) -> Option<HashMap<String, OutputCode>> {
     let mut spinner = Spinner::new(spinners::Dots, "Start!", Color::Blue);
 
     let mut setting = setting::get_setting().unwrap_or(Setting {
@@ -52,10 +59,12 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
 
     if contents.is_empty() {
         println!("{}", "Not found target code".red());
-        return;
+        return None;
     }
 
     let tsserver_cache = Arc::new(Mutex::new(TSServerCache::new()));
+
+    let mut result: HashMap<String, OutputCode> = HashMap::new();
 
     for (path_buf, _file) in contents {
         spinner.update(
@@ -104,18 +113,25 @@ pub fn call_boostest(path: String, ts_config_path: Option<&Path>) {
             None,
         );
 
-        if let Err(e) = handle_main_task(main_targets, path, &out_file_name) {
-            println!(
-                "{}:{}",
-                format!("failed to create test data at :{}", path.to_string_lossy()).green(),
-                e
-            );
+        let output = handle_output_main_task(main_targets, path);
+        // {
+        //     println!(
+        //         "{}:{}",
+        //         format!("failed to create test data at :{}", path.to_string_lossy()).green(),
+        //         e
+        //     );
+        // }
+        if let Some(output) = output {
+            result.extend(output);
         }
     }
     spinner.success("Done!");
+
+    Some(result)
 }
 
-pub fn generate() -> String {
-    println!("generate");
-    "hoge".to_string()
+pub fn generate(output: HashMap<String, OutputCode>) {
+    for (func_name, output_code) in output {
+        handle_main_task(output_code, func_name);
+    }
 }

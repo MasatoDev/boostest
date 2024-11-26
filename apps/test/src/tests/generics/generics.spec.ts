@@ -19,11 +19,11 @@ describe("Generics Tests", () => {
     "GenericsTypeAlias",
     boostestGenericsAliasType<GenericsTypeAlias>(),
   );
-  // runSnapshotTest("Generic", boostestGeneric<InngerPropGeneric<RefType>>());
-  // runSnapshotTest(
-  //   "GenericsInterface",
-  //   boostestGenericsInterfaceType<GenericsInterface>(),
-  // );
+  runSnapshotTest("Generic", boostestGeneric<InngerPropGeneric<RefType>>());
+  runSnapshotTest(
+    "GenericsInterface",
+    boostestGenericsInterfaceType<GenericsInterface>(),
+  );
   // runSnapshotTest(
   //   "GenericsClass",
   //   boostestGenericsTypeClass<typeof GenericsClass>(GenericsClass),

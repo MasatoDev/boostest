@@ -79,7 +79,7 @@ export type GenericsTypeAlias = {
 
 type Grade = "A" | "B" | "C" | "D" | "E";
 
-export type GenericsInterface = {
+export interface GenericsInterface {
   innserGenericInitializer: InnerGenericInitializer;
   mapperType: Butterfly;
   keyOfMapperType: KeyOfButterfly;
@@ -109,7 +109,7 @@ export type GenericsInterface = {
   // returnType: ReturnType<() => void>;
   // instanceType: InstanceType<typeof LiteralTypeClass>;
   // promise: Promise<RefType>;
-};
+}
 
 export class GenericsClass {
   constructor(

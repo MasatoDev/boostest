@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 
-import { boostest } from '../index';
-import yargs from 'yargs';
-import { hideBin } from 'yargs/helpers';
+import { OutputCode, resolve, generatetest as generate } from "../index";
+import { generateMergedType } from "./inffer";
+import yargs from "yargs";
+import { hideBin } from "yargs/helpers";
 
 // const path = process.argv[2]; // 0: node, 1: スクリプト名, 2: 引数
 // if (path) {
@@ -11,70 +12,108 @@ import { hideBin } from 'yargs/helpers';
 //   boostest('');
 // }
 
+type Output = Record<string, OutputCode>;
+
+const infferTypes = (result: Output): Output => {
+  let codeRecord: Output = {};
+
+  for (const [key, value] of Object.entries(result)) {
+    let types = generateMergedType(value.code);
+    codeRecord[key] = { code: types, path: value.path };
+  }
+
+  return codeRecord;
+};
+
 yargs(hideBin(process.argv))
-  .scriptName('')
-  .usage('ex) boostest ./target_file_path.ts -t ./tsconfig.json')
-  .option('tsconfig', {
-    alias: 't',
-    type: 'string',
-    description: 'tsconfig.json path',
+  .scriptName("")
+  .usage("ex) boostest ./target_file_path.ts -t ./tsconfig.json")
+  .option("tsconfig", {
+    alias: "t",
+    type: "string",
+    description: "tsconfig.json path",
   })
   .command(
-    '* [target_file_path]',
-    '',
+    "* [target_file_path]",
+    "",
     (yargs) => {
-      return yargs.positional('target_file_path', {
-        describe: 'Path to the target files',
-        type: 'string',
+      return yargs.positional("target_file_path", {
+        describe: "Path to the target files",
+        type: "string",
         demandOption: false,
       });
     },
     (argv) => {
-      var black = '\u001b[30m';
-      var red = '\u001b[31m';
-      var green = '\u001b[32m';
-      var yellow = '\u001b[33m';
-      var blue = '\u001b[34m';
-      var magenta = '\u001b[35m';
-      var cyan = '\u001b[36m';
-      var white = '\u001b[37m';
+      var black = "\u001b[30m";
+      var red = "\u001b[31m";
+      var green = "\u001b[32m";
+      var yellow = "\u001b[33m";
+      var blue = "\u001b[34m";
+      var magenta = "\u001b[35m";
+      var cyan = "\u001b[36m";
+      var white = "\u001b[37m";
 
-      var reset = '\u001b[0m';
+      var reset = "\u001b[0m";
 
       const path = argv.target_file_path;
       const tsconfig = argv.tsconfig;
 
       if (!path && !tsconfig) {
-        console.log(blue + 'arguments are not set.' + reset);
-        console.log(blue + 'boostest with boostest.setting.json' + reset);
-        boostest('');
+        console.log(blue + "arguments are not set." + reset);
+        console.log(blue + "boostest with boostest.setting.json" + reset);
+        let result = resolve("");
+        if (result) {
+          const output = infferTypes(result);
+          generate(output);
+        }
         return;
       }
 
       if (!path && tsconfig) {
-        console.log(blue + 'target is not set.' + reset);
-        console.log(blue + `boostest with boostest.setting.json with ${tsconfig}` + reset);
-        boostest('', tsconfig);
+        console.log(blue + "target is not set." + reset);
+        console.log(
+          blue + `boostest with boostest.setting.json with ${tsconfig}` + reset,
+        );
+        let result = resolve("", tsconfig);
+
+        if (result) {
+          const output = infferTypes(result);
+          generate(output);
+        }
         return;
       }
 
       if (path && !tsconfig) {
         console.log(blue + `target file: ${path}` + reset);
-        console.log(blue + 'tsconfig is not set.' + reset);
-        console.log(blue + 'boostest with boostest.setting.json' + reset);
-        boostest(path);
+        console.log(blue + "tsconfig is not set." + reset);
+        console.log(blue + "boostest with boostest.setting.json" + reset);
+        let result = resolve(path);
+
+        if (result) {
+          const output = infferTypes(result);
+          generate(output);
+        }
         return;
       }
 
       if (path && tsconfig) {
         console.log(blue + `target file: ${path}` + reset);
         console.log(blue + `tsconfig: ${tsconfig}` + reset);
-        boostest(path, tsconfig);
+        let result = resolve(path, tsconfig);
+        if (result) {
+          const output = infferTypes(result);
+          generate(output);
+        }
+
         return;
       }
 
-      console.error(red + 'Invalid arguments. Please check the usage with `--help`.' + reset);
-    }
+      console.error(
+        red +
+          "Invalid arguments. Please check the usage with `--help`." +
+          reset,
+      );
+    },
   )
-  .help('help')
+  .help("help")
   .parse();

@@ -44,7 +44,6 @@ impl<'a> TSTypeAliasBuilder<'a> {
         ts_type_alias: &'c mut TSTypeAliasDeclaration<'a>,
         mock_func_name: String,
         target_name: String,
-        key_name: Option<String>,
         target_supplement: Option<TargetSupplement>,
     ) -> Self {
         let ast_builder = AstBuilder::new(allocator);
@@ -53,7 +52,7 @@ impl<'a> TSTypeAliasBuilder<'a> {
         let mock_data = TypeAliasMockData {
             mock_func_name,
             target_name,
-            key_name,
+            key_name: None,
             target_supplement,
             generic: Vec::new(),
         };
