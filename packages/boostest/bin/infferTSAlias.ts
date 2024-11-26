@@ -1,6 +1,6 @@
 import ts, { Node } from "typescript";
 
-export function generateMergedType(sourceCode: string) {
+export function infferTsAlias(sourceCode: string) {
   const fileName = "example.ts";
 
   const sourceFile = ts.createSourceFile(
@@ -49,47 +49,8 @@ export function generateMergedType(sourceCode: string) {
 
   function visit(node: Node) {
     if (
-      ts.isClassDeclaration(node) &&
-      node.name?.getText().includes("boostest")
-    ) {
-      const className = node.name.getText();
-      const constructor = node.members.find(ts.isConstructorDeclaration);
-      if (constructor && constructor.parameters) {
-        const parameters = constructor.parameters.map((param) => {
-          const paramName = param.name.getText();
-          const paramType = param.type
-            ? checker.getTypeAtLocation(param.type)
-            : undefined;
-          const paramStructure = paramType
-            ? getTypeStructure(paramType)
-            : "unknown";
-          return `${paramName}: ${paramStructure}`;
-        });
-        boostestTypes.push({
-          type: "class",
-          name: className,
-          structure: `{ ${parameters.join("; ")} }`,
-        });
-      }
-    } else if (
-      ts.isInterfaceDeclaration(node) &&
-      node.name.getText().includes("boostest")
-    ) {
-      const interfaceName = node.name.getText();
-      const properties = node.members.map((member: any) => {
-        const propName = member.name.getText();
-        const propType = checker.getTypeAtLocation(member);
-        const propStructure = getTypeStructure(propType);
-        return `${propName}: ${propStructure}`;
-      });
-      boostestTypes.push({
-        type: "interface",
-        name: interfaceName,
-        structure: `{ ${properties.join("; ")} }`,
-      });
-    } else if (
       ts.isTypeAliasDeclaration(node) &&
-      node.name.getText().includes("boostest")
+      node.name.getText().includes("main")
     ) {
       const aliasName = node.name.getText();
       const type = checker.getTypeAtLocation(node);

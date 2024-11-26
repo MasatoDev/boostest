@@ -60,9 +60,15 @@ impl TargetDetector {
                 span: Span::default(),
                 target_supplement: None,
             },
+            TargetReference {
+                file_path: self.temp_target_file_path.clone(),
+                span: expr.span,
+                target_supplement: None,
+            },
         );
 
         main_target.visit_call_expression(expr);
+
         self.main_targets.push(Arc::new(Mutex::new(main_target)));
     }
 }

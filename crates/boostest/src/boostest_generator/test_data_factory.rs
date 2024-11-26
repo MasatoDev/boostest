@@ -1052,34 +1052,7 @@ pub fn get_expression<'a>(
             // TODO: Array
             function_expr(ast_builder, None, None)
         }
-        TSType::TSTypeReference(mut ts_type_ref) if ast_utils::is_array_type(&ts_type_ref) => {
-            if let Some(allocated_type_parameters) = &mut ts_type_ref.type_parameters {
-                // let mut type_parameters =
-                //     ast_builder.move_ts_type_parameter_instantiation(allocated_type_parameters);
-
-                let mut arguments = ast_builder.vec();
-
-                for parameter in allocated_type_parameters.params.iter_mut() {
-                    let arg_ts_type = ast_builder.move_ts_type(parameter);
-                    let arg_expr = get_expression(
-                        is_main_target,
-                        ast_builder,
-                        arg_ts_type,
-                        key_name,
-                        mock_func_name,
-                        false,
-                        false,
-                        generic.clone(),
-                    );
-
-                    let array_expr_ele = ast_builder.array_expression_element_expression(arg_expr);
-
-                    arguments.push(array_expr_ele);
-                }
-
-                return array_expr(ast_builder, Some(arguments));
-            }
-
+        TSType::TSTypeReference(ts_type_ref) if ast_utils::is_array_type(&ts_type_ref) => {
             array_expr(ast_builder, None)
         }
         TSType::TSTypeReference(ts_type_ref) if ast_utils::is_true_type(&ts_type_ref) => {
@@ -1311,49 +1284,24 @@ pub fn get_expression<'a>(
             ast_builder.expression_call(SPAN, new_callee, type_parameters, temp_expr, false)
         }
         TSType::TSUnionType(box_ts_union_type) => {
-            // FIXME: unionは全て配列に
-            /*
-            const getUnion = (isArray?: boolean)=>{
-              return isArray ? value:[value,value]
-            }
-            */
-            // if is_mapped_type {
-            let mut new_elements = ast_builder.vec();
-
             let ts_union_type = &mut box_ts_union_type.unbox();
-            for ts_type in ts_union_type.types.iter_mut() {
-                let new_ts_type = ast_builder.move_ts_type(ts_type);
+            let first_union_type = ts_union_type.types.first_mut();
+            if let Some(first_type) = first_union_type {
+                let ts_type = ast_builder.move_ts_type(first_type);
                 let new = get_expression(
                     false,
                     ast_builder,
-                    new_ts_type,
+                    ts_type,
                     key_name,
                     mock_func_name,
                     false,
                     false,
                     vec![],
                 );
-                let array_expr = ArrayExpressionElement::from(new);
-                new_elements.push(array_expr);
+                return new;
             }
-
-            let array_arg = array_arg(ast_builder, Some(new_elements));
-            // }
-
-            let mut arguments = ast_builder.vec();
-            arguments.push(array_arg);
-            let flag = identifier_arg(ast_builder, "isArray");
-
-            arguments.push(flag);
-
-            ref_expr(
-                ast_builder,
-                "unused key_name",
-                mock_func_name,
-                None,
-                Some(arguments),
-                Some("getUnionValue"),
-            )
+            // fallback
+            null_expr(ast_builder)
         }
         TSType::TSTupleType(ref mut ts_tuple_type) => {
             let mut new_elements = ast_builder.vec();
@@ -1828,34 +1776,7 @@ pub fn get_arg<'a>(
             // TODO: Array
             function_arg(ast_builder)
         }
-        TSType::TSTypeReference(mut ts_type_ref) if ast_utils::is_array_type(&ts_type_ref) => {
-            if let Some(allocated_type_parameters) = &mut ts_type_ref.type_parameters {
-                let mut type_parameters =
-                    ast_builder.move_ts_type_parameter_instantiation(allocated_type_parameters);
-
-                let mut arguments = ast_builder.vec();
-
-                for parameter in type_parameters.params.iter_mut() {
-                    let arg_ts_type = ast_builder.move_ts_type(parameter);
-                    let arg_expr = get_expression(
-                        is_main_target,
-                        ast_builder,
-                        arg_ts_type,
-                        key_name,
-                        mock_func_name,
-                        false,
-                        true,
-                        generic.clone(),
-                    );
-
-                    let array_expr_ele = ast_builder.array_expression_element_expression(arg_expr);
-
-                    arguments.push(array_expr_ele);
-                }
-
-                return array_arg(ast_builder, Some(arguments));
-            }
-
+        TSType::TSTypeReference(ts_type_ref) if ast_utils::is_array_type(&ts_type_ref) => {
             array_arg(ast_builder, None)
         }
         TSType::TSTypeReference(ts_type_ref) if ast_utils::is_true_type(&ts_type_ref) => {

@@ -1,7 +1,14 @@
 #!/usr/bin/env node
 
-import { OutputCode, resolve, generatetest as generate } from "../index";
-import { generateMergedType } from "./inffer";
+import {
+  OutputCode,
+  resolve,
+  generatetest as generate,
+  TargetType,
+} from "../index";
+import { infferTsAlias } from "./infferTSAlias";
+import { infferTsInterface } from "./infferTSInterface";
+import { infferClass } from "./infferClass";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
@@ -18,8 +25,28 @@ const infferTypes = (result: Output): Output => {
   let codeRecord: Output = {};
 
   for (const [key, value] of Object.entries(result)) {
-    let types = generateMergedType(value.code);
-    codeRecord[key] = { code: types, path: value.path };
+    let types;
+    console.log(value.targetType);
+    types = infferTsAlias(value.code);
+    // switch (value.targetType) {
+    //   case 0:
+    //     types = infferClass(value.code);
+    //     break;
+    //   case 1:
+    //     types = infferTsInterface(value.code);
+    //     break;
+    //   case 2:
+    //     types = infferTsAlias(value.code);
+    //     break;
+    // }
+
+    if (types) {
+      codeRecord[key] = {
+        code: types,
+        path: value.path,
+        targetType: value.targetType,
+      };
+    }
   }
 
   return codeRecord;

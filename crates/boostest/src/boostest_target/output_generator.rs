@@ -21,7 +21,6 @@ use crate::boostest_utils::id_name::get_id_with_hash;
 pub struct OutputGenerator<'a> {
     pub is_main_target: bool,
     pub specifier: &'a str,
-    pub func_name: &'a str,
     var_name: String,
     target_def_span: Span,
     target_file_path: String,
@@ -40,7 +39,6 @@ impl<'a, 'b: 'a> OutputGenerator<'a> {
         is_main_target: bool,
         allocator: &'b Allocator,
         specifier: &'a str,
-        func_name: &'a str,
         var_name: String,
         target_def_span: Span,
         target_file_path: String,
@@ -51,7 +49,6 @@ impl<'a, 'b: 'a> OutputGenerator<'a> {
         Self {
             is_main_target,
             specifier,
-            func_name,
             source_text,
             var_name,
             target_file_path,
@@ -69,6 +66,7 @@ impl<'a, 'b: 'a> OutputGenerator<'a> {
         let mut program = parser.parse().program;
 
         self.visit_statements(&mut program.body);
+
         self.code = Some(Codegen::new().build(&program).code);
     }
 }
@@ -154,15 +152,15 @@ impl<'a> VisitMut<'a> for OutputGenerator<'a> {
     fn visit_class(&mut self, class: &mut Class<'a>) {
         if let Some(identifier) = &class.id {
             if identifier.name.to_string() == self.specifier {
-                let new_name = if self.is_main_target {
-                    self.func_name.to_string()
-                } else {
-                    self.var_name.clone()
-                };
+                // let new_name = if self.is_main_target {
+                //     self.func_name.to_string()
+                // } else {
+                //     self.var_name.clone()
+                // };
 
                 class.id = Some(
                     self.ast_builder
-                        .binding_identifier(Span::default(), new_name),
+                        .binding_identifier(Span::default(), self.var_name.clone()),
                 );
 
                 walk_class(self, class);
@@ -173,15 +171,15 @@ impl<'a> VisitMut<'a> for OutputGenerator<'a> {
     // handle mock target is type alias
     fn visit_ts_type_alias_declaration(&mut self, decl: &mut TSTypeAliasDeclaration<'a>) {
         if decl.id.name.to_string() == self.specifier {
-            let new_name = if self.is_main_target {
-                self.func_name.to_string()
-            } else {
-                self.var_name.clone()
-            };
+            // let new_name = if self.is_main_target {
+            //     self.func_name.to_string()
+            // } else {
+            //     self.var_name.clone()
+            // };
 
             decl.id = self
                 .ast_builder
-                .binding_identifier(Span::default(), new_name);
+                .binding_identifier(Span::default(), self.var_name.clone());
 
             // if let Some(type_parameters) = &mut decl.type_parameters {
             //     for param in type_parameters.params.iter_mut() {
@@ -198,15 +196,15 @@ impl<'a> VisitMut<'a> for OutputGenerator<'a> {
 
     fn visit_ts_interface_declaration(&mut self, decl: &mut TSInterfaceDeclaration<'a>) {
         if decl.id.name.to_string() == self.specifier {
-            let new_name = if self.is_main_target {
-                self.func_name.to_string()
-            } else {
-                self.var_name.clone()
-            };
+            // let new_name = if self.is_main_target {
+            //     self.func_name.to_string()
+            // } else {
+            //     self.var_name.clone()
+            // };
 
             decl.id = self
                 .ast_builder
-                .binding_identifier(Span::default(), new_name);
+                .binding_identifier(Span::default(), self.var_name.clone());
 
             walk_ts_interface_declaration(self, decl);
         }

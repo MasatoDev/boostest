@@ -310,7 +310,8 @@ if (!nativeBinding) {
   throw new Error(`Failed to load native binding`)
 }
 
-const { resolve, generatetest } = nativeBinding
+const { TargetType, resolve, generatetest } = nativeBinding
 
+module.exports.TargetType = TargetType
 module.exports.resolve = resolve
 module.exports.generatetest = generatetest

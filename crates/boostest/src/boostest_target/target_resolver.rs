@@ -27,11 +27,12 @@ use super::super::boostest_manager::propety_assignment::{
 };
 use super::super::boostest_utils::{module_resolver::resolve_specifier, tsserver::tsserver};
 
-use super::target::{Target, TargetDefinition, TargetReference, TargetType};
+use super::target::{Target, TargetDefinition, TargetReference};
 
 use crate::boostest_manager::propety_assignment::gen_target_supplement;
 use crate::boostest_utils::buf::{source_text_from_span, utf16_span_to_utf8_span};
 use crate::boostest_utils::id_name::get_parent_key_name;
+use crate::boostest_utils::napi::TargetType;
 use crate::boostest_utils::tsserver::TSServerCache;
 use crate::boostest_utils::{ast_utils, file_utils};
 
@@ -722,19 +723,6 @@ impl<'a> VisitMut<'a> for TargetResolver {
 
                 for annotation in &mut ts_prop_signature.type_annotation.iter_mut() {
                     self.visit_ts_type(&mut annotation.type_annotation);
-
-                    // ts_type_assign_as_property(
-                    //     self.target.clone(),
-                    //     TargetReferenceInfo {
-                    //         file_path: self.temp_current_read_file_path.clone(),
-                    //     },
-                    //     self.read_file_span,
-                    //     &annotation.type_annotation,
-                    //     key_name.to_string(),
-                    //     self.defined_generics.clone(),
-                    //     false,
-                    //     self.is_generic_property(),
-                    // );
                 }
                 // }
             }

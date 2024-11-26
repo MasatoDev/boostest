@@ -14,7 +14,12 @@ use std::path::Path;
 use std::sync::{Arc, Mutex};
 
 pub fn handle_main_task(output: OutputCode, func_name: String) -> Result<()> {
-    let OutputCode { code, path } = output;
+    let OutputCode {
+        code,
+        path,
+        target_type,
+        ..
+    } = output;
 
     let path = Path::new(&path);
     let canonical_path = path.canonicalize()?;
@@ -44,12 +49,18 @@ pub fn handle_main_task(output: OutputCode, func_name: String) -> Result<()> {
 
     let allocator = oxc::allocator::Allocator::default();
 
-    let mut code_generator = CodeGenerator::new(true, &allocator, "", &func_name, "", &code, None);
+    let mut code_generator = CodeGenerator::new(
+        true,
+        &allocator,
+        "",
+        &func_name,
+        "",
+        &code,
+        None,
+        &target_type,
+    );
 
     code_generator.generate();
-
-    println!("\nfunc_name: {}", func_name);
-    println!("\ncode: {:?}", code_generator.code);
 
     if let Some(code) = code_generator.code {
         f.write_all(code.as_bytes())?;

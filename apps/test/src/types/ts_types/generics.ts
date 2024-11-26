@@ -13,6 +13,8 @@ class Hoge {
   }
 }
 
+export type DirctString = string;
+
 export type InngerGeneric<T> = T;
 export type InngerPropGeneric<T> = {
   name: T;

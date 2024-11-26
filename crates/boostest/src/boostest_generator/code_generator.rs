@@ -12,7 +12,8 @@ use oxc::ast::VisitMut;
 use crate::boostest_generator::class_builder::ClassBuilder;
 use crate::boostest_generator::ts_interface_builder::TSInterfaceBuilder;
 use crate::boostest_generator::ts_type_alias_builder::TSTypeAliasBuilder;
-use crate::boostest_target::target::{TargetSupplement, TargetType};
+use crate::boostest_target::target::TargetSupplement;
+use crate::boostest_utils::napi::TargetType;
 
 pub struct CodeGenerator<'a> {
     pub is_main_target: bool,
@@ -23,6 +24,7 @@ pub struct CodeGenerator<'a> {
     allocator: &'a Allocator,
     source_type: SourceType,
     target_supplement: Option<TargetSupplement>,
+    target_type: &'a TargetType,
 
     pub code: Option<String>,
 }
@@ -36,6 +38,7 @@ impl<'a, 'b: 'a> CodeGenerator<'a> {
         target_name: &'a str,
         source_text: &'a str,
         target_supplement: Option<TargetSupplement>,
+        target_type: &'a TargetType,
     ) -> Self {
         Self {
             is_main_target,
@@ -47,6 +50,7 @@ impl<'a, 'b: 'a> CodeGenerator<'a> {
             source_type: SourceType::ts(),
             code: None,
             target_supplement,
+            target_type,
         }
     }
 

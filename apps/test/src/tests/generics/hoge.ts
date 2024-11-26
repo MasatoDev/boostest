@@ -1,0 +1,15 @@
+type main =
+  ref_872be47e5e70c9c6c6f8617291d706290254a2d332186d4d16f9fdd4e6fe6edf<ref_4d3394a057fa8dff954ddc24426525af480626686d510e8ed3e71091404911a1>;
+type ref_872be47e5e70c9c6c6f8617291d706290254a2d332186d4d16f9fdd4e6fe6edf<T> = {
+  name: T;
+};
+
+type ref_4d3394a057fa8dff954ddc24426525af480626686d510e8ed3e71091404911a1 = {
+  name: string;
+  ver: number;
+  age: number;
+};
+
+type ref_872be47e5e70c9c6c6f8617291d706290254a2d332186d4d16f9fdd4e6fe6edf<T> = {
+  name: T;
+};

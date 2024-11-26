@@ -1,15 +1,17 @@
 use crate::boostest_target::target::{MainTarget, PropertyTarget, Target};
 use crate::boostest_utils::file_utils;
 use crate::boostest_utils::id_name::get_id_with_hash;
-use crate::boostest_utils::napi::OutputCode;
+use crate::boostest_utils::napi::{OutputCode, TargetType};
 
 use anyhow::Result;
 use colored::*;
+use oxc::span::Span;
 use std::collections::HashMap;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
 
 use super::output_generator::OutputGenerator;
+use super::output_main_generator::OutputMainGenerator;
 
 pub fn handle_output_main_task(
     main_targets: Vec<Arc<Mutex<MainTarget>>>,
@@ -30,13 +32,22 @@ pub fn handle_output_main_task(
         let locked_main_target = main_target.lock().unwrap();
         let target = locked_main_target.target.clone();
         let func_name = locked_main_target.target.lock().unwrap().func_name.clone();
+        let original_target_ref = locked_main_target.original_target_ref.clone();
+        drop(locked_main_target);
 
         let code = get_code(true, target.clone(), None);
+        let mut target_type = TargetType::TSTypeAlias;
 
+        if let Some(original_decl_code) =
+            get_original_code(&original_target_ref.file_path, original_target_ref.span)
+        {
+            output.push_str(&original_decl_code);
+        }
         match code {
-            Some((code, _var)) => {
+            Some((code, _var_name, tt)) => {
                 output.push_str(&code);
                 output.push_str("\n");
+                target_type = tt;
             }
             None => {
                 println!(
@@ -53,9 +64,12 @@ pub fn handle_output_main_task(
 
         write_ref_properties(target.lock().unwrap().ref_properties.clone(), &mut output);
 
+        println!("\n🎉🎉🎉🎉DDCode: {}", output);
+
         hash_map.insert(
             func_name,
             OutputCode {
+                target_type,
                 code: output,
                 path: path.to_string_lossy().to_string(),
             },
@@ -81,13 +95,13 @@ pub fn write_ref_properties(
         );
 
         match code {
-            Some((code, var_name)) => {
+            Some((code, var_name, _tt)) => {
                 if writed.contains(&var_name) {
                     continue;
                 }
 
                 output.push_str(&code);
-                output.push_str("\n");
+                output.push('\n');
                 writed.push(var_name);
             }
             None => {
@@ -125,12 +139,12 @@ fn get_code(
     is_main_target: bool,
     target: Arc<Mutex<Target>>,
     key_name: Option<String>,
-) -> Option<(String, String)> {
+) -> Option<(String, String, TargetType)> {
     let locked_target = target.lock().unwrap();
     match &locked_target.target_definition {
         Some(target_definition) => {
-            let target_source =
-                file_utils::read(&target_definition.file_path).unwrap_or(String::new());
+            let target_source = file_utils::read(&target_definition.file_path).unwrap_or_default();
+
             let target_source_text = target_definition.span.source_text(&target_source);
             let allocator = oxc::allocator::Allocator::default();
 
@@ -147,18 +161,17 @@ fn get_code(
                 is_main_target,
                 &allocator,
                 &target_definition.specifier,
-                &locked_target.func_name,
                 var_name.clone(),
-                target_definition.span.clone(),
+                target_definition.span,
                 target_definition.file_path.to_string_lossy().to_string(),
                 target_definition.defined_generics.clone(),
-                &target_source_text,
+                target_source_text,
             );
 
             code_generator.generate();
 
             if let Some(code) = code_generator.code {
-                return Some((code, var_name));
+                return Some((code, var_name, target_definition.target_type));
             }
 
             return None;
@@ -173,5 +186,29 @@ fn get_code(
             // );
         }
     }
+    None
+}
+
+fn get_original_code(file_path: &Path, span: Span) -> Option<String> {
+    let target_source = file_utils::read(file_path).unwrap_or_default();
+    let target_source_text = span.source_text(&target_source);
+
+    let allocator = oxc::allocator::Allocator::default();
+
+    let var_name = "main".to_string();
+
+    let mut code_generator = OutputMainGenerator::new(
+        &allocator,
+        span,
+        file_path.to_string_lossy().to_string(),
+        target_source_text,
+    );
+
+    code_generator.generate();
+
+    if let Some(code) = code_generator.code {
+        return Some(code);
+    }
+
     None
 }
