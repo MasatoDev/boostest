@@ -55,6 +55,8 @@ impl<'a, 'b: 'a> CodeGenerator<'a> {
     }
 
     pub fn generate(&mut self) {
+        println!("\n🎉🎉🎉🎉DDCode: {}", self.source_text);
+
         let parser = Parser::new(self.allocator, self.source_text, self.source_type);
         let mut program = parser.parse().program;
 

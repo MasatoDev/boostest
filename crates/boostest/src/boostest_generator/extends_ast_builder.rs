@@ -4,9 +4,9 @@ use oxc::{
     allocator::{self, Box},
     ast::{
         ast::{
-            Class, ClassType, FormalParameter, TSInterfaceDeclaration, TSSignature, TSType,
-            TSTypeAliasDeclaration, TSTypeAnnotation, TSTypeParameterDeclaration,
-            TSTypeParameterInstantiation,
+            Class, ClassType, FormalParameter, TSInterfaceDeclaration, TSSignature, TSTupleElement,
+            TSTupleType, TSType, TSTypeAliasDeclaration, TSTypeAnnotation,
+            TSTypeParameterDeclaration, TSTypeParameterInstantiation,
         },
         AstBuilder,
     },
@@ -29,6 +29,8 @@ pub trait AstBuilderExt<'a> {
     fn move_class<'c>(self, decl: &'c mut Class<'a>) -> Class<'a>;
 
     fn move_ts_type<'c>(self, decl: &'c mut TSType<'a>) -> TSType<'a>;
+
+    fn move_ts_tuple_element<'c>(self, decl: &'c mut TSTupleElement<'a>) -> TSTupleElement<'a>;
 
     fn move_ts_type_parameter_instantiation<'c>(
         self,
@@ -109,6 +111,15 @@ impl<'a> AstBuilderExt<'a> for AstBuilder<'a> {
     fn move_ts_type<'c>(self, ts_type: &'c mut TSType<'a>) -> TSType<'a> {
         let empty_ts_type = TSType::TSNullKeyword(self.alloc_ts_null_keyword(Span::default()));
         mem::replace(ts_type, empty_ts_type)
+    }
+
+    fn move_ts_tuple_element<'c>(
+        self,
+        ts_tuple_type: &'c mut TSTupleElement<'a>,
+    ) -> TSTupleElement<'a> {
+        let empty_ts_tuple_type =
+            TSTupleElement::TSNullKeyword(self.alloc_ts_null_keyword(Span::default()));
+        mem::replace(ts_tuple_type, empty_ts_tuple_type)
     }
 
     fn move_ts_type_parameter_instantiation<'c>(

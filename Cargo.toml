@@ -16,7 +16,7 @@ repository = "https://github.com/hoge"
 
 [workspace.dependencies]
 
-oxc = { version = "0.34.0", features = ["sourcemap", "sourcemap_concurrent"] }
+oxc = { version = "0.38.0", features = ["sourcemap", "sourcemap_concurrent"] }
 oxc_resolver = { version = "2.0.0", features = ["package_json_raw_json_api"] }
 
 clap = { version = "4.4.7", features = ["derive", "env"] }

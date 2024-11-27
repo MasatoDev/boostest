@@ -46,6 +46,11 @@ type ButterflyWithGenericsForKey<T> = {
 
 type OnDirectRefUnionType<T> = T extends SystemSupportLanguage ? T : never;
 
+const template = {
+  name: "name",
+  age: 20,
+};
+
 export type GenericsTypeAlias = {
   mapperType: Butterfly;
   keyOfMapperType: KeyOfButterfly;
@@ -66,6 +71,17 @@ export type GenericsTypeAlias = {
   pick: Pick<RefType, "name">;
   pickMulti: Pick<RefType, "ver" | "age">;
   omit: Omit<RefType, "name">;
+  classPara: GenericsClass;
+  // classPara: [
+  //   "classReference",
+  //   GenericsClass,
+  //   ConstructorParameters<typeof GenericsClass>,
+  // ];
+
+  classTypeofPara: typeof GenericsClass;
+  // classTypeofPara: ["classTypeofReference", GenericsClass];
+  // parameter: typeof template;
+
   /**********************/
   /******* FIXME: *******/
   /**********************/
@@ -114,6 +130,10 @@ export interface GenericsInterface {
 }
 
 export class GenericsClass {
+  hoge = "nuga";
+  choge = "nuga";
+  public bhoge = "nuga";
+
   constructor(
     public innserGenericInitializer: InnerGenericInitializer,
     public mapperType: Butterfly,

@@ -18,12 +18,9 @@ describe.only("Generics Tests", () => {
     boostestGenericsAliasType<GenericsTypeAlias>(),
   );
   runSnapshotTest("Generic", boostestGeneric<InngerPropGeneric<RefType>>());
-  // runSnapshotTest(
-  //   "GenericsInterface",
-  //   boostestGenericsInterfaceType<GenericsInterface>(),
-  // );
-  // runSnapshotTest(
-  //   "GenericsClass",
-  //   boostestGenericsTypeClass<typeof GenericsClass<string>>(GenericsClass),
-  // );
+  runSnapshotTest(
+    "GenericsInterface",
+    boostestGenericsInterfaceType<GenericsInterface>(),
+  );
+  runSnapshotTest("GenericsClass", boostestGenericsTypeClass<GenericsClass>());
 });

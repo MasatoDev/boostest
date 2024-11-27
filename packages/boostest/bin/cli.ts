@@ -6,9 +6,9 @@ import {
   generatetest as generate,
   TargetType,
 } from "../index";
-import { infferTsAlias } from "./infferTSAlias";
-import { infferTsInterface } from "./infferTSInterface";
-import { infferClass } from "./infferClass";
+import { inferTsAlias } from "./inferTsAlias";
+import { infferTsInterface } from "./inferTSInterface";
+import { infferClass } from "./inferClass";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 
@@ -27,7 +27,7 @@ const infferTypes = (result: Output): Output => {
   for (const [key, value] of Object.entries(result)) {
     let types;
     console.log(value.targetType);
-    types = infferTsAlias(value.code);
+    types = inferTsAlias(value.code);
     // switch (value.targetType) {
     //   case 0:
     //     types = infferClass(value.code);

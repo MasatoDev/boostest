@@ -9,9 +9,9 @@ use oxc::{
             ComputedMemberExpression, Expression, FormalParameterKind, FormalParameters,
             FunctionBody, IdentifierReference, NullLiteral, NumericLiteral, ObjectExpression,
             ObjectPropertyKind, ParenthesizedExpression, PropertyKey, PropertyKind, StringLiteral,
-            TSCallSignatureDeclaration, TSLiteral, TSMappedType, TSSignature, TSType,
-            TSTypeAnnotation, TSTypeName, TSTypeParameterDeclaration, TSTypeParameterInstantiation,
-            TSTypeQueryExprName,
+            TSCallSignatureDeclaration, TSLiteral, TSLiteralType, TSMappedType, TSSignature,
+            TSTupleElement, TSType, TSTypeAnnotation, TSTypeName, TSTypeParameterDeclaration,
+            TSTypeParameterInstantiation, TSTypeQueryExprName,
         },
         AstBuilder,
     },
@@ -444,7 +444,7 @@ fn computed_member_arg<'a>(
 //  Object.keys(user)[0];
 fn computed_object_key_member<'a>(
     ast_builder: &AstBuilder<'a>,
-    arg_expression: Expression<'a>,
+    arg: Argument<'a>,
 ) -> allocator::Box<'a, ComputedMemberExpression<'a>> {
     // Create Identifier nodes
     let object_id = ast_builder.expression_identifier_reference(SPAN, "Object");
@@ -456,7 +456,6 @@ fn computed_object_key_member<'a>(
     let static_member_expr = Expression::StaticMemberExpression(alloc_static_member_expr);
 
     // Create CallExpression node
-    let arg = ast_builder.argument_expression(arg_expression);
     let mut args = ast_builder.vec();
     args.push(arg);
 
@@ -477,7 +476,7 @@ fn computed_object_key_member<'a>(
 
 fn computed_object_full_key_member_expr<'a>(
     ast_builder: &AstBuilder<'a>,
-    arg_expression: Expression<'a>,
+    arg: Argument<'a>,
 ) -> Expression<'a> {
     // Create Identifier nodes
     let object_id = ast_builder.expression_identifier_reference(SPAN, "Object");
@@ -489,7 +488,6 @@ fn computed_object_full_key_member_expr<'a>(
     let static_member_expr = Expression::StaticMemberExpression(alloc_static_member_expr);
 
     // Create CallExpression node
-    let arg = ast_builder.argument_expression(arg_expression);
     let mut args = ast_builder.vec();
     args.push(arg);
 
@@ -500,7 +498,7 @@ fn computed_object_full_key_member_expr<'a>(
 
 fn computed_object_full_key_member_arg<'a>(
     ast_builder: &AstBuilder<'a>,
-    arg_expression: Expression<'a>,
+    arg: Argument<'a>,
 ) -> Argument<'a> {
     // Create Identifier nodes
     let object_id = ast_builder.expression_identifier_reference(SPAN, "Object");
@@ -512,7 +510,6 @@ fn computed_object_full_key_member_arg<'a>(
     let static_member_expr = Expression::StaticMemberExpression(alloc_static_member_expr);
 
     // Create CallExpression node
-    let arg = ast_builder.argument_expression(arg_expression);
     let mut args = ast_builder.vec();
     args.push(arg);
 
@@ -529,17 +526,17 @@ fn computed_object_full_key_member_arg<'a>(
 
 fn computed_object_key_member_expr<'a>(
     ast_builder: &AstBuilder<'a>,
-    arg_expression: Expression<'a>,
+    arg: Argument<'a>,
 ) -> Expression<'a> {
-    let computed_member_expression = computed_object_key_member(ast_builder, arg_expression);
+    let computed_member_expression = computed_object_key_member(ast_builder, arg);
     Expression::ComputedMemberExpression(computed_member_expression)
 }
 
 fn computed_object_key_member_arg<'a>(
     ast_builder: &AstBuilder<'a>,
-    arg_expression: Expression<'a>,
+    arg: Argument<'a>,
 ) -> Argument<'a> {
-    let computed_member_expression = computed_object_key_member(ast_builder, arg_expression);
+    let computed_member_expression = computed_object_key_member(ast_builder, arg);
     Argument::ComputedMemberExpression(computed_member_expression)
 }
 
@@ -588,7 +585,6 @@ fn union_full_member_obj_expr<'a>(
         PropertyKind::Init,
         property_key,
         value,
-        None,
         false,
         false,
         true,
@@ -837,7 +833,6 @@ pub fn get_obj_expr<'a>(
             PropertyKind::Init,
             key,
             expression,
-            None,
             false,
             false,
             false,
@@ -872,9 +867,8 @@ pub fn handle_ts_signature<'a>(
                         new_parent_key = prop_key.to_string();
                     }
 
-                    let new_key_expr =
-                        ast_builder.expression_string_literal(SPAN, prop_key.to_string());
-                    let new_prop_key = ast_builder.property_key_expression(new_key_expr);
+                    let new_prop_key =
+                        ast_builder.property_key_identifier_name(SPAN, prop_key.to_string());
 
                     match &mut ts_type_annotation.type_annotation {
                         TSType::TSTypeLiteral(ts_type_literal) => {
@@ -939,18 +933,19 @@ pub fn handle_ts_signature<'a>(
                     return None;
                 }
 
-                let key = get_expression(
-                    false,
-                    ast_builder,
-                    key_ts_type,
-                    first.name.as_str(),
-                    mock_func_name,
-                    false,
-                    false,
-                    vec![],
-                );
+                // let key = get_expression(
+                //     false,
+                //     ast_builder,
+                //     key_ts_type,
+                //     first.name.as_str(),
+                //     mock_func_name,
+                //     false,
+                //     false,
+                //     vec![],
+                // );
 
-                let new_prop_key = ast_builder.property_key_expression(key);
+                let new_prop_key =
+                    ast_builder.property_key_identifier_name(SPAN, first.name.as_str());
 
                 return Some((
                     new_prop_key,
@@ -1064,15 +1059,14 @@ pub fn get_expression<'a>(
         TSType::TSTypeReference(mut ts_type_ref) => {
             let mut ref_arguments = None;
             if is_array {
-                let true_type_expr = ast_builder.expression_boolean_literal(SPAN, true);
+                let true_literal = ast_builder.alloc_boolean_literal(SPAN, true);
                 let mut temp_ref_arguments = ast_builder.vec();
-                temp_ref_arguments.push(ast_builder.argument_expression(true_type_expr));
+                temp_ref_arguments.push(Argument::BooleanLiteral(true_literal));
                 ref_arguments = Some(temp_ref_arguments);
             } else {
-                let ref_is_array_type_expr =
-                    ast_builder.expression_identifier_reference(SPAN, "isArray");
+                let ref_is_array = ast_builder.alloc_identifier_reference(SPAN, "isArray");
                 let mut temp_ref_arguments = ast_builder.vec();
-                temp_ref_arguments.push(ast_builder.argument_expression(ref_is_array_type_expr));
+                temp_ref_arguments.push(Argument::Identifier(ref_is_array));
                 ref_arguments = Some(temp_ref_arguments);
             }
 
@@ -1275,8 +1269,8 @@ pub fn get_expression<'a>(
             temp_expr.push(false_expr);
 
             if is_array {
-                let true_type_expr = ast_builder.expression_boolean_literal(SPAN, true);
-                temp_expr.push(ast_builder.argument_expression(true_type_expr));
+                let true_literal = ast_builder.alloc_boolean_literal(SPAN, true);
+                temp_expr.push(Argument::BooleanLiteral(true_literal));
             }
 
             let new_callee = ast_builder.expression_identifier_reference(SPAN, "extendsUtil");
@@ -1304,6 +1298,80 @@ pub fn get_expression<'a>(
             null_expr(ast_builder)
         }
         TSType::TSTupleType(ref mut ts_tuple_type) => {
+            let first_element = ts_tuple_type
+                .element_types
+                .first_mut()
+                .map(|x| ast_builder.move_ts_tuple_element(x));
+            let second_element = ts_tuple_type
+                .element_types
+                .get_mut(1)
+                .map(|x| ast_builder.move_ts_tuple_element(x));
+            let third_element = ts_tuple_type
+                .element_types
+                .get_mut(2)
+                .map(|x| ast_builder.move_ts_tuple_element(x));
+
+            if let Some(TSTupleElement::TSLiteralType(first_ts_type_ref)) = first_element {
+                if let TSLiteral::StringLiteral(first_literal) = &first_ts_type_ref.literal {
+                    if let Some(TSTupleElement::TSTypeReference(second_ts_type_ref)) =
+                        second_element
+                    {
+                        if let TSTypeName::IdentifierReference(second_id) =
+                            &second_ts_type_ref.type_name
+                        {
+                            // type main = ["classReference", ClassName, ["string", number]]
+                            // return) new ClassName("string", number)
+                            if first_literal.value == "classReference" {
+                                if let Some(third_element) = third_element {
+                                    let mut arguments = ast_builder.vec();
+
+                                    if let TSTupleElement::TSTupleType(mut third_ts_tuple) =
+                                        third_element
+                                    {
+                                        for element in third_ts_tuple.element_types.iter_mut() {
+                                            let ts_type =
+                                                ast_builder.move_ts_type(element.to_ts_type_mut());
+
+                                            let new = get_arg(
+                                                false,
+                                                ast_builder,
+                                                ts_type,
+                                                key_name,
+                                                mock_func_name,
+                                                vec![],
+                                                false,
+                                            );
+                                            arguments.push(new);
+                                        }
+                                    }
+
+                                    let new_name = ast_builder.atom(&second_id.name);
+                                    let new_callee =
+                                        ast_builder.expression_identifier_reference(SPAN, new_name);
+
+                                    let type_parameters: Option<
+                                        allocator::Box<TSTypeParameterInstantiation<'a>>,
+                                    > = None;
+
+                                    return ast_builder.expression_new(
+                                        SPAN,
+                                        new_callee,
+                                        arguments,
+                                        type_parameters,
+                                    );
+                                }
+                            }
+                            // type main = ["classTypeofReference", ClassName]
+                            // return) ClassName
+                            if first_literal.value == "classTypeofReference" {
+                                let new_name = ast_builder.atom(&second_id.name);
+                                return ast_builder.expression_identifier_reference(SPAN, new_name);
+                            }
+                        }
+                    }
+                }
+            }
+
             let mut new_elements = ast_builder.vec();
             for element in ts_tuple_type.element_types.iter_mut() {
                 let ts_type = ast_builder.move_ts_type(element.to_ts_type_mut());
@@ -1350,6 +1418,7 @@ pub fn get_expression<'a>(
             )
         }
         TSType::TSNeverKeyword(_) => null_expr(ast_builder),
+        TSType::TSArrayType(ts_array_type) => array_expr(ast_builder, None),
         TSType::TSArrayType(_) => array_expr(ast_builder, None),
         TSType::TSLiteralType(literal_type) => {
             get_expr_with_ts_literal_type(ast_builder, &literal_type.literal)
@@ -1380,13 +1449,12 @@ pub fn get_expression<'a>(
             // keyof T
             if let TSType::TSTypeReference(ts_type_ref) = &ts_type_operator_type.type_annotation {
                 let new_key = format!("{}_{}", key_name, ts_type_ref.type_name);
-                let arg_expression =
-                    ref_expr(ast_builder, &new_key, mock_func_name, None, None, None);
+                let arg = ref_arg(ast_builder, &new_key, mock_func_name, None, None, None);
 
                 if is_array {
-                    return computed_object_full_key_member_expr(ast_builder, arg_expression);
+                    return computed_object_full_key_member_expr(ast_builder, arg);
                 }
-                return computed_object_key_member_expr(ast_builder, arg_expression);
+                return computed_object_key_member_expr(ast_builder, arg);
             }
             ast_builder.expression_object(SPAN, ast_builder.vec(), None)
         }
@@ -1487,10 +1555,9 @@ pub fn get_expression<'a>(
                                 allocator::Box<TSTypeParameterInstantiation<'a>>,
                             > = None;
 
-                            let true_type_expr = ast_builder.expression_boolean_literal(SPAN, true);
+                            let true_literal = ast_builder.alloc_boolean_literal(SPAN, true);
                             let mut temp_ref_arguments = ast_builder.vec();
-                            temp_ref_arguments
-                                .push(ast_builder.argument_expression(true_type_expr));
+                            temp_ref_arguments.push(Argument::BooleanLiteral(true_literal));
 
                             let object_call_expr =
                                 Argument::CallExpression(ast_builder.alloc(CallExpression {
@@ -1565,7 +1632,7 @@ pub fn get_expression<'a>(
                                     ));
                                 }
 
-                                let arg_expression_main = ref_expr(
+                                let arg_expression_main = ref_arg(
                                     ast_builder,
                                     &new_key,
                                     mock_func_name,
@@ -1704,7 +1771,6 @@ pub fn get_obj_arg<'a>(
             PropertyKind::Init,
             key,
             expression,
-            None,
             false,
             false,
             false,
@@ -1788,15 +1854,14 @@ pub fn get_arg<'a>(
         TSType::TSTypeReference(mut ts_type_ref) => {
             let mut ref_arguments = None;
             if is_array {
-                let true_type_expr = ast_builder.expression_boolean_literal(SPAN, true);
+                let true_literal = ast_builder.alloc_boolean_literal(SPAN, true);
                 let mut temp_ref_arguments = ast_builder.vec();
-                temp_ref_arguments.push(ast_builder.argument_expression(true_type_expr));
+                temp_ref_arguments.push(Argument::BooleanLiteral(true_literal));
                 ref_arguments = Some(temp_ref_arguments);
             } else {
-                let ref_is_array_type_expr =
-                    ast_builder.expression_identifier_reference(SPAN, "isArray");
+                let ref_is_array = ast_builder.alloc_identifier_reference(SPAN, "isArray");
                 let mut temp_ref_arguments = ast_builder.vec();
-                temp_ref_arguments.push(ast_builder.argument_expression(ref_is_array_type_expr));
+                temp_ref_arguments.push(Argument::Identifier(ref_is_array));
                 ref_arguments = Some(temp_ref_arguments);
             }
 
@@ -2056,7 +2121,7 @@ pub fn get_arg<'a>(
             if let TSType::TSTypeReference(ts_type_ref) = &ts_type_operator_type.type_annotation {
                 let new_key = format!("{}_{}", key_name, ts_type_ref.type_name);
                 let arg_expression =
-                    ref_expr(ast_builder, &new_key, mock_func_name, None, None, None);
+                    ref_arg(ast_builder, &new_key, mock_func_name, None, None, None);
 
                 if is_array {
                     return computed_object_full_key_member_arg(ast_builder, arg_expression);

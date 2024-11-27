@@ -12,7 +12,7 @@ use oxc::ast::ast::{
     BindingPatternKind, Class, ClassBody, ExportDefaultDeclaration, ExportDefaultDeclarationKind,
     ExportNamedDeclaration, MethodDefinition, PropertyDefinition, TSInterfaceDeclaration,
     TSModuleReference, TSSignature, TSTupleElement, TSType, TSTypeAliasDeclaration,
-    TSTypeAnnotation, TSTypeName, TSTypeQueryExprName,
+    TSTypeAnnotation, TSTypeName, TSTypeQueryExprName, VariableDeclaration, VariableDeclarator,
 };
 use oxc::ast::{
     ast::{
@@ -414,26 +414,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
                 }
 
                 Statement::VariableDeclaration(var_decl) => {
-                    var_decl.declarations.iter_mut().for_each(|decl| {
-                        match &decl.id.kind {
-                            BindingPatternKind::BindingIdentifier(id) => {
-                                if id.name == self.get_decl_name_for_resolve() {
-                                    if let Some(init) = &mut decl.init {
-                                        if let Some(identifier) = init.get_identifier_reference() {
-                                            self.set_renamed_decl(identifier.name.to_string());
-
-                                            // for tsserver
-                                            self.temp_renamed_var_decl_span = Some(calc_prop_span(
-                                                identifier.span,
-                                                self.read_file_span,
-                                            ));
-                                        }
-                                    }
-                                }
-                            }
-                            _ => {}
-                        };
-                    });
+                    self.visit_variable_declaration(var_decl);
                 }
                 Statement::TSExportAssignment(ts_export_assignment) => {
                     if let Some(identifier) =
@@ -582,26 +563,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
                     self.visit_ts_interface_declaration(decl)
                 }
                 Declaration::VariableDeclaration(var_decl) => {
-                    var_decl.declarations.iter_mut().for_each(|decl| {
-                        match &decl.id.kind {
-                            BindingPatternKind::BindingIdentifier(id) => {
-                                if id.name == self.get_decl_name_for_resolve() {
-                                    if let Some(init) = &mut decl.init {
-                                        if let Some(identifier) = init.get_identifier_reference() {
-                                            self.set_renamed_decl(identifier.name.to_string());
-
-                                            // for tsserver
-                                            self.temp_renamed_var_decl_span = Some(calc_prop_span(
-                                                identifier.span,
-                                                self.read_file_span,
-                                            ));
-                                        }
-                                    }
-                                }
-                            }
-                            _ => {}
-                        };
-                    });
+                    self.visit_variable_declaration(var_decl);
                 }
                 _ => {
                     // println!("Another Statement {:?}", export_named_decl);
@@ -863,6 +825,44 @@ impl<'a> VisitMut<'a> for TargetResolver {
             }
             _ => {}
         }
+    }
+
+    fn visit_variable_declaration(&mut self, var_decl: &mut VariableDeclaration<'a>) {
+        var_decl.declarations.iter_mut().for_each(|decl| {
+            match &decl.id.kind {
+                BindingPatternKind::BindingIdentifier(id) => {
+                    if id.name == self.get_decl_name_for_resolve() {
+                        if let Some(init) = &mut decl.init {
+                            if let Some(identifier) = init.get_identifier_reference() {
+                                self.set_renamed_decl(identifier.name.to_string());
+
+                                // for tsserver
+                                self.temp_renamed_var_decl_span =
+                                    Some(calc_prop_span(identifier.span, self.read_file_span));
+                            }
+                        }
+                    }
+                }
+                _ => {}
+            };
+            let target_name = self.get_decl_name_for_resolve();
+
+            if let Some(id) = decl.id.get_identifier() {
+                if self.use_tsserver || id == *target_name {
+                    self.target
+                        .lock()
+                        .unwrap()
+                        .set_target_definition(TargetDefinition {
+                            specifier: id.to_string(),
+                            span: calc_prop_span(var_decl.span, self.read_file_span),
+                            file_path: self.temp_current_read_file_path.clone(),
+                            target_type: TargetType::Variable,
+                            defined_generics: self.defined_generics.clone(),
+                        });
+                    self.status = ResolveStatus::Resolved;
+                }
+            }
+        });
     }
 
     // handle mock target is type alias

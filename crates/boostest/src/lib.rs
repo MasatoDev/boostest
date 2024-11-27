@@ -132,6 +132,8 @@ pub fn resolve_target(
 
 pub fn generate(output: HashMap<String, OutputCode>) {
     for (func_name, output_code) in output {
-        handle_main_task(output_code, func_name);
+        if let Err(e) = handle_main_task(output_code, func_name) {
+            println!("{}:{}", format!("failed to create test data"), e);
+        }
     }
 }

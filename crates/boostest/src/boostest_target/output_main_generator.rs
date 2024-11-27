@@ -8,7 +8,10 @@ use oxc::semantic::SemanticBuilder;
 use oxc::span::{SourceType, Span};
 
 use crate::boostest_generator::extends_ast_builder::AstBuilderExt;
-use oxc::ast::ast::{TSType, TSTypeName, TSTypeParameterDeclaration, TSTypeQueryExprName};
+use crate::boostest_utils::napi::TargetType;
+use oxc::ast::ast::{
+    Statement, TSType, TSTypeName, TSTypeParameterDeclaration, TSTypeQueryExprName,
+};
 use oxc::ast::{AstBuilder, AstKind, VisitMut};
 
 use crate::boostest_manager::propety_assignment::calc_prop_span;
@@ -16,6 +19,7 @@ use crate::boostest_utils::ast_utils;
 use crate::boostest_utils::id_name::get_id_with_hash;
 
 pub struct OutputMainGenerator<'a> {
+    target_type: TargetType,
     target_def_span: Span,
     target_file_path: String,
 
@@ -23,7 +27,7 @@ pub struct OutputMainGenerator<'a> {
     allocator: &'a Allocator,
     ast_builder: AstBuilder<'a>,
     source_type: SourceType,
-    target_type: Option<TSType<'a>>,
+    target_ts_type: Option<TSType<'a>>,
 
     renamed: bool,
 
@@ -33,6 +37,7 @@ pub struct OutputMainGenerator<'a> {
 impl<'a, 'b: 'a> OutputMainGenerator<'a> {
     pub fn new(
         allocator: &'b Allocator,
+        target_type: TargetType,
         target_def_span: Span,
         target_file_path: String,
         source_text: &'a str,
@@ -40,11 +45,12 @@ impl<'a, 'b: 'a> OutputMainGenerator<'a> {
         let ast_builder = AstBuilder::new(allocator);
         Self {
             source_text,
+            target_type,
             target_file_path,
             target_def_span,
             allocator,
             renamed: false,
-            target_type: None,
+            target_ts_type: None,
             ast_builder,
             source_type: SourceType::ts(),
             code: None,
@@ -59,26 +65,65 @@ impl<'a, 'b: 'a> OutputMainGenerator<'a> {
         self.renamed = true;
         self.visit_statements(&mut program.body);
 
-        if let Some(ts_type) = &mut self.target_type {
+        if let Some(ts_type) = &mut self.target_ts_type {
             let none_ts_type_parameter_decl: Option<
                 allocator::Box<TSTypeParameterDeclaration<'a>>,
             > = None;
-            let id = self.ast_builder.binding_identifier(Span::default(), "main");
-            let ts_type = self.ast_builder.move_ts_type(ts_type);
 
-            let ts_decl = self.ast_builder.declaration_ts_type_alias(
-                Span::default(),
-                id,
-                none_ts_type_parameter_decl,
-                ts_type,
-                false,
-            );
-            let stmt = self.ast_builder.statement_declaration(ts_decl);
-            let mut statements = self.ast_builder.vec();
+            match self.target_type {
+                // TargetType::Class => {
+                //     let constructor_parameters =
+                //         self.ast_builder.ts_type_name_identifier_reference(
+                //             Span::default(),
+                //             "ConstructorParameters",
+                //         );
+                //     let id = self.ast_builder.binding_identifier(Span::default(), "main");
+                //     let ts_type = self.ast_builder.move_ts_type(ts_type);
+                //     let mut params = self.ast_builder.vec();
+                //     params.push(ts_type);
+                //
+                //     let ts_type_parameter_instantiation = self
+                //         .ast_builder
+                //         .ts_type_parameter_instantiation(Span::default(), params);
+                //     let ts_ref_type = self.ast_builder.ts_type_type_reference(
+                //         Span::default(),
+                //         constructor_parameters,
+                //         Some(ts_type_parameter_instantiation),
+                //     );
+                //
+                //     let ts_decl = self.ast_builder.declaration_ts_type_alias(
+                //         Span::default(),
+                //         id,
+                //         none_ts_type_parameter_decl,
+                //         ts_ref_type,
+                //         false,
+                //     );
+                //     let stmt = self.ast_builder.statement_declaration(ts_decl);
+                //     let mut statements = self.ast_builder.vec();
+                //
+                //     statements.push(stmt);
+                //
+                //     program.body = statements;
+                // }
+                _ => {
+                    let id = self.ast_builder.binding_identifier(Span::default(), "main");
+                    let ts_type = self.ast_builder.move_ts_type(ts_type);
 
-            statements.push(stmt);
+                    let ts_decl = self.ast_builder.declaration_ts_type_alias(
+                        Span::default(),
+                        id,
+                        none_ts_type_parameter_decl,
+                        ts_type,
+                        false,
+                    );
+                    let stmt = Statement::from(ts_decl);
+                    let mut statements = self.ast_builder.vec();
 
-            program.body = statements;
+                    statements.push(stmt);
+
+                    program.body = statements;
+                }
+            }
         }
 
         self.code = Some(Codegen::new().build(&program).code);
@@ -93,7 +138,7 @@ impl<'a> VisitMut<'a> for OutputMainGenerator<'a> {
         if (self.renamed) {
             if let Some(first_type) = it.params.first_mut() {
                 let ts_type = self.ast_builder.move_ts_type(first_type);
-                self.target_type = Some(ts_type);
+                self.target_ts_type = Some(ts_type);
             }
         } else {
             walk_ts_type_parameter_instantiation(self, it)

@@ -6,7 +6,8 @@
 export const enum TargetType {
   Class = 0,
   TSInterface = 1,
-  TSTypeAlias = 2
+  TSTypeAlias = 2,
+  Variable = 3
 }
 export interface OutputCode {
   code: string

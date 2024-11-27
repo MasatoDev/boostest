@@ -29,42 +29,53 @@ pub fn handle_output_main_task(
     for main_target in main_targets {
         let mut output = String::new();
 
+        // locked
         let locked_main_target = main_target.lock().unwrap();
-        let target = locked_main_target.target.clone();
-        let func_name = locked_main_target.target.lock().unwrap().func_name.clone();
+        let locked_target = locked_main_target.target.lock().unwrap();
+
+        let func_name = locked_target.func_name.clone();
         let original_target_ref = locked_main_target.original_target_ref.clone();
-        drop(locked_main_target);
 
-        let code = get_code(true, target.clone(), None);
         let mut target_type = TargetType::TSTypeAlias;
+        if let Some(target_def) = &locked_target.target_definition {
+            target_type = target_def.target_type;
+        }
 
-        if let Some(original_decl_code) =
-            get_original_code(&original_target_ref.file_path, original_target_ref.span)
-        {
+        drop(locked_target);
+
+        let code = get_code(true, locked_main_target.target.clone(), None);
+
+        if let Some(original_decl_code) = get_original_code(
+            &original_target_ref.file_path,
+            original_target_ref.span,
+            target_type,
+        ) {
             output.push_str(&original_decl_code);
         }
         match code {
-            Some((code, _var_name, tt)) => {
+            Some((code, _var_name)) => {
                 output.push_str(&code);
                 output.push_str("\n");
-                target_type = tt;
             }
             None => {
                 println!(
                     "{}",
-                    format!(
-                        "failed to create test data: {} of {}",
-                        target.clone().lock().unwrap().func_name,
-                        func_name
-                    )
-                    .red()
+                    format!("failed to create test data: {}", func_name).red()
                 );
             }
         }
 
-        write_ref_properties(target.lock().unwrap().ref_properties.clone(), &mut output);
+        write_ref_properties(
+            locked_main_target
+                .target
+                .lock()
+                .unwrap()
+                .ref_properties
+                .clone(),
+            &mut output,
+        );
 
-        println!("\n🎉🎉🎉🎉DDCode: {}", output);
+        // println!("\n🎉🎉🎉🎉BEFORE: {}", output);
 
         hash_map.insert(
             func_name,
@@ -95,7 +106,7 @@ pub fn write_ref_properties(
         );
 
         match code {
-            Some((code, var_name, _tt)) => {
+            Some((code, var_name)) => {
                 if writed.contains(&var_name) {
                     continue;
                 }
@@ -139,7 +150,7 @@ fn get_code(
     is_main_target: bool,
     target: Arc<Mutex<Target>>,
     key_name: Option<String>,
-) -> Option<(String, String, TargetType)> {
+) -> Option<(String, String)> {
     let locked_target = target.lock().unwrap();
     match &locked_target.target_definition {
         Some(target_definition) => {
@@ -171,7 +182,7 @@ fn get_code(
             code_generator.generate();
 
             if let Some(code) = code_generator.code {
-                return Some((code, var_name, target_definition.target_type));
+                return Some((code, var_name));
             }
 
             return None;
@@ -189,7 +200,7 @@ fn get_code(
     None
 }
 
-fn get_original_code(file_path: &Path, span: Span) -> Option<String> {
+fn get_original_code(file_path: &Path, span: Span, target_type: TargetType) -> Option<String> {
     let target_source = file_utils::read(file_path).unwrap_or_default();
     let target_source_text = span.source_text(&target_source);
 
@@ -199,6 +210,7 @@ fn get_original_code(file_path: &Path, span: Span) -> Option<String> {
 
     let mut code_generator = OutputMainGenerator::new(
         &allocator,
+        target_type,
         span,
         file_path.to_string_lossy().to_string(),
         target_source_text,
