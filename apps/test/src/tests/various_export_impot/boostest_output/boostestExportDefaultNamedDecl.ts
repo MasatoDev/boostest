@@ -14,7 +14,7 @@ export function boostestExportDefaultNamedDecl<T>(args?: Partial<T>): T {
 				name: "Pringles Sour Cream & Onion 😀",
 				price: 200
 			},
-			func: {},
+			func: () => {},
 			undefinedKey: undefined,
 			anyKey: "any",
 			nullKey: null,
@@ -40,7 +40,7 @@ export function boostestExportDefaultNamedDecl<T>(args?: Partial<T>): T {
 		...args
 	} as T;
 }
-type main_output_target = { name: string; chips: { name: string; age: number; sex: 1 | 2; short_name: "john" | "doe"; favorite: { name: "Calbee Lightly Salted"; price: 120 } | { name: "Koikeya Pride Potato"; price: 150 }; mostFav: { name: "Pringles Sour Cream & Onion 😀"; price: 200 }; func: {  }; undefinedKey: undefined; anyKey: any; nullKey: null; optionalKey: string; unknownKey: unknown; thisKey: {  }; conditionalKey: { name: "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔"; price: 250 }; objectKey: object; voidKey: void; indexedKey: string; intersectionKey: { name: "Lay's Classic"; price: 130 } & { taste: string }; arrayKey: Array<ref_d0e0b50e67f90f23aa09ea002ded975a35d19e554975e0ab57bc3c9dd06f7f5d> } }; // Extracted from typeAlias
+type main_output_target = { name: string; chips: { name: string; age: number; sex: 1 | 2; short_name: "john" | "doe"; favorite: { name: "Calbee Lightly Salted"; price: 120 } | { name: "Koikeya Pride Potato"; price: 150 }; mostFav: { name: "Pringles Sour Cream & Onion 😀"; price: 200 }; func: () => void; undefinedKey: undefined; anyKey: any; nullKey: null; optionalKey: string; unknownKey: unknown; thisKey: {  }; conditionalKey: { name: "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔"; price: 250 }; objectKey: object; voidKey: void; indexedKey: string; intersectionKey: { name: "Lay's Classic"; price: 130 } & { taste: string }; arrayKey: Array<ref_d0e0b50e67f90f23aa09ea002ded975a35d19e554975e0ab57bc3c9dd06f7f5d> } }; // Extracted from typeAlias
 
 type main = ref_81f5bdbe24e05d53a145737b3a1d92b95a27f256587bbae28cc1ac7172f0490c;
 interface ref_81f5bdbe24e05d53a145737b3a1d92b95a27f256587bbae28cc1ac7172f0490c {

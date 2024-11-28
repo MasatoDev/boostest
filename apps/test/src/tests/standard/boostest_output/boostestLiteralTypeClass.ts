@@ -1,5 +1,5 @@
 export function boostestLiteralTypeClass<T>(isArray = false) {
-	return new ref_2bacd2e9f6e0cfbd088fd5dd2a5217e3e2a4f8bb1dd644ce29145895a2f13477("test string data", 10, 9007199254740991n, false, null, undefined, "any", undefined, {}, null, {}, [], {
+	return new ref_2bacd2e9f6e0cfbd088fd5dd2a5217e3e2a4f8bb1dd644ce29145895a2f13477("test string data", 10, 9007199254740991n, false, null, undefined, "any", undefined, {}, null, () => {}, [], {
 		name: "test string data",
 		ver: 10,
 		age: 10
@@ -57,7 +57,7 @@ type main_output_target = ["classReference", ref_2bacd2e9f6e0cfbd088fd5dd2a5217e
   unknown,
   object,
   void,
-  {  },
+  () => void,
   Array<string>,
   { name: string; ver: number; age: number },
   string | number,

@@ -1,12 +1,16 @@
 export function boostestFormDataVisitorHelpers<T>(args?: Partial<T>): T {
 	return {
 		defaultVisitor: {},
-		convertValue: {},
-		isVisitable: {},
+		convertValue: (value: any) => {
+			return "any";
+		},
+		isVisitable: (value: any) => {
+			return true;
+		},
 		...args
 	} as T;
 }
-type main_output_target = { defaultVisitor: {  }; convertValue: {  }; isVisitable: {  } }; // Extracted from typeAlias
+type main_output_target = { defaultVisitor: {  }; convertValue: (value: any) => any; isVisitable: (value: any) => boolean }; // Extracted from typeAlias
 
 type main = ref_36d6b89940033f902950482ec659cacf32c7dfc6e082fe987e3ac9f12875736d;
 interface ref_36d6b89940033f902950482ec659cacf32c7dfc6e082fe987e3ac9f12875736d {

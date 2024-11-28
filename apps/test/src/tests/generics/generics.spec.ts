@@ -17,10 +17,10 @@ describe("Generics Tests", () => {
     "GenericsTypeAlias",
     boostestGenericsAliasType<GenericsTypeAlias>(),
   );
-  // runSnapshotTest("Generic", boostestGeneric<InngerPropGeneric<RefType>>());
-  // runSnapshotTest(
-  //   "GenericsInterface",
-  //   boostestGenericsInterfaceType<GenericsInterface>(),
-  // );
-  // runSnapshotTest("GenericsClass", boostestGenericsTypeClass<GenericsClass>());
+  runSnapshotTest("Generic", boostestGeneric<InngerPropGeneric<RefType>>());
+  runSnapshotTest(
+    "GenericsInterface",
+    boostestGenericsInterfaceType<GenericsInterface>(),
+  );
+  runSnapshotTest("GenericsClass", boostestGenericsTypeClass<GenericsClass>());
 });

@@ -38,7 +38,6 @@ function removeDuplicateDeclarations(code: string) {
 
 export function inferTsAlias(sourceCode: string) {
   const code = removeDuplicateDeclarations(sourceCode);
-  console.log("🎉🎉🎉", code);
 
   const fileName = "example.ts";
 
@@ -105,7 +104,12 @@ export function inferTsAlias(sourceCode: string) {
         if (constructor) {
           constructor.parameters.forEach((param) => {
             const paramType = checker.getTypeAtLocation(param);
-            const paramStructure = getTypeStructure(paramType);
+            let paramStructure = getTypeStructure(paramType);
+
+            if (param.type?.kind === ts.SyntaxKind.FunctionType) {
+              paramStructure = param.type.getText();
+            }
+
             constructorArgTypes.push(paramStructure);
           });
         }
@@ -128,9 +132,17 @@ export function inferTsAlias(sourceCode: string) {
         // const declaration = prop.valueDeclaration || prop.declarations?.[0];
         // if (!declaration) continue;
         const propType = checker.getTypeOfSymbol(prop);
+        let propStructure = getTypeStructure(propType);
+
+        let hoge = prop.valueDeclaration;
+        if (hoge?.kind === ts.SyntaxKind.PropertySignature) {
+          let type = (hoge as ts.PropertySignature).type;
+          if (type?.kind === ts.SyntaxKind.FunctionType) {
+            propStructure = type.getText();
+          }
+        }
 
         // const propType = checker.getTypeOfSymbolAtLocation(prop, declaration);
-        const propStructure = getTypeStructure(propType);
         result.push(`${prop.name}: ${propStructure}`);
       }
       return `{ ${result.join("; ")} }`;
@@ -197,14 +209,12 @@ export function inferTsAlias(sourceCode: string) {
   return `${output}\n\n${code}`;
 }
 
-// const code = `
-//
-// type hogetuple = [1,2,3]
-//
-// type main = {
-//  hoge: hogetuple
-//  muga: [string, number]
-// }
-//
-// `;
-// console.log(inferTsAlias(code));
+const code = `
+type main = ref_da030cb1de29fad61c37c573b32ed30449df12e581bcac6a0e0bfc342f06a0d6;
+class ref_da030cb1de29fad61c37c573b32ed30449df12e581bcac6a0e0bfc342f06a0d6 {
+
+    constructor(hoge: () => void) { }
+}
+
+`;
+console.log(inferTsAlias(code));
