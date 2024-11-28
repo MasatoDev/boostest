@@ -24,6 +24,7 @@ use std::{
 pub fn resolve_target(
     path: String,
     ts_config_path: Option<&Path>,
+    lib_file_path: &Path,
 ) -> Option<HashMap<String, OutputCode>> {
     let mut spinner = Spinner::new(spinners::Dots, "Start!", Color::Blue);
 
@@ -102,6 +103,7 @@ pub fn resolve_target(
             &setting.tsconfig,
             &setting.project_root_path,
             tsserver_cache.clone(),
+            &lib_file_path.to_path_buf(),
         );
 
         spinner.update(

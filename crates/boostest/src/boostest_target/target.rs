@@ -98,6 +98,11 @@ impl MainTarget {
         loop {
             match self.target.clone().lock() {
                 Ok(mut target) => {
+                    //NOTE:  Prevent duplicate addition of main target
+                    if target.name == id {
+                        break;
+                    }
+
                     let target_ref = TargetReference {
                         span,
                         file_path: target.target_reference.file_path.clone(),

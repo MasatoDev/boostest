@@ -1,10 +1,17 @@
-import { PotatoChip, CalbeeLightlySalted, KoikeyaPridePotato, PringlesSourCreamAndOnion, KettleBrandSeaSaltAndVinegar, LayClassic } from './chips';
+import {
+  PotatoChip,
+  CalbeeLightlySalted,
+  KoikeyaPridePotato,
+  PringlesSourCreamAndOnion,
+  KettleBrandSeaSaltAndVinegar,
+  LayClassic,
+} from "./chips";
 
 export type ComplexChipsType = {
   name: string;
   age: number;
   sex: 1 | 2;
-  short_name: 'john' | 'doe';
+  short_name: "john" | "doe";
   favorite: CalbeeLightlySalted | KoikeyaPridePotato;
   mostFav: PringlesSourCreamAndOnion;
   func: () => void;
@@ -14,10 +21,12 @@ export type ComplexChipsType = {
   optionalKey?: string;
   unknownKey: unknown;
   thisKey: ThisType<LayClassic>;
-  conditionalKey: CalbeeLightlySalted extends PotatoChip ? KettleBrandSeaSaltAndVinegar : false;
+  conditionalKey: CalbeeLightlySalted extends PotatoChip
+    ? KettleBrandSeaSaltAndVinegar
+    : false;
   objectKey: object;
   voidKey: void;
-  indexedKey: PotatoChip['name'];
-  intersectionKey: LayClassic & KoikeyaPridePotato;
+  indexedKey: PotatoChip["name"];
+  intersectionKey: LayClassic & { taste: string };
   arrayKey: PotatoChip[];
 };

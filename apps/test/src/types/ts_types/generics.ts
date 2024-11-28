@@ -13,8 +13,6 @@ class Hoge {
   }
 }
 
-export type DirctString = string;
-
 export type InngerGeneric<T> = T;
 export type InngerPropGeneric<T> = {
   name: T;
@@ -46,42 +44,32 @@ type ButterflyWithGenericsForKey<T> = {
 
 type OnDirectRefUnionType<T> = T extends SystemSupportLanguage ? T : never;
 
-const template = {
-  name: "name",
-  age: 20,
-};
+type Test = [string, number, boolean, string];
+type Test2 = [1, 2, 3, 4, 5, 6];
 
 export type GenericsTypeAlias = {
-  mapperType: Butterfly;
-  keyOfMapperType: KeyOfButterfly;
-  innserGenericInitializer: InnerGenericInitializer;
-  butterflyWithGenerics: ButterflyWithGenerics<string>;
-  nonNullable: NonNullable<undefined | string | null>;
-  nestedPartial: {
-    childPartial: Partial<RefType>;
-  };
-  partial: Partial<RefType>;
-  required: Required<RefType>;
-  readonly: Readonly<RefType>;
-  extract: Extract<"A" | "B" | "C" | "D" | "E", "D" | "E">;
-  extractRefUnion: Extract<SystemSupportLanguage, "en" | "fr">;
-  exclude: Exclude<Grade, "A">;
-  onDirectRefUnionType: OnDirectRefUnionType<"fr">;
-  array: Array<string>;
-  pick: Pick<RefType, "name">;
-  pickMulti: Pick<RefType, "ver" | "age">;
-  omit: Omit<RefType, "name">;
-  classPara: GenericsClass;
-  // classPara: [
-  //   "classReference",
-  //   GenericsClass,
-  //   ConstructorParameters<typeof GenericsClass>,
-  // ];
-
-  classTypeofPara: typeof GenericsClass;
-  // classTypeofPara: ["classTypeofReference", GenericsClass];
-  // parameter: typeof template;
-
+  test: Test;
+  test2: Test2;
+  // mapperType: Butterfly;
+  // keyOfMapperType: KeyOfButterfly;
+  // innserGenericInitializer: InnerGenericInitializer;
+  // butterflyWithGenerics: ButterflyWithGenerics<string>;
+  // nonNullable: NonNullable<undefined | string | null>;
+  // nestedPartial: {
+  //   childPartial: Partial<RefType>;
+  // };
+  // partial: Partial<RefType>;
+  // required: Required<RefType>;
+  // readonly: Readonly<RefType>;
+  // extract: Extract<"A" | "B" | "C" | "D" | "E", "D" | "E">;
+  // extractRefUnion: Extract<SystemSupportLanguage, "en" | "fr">;
+  // exclude: Exclude<Grade, "A">;
+  // onDirectRefUnionType: OnDirectRefUnionType<"fr">;
+  // array: Array<string>;
+  // pick: Pick<RefType, "name">;
+  // pickMulti: Pick<RefType, "ver" | "age">;
+  // omit: Omit<RefType, "name">;
+  // intersectionType: RefType & { name: string; age: number };
   /**********************/
   /******* FIXME: *******/
   /**********************/
@@ -97,7 +85,7 @@ export type GenericsTypeAlias = {
 
 type Grade = "A" | "B" | "C" | "D" | "E";
 
-export interface GenericsInterface {
+export type GenericsInterface = {
   innserGenericInitializer: InnerGenericInitializer;
   mapperType: Butterfly;
   keyOfMapperType: KeyOfButterfly;
@@ -127,13 +115,9 @@ export interface GenericsInterface {
   // returnType: ReturnType<() => void>;
   // instanceType: InstanceType<typeof LiteralTypeClass>;
   // promise: Promise<RefType>;
-}
+};
 
 export class GenericsClass {
-  hoge = "nuga";
-  choge = "nuga";
-  public bhoge = "nuga";
-
   constructor(
     public innserGenericInitializer: InnerGenericInitializer,
     public mapperType: Butterfly,

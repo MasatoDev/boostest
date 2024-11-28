@@ -1,13 +1,4 @@
 import { runSnapshotTest } from "../utils";
-import {
-  boostestFormDataVisitorHelpers,
-  boostestResponseType,
-  boostestRequest,
-  boostestResponse,
-  boostestHandler,
-  boostestParamHandler,
-  // boostestSendGrid,
-} from "./outer_packages.spec_test_data";
 
 import { FormDataVisitorHelpers, SerializerVisitor } from "axios";
 import type {
@@ -17,6 +8,12 @@ import type {
   RequestParamHandler,
 } from "express";
 import { ClientResponse } from "@sendgrid/mail";
+import { boostestRequest } from "./boostest_output/boostestRequest";
+import { boostestResponse } from "./boostest_output/boostestResponse";
+import { boostestHandler } from "./boostest_output/boostestHandler";
+import { boostestParamHandler } from "./boostest_output/boostestParamHandler";
+import { boostestResponseType } from "./boostest_output/boostestResponseType";
+import { boostestFormDataVisitorHelpers } from "./boostest_output/boostestFormDataVisitorHelpers";
 
 describe("Outer package Tests", () => {
   runSnapshotTest(

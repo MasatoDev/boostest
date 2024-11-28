@@ -1,11 +1,4 @@
 import { runSnapshotTest } from "../utils";
-import {
-  boostestTSAliasMixUnionObjType,
-  boostestTSAliasMixUnionType,
-  boostestTSAliasStringUnionType,
-  boostestTSInterfaceMixUnionType,
-  boostestTSInterfaceStringUnionType,
-} from "./union.spec_test_data";
 
 /**
  *
@@ -21,6 +14,11 @@ import {
   TSInterfaceMixUnionType,
   TSInterfaceStringUnionType,
 } from "../../types/ts_types/union";
+import { boostestTSAliasMixUnionType } from "./boostest_output/boostestTSAliasMixUnionType";
+import { boostestTSAliasStringUnionType } from "./boostest_output/boostestTSAliasStringUnionType";
+import { boostestTSInterfaceMixUnionType } from "./boostest_output/boostestTSInterfaceMixUnionType";
+import { boostestTSInterfaceStringUnionType } from "./boostest_output/boostestTSInterfaceStringUnionType";
+import { boostestTSAliasMixUnionObjType } from "./boostest_output/boostestTSAliasMixUnionObjType";
 
 describe("Union Tests", () => {
   runSnapshotTest(

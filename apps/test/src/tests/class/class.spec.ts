@@ -6,25 +6,15 @@ import {
   InnerConstructorSignature,
   ConstructorSignatureInterface,
 } from "../../types/ts_types/constructor_signature";
-
-import {
-  boostestArgObjClass,
-  boostestArgObjClass2,
-  // boostestCallSignatureInterface,
-  boostestConstructorSignature,
-  boostestInnerConstructorSignature,
-  boostestConstructorSignatureInterface,
-} from "./class.spec_test_data";
+import { boostestArgObjClass } from "./boostest_output/boostestArgObjClass";
+import { boostestArgObjClass2 } from "./boostest_output/boostestArgObjClass2";
+import { boostestConstructorSignature } from "./boostest_output/boostestConstructorSignature";
+import { boostestInnerConstructorSignature } from "./boostest_output/boostestInnerConstructorSignature";
+import { boostestConstructorSignatureInterface } from "./boostest_output/boostestConstructorSignatureInterface";
 
 describe("Class Tests", () => {
-  runSnapshotTest(
-    "ArgObjClass",
-    boostestArgObjClass<typeof ArgObjClass>(ArgObjClass),
-  );
-  runSnapshotTest(
-    "ArgObjClass2",
-    boostestArgObjClass2<typeof ArgObjClass2>(ArgObjClass2),
-  );
+  runSnapshotTest("ArgObjClass", boostestArgObjClass<ArgObjClass>());
+  runSnapshotTest("ArgObjClass2", boostestArgObjClass2<ArgObjClass2>());
 
   // FIXME:CallSignatureInterface
   // runSnapshotTest(

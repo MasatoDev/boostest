@@ -55,7 +55,7 @@ impl<'a, 'b: 'a> CodeGenerator<'a> {
     }
 
     pub fn generate(&mut self) {
-        println!("\n🎉🎉🎉🎉DDCode: {}", self.source_text);
+        // println!("\n🎉🎉🎉🎉DDCode: {}", self.source_text);
 
         let parser = Parser::new(self.allocator, self.source_text, self.source_type);
         let mut program = parser.parse().program;
@@ -83,7 +83,10 @@ impl<'a, 'b: 'a> CodeGenerator<'a> {
             self.target_supplement.clone(),
         );
 
-        self.code = Some(ts_type_alias_builder.generate_code(self.source_type));
+        let mut generated_code = ts_type_alias_builder.generate_code(self.source_type);
+        generated_code.push_str(self.source_text);
+
+        self.code = Some(generated_code);
     }
 
     fn gen_class<'c>(&mut self, class: &'c mut Class<'a>) {
@@ -172,24 +175,24 @@ impl<'a> VisitMut<'a> for CodeGenerator<'a> {
     /*************************************************/
     /*************************************************/
 
-    fn visit_class(&mut self, class: &mut Class<'a>) {
-        if let Some(identifier) = &class.id {
-            // if identifier.name.to_string() == self.specifier {
-            self.gen_class(class);
-            // }
-        }
-    }
+    // fn visit_class(&mut self, class: &mut Class<'a>) {
+    //     if let Some(identifier) = &class.id {
+    //         // if identifier.name.to_string() == self.specifier {
+    //         self.gen_class(class);
+    //         // }
+    //     }
+    // }
 
     // handle mock target is type alias
     fn visit_ts_type_alias_declaration(&mut self, decl: &mut TSTypeAliasDeclaration<'a>) {
-        // if decl.id.name.to_string() == self.specifier {
-        self.gen_ts_alias(decl);
-        // }
+        if decl.id.name == "main_output_target" {
+            self.gen_ts_alias(decl);
+        }
     }
 
-    fn visit_ts_interface_declaration(&mut self, decl: &mut TSInterfaceDeclaration<'a>) {
-        // if decl.id.name.to_string() == self.specifier {
-        self.gen_ts_interface(decl);
-        // }
-    }
+    // fn visit_ts_interface_declaration(&mut self, decl: &mut TSInterfaceDeclaration<'a>) {
+    //     // if decl.id.name.to_string() == self.specifier {
+    //     self.gen_ts_interface(decl);
+    //     // }
+    // }
 }

@@ -63,6 +63,7 @@ pub fn tsserver(
     target_name: &str,
     ts_server_cache: Arc<Mutex<TSServerCache>>,
 ) -> Option<(PathBuf, Span)> {
+    println!("☠️☠️☠️☠️ inner tsserver");
     let mut locked_cache = ts_server_cache.lock().unwrap();
 
     if let Some(definition) = locked_cache.get_definition(target_name) {

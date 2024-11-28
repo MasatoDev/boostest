@@ -1,8 +1,44 @@
 import ts, { Node } from "typescript";
-import { removeDuplicateDeclarations } from "./removeDeplicate";
+import { check } from "yargs";
+
+function removeDuplicateDeclarations(code: string) {
+  const sourceFile = ts.createSourceFile(
+    "temp.ts",
+    code,
+    ts.ScriptTarget.Latest,
+    true,
+  );
+
+  const seenDeclarations = new Set(); // 重複チェック用のセット
+  const uniqueStatements: Node[] = []; // ユニークなステートメントを保持
+
+  // ASTノードを解析
+  sourceFile.statements.forEach((node) => {
+    if (ts.isTypeAliasDeclaration(node) || ts.isClassDeclaration(node)) {
+      const key = node.getText(); // ノードの完全なテキストをキーとして保存
+      if (!seenDeclarations.has(key)) {
+        seenDeclarations.add(key);
+        uniqueStatements.push(node);
+      }
+    } else {
+      uniqueStatements.push(node); // その他のノードはそのまま追加
+    }
+  });
+
+  // ユニークなコードに変換
+  const printer = ts.createPrinter();
+  const result = uniqueStatements
+    .map((statement) =>
+      printer.printNode(ts.EmitHint.Unspecified, statement, sourceFile),
+    )
+    .join("\n");
+
+  return result;
+}
 
 export function inferTsAlias(sourceCode: string) {
   const code = removeDuplicateDeclarations(sourceCode);
+  console.log("🎉🎉🎉", code);
 
   const fileName = "example.ts";
 
@@ -82,7 +118,11 @@ export function inferTsAlias(sourceCode: string) {
       return type.types.map((t) => getTypeStructure(t)).join(" | ");
     } else if (type.isIntersection()) {
       return type.types.map((t) => getTypeStructure(t)).join(" & ");
-    } else if (isObjectType(type)) {
+    }
+    // else if (checker.isTupleType(type)) {
+    //   return checker.typeToString(type);
+    // }
+    else if (isObjectType(type)) {
       const result = [];
       for (const prop of type.getProperties()) {
         // const declaration = prop.valueDeclaration || prop.declarations?.[0];
@@ -109,6 +149,7 @@ export function inferTsAlias(sourceCode: string) {
 
       let structure: string;
 
+      // WARN: 分岐必要？
       if (isClassType(type)) {
         // クラス参照の場合
         structure = getTypeStructure(type);
@@ -117,8 +158,7 @@ export function inferTsAlias(sourceCode: string) {
         structure = getTypeStructure(type);
       } else {
         // その他の型
-        const typeStructure = getTypeStructure(type);
-        structure = typeStructure;
+        structure = getTypeStructure(type);
       }
 
       boostestTypes.push({
@@ -147,8 +187,24 @@ export function inferTsAlias(sourceCode: string) {
   visit(sourceFile);
 
   const output = boostestTypes
-    .map((t) => `type ${t.name} = ${t.structure}; // Extracted from ${t.type}`)
+    .map(
+      (t) =>
+        `type ${t.name}_output_target = ${t.structure}; // Extracted from ${t.type}`,
+    )
     .join("\n");
 
-  return output;
+  // console.log("🎉🎉🎉", `${output}\n\n${code}`);
+  return `${output}\n\n${code}`;
 }
+
+// const code = `
+//
+// type hogetuple = [1,2,3]
+//
+// type main = {
+//  hoge: hogetuple
+//  muga: [string, number]
+// }
+//
+// `;
+// console.log(inferTsAlias(code));

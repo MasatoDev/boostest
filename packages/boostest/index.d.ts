@@ -14,5 +14,5 @@ export interface OutputCode {
   targetType: TargetType
   path: string
 }
-export declare function resolve(path: string, tsConfigPath?: string | undefined | null): Record<string, OutputCode> | null
+export declare function resolve(path: string, libFilePath: string, tsConfigPath?: string | undefined | null): Record<string, OutputCode> | null
 export declare function generatetest(output: Record<string, OutputCode>): void

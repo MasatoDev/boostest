@@ -13,6 +13,7 @@ pub fn main_targets_resolve(
     ts_config_path: &Option<PathBuf>,
     project_root_path: &Option<PathBuf>,
     tsserver_cache: Arc<Mutex<TSServerCache>>,
+    lib_file_path: &PathBuf,
 ) {
     let mut handles = vec![];
     for main_target in main_targets {
@@ -20,6 +21,7 @@ pub fn main_targets_resolve(
         let cloned_ts_config_path = ts_config_path.clone();
         let cloned_project_root_path = project_root_path.clone();
         let cloned_tsserver_cache = tsserver_cache.clone();
+        let cloned_lib_file_path = lib_file_path.clone();
 
         let handle = thread::spawn(move || {
             main_target_resolve(
@@ -27,6 +29,7 @@ pub fn main_targets_resolve(
                 cloned_ts_config_path,
                 cloned_project_root_path,
                 cloned_tsserver_cache,
+                cloned_lib_file_path,
             );
         });
         handles.push(handle);
@@ -41,6 +44,7 @@ fn main_target_resolve(
     ts_config_path: Option<PathBuf>,
     project_root_path: Option<PathBuf>,
     tsserver_cache: Arc<Mutex<TSServerCache>>,
+    lib_file_path: PathBuf,
 ) {
     let main_target = main_target.lock().unwrap();
 
@@ -48,6 +52,7 @@ fn main_target_resolve(
         &ts_config_path,
         &project_root_path,
         tsserver_cache.clone(),
+        &lib_file_path,
     );
 
     let mut handles = vec![];
@@ -61,6 +66,7 @@ fn main_target_resolve(
         let cloned_ts_config_path = ts_config_path.clone();
         let cloned_project_root_path = project_root_path.clone();
         let cloned_tsserver_cache = tsserver_cache.clone();
+        let cloned_lib_file_path = lib_file_path.clone();
 
         let handle = thread::spawn(move || {
             if let Err(e) = property_target_resolve(
@@ -68,6 +74,7 @@ fn main_target_resolve(
                 cloned_ts_config_path,
                 cloned_project_root_path,
                 cloned_tsserver_cache,
+                cloned_lib_file_path,
             ) {
                 println!("[Error] main_target_resolve: {}", e);
             }
@@ -85,6 +92,7 @@ fn property_target_resolve(
     ts_config_path: Option<PathBuf>,
     project_root_path: Option<PathBuf>,
     tsserver_cache: Arc<Mutex<TSServerCache>>,
+    lib_file_path: PathBuf,
 ) -> Result<()> {
     let property_target = property_target.lock().unwrap();
 
@@ -92,7 +100,12 @@ fn property_target_resolve(
         property_target.target.clone(),
         property_target.parent_key_name.clone(),
     )
-    .resolve(&ts_config_path, &project_root_path, tsserver_cache.clone());
+    .resolve(
+        &ts_config_path,
+        &project_root_path,
+        tsserver_cache.clone(),
+        &lib_file_path,
+    );
 
     let mut handles = vec![];
 
@@ -105,6 +118,7 @@ fn property_target_resolve(
         let cloned_ts_config_path = ts_config_path.clone();
         let cloned_project_root_path = project_root_path.clone();
         let cloned_tsserver_cache = tsserver_cache.clone();
+        let cloned_lib_file_path = lib_file_path.clone();
 
         let handle = thread::spawn(move || {
             if let Err(e) = property_target_resolve(
@@ -112,6 +126,7 @@ fn property_target_resolve(
                 cloned_ts_config_path,
                 cloned_project_root_path,
                 cloned_tsserver_cache,
+                cloned_lib_file_path,
             ) {
                 println!("[Error] property_target_resolve: {}", e);
             }

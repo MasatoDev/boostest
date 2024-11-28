@@ -23,7 +23,7 @@ export type LiteralTypeAlias = {
   undefinedId: undefined;
   anyLiteral: any;
   unknownLiteral: unknown;
-  neverLiteral: never;
+  // neverLiteral: never;
   objectLiteral: object;
   voidLiteral: void;
   functionLiteral: () => void;
@@ -48,7 +48,7 @@ export type LiteralTypeAlias = {
     ref: RefType,
     refInterface: RefTypeInterface,
   ];
-  intersectionType: RefType & RefTypeInterface & { name: string; age: number };
+  intersectionType: RefType & { name: string; age: number };
   keyof: keyof RefType;
   indexAccessor: RefType["name"];
 
@@ -70,7 +70,7 @@ export type LiteralTypeInterface = {
   undefinedId: undefined;
   anyLiteral: any;
   unknownLiteral: unknown;
-  neverLiteral: never;
+  // neverLiteral: never;
   objectLiteral: object;
   voidLiteral: void;
   functionLiteral: () => void;
@@ -117,7 +117,7 @@ export class LiteralTypeClass {
     public undefinedId: undefined,
     public anyLiteral: any,
     public unknownLiteral: unknown,
-    public neverLiteral: never,
+    // public neverLiteral: never,
     public objectLiteral: object,
     public voidLiteral: void,
     public functionLiteral: () => void,

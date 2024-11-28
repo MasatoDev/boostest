@@ -11,6 +11,13 @@ import { infferTsInterface } from "./inferTSInterface";
 import { infferClass } from "./inferClass";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
+import ts from "typescript";
+import path from "path";
+
+const newFileName = "lib.es5.d.ts";
+let defaultLibFilePath = ts.getDefaultLibFilePath({} as ts.CompilerOptions);
+// WARN: Maybe es5 or higher is needed.
+const libFilePath = path.join(path.dirname(defaultLibFilePath), newFileName);
 
 // const path = process.argv[2]; // 0: node, 1: スクリプト名, 2: 引数
 // if (path) {
@@ -26,7 +33,6 @@ const infferTypes = (result: Output): Output => {
 
   for (const [key, value] of Object.entries(result)) {
     let types;
-    console.log(value.targetType);
     types = inferTsAlias(value.code);
     // switch (value.targetType) {
     //   case 0:
@@ -88,7 +94,7 @@ yargs(hideBin(process.argv))
       if (!path && !tsconfig) {
         console.log(blue + "arguments are not set." + reset);
         console.log(blue + "boostest with boostest.setting.json" + reset);
-        let result = resolve("");
+        let result = resolve("", libFilePath);
         if (result) {
           const output = infferTypes(result);
           generate(output);
@@ -101,7 +107,7 @@ yargs(hideBin(process.argv))
         console.log(
           blue + `boostest with boostest.setting.json with ${tsconfig}` + reset,
         );
-        let result = resolve("", tsconfig);
+        let result = resolve("", libFilePath, tsconfig);
 
         if (result) {
           const output = infferTypes(result);
@@ -114,7 +120,7 @@ yargs(hideBin(process.argv))
         console.log(blue + `target file: ${path}` + reset);
         console.log(blue + "tsconfig is not set." + reset);
         console.log(blue + "boostest with boostest.setting.json" + reset);
-        let result = resolve(path);
+        let result = resolve(path, libFilePath);
 
         if (result) {
           const output = infferTypes(result);
@@ -126,7 +132,7 @@ yargs(hideBin(process.argv))
       if (path && tsconfig) {
         console.log(blue + `target file: ${path}` + reset);
         console.log(blue + `tsconfig: ${tsconfig}` + reset);
-        let result = resolve(path, tsconfig);
+        let result = resolve(path, libFilePath, tsconfig);
         if (result) {
           const output = infferTypes(result);
           generate(output);

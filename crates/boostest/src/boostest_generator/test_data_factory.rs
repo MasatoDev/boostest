@@ -27,6 +27,49 @@ use crate::boostest_utils::ast_utils::get_generic_prefix;
 use super::super::boostest_utils::ast_utils;
 use super::extends_ast_builder::AstBuilderExt;
 
+pub fn handle_tuple_type<'a>(
+    ast_builder: &AstBuilder<'a>,
+    members: &mut allocator::Vec<'a, TSSignature<'a>>,
+) -> Option<TSType<'a>> {
+    let mut tuple_length = None;
+
+    if let Some(TSSignature::TSPropertySignature(last)) = members.last_mut() {
+        if let PropertyKey::StaticIdentifier(id) = &last.key {
+            if id.to_string() == "length" {
+                if let Some(type_annotation) = &last.type_annotation {
+                    if let TSType::TSLiteralType(ts_literal_type) = &type_annotation.type_annotation
+                    {
+                        if let TSLiteral::NumericLiteral(numeric_literal) = &ts_literal_type.literal
+                        {
+                            tuple_length = Some(numeric_literal.value as usize);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if let Some(length) = tuple_length {
+        let (tuple_elements, _) = members.split_at_mut(length);
+        let mut element_types = ast_builder.vec();
+
+        for tuple_ele in tuple_elements.iter_mut() {
+            if let TSSignature::TSPropertySignature(ts_prop_signature) = tuple_ele {
+                if let Some(ts_type_annotation) = &mut ts_prop_signature.type_annotation {
+                    let ts_type = ast_builder.move_ts_type(&mut ts_type_annotation.type_annotation);
+                    let ele_type = TSTupleElement::from(ts_type);
+                    println!("ele_type: {:?}", ele_type);
+
+                    element_types.push(ele_type);
+                }
+            }
+        }
+
+        return Some(ast_builder.ts_type_tuple_type(SPAN, element_types));
+    }
+    None
+}
+
 pub fn is_ts_type_literal(ts_type: &TSType) -> bool {
     match ts_type {
         TSType::TSTypeLiteral(_) => true,
@@ -213,7 +256,7 @@ fn bigint_literal<'a>(
     raw: Option<&Atom<'a>>,
     base: Option<BigintBase>,
 ) -> BigIntLiteral<'a> {
-    let fallback_atom = ast_builder.atom("9007199254740991");
+    let fallback_atom = ast_builder.atom("9007199254740991n");
     let r = raw.unwrap_or(&fallback_atom);
     let b = base.unwrap_or(BigintBase::Decimal);
     ast_builder.big_int_literal(SPAN, r, b)
@@ -223,7 +266,7 @@ pub fn bigint_expr<'a>(
     raw: Option<&Atom<'a>>,
     base: Option<BigintBase>,
 ) -> Expression<'a> {
-    let fallback_atom = ast_builder.atom("9007199254740991");
+    let fallback_atom = ast_builder.atom("9007199254740991n");
     let r = raw.unwrap_or(&fallback_atom);
     let b = base.unwrap_or(BigintBase::Decimal);
     ast_builder.expression_big_int_literal(SPAN, r, b)
@@ -1005,6 +1048,19 @@ pub fn handle_ts_signatures<'a>(
 ) -> Expression<'a> {
     let mut props_expr: Vec<(PropertyKey, Expression)> = Vec::new();
 
+    if let Some(ts_tuple_type) = handle_tuple_type(ast_builder, ts_signatures) {
+        return get_expression(
+            is_main_target,
+            ast_builder,
+            ts_tuple_type,
+            &parent_key_name.unwrap_or_default(),
+            mock_func_name,
+            false,
+            false,
+            generic,
+        );
+    }
+
     for member in ts_signatures.iter_mut() {
         if let Some((key, expr)) = handle_ts_signature(
             is_main_target,
@@ -1311,10 +1367,10 @@ pub fn get_expression<'a>(
                 .get_mut(2)
                 .map(|x| ast_builder.move_ts_tuple_element(x));
 
-            if let Some(TSTupleElement::TSLiteralType(first_ts_type_ref)) = first_element {
+            if let Some(TSTupleElement::TSLiteralType(first_ts_type_ref)) = &first_element {
                 if let TSLiteral::StringLiteral(first_literal) = &first_ts_type_ref.literal {
                     if let Some(TSTupleElement::TSTypeReference(second_ts_type_ref)) =
-                        second_element
+                        &second_element
                     {
                         if let TSTypeName::IdentifierReference(second_id) =
                             &second_ts_type_ref.type_name
@@ -1372,6 +1428,25 @@ pub fn get_expression<'a>(
                 }
             }
 
+            // back
+            if let Some(mut first_element) = first_element {
+                if let Some(first) = ts_tuple_type.element_types.get_mut(0) {
+                    std::mem::swap(first, &mut first_element);
+                }
+            }
+
+            if let Some(mut second_element) = second_element {
+                if let Some(second) = ts_tuple_type.element_types.get_mut(1) {
+                    std::mem::swap(second, &mut second_element);
+                }
+            }
+
+            if let Some(mut third_element) = third_element {
+                if let Some(third) = ts_tuple_type.element_types.get_mut(2) {
+                    std::mem::swap(third, &mut third_element);
+                }
+            }
+
             let mut new_elements = ast_builder.vec();
             for element in ts_tuple_type.element_types.iter_mut() {
                 let ts_type = ast_builder.move_ts_type(element.to_ts_type_mut());
@@ -1407,6 +1482,7 @@ pub fn get_expression<'a>(
         TSType::TSTypeLiteral(ref mut ts_type_literal) => {
             // {name: string, age: number}
             // { x: number; y: number; }`
+
             handle_ts_signatures(
                 is_main_target,
                 ast_builder,
@@ -1418,7 +1494,6 @@ pub fn get_expression<'a>(
             )
         }
         TSType::TSNeverKeyword(_) => null_expr(ast_builder),
-        TSType::TSArrayType(ts_array_type) => array_expr(ast_builder, None),
         TSType::TSArrayType(_) => array_expr(ast_builder, None),
         TSType::TSLiteralType(literal_type) => {
             get_expr_with_ts_literal_type(ast_builder, &literal_type.literal)
@@ -1426,24 +1501,25 @@ pub fn get_expression<'a>(
         TSType::TSSymbolKeyword(_) => symbol_expr(ast_builder),
         TSType::TSIntersectionType(ref mut ts_intersection_type) => {
             let mut temp_expr = ast_builder.vec();
+
             for ts_type in ts_intersection_type.types.iter_mut() {
                 let new_ts_type = ast_builder.move_ts_type(ts_type);
-                let expr = get_arg(
+                let expr = get_expression(
                     false,
                     ast_builder,
                     new_ts_type,
                     key_name,
                     mock_func_name,
-                    generic.clone(),
                     false,
+                    false,
+                    vec![],
                 );
-
-                temp_expr.push(expr);
+                let spread_expr = ast_builder.alloc_spread_element(SPAN, expr);
+                let obj_prop_expr = ObjectPropertyKind::SpreadProperty(spread_expr);
+                temp_expr.push(obj_prop_expr);
             }
 
-            let new_callee = ast_builder.expression_identifier_reference(SPAN, "intersectionUtil");
-            let type_parameters: Option<allocator::Box<TSTypeParameterInstantiation<'a>>> = None;
-            ast_builder.expression_call(SPAN, new_callee, type_parameters, temp_expr, false)
+            ast_builder.expression_object(SPAN, temp_expr, None)
         }
         TSType::TSTypeOperatorType(ts_type_operator_type) => {
             // keyof T
@@ -1800,6 +1876,18 @@ pub fn handle_ts_signatures_with_args<'a>(
 ) -> Argument<'a> {
     let mut props_expr: Vec<(PropertyKey, Expression)> = Vec::new();
 
+    if let Some(ts_tuple_type) = handle_tuple_type(ast_builder, ts_signatures) {
+        return get_arg(
+            is_main_target,
+            ast_builder,
+            ts_tuple_type,
+            &parent_key.unwrap_or_default(),
+            mock_func_name,
+            generic,
+            false,
+        );
+    }
+
     for member in ts_signatures.iter_mut() {
         if let Some((key, expr)) = handle_ts_signature(
             is_main_target,
@@ -2071,32 +2159,27 @@ pub fn get_arg<'a>(
         }
         TSType::TSIntersectionType(ref mut ts_intersection_type) => {
             let mut temp_expr = ast_builder.vec();
+
             for ts_type in ts_intersection_type.types.iter_mut() {
                 let new_ts_type = ast_builder.move_ts_type(ts_type);
-                let expr = get_arg(
+                let expr = get_expression(
                     false,
                     ast_builder,
                     new_ts_type,
                     key_name,
                     mock_func_name,
-                    generic.clone(),
                     false,
+                    false,
+                    vec![],
                 );
-
-                temp_expr.push(expr);
+                let spread_expr = ast_builder.alloc_spread_element(SPAN, expr);
+                let obj_prop_expr = ObjectPropertyKind::SpreadProperty(spread_expr);
+                temp_expr.push(obj_prop_expr);
             }
 
-            let new_callee = ast_builder.expression_identifier_reference(SPAN, "intersectionUtil");
-            let type_parameters: Option<allocator::Box<TSTypeParameterInstantiation<'a>>> = None;
-
-            Argument::CallExpression(ast_builder.alloc(CallExpression {
-                span: SPAN,
-                callee: new_callee,
-                arguments: temp_expr,
-                optional: false,
-                type_parameters,
-            }))
+            object_arg(ast_builder, Some(temp_expr))
         }
+
         TSType::TSLiteralType(literal_type) => {
             get_arg_with_ts_literal_type(ast_builder, &literal_type.literal)
         }

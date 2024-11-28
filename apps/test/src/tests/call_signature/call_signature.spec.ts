@@ -1,10 +1,4 @@
 import { runSnapshotTest } from "../utils";
-import {
-  boostestCallSignature,
-  boostestMathOperations,
-  boostestSingleCallSignature,
-  boostestCallSignatureInterface,
-} from "./call_signature.spec_test_data";
 
 import {
   CallSignature,
@@ -12,6 +6,10 @@ import {
   SingleCallSignature,
   CallSignatureInterface,
 } from "../../types/ts_types/call_signature";
+import { boostestCallSignature } from "./boostest_output/boostestCallSignature";
+import { boostestCallSignatureInterface } from "./boostest_output/boostestCallSignatureInterface";
+import { boostestSingleCallSignature } from "./boostest_output/boostestSingleCallSignature";
+import { boostestMathOperations } from "./boostest_output/boostestMathOperations";
 
 describe("Call Signature Tests", () => {
   runSnapshotTest("CallSignature", boostestCallSignature<CallSignature>());

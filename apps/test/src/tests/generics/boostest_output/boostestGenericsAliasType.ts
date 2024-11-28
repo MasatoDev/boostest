@@ -1,112 +1,40 @@
 export function boostestGenericsAliasType<T>(args?: Partial<T>): T {
 	return {
-		mapperType: {
-			en: "test string data",
-			fr: "test string data",
-			it: "test string data",
-			es: "test string data"
-		},
-		keyOfMapperType: {
-			name: "test string data",
-			ver: 10,
-			age: 10
-		},
-		innserGenericInitializer: {
-			name: "test string data",
-			innerGeneric: {
-				name: "test string data",
-				ver: 10,
-				age: 10
-			},
-			innerGenericLiteral: "inner generic string"
-		},
-		butterflyWithGenerics: {
-			en: "test string data",
-			fr: "test string data",
-			it: "test string data",
-			es: "test string data"
-		},
-		nonNullable: "test string data",
-		nestedPartial: { childPartial: {
-			name: "test string data",
-			ver: 10,
-			age: 10
-		} },
-		partial: {
-			name: "test string data",
-			ver: 10,
-			age: 10
-		},
-		required: {
-			name: "test string data",
-			ver: 10,
-			age: 10
-		},
-		readonly: {
-			name: "test string data",
-			ver: 10,
-			age: 10
-		},
-		extract: "D",
-		extractRefUnion: "en",
-		exclude: "B",
-		onDirectRefUnionType: "fr",
-		array: [],
-		pick: { name: "test string data" },
-		pickMulti: {
-			ver: 10,
-			age: 10
-		},
-		omit: {
-			ver: 10,
-			age: 10
-		},
-		classPara: new ref_377f51049605d4fe5bda230264c1c02fe5284ee5242be203e84b2fb5fb18d898({
-			name: "test string data",
-			innerGeneric: {
-				name: "test string data",
-				ver: 10,
-				age: 10
-			},
-			innerGenericLiteral: "inner generic string"
-		}, {
-			en: "test string data",
-			fr: "test string data",
-			it: "test string data",
-			es: "test string data"
-		}, {
-			name: "test string data",
-			ver: 10,
-			age: 10
-		}, {
-			en: "test string data",
-			fr: "test string data",
-			it: "test string data",
-			es: "test string data"
-		}, "test string data", { childPartial: {
-			name: "test string data",
-			ver: 10,
-			age: 10
-		} }, {
-			name: "test string data",
-			ver: 10,
-			age: 10
-		}, {
-			name: "test string data",
-			ver: 10,
-			age: 10
-		}, {
-			name: "test string data",
-			ver: 10,
-			age: 10
-		}, "D", "en", "B", "fr", [], { name: "test string data" }, {
-			ver: 10,
-			age: 10
-		}, {
-			ver: 10,
-			age: 10
-		}),
-		classTypeofPara: ref_e1c3a06427f37cb210bd941647a9657fd9d48d3186083497b312942024557f1b,
+		test: [
+			"test string data",
+			10,
+			false,
+			"test string data"
+		],
+		test2: [
+			1,
+			2,
+			3,
+			4,
+			5,
+			6
+		],
 		...args
 	} as T;
 }
+type main_output_target = { test: { 0: string; 1: number; 2: false | true; 3: string; length: 4 }; test2: { 0: 1; 1: 2; 2: 3; 3: 4; 4: 5; 5: 6; length: 6 } }; // Extracted from typeAlias
+
+type main = ref_4d3e12e5e81ad3f012aca19b7998b9c0f1d1958311ce19e72cd19fcddb5c7b93;
+type ref_4d3e12e5e81ad3f012aca19b7998b9c0f1d1958311ce19e72cd19fcddb5c7b93 = {
+    test: ref_f6e105c1f0c50c759be10703d9e4f4c00af0bed195bdff135b518808a03c1584;
+    test2: ref_3e4a2b86d886257ece72893972fc949b34ec0882910788e1b6f7cd4b94c0ff73;
+};
+type ref_f6e105c1f0c50c759be10703d9e4f4c00af0bed195bdff135b518808a03c1584 = [
+    string,
+    number,
+    boolean,
+    string
+];
+type ref_3e4a2b86d886257ece72893972fc949b34ec0882910788e1b6f7cd4b94c0ff73 = [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+];

@@ -5,15 +5,17 @@ use oxc::ast::visit::walk_mut::{
 };
 use oxc::codegen::Codegen;
 use oxc::parser::Parser;
-use oxc::span::{SourceType, Span};
+use oxc::span::{SourceType, Span, SPAN};
 
 use oxc::ast::ast::{
     Class, ExportDefaultDeclaration, ExportDefaultDeclarationKind, ExportNamedDeclaration,
-    TSInterfaceDeclaration, TSType, TSTypeAliasDeclaration, TSTypeAnnotation, TSTypeName,
+    Expression, TSInterfaceDeclaration, TSType, TSTypeAliasDeclaration, TSTypeAnnotation,
+    TSTypeName, TSTypeParameterInstantiation,
 };
 use oxc::ast::ast::{Declaration, Statement};
 use oxc::ast::{AstBuilder, VisitMut};
 
+use crate::boostest_generator::extends_ast_builder::AstBuilderExt;
 use crate::boostest_manager::propety_assignment::calc_prop_span;
 use crate::boostest_target::target::TargetSupplement;
 use crate::boostest_utils::ast_utils::{self, ignore_ref_name};
@@ -154,6 +156,19 @@ impl<'a> VisitMut<'a> for OutputGenerator<'a> {
 
             walk_ts_interface_declaration(self, decl);
         }
+
+        if let Some(extends) = &mut decl.extends {
+            for extend in extends.iter_mut() {
+                if let Expression::Identifier(id) = &mut extend.expression {
+                    let id_name = id.name.clone().into_string();
+
+                    let span = calc_prop_span(id.span, Some(self.target_def_span));
+                    let var_name = get_id_with_hash(self.target_file_path.clone(), span);
+
+                    id.name = self.ast_builder.atom(&var_name);
+                }
+            }
+        }
     }
 
     fn visit_ts_type_name(&mut self, it: &mut TSTypeName<'a>) {
@@ -174,54 +189,35 @@ impl<'a> VisitMut<'a> for OutputGenerator<'a> {
         walk_ts_type_name(self, it);
     }
 
-    // fn visit_ts_type(&mut self, it: &mut TSType<'a>) {
-    //     match it {
-    //         TSType::TSTypeReference(ty_ref) if ast_utils::is_defined_type(&ty_ref) => {}
-    //         TSType::TSTypeReference(ty_ref) if ast_utils::is_function_type(&ty_ref) => {}
-    //         TSType::TSTypeReference(ty_ref) if ast_utils::is_boolean_type(&ty_ref) => {}
-    //         TSType::TSTypeReference(ts_type_ref) if ast_utils::is_array_type(ts_type_ref) => {}
-    //         TSType::TSTypeReference(ref mut ts_type_ref) => {
-    //             if let TSTypeName::IdentifierReference(identifier) = &mut ts_type_ref.type_name {
-    //                 let id_name = identifier.name.clone();
-    //
-    //                 if !self.defined_generics.contains(&id_name.to_string()) {
-    //                     let span = calc_prop_span(identifier.span, Some(self.target_def_span));
-    //                     let var_name = get_id_with_hash(self.target_file_path.clone(), span);
-    //
-    //                     identifier.name = self.ast_builder.atom(&var_name);
-    //                 }
-    //             }
-    //
-    //             // if let Some(type_params) = &mut ts_type_ref.type_parameters {
-    //             //     for param in type_params.params.iter_mut() {
-    //             //
-    //             //
-    //             //
-    //             //         if let TSType::TSTypeReference(ref mut ts_type_ref) = param {
-    //             //             if let TSTypeName::IdentifierReference(identifier) =
-    //             //                 &mut ts_type_ref.type_name
-    //             //             {
-    //             //                 let id_name = identifier.name.clone();
-    //             //
-    //             //                 let new_parent_key = match parent_key_name.clone() {
-    //             //                     Some(p_key) if p_key.is_empty() => id_name.to_string(),
-    //             //                     Some(p_key) => format!("{}_{}", p_key, id_name),
-    //             //                     None => id_name.to_string(),
-    //             //                 };
-    //             //
-    //             //                 println!("main_key_name {:?}", main_key_name);
-    //             //                 println!("parent_key_name {:?}", parent_key_name);
-    //             //
-    //             //                 identifier.name = self.ast_builder.atom(&new_parent_key);
-    //             //             }
-    //             //         }
-    //             //     }
-    //             // }
-    //         }
-    //         // ts_type_literal.members = ts_signatures;
-    //         _ => {}
-    //     };
-    //
-    //     walk_ts_type(self, it);
-    // }
+    fn visit_ts_type(&mut self, it: &mut TSType<'a>) {
+        let mut new_ts_type: Option<TSType> = None;
+
+        match it {
+            TSType::TSArrayType(ts_array_type) => {
+                let new_element_ts_type = self
+                    .ast_builder
+                    .move_ts_type(&mut ts_array_type.element_type);
+                let new_name = self
+                    .ast_builder
+                    .ts_type_name_identifier_reference(SPAN, "Array");
+                let mut params = self.ast_builder.vec();
+                params.push(new_element_ts_type);
+                let ts_type_parameter_instantiation = self
+                    .ast_builder
+                    .ts_type_parameter_instantiation(SPAN, params);
+
+                new_ts_type = Some(self.ast_builder.ts_type_type_reference(
+                    SPAN,
+                    new_name,
+                    Some(ts_type_parameter_instantiation),
+                ));
+            }
+            _ => {}
+        };
+
+        if let Some(new_ts_type) = new_ts_type {
+            *it = new_ts_type;
+        }
+        walk_ts_type(self, it);
+    }
 }
