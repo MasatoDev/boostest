@@ -3,5 +3,5 @@ export function boostestTsTypeLiteralBoolean<T>(isArray = false) {
 }
 type main_output_target = false | true; // Extracted from typeAlias
 
-type main = ref_6a9ed2da12c73a64c9e2001f638152f8a3757d857fd7f5dafd4914b240ae1c61;
-type ref_6a9ed2da12c73a64c9e2001f638152f8a3757d857fd7f5dafd4914b240ae1c61 = boolean;
+type main = ref_4888e81c723f2b24050d21f94137c26501544ab8d465019e0e39fbec956aab90;
+type ref_4888e81c723f2b24050d21f94137c26501544ab8d465019e0e39fbec956aab90 = boolean;

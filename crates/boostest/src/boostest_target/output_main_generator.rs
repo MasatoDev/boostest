@@ -1,3 +1,5 @@
+use std::sync::{Arc, Mutex};
+
 use oxc::allocator::{self, Allocator};
 use oxc::ast::visit::walk_mut::{
     walk_call_expression, walk_ts_type, walk_ts_type_parameter_instantiation,
@@ -18,7 +20,10 @@ use crate::boostest_manager::propety_assignment::calc_prop_span;
 use crate::boostest_utils::ast_utils;
 use crate::boostest_utils::id_name::get_id_with_hash;
 
+use super::target::ResolvedDefinitions;
+
 pub struct OutputMainGenerator<'a> {
+    pub resolved_definitions: Arc<Mutex<ResolvedDefinitions>>,
     target_type: TargetType,
     target_def_span: Span,
     target_file_path: String,
@@ -37,6 +42,7 @@ pub struct OutputMainGenerator<'a> {
 impl<'a, 'b: 'a> OutputMainGenerator<'a> {
     pub fn new(
         allocator: &'b Allocator,
+        resolved_definitions: Arc<Mutex<ResolvedDefinitions>>,
         target_type: TargetType,
         target_def_span: Span,
         target_file_path: String,
@@ -44,6 +50,7 @@ impl<'a, 'b: 'a> OutputMainGenerator<'a> {
     ) -> Self {
         let ast_builder = AstBuilder::new(allocator);
         Self {
+            resolved_definitions,
             source_text,
             target_type,
             target_file_path,
@@ -152,11 +159,45 @@ impl<'a> VisitMut<'a> for OutputMainGenerator<'a> {
             TSType::TSTypeReference(ty_ref) if ast_utils::is_boolean_type(&ty_ref) => {}
             TSType::TSTypeReference(ts_type_ref) if ast_utils::is_array_type(ts_type_ref) => {}
             TSType::TSTypeReference(ref mut ts_type_ref) => {
+                let mut new_type_name = None;
+
                 if let TSTypeName::IdentifierReference(identifier) = &mut ts_type_ref.type_name {
                     let span = calc_prop_span(identifier.span, Some(self.target_def_span));
-                    let var_name = get_id_with_hash(self.target_file_path.clone(), span);
+                    let key_name = get_id_with_hash(self.target_file_path.clone(), span);
+                    let var_name = self
+                        .resolved_definitions
+                        .lock()
+                        .unwrap()
+                        .get_target_def_hash_name_with_key(&key_name);
 
-                    identifier.name = self.ast_builder.atom(&var_name);
+                    let id_name = self.ast_builder.alloc_identifier_reference(
+                        Span::default(),
+                        &var_name.unwrap_or("unnamed".to_string()),
+                    );
+
+                    new_type_name = Some(TSTypeName::IdentifierReference(id_name));
+                }
+
+                if let TSTypeName::QualifiedName(qualified_name) = &mut ts_type_ref.type_name {
+                    let span =
+                        calc_prop_span(qualified_name.right.span, Some(self.target_def_span));
+                    let key_name = get_id_with_hash(self.target_file_path.clone(), span);
+                    let var_name = self
+                        .resolved_definitions
+                        .lock()
+                        .unwrap()
+                        .get_target_def_hash_name_with_key(&key_name);
+
+                    let id_name = self.ast_builder.alloc_identifier_reference(
+                        Span::default(),
+                        &var_name.unwrap_or("unnamed".to_string()),
+                    );
+
+                    new_type_name = Some(TSTypeName::IdentifierReference(id_name));
+                }
+
+                if let Some(new_type_name) = new_type_name {
+                    ts_type_ref.type_name = new_type_name;
                 }
             }
             TSType::TSTypeQuery(ref mut ts_query) => {
@@ -164,9 +205,16 @@ impl<'a> VisitMut<'a> for OutputMainGenerator<'a> {
                     &mut ts_query.expr_name
                 {
                     let span = calc_prop_span(identifier.span, Some(self.target_def_span));
-                    let var_name = get_id_with_hash(self.target_file_path.clone(), span);
+                    let key_name = get_id_with_hash(self.target_file_path.clone(), span);
+                    let var_name = self
+                        .resolved_definitions
+                        .lock()
+                        .unwrap()
+                        .get_target_def_hash_name_with_key(&key_name);
 
-                    identifier.name = self.ast_builder.atom(&var_name);
+                    identifier.name = self
+                        .ast_builder
+                        .atom(&var_name.unwrap_or("unnamed".to_string()));
                 }
             }
             _ => {}

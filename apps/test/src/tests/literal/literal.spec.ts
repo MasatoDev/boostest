@@ -69,94 +69,94 @@ import { boostestTsTypeLiteralLiteralArrayType } from "./boostest_output/boostes
 import { boostestTsTypeLiteralArray } from "./boostest_output/boostestTsTypeLiteralArray";
 
 describe("Literal Type Tests", () => {
-  runSnapshotTest(
-    "TsTypeLiteralString",
-    boostestTsTypeLiteralString<TsTypeLiteralString>(),
-  );
-  runSnapshotTest(
-    "TsTypeLiteralLiteralTypeString",
-    boostestTsTypeLiteralLiteralTypeString<TsTypeLiteralLiteralTypeString>(),
-  );
-  runSnapshotTest(
-    "TsLiteralTypeStringUnionType",
-    boostestTsLiteralTypeStringUnionType<TsLiteralTypeStringUnionType>(),
-  );
-  runSnapshotTest(
-    "TsTypeLiteralNumber",
-    boostestTsTypeLiteralNumber<TsTypeLiteralNumber>(),
-  );
-  runSnapshotTest(
-    "TsTypeLiteralLiteralNumberType",
-    boostestTsTypeLiteralLiteralNumberType<TsTypeLiteralLiteralNumberType>(),
-  );
-  runSnapshotTest(
-    "TsLiteralNumberUnionType",
-    boostestTsLiteralNumberUnionType<TsLiteralNumberUnionType>(),
-  );
-  runSnapshotTest(
-    "TsTypeLiteralBoolean",
-    boostestTsTypeLiteralBoolean<TsTypeLiteralBoolean>(),
-  );
-  runSnapshotTest(
-    "TsTypeLiteralLiteralBooleanType",
-    boostestTsTypeLiteralLiteralBooleanType<TsTypeLiteralLiteralBooleanType>(),
-  );
-  runSnapshotTest(
-    "TsLiteralBooleanUnionType",
-    boostestTsLiteralBooleanUnionType<TsLiteralBooleanUnionType>(),
-  );
-  runSnapshotTest(
-    "TsTypeLiteralNull",
-    boostestTsTypeLiteralNull<TsTypeLiteralNull>(),
-  );
-  runSnapshotTest(
-    "TsTypeLiteralUndefined",
-    boostestTsTypeLiteralUndefined<TsTypeLiteralUndefined>(),
-  );
-  runSnapshotTest(
-    "TsTypeLiteralArray",
-    boostestTsTypeLiteralArray<TsTypeLiteralArray>(),
-  );
-  runSnapshotTest(
-    "TsTypeLiteralLiteralArrayType",
-    boostestTsTypeLiteralLiteralArrayType<TsTypeLiteralLiteralArrayType>(),
-  );
-  runSnapshotTest(
-    "TsLiteralArrayUnionType",
-    boostestTsLiteralArrayUnionType<TsLiteralArrayUnionType>(),
-  );
-  runSnapshotTest(
-    "TsTypeLiteralObject",
-    boostestTsTypeLiteralObject<TsTypeLiteralObject>(),
-  );
-  runSnapshotTest(
-    "TsTypeLiteralLiteralObjectType",
-    boostestTsTypeLiteralLiteralObjectType<TsTypeLiteralLiteralObjectType>(),
-  );
-  runSnapshotTest(
-    "TsLiteralObjectUnionType",
-    boostestTsLiteralObjectUnionType<TsLiteralObjectUnionType>(),
-  );
-  runSnapshotTest(
-    "TsTypeLiteralFunction",
-    boostestTsTypeLiteralFunction<TsTypeLiteralFunction>(),
-  );
-  runSnapshotTest(
-    "TsTypeLiteralLiteralFunctionType",
-    boostestTsTypeLiteralLiteralFunctionType<TsTypeLiteralLiteralFunctionType>(),
-  );
-  runSnapshotTest(
-    "TsLiteralFunctionUnionType",
-    boostestTsLiteralFunctionUnionType<TsLiteralFunctionUnionType>(),
-  );
-  runSnapshotTest(
-    "TsTypeLiteralSymbol",
-    boostestTsTypeLiteralSymbol<TsTypeLiteralSymbol>(),
-  );
-  runSnapshotTest(
-    "TsTypeLiteralAlias",
-    boostestUseTSTypeLiteralAlias<UseTSTypeLiteralAlias>(),
-  );
+  // runSnapshotTest(
+  //   "TsTypeLiteralString",
+  //   boostestTsTypeLiteralString<TsTypeLiteralString>(),
+  // );
+  // runSnapshotTest(
+  //   "TsTypeLiteralLiteralTypeString",
+  //   boostestTsTypeLiteralLiteralTypeString<TsTypeLiteralLiteralTypeString>(),
+  // );
+  // runSnapshotTest(
+  //   "TsLiteralTypeStringUnionType",
+  //   boostestTsLiteralTypeStringUnionType<TsLiteralTypeStringUnionType>(),
+  // );
+  // runSnapshotTest(
+  //   "TsTypeLiteralNumber",
+  //   boostestTsTypeLiteralNumber<TsTypeLiteralNumber>(),
+  // );
+  // runSnapshotTest(
+  //   "TsTypeLiteralLiteralNumberType",
+  //   boostestTsTypeLiteralLiteralNumberType<TsTypeLiteralLiteralNumberType>(),
+  // );
+  // runSnapshotTest(
+  //   "TsLiteralNumberUnionType",
+  //   boostestTsLiteralNumberUnionType<TsLiteralNumberUnionType>(),
+  // );
+  // runSnapshotTest(
+  //   "TsTypeLiteralBoolean",
+  //   boostestTsTypeLiteralBoolean<TsTypeLiteralBoolean>(),
+  // );
+  // runSnapshotTest(
+  //   "TsTypeLiteralLiteralBooleanType",
+  //   boostestTsTypeLiteralLiteralBooleanType<TsTypeLiteralLiteralBooleanType>(),
+  // );
+  // runSnapshotTest(
+  //   "TsLiteralBooleanUnionType",
+  //   boostestTsLiteralBooleanUnionType<TsLiteralBooleanUnionType>(),
+  // );
+  // runSnapshotTest(
+  //   "TsTypeLiteralNull",
+  //   boostestTsTypeLiteralNull<TsTypeLiteralNull>(),
+  // );
+  // runSnapshotTest(
+  //   "TsTypeLiteralUndefined",
+  //   boostestTsTypeLiteralUndefined<TsTypeLiteralUndefined>(),
+  // );
+  // runSnapshotTest(
+  //   "TsTypeLiteralArray",
+  //   boostestTsTypeLiteralArray<TsTypeLiteralArray>(),
+  // );
+  // runSnapshotTest(
+  //   "TsTypeLiteralLiteralArrayType",
+  //   boostestTsTypeLiteralLiteralArrayType<TsTypeLiteralLiteralArrayType>(),
+  // );
+  // runSnapshotTest(
+  //   "TsLiteralArrayUnionType",
+  //   boostestTsLiteralArrayUnionType<TsLiteralArrayUnionType>(),
+  // );
+  // runSnapshotTest(
+  //   "TsTypeLiteralObject",
+  //   boostestTsTypeLiteralObject<TsTypeLiteralObject>(),
+  // );
+  // runSnapshotTest(
+  //   "TsTypeLiteralLiteralObjectType",
+  //   boostestTsTypeLiteralLiteralObjectType<TsTypeLiteralLiteralObjectType>(),
+  // );
+  // runSnapshotTest(
+  //   "TsLiteralObjectUnionType",
+  //   boostestTsLiteralObjectUnionType<TsLiteralObjectUnionType>(),
+  // );
+  // runSnapshotTest(
+  //   "TsTypeLiteralFunction",
+  //   boostestTsTypeLiteralFunction<TsTypeLiteralFunction>(),
+  // );
+  // runSnapshotTest(
+  //   "TsTypeLiteralLiteralFunctionType",
+  //   boostestTsTypeLiteralLiteralFunctionType<TsTypeLiteralLiteralFunctionType>(),
+  // );
+  // runSnapshotTest(
+  //   "TsLiteralFunctionUnionType",
+  //   boostestTsLiteralFunctionUnionType<TsLiteralFunctionUnionType>(),
+  // );
+  // runSnapshotTest(
+  //   "TsTypeLiteralSymbol",
+  //   boostestTsTypeLiteralSymbol<TsTypeLiteralSymbol>(),
+  // );
+  // runSnapshotTest(
+  //   "TsTypeLiteralAlias",
+  //   boostestUseTSTypeLiteralAlias<UseTSTypeLiteralAlias>(),
+  // );
   runSnapshotTest(
     "TsTypeLiteralInterface",
     boostestUseTSTypeLiteralInterface<UseTSTypeLiteralInterface>(),

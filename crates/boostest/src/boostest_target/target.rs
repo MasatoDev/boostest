@@ -7,6 +7,7 @@ use oxc::{
     span::Span,
 };
 use std::{
+    collections::HashMap,
     path::PathBuf,
     sync::{Arc, Mutex},
     thread,
@@ -20,23 +21,32 @@ use crate::{
     boostest_manager::propety_assignment::{ts_type_assign_as_property, TargetReferenceInfo},
     boostest_utils::{
         ast_utils::{self, get_generic_prefix},
+        id_name::get_id_with_hash,
         napi::TargetType,
     },
 };
 
+// UNUSED
+#[derive(Debug, Clone)]
+pub struct TargetSupplement {
+    pub is_mapped_type: bool,
+    pub is_generic_property: bool,
+}
+
+// FIXME: 定義元名は利用できる。参照名でしか特定できないので、参照名がわかれば定義元名がわかるロジックを追加する必要がある。
 #[derive(Debug)]
+pub struct ResolvedDefinitions {
+    // [reference hash]: definition
+    pub inner: HashMap<String, Option<TargetDefinition>>,
+}
+
+#[derive(Debug, Clone)]
 pub struct TargetDefinition {
     pub specifier: String,
     pub file_path: PathBuf,
     pub span: Span,
     pub target_type: TargetType,
     pub defined_generics: Vec<String>,
-}
-
-#[derive(Debug, Clone)]
-pub struct TargetSupplement {
-    pub is_mapped_type: bool,
-    pub is_generic_property: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -51,8 +61,9 @@ pub struct Target {
     pub name: String,      // boostestHoge<Hoge>() -> Hoge
     pub func_name: String, // boostestHoge<Hoge>() -> boostestHoge
     pub target_reference: TargetReference,
-    pub target_definition: Option<TargetDefinition>,
-    pub ref_properties: Vec<Arc<Mutex<PropertyTarget>>>,
+    pub is_resolved: bool,
+
+    pub ref_properties: Vec<Arc<Mutex<Target>>>,
 }
 
 #[derive(Debug)]
@@ -60,12 +71,9 @@ pub struct MainTarget {
     pub target: Arc<Mutex<Target>>,
     pub original_target_ref: TargetReference,
     pub initialized: bool,
-}
 
-#[derive(Debug)]
-pub struct PropertyTarget {
-    pub target: Arc<Mutex<Target>>,
-    pub parent_key_name: Option<String>,
+    // [definition hash]: definition
+    pub resolved_definitions: Arc<Mutex<ResolvedDefinitions>>,
 }
 
 impl MainTarget {
@@ -80,11 +88,14 @@ impl MainTarget {
                 name: mock_target_name.unwrap_or_default(),
                 func_name: mock_func_name.clone(),
                 target_reference,
-                target_definition: None,
+                is_resolved: false,
                 ref_properties: Vec::new(),
             })),
             original_target_ref,
             initialized: false,
+            resolved_definitions: Arc::new(Mutex::new(ResolvedDefinitions {
+                inner: HashMap::new(),
+            })),
         }
     }
 
@@ -108,7 +119,7 @@ impl MainTarget {
                         file_path: target.target_reference.file_path.clone(),
                         target_supplement: None,
                     };
-                    target.add_property(id, None, target_ref);
+                    target.add_property(id, target_ref);
                     break;
                 }
                 Err(_) => {
@@ -120,56 +131,99 @@ impl MainTarget {
     }
 }
 
-impl PropertyTarget {
-    fn new(
-        mock_func_name: String,
-        mock_target_name: Option<String>,
-        parent_key_name: Option<String>,
-        target_reference: TargetReference,
-    ) -> Self {
-        Self {
-            target: Arc::new(Mutex::new(Target {
-                name: mock_target_name.unwrap_or_default(),
-                target_reference,
-                target_definition: None,
-                func_name: mock_func_name.clone(),
-                ref_properties: Vec::new(),
-            })),
-            parent_key_name,
-        }
-    }
-}
-
 //TODO: refとdefを区別する
 impl Target {
     pub fn resolved(&self) -> bool {
-        self.target_definition.is_some()
+        self.is_resolved
     }
 
-    pub fn set_target_definition(&mut self, target_definition: TargetDefinition) {
-        self.target_definition = Some(target_definition);
+    pub fn add_property(&mut self, name: String, target_reference: TargetReference) {
+        let new_target = Target {
+            name,
+            is_resolved: false,
+            func_name: self.func_name.clone(),
+            target_reference,
+            ref_properties: Vec::new(),
+        };
+        self.ref_properties.push(Arc::new(Mutex::new(new_target)));
+    }
+}
+
+impl ResolvedDefinitions {
+    // keyをreferenceのhashにする
+    // keyは創作開始時にすぐ追加できて、すでにdefsにあれば何もせず終了する
+    // keyは創作開始時にすぐ追加できて、すでにdefsに慣れければ継続。
+
+    pub fn is_resolved(&mut self, target_reference: &TargetReference) -> bool {
+        let key = get_id_with_hash(
+            target_reference.file_path.to_string_lossy().to_string(),
+            target_reference.span,
+        );
+
+        if !self.inner.contains_key(&key) {
+            self.inner.insert(key.clone(), None);
+        }
+
+        let value = self.inner.get(&key);
+        if let Some(Some(_)) = value {
+            return true;
+        }
+
+        false
     }
 
-    pub fn add_generics(&mut self, word: String) {
-        if let Some(df) = &mut self.target_definition {
-            df.defined_generics.push(word);
+    pub fn set_target_definition(
+        &mut self,
+        target_reference: &TargetReference,
+        target_definition: TargetDefinition,
+    ) {
+        let key = get_id_with_hash(
+            target_reference.file_path.to_string_lossy().to_string(),
+            target_reference.span,
+        );
+
+        self.inner.insert(key, Some(target_definition));
+    }
+
+    pub fn get_target_definition(
+        &self,
+        target_reference: &TargetReference,
+    ) -> Option<TargetDefinition> {
+        let key = get_id_with_hash(
+            target_reference.file_path.to_string_lossy().to_string(),
+            target_reference.span,
+        );
+
+        if let Some(Some(definition)) = self.inner.get(&key) {
+            Some(definition.clone())
+        } else {
+            None
         }
     }
 
-    pub fn add_property(
-        &mut self,
-        name: String,
-        parent_key_name: Option<String>,
-        target_reference: TargetReference,
-    ) {
-        let new_prop = PropertyTarget::new(
-            self.func_name.clone(),
-            Some(name),
-            parent_key_name,
-            target_reference,
+    pub fn get_target_def_hash_name_with_key(&self, key: &str) -> Option<String> {
+        if let Some(Some(definition)) = self.inner.get(key) {
+            let name = get_id_with_hash(
+                definition.file_path.to_string_lossy().to_string(),
+                definition.span,
+            );
+            Some(name)
+        } else {
+            None
+        }
+    }
+
+    pub fn get_target_type(&self, target_reference: &TargetReference) -> Option<TargetType> {
+        let key = get_id_with_hash(
+            target_reference.file_path.to_string_lossy().to_string(),
+            target_reference.span,
         );
 
-        self.ref_properties.push(Arc::new(Mutex::new(new_prop)));
+        if let Some(Some(definition)) = self.inner.get(&key) {
+            Some(definition.target_type.clone())
+        } else {
+            None
+        }
     }
 }
 

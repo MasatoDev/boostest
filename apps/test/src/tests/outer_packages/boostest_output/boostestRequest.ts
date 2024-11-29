@@ -3,6 +3,16 @@ export function boostestRequest<T>(args?: Partial<T>): T {
 }
 type main_output_target = {  }; // Extracted from typeAlias
 
-type main = ref_d46221e8680b20e63caafd2a940bb5e14666c845b432a3375b2248068152a285;
-interface ref_d46221e8680b20e63caafd2a940bb5e14666c845b432a3375b2248068152a285<P = ref_88d0422f1337b87012dcdb14fb2cb9621e6c70533a4ea740f40ae1f8c55c2a3f.ParamsDictionary, ResBody = any, ReqBody = any, ReqQuery = ref_933ed54221f9f1da82d05e1033c75a14c7ead54d85de465e38362fc205e7cd46.Query, Locals extends ref_6c4e4dd4da3a600dbb58357c68e149b1908ba195e4167098c6c09e5b0d6834f3<string, any> = ref_b3980e35a7149f11446d36b5f9173d9a1ae27a9a0fb726932fe032f369bd7da7<string, any>> extends core.Request<P, ResBody, ReqBody, ReqQuery, Locals> {
+type main = ref_e821ded8622dd36e209a8cd49d3e510ae4a812d7637fc53745b1e05c9219dde2;
+interface ref_e821ded8622dd36e209a8cd49d3e510ae4a812d7637fc53745b1e05c9219dde2<P = ref_a056623caec632654f72085374b9b8a5b36570f99c0317355fd874eef1beb317, ResBody = any, ReqBody = any, ReqQuery = ref_69a6eed73f7c115b40dcd45dcdbb6939a5e63ac51e76deab439b649233749b64, Locals extends ref_0d4880c87d7e0cb5aa5bb96bf0bffe5e92a93517c3bd8e6509c1086e198135f0<string, any> = ref_0d4880c87d7e0cb5aa5bb96bf0bffe5e92a93517c3bd8e6509c1086e198135f0<string, any>> {
 }
+interface ref_a056623caec632654f72085374b9b8a5b36570f99c0317355fd874eef1beb317 {
+    [key: string]: string;
+}
+type ref_69a6eed73f7c115b40dcd45dcdbb6939a5e63ac51e76deab439b649233749b64 = ref_78a3baefc91953611f45a23a412a13818cfbb5a9af1c7aacd278891e1a7ee9af;
+interface ref_78a3baefc91953611f45a23a412a13818cfbb5a9af1c7aacd278891e1a7ee9af {
+    [key: string]: undefined | string | Array<string> | ref_78a3baefc91953611f45a23a412a13818cfbb5a9af1c7aacd278891e1a7ee9af | Array<ref_78a3baefc91953611f45a23a412a13818cfbb5a9af1c7aacd278891e1a7ee9af>;
+}
+type ref_0d4880c87d7e0cb5aa5bb96bf0bffe5e92a93517c3bd8e6509c1086e198135f0<K extends keyof any, T> = {
+    [P in K]: T;
+};

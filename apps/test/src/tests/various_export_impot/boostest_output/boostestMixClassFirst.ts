@@ -1,12 +1,12 @@
 export function boostestMixClassFirst<T>(isArray = false) {
-	return new ref_194614d87f5998c6e98d9f3241f24d6e5934243906b390efea5a7a60161268c0("test string data");
+	return new ref_ed8e2d5967646d7296f761f74882ddacec3ee1f4884c467301ab75a2dc191e9f("test string data");
 }
-type main_output_target = ["classReference", ref_194614d87f5998c6e98d9f3241f24d6e5934243906b390efea5a7a60161268c0, [
+type main_output_target = ["classReference", ref_ed8e2d5967646d7296f761f74882ddacec3ee1f4884c467301ab75a2dc191e9f, [
   string
 ]]; // Extracted from typeAlias
 
-type main = ref_194614d87f5998c6e98d9f3241f24d6e5934243906b390efea5a7a60161268c0;
-class ref_194614d87f5998c6e98d9f3241f24d6e5934243906b390efea5a7a60161268c0 {
+type main = ref_ed8e2d5967646d7296f761f74882ddacec3ee1f4884c467301ab75a2dc191e9f;
+class ref_ed8e2d5967646d7296f761f74882ddacec3ee1f4884c467301ab75a2dc191e9f {
     name: string;
     constructor(name: string) {
         this.name = name;

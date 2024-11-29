@@ -7,8 +7,8 @@ export function boostestTsTypeLiteralLiteralObjectType<T>(args?: Partial<T>): T 
 }
 type main_output_target = { name: string; age: number }; // Extracted from typeAlias
 
-type main = ref_c6effa8b6c2d18c58383b87e30b824ed04ec615ea2142c18f5e63bf1cabdd265;
-type ref_c6effa8b6c2d18c58383b87e30b824ed04ec615ea2142c18f5e63bf1cabdd265 = {
+type main = ref_50f05f17026155656ef05d0f0ccd68ffc2ce72acf09faa294bc2300c0bbef86e;
+type ref_50f05f17026155656ef05d0f0ccd68ffc2ce72acf09faa294bc2300c0bbef86e = {
     name: string;
     age: number;
 };

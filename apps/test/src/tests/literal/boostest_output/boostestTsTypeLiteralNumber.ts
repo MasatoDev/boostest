@@ -3,5 +3,5 @@ export function boostestTsTypeLiteralNumber<T>(isArray = false) {
 }
 type main_output_target = number; // Extracted from typeAlias
 
-type main = ref_69425c5c38141e28d0fa867bcd0d592f5c81ae5aa625af010282a78ce4b4f68a;
-type ref_69425c5c38141e28d0fa867bcd0d592f5c81ae5aa625af010282a78ce4b4f68a = number;
+type main = ref_a437eba666f374f70231e53c271e99535b268c4b3f29f2922718ffb62eb35e47;
+type ref_a437eba666f374f70231e53c271e99535b268c4b3f29f2922718ffb62eb35e47 = number;

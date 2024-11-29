@@ -3,5 +3,5 @@ export function boostestTsLiteralFunctionUnionType<T>(isArray = false) {
 }
 type main_output_target = {  } | {  }; // Extracted from typeAlias
 
-type main = ref_2ce274d6273583591bc2d084500eb018340efebbbd93b5cd090f1289e3cb0b24;
-type ref_2ce274d6273583591bc2d084500eb018340efebbbd93b5cd090f1289e3cb0b24 = ((x: number) => number) | ((x: string) => string);
+type main = ref_e213a2eb547ea2eab6fccc60839862d5a966559cd01cbf9c54bfe2fcf04e7c02;
+type ref_e213a2eb547ea2eab6fccc60839862d5a966559cd01cbf9c54bfe2fcf04e7c02 = ((x: number) => number) | ((x: string) => string);

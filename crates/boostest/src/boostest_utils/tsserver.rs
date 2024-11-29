@@ -63,7 +63,6 @@ pub fn tsserver(
     target_name: &str,
     ts_server_cache: Arc<Mutex<TSServerCache>>,
 ) -> Option<(PathBuf, Span)> {
-    println!("☠️☠️☠️☠️ inner tsserver");
     let mut locked_cache = ts_server_cache.lock().unwrap();
 
     if let Some(definition) = locked_cache.get_definition(target_name) {
@@ -152,6 +151,7 @@ pub fn tsserver(
         }
     }
 
+    println!("🐟🐟🐟🐟🐟🐟 failed ts server{:?}", target_name);
     None
     // let _ = child.wait().expect("Failed to wait on tsserver");
 }

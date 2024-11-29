@@ -1,6 +1,6 @@
 use crate::boostest_generator::code_generator::CodeGenerator;
 use crate::boostest_generator::fallback_func_builder::FallbackFuncBuilder;
-use crate::boostest_target::target::{MainTarget, PropertyTarget, Target};
+use crate::boostest_target::target::{MainTarget, Target};
 use crate::boostest_utils::file_utils;
 use crate::boostest_utils::napi::OutputCode;
 

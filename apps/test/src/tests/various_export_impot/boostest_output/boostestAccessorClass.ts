@@ -1,13 +1,13 @@
 export function boostestAccessorClass<T>(isArray = false) {
-	return new ref_2cee712afc0dfc829b8ae090d81a953da67dc5b54e44b1d4fc2e193e41901ae6("test string data", 10, 10);
+	return new ref_67b433fda2f50271d6baa52695ec5153516bb31c0c00c0dd42f2a2ab0766a10b("test string data", 10, 10);
 }
-type main_output_target = ["classReference", ref_2cee712afc0dfc829b8ae090d81a953da67dc5b54e44b1d4fc2e193e41901ae6, [
+type main_output_target = ["classReference", ref_67b433fda2f50271d6baa52695ec5153516bb31c0c00c0dd42f2a2ab0766a10b, [
   string,
   number,
   number
 ]]; // Extracted from typeAlias
 
-type main = ref_2cee712afc0dfc829b8ae090d81a953da67dc5b54e44b1d4fc2e193e41901ae6;
-class ref_2cee712afc0dfc829b8ae090d81a953da67dc5b54e44b1d4fc2e193e41901ae6 {
+type main = ref_67b433fda2f50271d6baa52695ec5153516bb31c0c00c0dd42f2a2ab0766a10b;
+class ref_67b433fda2f50271d6baa52695ec5153516bb31c0c00c0dd42f2a2ab0766a10b {
     constructor(public name: string, private age: number, protected readonly readonlyAge: number) { }
 }

@@ -3,5 +3,5 @@ export function boostestTsTypeLiteralLiteralFunctionType<T>(args?: Partial<T>): 
 }
 type main_output_target = {  }; // Extracted from typeAlias
 
-type main = ref_112f334698af02f65538c98b4fd6d645ae7afe626b074953902edade9dbef51e;
-type ref_112f334698af02f65538c98b4fd6d645ae7afe626b074953902edade9dbef51e = () => void;
+type main = ref_7e65fe2eca881cf245e043c092b57c6663c43b55d3bbdace0d10b44d6aa339e3;
+type ref_7e65fe2eca881cf245e043c092b57c6663c43b55d3bbdace0d10b44d6aa339e3 = () => void;

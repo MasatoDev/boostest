@@ -3,5 +3,5 @@ export function boostestTsTypeLiteralFunction<T>(isArray = false) {
 }
 type main_output_target = Function; // Extracted from typeAlias
 
-type main = ref_fe80aecba0bdbe1f4fed4447bcb1f6adf078f62a11f325f67e87ab32afb690d3;
-type ref_fe80aecba0bdbe1f4fed4447bcb1f6adf078f62a11f325f67e87ab32afb690d3 = Function;
+type main = ref_ea51cb52caf140b9d236ec487a625701ff132b96e730da26ea63dae82ce6a7bb;
+type ref_ea51cb52caf140b9d236ec487a625701ff132b96e730da26ea63dae82ce6a7bb = Function;

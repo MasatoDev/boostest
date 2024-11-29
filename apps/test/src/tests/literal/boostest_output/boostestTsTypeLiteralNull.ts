@@ -3,5 +3,5 @@ export function boostestTsTypeLiteralNull<T>(isArray = false) {
 }
 type main_output_target = null; // Extracted from typeAlias
 
-type main = ref_c27691db4dc0acb00ed528ad5314e380260f682713be36ece15c1f5a9a25e6e2;
-type ref_c27691db4dc0acb00ed528ad5314e380260f682713be36ece15c1f5a9a25e6e2 = null;
+type main = ref_a2499b22379730c1ba780ed323f564c80f034621585ed726e13d963a3e6741b0;
+type ref_a2499b22379730c1ba780ed323f564c80f034621585ed726e13d963a3e6741b0 = null;

@@ -1,4 +1,4 @@
-use crate::boostest_target::target::{MainTarget, PropertyTarget, Target};
+use crate::boostest_target::target::{MainTarget, Target};
 use crate::boostest_utils::file_utils;
 use crate::boostest_utils::id_name::get_id_with_hash;
 use crate::boostest_utils::napi::{OutputCode, TargetType};
@@ -12,6 +12,7 @@ use std::sync::{Arc, Mutex};
 
 use super::output_generator::OutputGenerator;
 use super::output_main_generator::OutputMainGenerator;
+use super::target::ResolvedDefinitions;
 
 pub fn handle_output_main_task(
     main_targets: Vec<Arc<Mutex<MainTarget>>>,
@@ -27,28 +28,41 @@ pub fn handle_output_main_task(
 
     // NOTE: if this loop change to multi-thread, the f(file) is need change to Arc<Mutex<File>>
     for main_target in main_targets {
+        let writed = Arc::new(Mutex::new(Vec::new()));
+
         let mut output = String::new();
 
         // locked
         let locked_main_target = main_target.lock().unwrap();
         let locked_target = locked_main_target.target.lock().unwrap();
+        let resolved_definitions = &locked_main_target.resolved_definitions;
 
         let func_name = locked_target.func_name.clone();
         let original_target_ref = locked_main_target.original_target_ref.clone();
 
         let mut target_type = TargetType::TSTypeAlias;
-        if let Some(target_def) = &locked_target.target_definition {
-            target_type = target_def.target_type;
+
+        if let Some(def_target_type) = resolved_definitions
+            .lock()
+            .unwrap()
+            .get_target_type(&locked_target.target_reference)
+        {
+            target_type = def_target_type;
         }
 
         drop(locked_target);
 
-        let code = get_code(true, locked_main_target.target.clone(), None);
+        let code = get_code(
+            true,
+            locked_main_target.target.clone(),
+            resolved_definitions.clone(),
+        );
 
         if let Some(original_decl_code) = get_original_code(
             &original_target_ref.file_path,
             original_target_ref.span,
             target_type,
+            resolved_definitions.clone(),
         ) {
             output.push_str(&original_decl_code);
         }
@@ -72,7 +86,9 @@ pub fn handle_output_main_task(
                 .unwrap()
                 .ref_properties
                 .clone(),
+            resolved_definitions.clone(),
             &mut output,
+            writed.clone(),
         );
 
         // println!("\n🎉🎉🎉🎉BEFORE: {}", output);
@@ -91,29 +107,23 @@ pub fn handle_output_main_task(
 }
 
 pub fn write_ref_properties(
-    property_targets: Vec<Arc<Mutex<PropertyTarget>>>,
+    property_targets: Vec<Arc<Mutex<Target>>>,
+    resolved_definitions: Arc<Mutex<ResolvedDefinitions>>,
     output: &mut String,
+    writed: Arc<Mutex<Vec<String>>>,
 ) -> Result<()> {
-    let mut writed = Vec::new();
-
     for children_prop in property_targets.iter() {
-        let locked_prop = children_prop.lock().unwrap();
-
-        let code = get_code(
-            false,
-            locked_prop.target.clone(),
-            locked_prop.parent_key_name.clone(),
-        );
+        let code = get_code(false, children_prop.clone(), resolved_definitions.clone());
 
         match code {
             Some((code, var_name)) => {
-                if writed.contains(&var_name) {
+                if writed.lock().unwrap().contains(&var_name) {
                     continue;
                 }
 
                 output.push_str(&code);
                 output.push('\n');
-                writed.push(var_name);
+                writed.lock().unwrap().push(var_name);
             }
             None => {
                 // let allocator = oxc::allocator::Allocator::default();
@@ -130,17 +140,11 @@ pub fn write_ref_properties(
             }
         }
 
-        drop(locked_prop);
         write_ref_properties(
-            children_prop
-                .lock()
-                .unwrap()
-                .target
-                .lock()
-                .unwrap()
-                .ref_properties
-                .clone(),
+            children_prop.lock().unwrap().ref_properties.clone(),
+            resolved_definitions.clone(),
             output,
+            writed.clone(),
         )?;
     }
     Ok(())
@@ -149,67 +153,62 @@ pub fn write_ref_properties(
 fn get_code(
     is_main_target: bool,
     target: Arc<Mutex<Target>>,
-    key_name: Option<String>,
+    resolved_definitions: Arc<Mutex<ResolvedDefinitions>>,
 ) -> Option<(String, String)> {
     let locked_target = target.lock().unwrap();
-    match &locked_target.target_definition {
-        Some(target_definition) => {
-            let target_source = file_utils::read(&target_definition.file_path).unwrap_or_default();
 
-            let target_source_text = target_definition.span.source_text(&target_source);
-            let allocator = oxc::allocator::Allocator::default();
+    let target_definition = &resolved_definitions
+        .lock()
+        .unwrap()
+        .get_target_definition(&locked_target.target_reference);
 
-            let var_name = get_id_with_hash(
-                locked_target
-                    .target_reference
-                    .file_path
-                    .to_string_lossy()
-                    .to_string(),
-                locked_target.target_reference.span,
-            );
+    if let Some(target_definition) = target_definition {
+        let target_source = file_utils::read(&target_definition.file_path).unwrap_or_default();
 
-            let mut code_generator = OutputGenerator::new(
-                is_main_target,
-                &allocator,
-                &target_definition.specifier,
-                var_name.clone(),
-                target_definition.span,
-                target_definition.file_path.to_string_lossy().to_string(),
-                target_definition.defined_generics.clone(),
-                target_source_text,
-            );
+        let target_source_text = target_definition.span.source_text(&target_source);
+        let allocator = oxc::allocator::Allocator::default();
 
-            code_generator.generate();
+        let var_name = get_id_with_hash(
+            target_definition.file_path.to_string_lossy().to_string(),
+            target_definition.span,
+        );
 
-            if let Some(code) = code_generator.code {
-                return Some((code, var_name));
-            }
+        let mut code_generator = OutputGenerator::new(
+            is_main_target,
+            resolved_definitions.clone(),
+            &allocator,
+            &target_definition.specifier,
+            var_name.clone(),
+            target_definition.span,
+            target_definition.file_path.to_string_lossy().to_string(),
+            target_definition.defined_generics.clone(),
+            target_source_text,
+        );
 
-            return None;
-        }
+        code_generator.generate();
 
-        _ => {
-            // println!(
-            //     "{} of {}:{}",
-            //     &locked_target.name.red(),
-            //     &locked_target.func_name.red(),
-            //     "not found target definition",
-            // );
+        if let Some(code) = code_generator.code {
+            return Some((code, var_name));
         }
     }
-    None
+
+    return None;
 }
 
-fn get_original_code(file_path: &Path, span: Span, target_type: TargetType) -> Option<String> {
+fn get_original_code(
+    file_path: &Path,
+    span: Span,
+    target_type: TargetType,
+    resolved_definitions: Arc<Mutex<ResolvedDefinitions>>,
+) -> Option<String> {
     let target_source = file_utils::read(file_path).unwrap_or_default();
     let target_source_text = span.source_text(&target_source);
 
     let allocator = oxc::allocator::Allocator::default();
 
-    let var_name = "main".to_string();
-
     let mut code_generator = OutputMainGenerator::new(
         &allocator,
+        resolved_definitions.clone(),
         target_type,
         span,
         file_path.to_string_lossy().to_string(),

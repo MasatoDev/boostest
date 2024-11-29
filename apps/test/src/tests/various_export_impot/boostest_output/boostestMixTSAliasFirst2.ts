@@ -6,7 +6,7 @@ export function boostestMixTSAliasFirst2<T>(args?: Partial<T>): T {
 }
 type main_output_target = { name: "MixTSAliasFirst2" }; // Extracted from typeAlias
 
-type main = ref_5db80317cd7e746d97b203139469fc8306541257f4e5874c844638eb8007a254;
-type ref_5db80317cd7e746d97b203139469fc8306541257f4e5874c844638eb8007a254 = {
+type main = ref_09dc21196cb712287a67a3363db485beac917c247f9408fab1194ef373267caa;
+type ref_09dc21196cb712287a67a3363db485beac917c247f9408fab1194ef373267caa = {
     name: "MixTSAliasFirst2";
 };

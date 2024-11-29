@@ -6,8 +6,8 @@ export function boostestTSInterfaceMixUnionType<T>(args?: Partial<T>): T {
 }
 type main_output_target = { type: true | 50000 | "A" | 1 | "B" | "C" }; // Extracted from typeAlias
 
-type main = ref_14f7475017e9a6b35d38668b7e388e0a4365a73e14018d0c04764c6daabbed37;
-interface ref_14f7475017e9a6b35d38668b7e388e0a4365a73e14018d0c04764c6daabbed37 {
-    type: 50000 | "A" | 1 | true | ref_55dae00cfee6621556e9d006f54ddb48ec8ca5291f7fb8b36d40fff1032a42fa;
+type main = ref_1233e3089c435ca6b2eaa330d2b60b0a1294d9360b11c55e7390f4a010682ce2;
+interface ref_1233e3089c435ca6b2eaa330d2b60b0a1294d9360b11c55e7390f4a010682ce2 {
+    type: 50000 | "A" | 1 | true | ref_01876cbf74c0c696ea6a2fd787874afba309fe68ff239dfa50333814e478fb4d;
 }
-type ref_55dae00cfee6621556e9d006f54ddb48ec8ca5291f7fb8b36d40fff1032a42fa = "A" | "B" | "C";
+type ref_01876cbf74c0c696ea6a2fd787874afba309fe68ff239dfa50333814e478fb4d = "A" | "B" | "C";

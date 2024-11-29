@@ -40,103 +40,59 @@ export function boostestAnoExportDefaultInterface<T>(args?: Partial<T>): T {
 		...args
 	} as T;
 }
-type main_output_target = { name: string; chips: { name: string; age: number; sex: 1 | 2; short_name: "john" | "doe"; favorite: { name: "Calbee Lightly Salted"; price: 120 } | { name: "Koikeya Pride Potato"; price: 150 }; mostFav: { name: "Pringles Sour Cream & Onion 😀"; price: 200 }; func: () => void; undefinedKey: undefined; anyKey: any; nullKey: null; optionalKey: string; unknownKey: unknown; thisKey: {  }; conditionalKey: { name: "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔"; price: 250 }; objectKey: object; voidKey: void; indexedKey: string; intersectionKey: { name: "Lay's Classic"; price: 130 } & { taste: string }; arrayKey: Array<ref_d0e0b50e67f90f23aa09ea002ded975a35d19e554975e0ab57bc3c9dd06f7f5d> } }; // Extracted from typeAlias
+type main_output_target = { name: string; chips: { name: string; age: number; sex: 1 | 2; short_name: "john" | "doe"; favorite: { name: "Calbee Lightly Salted"; price: 120 } | { name: "Koikeya Pride Potato"; price: 150 }; mostFav: { name: "Pringles Sour Cream & Onion 😀"; price: 200 }; func: () => void; undefinedKey: undefined; anyKey: any; nullKey: null; optionalKey: string; unknownKey: unknown; thisKey: {  }; conditionalKey: { name: "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔"; price: 250 }; objectKey: object; voidKey: void; indexedKey: string; intersectionKey: { name: "Lay's Classic"; price: 130 } & { taste: string }; arrayKey: Array<ref_d2d49aa065e5b7fb97c342a53572950db7a8ad111f83287e037e9fba9b6ed39f> } }; // Extracted from typeAlias
 
-type main = ref_381d6da8cbef11a4a32bea235a52b2f0d95fb8f05f4ba3d0c8fff4c9cb2a5f3c;
-interface ref_381d6da8cbef11a4a32bea235a52b2f0d95fb8f05f4ba3d0c8fff4c9cb2a5f3c {
+type main = ref_0c1640746005313642f5b1afeb1404d68d88856f0e022b277a3586e14aa22509;
+interface ref_0c1640746005313642f5b1afeb1404d68d88856f0e022b277a3586e14aa22509 {
     name: string;
-    chips: ref_91062f992069c62bfd93f7c5ab8c27a5fc6b7980c705704e5cad10db17ea23b4;
+    chips: ref_a18dfad78b1a0caca176874364c8b707112d8c2ca7125b439c0b96795c37cfe4;
 }
-interface ref_91062f992069c62bfd93f7c5ab8c27a5fc6b7980c705704e5cad10db17ea23b4 {
+interface ref_a18dfad78b1a0caca176874364c8b707112d8c2ca7125b439c0b96795c37cfe4 {
     name: string;
     age: number;
     sex: 1 | 2;
     short_name: "john" | "doe";
-    favorite: ref_32711620aed78c75881e2236efdff59f9e49d46e7e73de06775662be5168351c | ref_f423c2e189dda775a9086d7101e11f0d603118db61f09caa648b863c3c4243de;
-    mostFav: ref_83bb3ad7063b2bda0aa31b716a5df3324cbc7eeea708ee77d50bbaa8b82fd0d7;
+    favorite: ref_bdb6339a1ba6a62226bf6f42ef7fc99f466e1619773040d917deae998c492666 | ref_e0d0973b532ef31e9244a3c03ca7d009834937e796e1e9ed4056692c542d643e;
+    mostFav: ref_b4f65beb2d4ec7ab762024435f09c6ab20ac5a068a661623964a9da74f48fa1a;
     func: () => void;
     undefinedKey: undefined;
     anyKey: any;
     nullKey: null;
     optionalKey?: string;
     unknownKey: unknown;
-    thisKey: ref_3420ac96fb2523568f9090a4d3e62210e7955ededa9080b23d4f0f907d65fd6b<ref_cbfe55e28410efd9d3c8e3bb0616ad7aaa1e3b1bc33a680a3851de314a257793>;
-    conditionalKey: ref_df92cee771fe0b498933553989d941d1e05e67ae402209cb2d061f608fb27e52 extends ref_bc7b1e155e1682173a0b327c38a85e282c33bad7bcc459a3b471037a19329e74 ? ref_db6104076e7d337d4971b0983c040d322998c70c5e7e5161d159f1bf56f71813 : false;
+    thisKey: ref_ae0af25eee1a127435bd963a873390d52567ab3653576ae33c7e570465feb4c4<ref_791500038cbc9c112d836bea8da144036e12d98f35e05432556e04cb4946897b>;
+    conditionalKey: ref_bdb6339a1ba6a62226bf6f42ef7fc99f466e1619773040d917deae998c492666 extends ref_d2d49aa065e5b7fb97c342a53572950db7a8ad111f83287e037e9fba9b6ed39f ? ref_b445b1ce76df33bfc9d1daa66f5180f8c2bb9d2ac56e20945d386fa13386f392 : false;
     objectKey: object;
     voidKey: void;
-    indexedKey: ref_53c293023364fb947997a8ec7cef66c386e54f6f6a753c950c66e83bb5470f19["name"];
-    intersectionKey: ref_eb1a08e1a55fdfab4f1526c01d138a963787c4edaf7587c427749242c95053ba & {
+    indexedKey: ref_d2d49aa065e5b7fb97c342a53572950db7a8ad111f83287e037e9fba9b6ed39f["name"];
+    intersectionKey: ref_791500038cbc9c112d836bea8da144036e12d98f35e05432556e04cb4946897b & {
         taste: string;
     };
-    arrayKey: Array<ref_d0e0b50e67f90f23aa09ea002ded975a35d19e554975e0ab57bc3c9dd06f7f5d>;
+    arrayKey: Array<ref_d2d49aa065e5b7fb97c342a53572950db7a8ad111f83287e037e9fba9b6ed39f>;
 }
-interface ref_32711620aed78c75881e2236efdff59f9e49d46e7e73de06775662be5168351c extends ref_64b0ea34323335e077fb625032eff258ef732157e83cdd043193d9593c6370b2 {
+interface ref_bdb6339a1ba6a62226bf6f42ef7fc99f466e1619773040d917deae998c492666 {
     name: "Calbee Lightly Salted";
     price: 120;
 }
-interface ref_64b0ea34323335e077fb625032eff258ef732157e83cdd043193d9593c6370b2 {
-    name: string;
-    price: number;
-}
-interface ref_f423c2e189dda775a9086d7101e11f0d603118db61f09caa648b863c3c4243de extends ref_07049923c2115335864f127eb4636c428c271743b0c876ef8bf5e966045172ee {
+interface ref_e0d0973b532ef31e9244a3c03ca7d009834937e796e1e9ed4056692c542d643e {
     name: "Koikeya Pride Potato";
     price: 150;
 }
-interface ref_07049923c2115335864f127eb4636c428c271743b0c876ef8bf5e966045172ee {
-    name: string;
-    price: number;
-}
-interface ref_83bb3ad7063b2bda0aa31b716a5df3324cbc7eeea708ee77d50bbaa8b82fd0d7 extends ref_45f34e1dbc3e1f40d9b6c0cbe3e0a30871b9dd5ef4039232eb80aa29a1cda91c {
+interface ref_b4f65beb2d4ec7ab762024435f09c6ab20ac5a068a661623964a9da74f48fa1a {
     name: "Pringles Sour Cream & Onion 😀";
     price: 200;
 }
-interface ref_45f34e1dbc3e1f40d9b6c0cbe3e0a30871b9dd5ef4039232eb80aa29a1cda91c {
-    name: string;
-    price: number;
-}
-interface ref_cbfe55e28410efd9d3c8e3bb0616ad7aaa1e3b1bc33a680a3851de314a257793 extends ref_0daf41b34fbf8372cc7593fb4d39b572823cde796777459063ffd58b1ff64d19 {
+interface ref_791500038cbc9c112d836bea8da144036e12d98f35e05432556e04cb4946897b {
     name: "Lay's Classic";
     price: 130;
 }
-interface ref_0daf41b34fbf8372cc7593fb4d39b572823cde796777459063ffd58b1ff64d19 {
+interface ref_ae0af25eee1a127435bd963a873390d52567ab3653576ae33c7e570465feb4c4<T> {
+}
+interface ref_d2d49aa065e5b7fb97c342a53572950db7a8ad111f83287e037e9fba9b6ed39f {
     name: string;
     price: number;
 }
-interface ref_3420ac96fb2523568f9090a4d3e62210e7955ededa9080b23d4f0f907d65fd6b<T> {
-}
-interface ref_df92cee771fe0b498933553989d941d1e05e67ae402209cb2d061f608fb27e52 extends ref_64b0ea34323335e077fb625032eff258ef732157e83cdd043193d9593c6370b2 {
-    name: "Calbee Lightly Salted";
-    price: 120;
-}
-interface ref_64b0ea34323335e077fb625032eff258ef732157e83cdd043193d9593c6370b2 {
-    name: string;
-    price: number;
-}
-interface ref_bc7b1e155e1682173a0b327c38a85e282c33bad7bcc459a3b471037a19329e74 {
-    name: string;
-    price: number;
-}
-interface ref_db6104076e7d337d4971b0983c040d322998c70c5e7e5161d159f1bf56f71813 extends ref_4ec30f4735376d209955b44562c144733ce92a914c28092fcc8ddc13b6cde661 {
+interface ref_b445b1ce76df33bfc9d1daa66f5180f8c2bb9d2ac56e20945d386fa13386f392 {
     name: "Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔";
     price: 250;
-}
-interface ref_4ec30f4735376d209955b44562c144733ce92a914c28092fcc8ddc13b6cde661 {
-    name: string;
-    price: number;
-}
-interface ref_53c293023364fb947997a8ec7cef66c386e54f6f6a753c950c66e83bb5470f19 {
-    name: string;
-    price: number;
-}
-interface ref_eb1a08e1a55fdfab4f1526c01d138a963787c4edaf7587c427749242c95053ba extends ref_0daf41b34fbf8372cc7593fb4d39b572823cde796777459063ffd58b1ff64d19 {
-    name: "Lay's Classic";
-    price: 130;
-}
-interface ref_0daf41b34fbf8372cc7593fb4d39b572823cde796777459063ffd58b1ff64d19 {
-    name: string;
-    price: number;
-}
-interface ref_d0e0b50e67f90f23aa09ea002ded975a35d19e554975e0ab57bc3c9dd06f7f5d {
-    name: string;
-    price: number;
 }

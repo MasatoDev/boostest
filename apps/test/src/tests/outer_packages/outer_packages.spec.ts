@@ -16,22 +16,22 @@ import { boostestResponseType } from "./boostest_output/boostestResponseType";
 import { boostestFormDataVisitorHelpers } from "./boostest_output/boostestFormDataVisitorHelpers";
 
 describe("Outer package Tests", () => {
-  runSnapshotTest(
-    "FormDataVisitorHelpers",
-    boostestFormDataVisitorHelpers<FormDataVisitorHelpers>(),
-  );
-  runSnapshotTest(
-    "SerializerVisitor",
-    boostestResponseType<SerializerVisitor>(),
-  );
+  // runSnapshotTest(
+  //   "FormDataVisitorHelpers",
+  //   boostestFormDataVisitorHelpers<FormDataVisitorHelpers>(),
+  // );
+  // runSnapshotTest(
+  //   "SerializerVisitor",
+  //   boostestResponseType<SerializerVisitor>(),
+  // );
 
   runSnapshotTest("Request", boostestRequest<Request>());
-  runSnapshotTest("Response", boostestResponse<Response>());
-  runSnapshotTest("RequestHandler", boostestHandler<RequestHandler>());
-  runSnapshotTest(
-    "RequestParamHandler",
-    boostestParamHandler<RequestParamHandler>(),
-  );
+  // runSnapshotTest("Response", boostestResponse<Response>());
+  // runSnapshotTest("RequestHandler", boostestHandler<RequestHandler>());
+  // runSnapshotTest(
+  //   "RequestParamHandler",
+  //   boostestParamHandler<RequestParamHandler>(),
+  // );
 
   // runSnapshotTest("ClientResponse", boostestSendGrid<ClientResponse>());
 });

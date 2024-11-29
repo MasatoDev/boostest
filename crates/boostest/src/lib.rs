@@ -106,6 +106,8 @@ pub fn resolve_target(
             &lib_file_path.to_path_buf(),
         );
 
+        println!("resolved ✅✅✅✅✅✅");
+
         spinner.update(
             spinners::Dots2,
             format!(

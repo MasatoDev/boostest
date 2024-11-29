@@ -36,8 +36,14 @@ function removeDuplicateDeclarations(code: string) {
   return result;
 }
 
+/*******************************************/
+/*******************************************/
+/***********  inferTsAlias  ****************/
+/*******************************************/
+/*******************************************/
 export function inferTsAlias(sourceCode: string) {
   const code = removeDuplicateDeclarations(sourceCode);
+  // console.log("📝📝📝📝📝📝📝\n", code);
 
   const fileName = "example.ts";
 
@@ -209,12 +215,12 @@ export function inferTsAlias(sourceCode: string) {
   return `${output}\n\n${code}`;
 }
 
-const code = `
-type main = ref_da030cb1de29fad61c37c573b32ed30449df12e581bcac6a0e0bfc342f06a0d6;
-class ref_da030cb1de29fad61c37c573b32ed30449df12e581bcac6a0e0bfc342f06a0d6 {
-
-    constructor(hoge: () => void) { }
-}
-
-`;
-console.log(inferTsAlias(code));
+// const code = `
+// type main = ref_da030cb1de29fad61c37c573b32ed30449df12e581bcac6a0e0bfc342f06a0d6;
+// class ref_da030cb1de29fad61c37c573b32ed30449df12e581bcac6a0e0bfc342f06a0d6 {
+//
+//     constructor(hoge: () => void) { }
+// }
+//
+// `;
+// console.log(inferTsAlias(code));

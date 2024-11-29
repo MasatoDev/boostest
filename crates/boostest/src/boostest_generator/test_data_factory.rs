@@ -58,7 +58,6 @@ pub fn handle_tuple_type<'a>(
                 if let Some(ts_type_annotation) = &mut ts_prop_signature.type_annotation {
                     let ts_type = ast_builder.move_ts_type(&mut ts_type_annotation.type_annotation);
                     let ele_type = TSTupleElement::from(ts_type);
-                    println!("ele_type: {:?}", ele_type);
 
                     element_types.push(ele_type);
                 }

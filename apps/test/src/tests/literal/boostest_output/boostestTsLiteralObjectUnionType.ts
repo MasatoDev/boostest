@@ -3,8 +3,8 @@ export function boostestTsLiteralObjectUnionType<T>(isArray = false) {
 }
 type main_output_target = { type: "A" } | { type: "B"; value: number }; // Extracted from typeAlias
 
-type main = ref_37f28352461deb8c9cf7debb5499d53af115c53126c6b60c72b9f3c237354f54;
-type ref_37f28352461deb8c9cf7debb5499d53af115c53126c6b60c72b9f3c237354f54 = {
+type main = ref_0d05cda2f2981e51550bcef985eae35075297cd32b4cf04a5ecad6dd7d6ecd7a;
+type ref_0d05cda2f2981e51550bcef985eae35075297cd32b4cf04a5ecad6dd7d6ecd7a = {
     type: "A";
 } | {
     type: "B";
