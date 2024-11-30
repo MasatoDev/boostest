@@ -7,10 +7,10 @@ export function boostestTSAliasMixUnionObjType<T>(args?: Partial<T>): T {
 }
 type main_output_target = { ref_type: true | 50000 | "A" | 1 | "B" | "C"; type: true | 50000 | "A" | 1 | "B" | "C" }; // Extracted from typeAlias
 
-type main = ref_e877ade7f3daf70d002c24d2fc5c3d661faf4a4b45e51b43d4cedbc22933bc50;
-type ref_e877ade7f3daf70d002c24d2fc5c3d661faf4a4b45e51b43d4cedbc22933bc50 = {
-    ref_type: ref_ac8353403bad1b2fa13c9bdf2eca76df87db3e337a28c5ed15f0f0a8e0875f27;
-    type: 50000 | "A" | 1 | true | ref_01876cbf74c0c696ea6a2fd787874afba309fe68ff239dfa50333814e478fb4d;
+type main = ref_b70f81ba23d4a4525bfccb6620b95c663dc6f07822cbe50156783f820cff0f01;
+type ref_b70f81ba23d4a4525bfccb6620b95c663dc6f07822cbe50156783f820cff0f01 = {
+    ref_type: ref_675d322f34bde1e92305cbade894603a8f9d94d7418a14e33187c25a984b831a;
+    type: 50000 | "A" | 1 | true | ref_588044e4dc1c5099354782e192cc113ce785979cd89ad1c2f900069a9842ce37;
 };
-type ref_ac8353403bad1b2fa13c9bdf2eca76df87db3e337a28c5ed15f0f0a8e0875f27 = 50000 | "A" | 1 | true | ref_01876cbf74c0c696ea6a2fd787874afba309fe68ff239dfa50333814e478fb4d;
-type ref_01876cbf74c0c696ea6a2fd787874afba309fe68ff239dfa50333814e478fb4d = "A" | "B" | "C";
+type ref_675d322f34bde1e92305cbade894603a8f9d94d7418a14e33187c25a984b831a = 50000 | "A" | 1 | true | ref_588044e4dc1c5099354782e192cc113ce785979cd89ad1c2f900069a9842ce37;
+type ref_588044e4dc1c5099354782e192cc113ce785979cd89ad1c2f900069a9842ce37 = "A" | "B" | "C";

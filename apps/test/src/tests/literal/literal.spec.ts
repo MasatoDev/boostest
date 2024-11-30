@@ -157,6 +157,7 @@ describe("Literal Type Tests", () => {
   //   "TsTypeLiteralAlias",
   //   boostestUseTSTypeLiteralAlias<UseTSTypeLiteralAlias>(),
   // );
+  // FIXME:
   runSnapshotTest(
     "TsTypeLiteralInterface",
     boostestUseTSTypeLiteralInterface<UseTSTypeLiteralInterface>(),

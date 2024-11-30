@@ -10,11 +10,11 @@ export function boostestGeneric<T>(args?: Partial<T>): T {
 }
 type main_output_target = { name: { name: string; ver: number; age: number } }; // Extracted from typeAlias
 
-type main = ref_9d0e63a0006a9a6e62b428b004b988ea80a31d629895643662002c1fe32d14fd<ref_098292025967766030fb75bd87a92107df14a0f7f9367c3088c15de28c69ebaa>;
-type ref_9d0e63a0006a9a6e62b428b004b988ea80a31d629895643662002c1fe32d14fd<T> = {
+type main = ref_f89d34d4a7bbbaea2ff1a75a003857b990d1438602d283db7dbd133d1507110a<ref_3b9c3d089f7db9f57143e53b88cc52ac525a538747ab7942192e5880385639d8>;
+type ref_f89d34d4a7bbbaea2ff1a75a003857b990d1438602d283db7dbd133d1507110a<T> = {
     name: T;
 };
-type ref_098292025967766030fb75bd87a92107df14a0f7f9367c3088c15de28c69ebaa = {
+type ref_3b9c3d089f7db9f57143e53b88cc52ac525a538747ab7942192e5880385639d8 = {
     name: string;
     ver: number;
     age: number;

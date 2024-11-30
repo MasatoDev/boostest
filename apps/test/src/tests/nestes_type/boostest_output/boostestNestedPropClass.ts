@@ -1,5 +1,5 @@
 export function boostestNestedPropClass<T>(isArray = false) {
-	return new ref_de6b4531102aa7d7c65bf50fa9f5bf29ba06528367e701c23bf665e5dff6af25({
+	return new ref_0e9cb03e9ca54202505a39c6baaf6db7248f25b77cbfeba1f949dc9cd0f66dd5({
 		a: 10,
 		b: "test string data",
 		c: {
@@ -54,12 +54,12 @@ export function boostestNestedPropClass<T>(isArray = false) {
 		}
 	});
 }
-type main_output_target = ["classReference", ref_de6b4531102aa7d7c65bf50fa9f5bf29ba06528367e701c23bf665e5dff6af25, [
+type main_output_target = ["classReference", ref_0e9cb03e9ca54202505a39c6baaf6db7248f25b77cbfeba1f949dc9cd0f66dd5, [
   { a: number; b: string; c: { d: false | true; e: { f: number; g: string; h: { i: number; j: { k: false | true; l: Array<string> } } }; m: { n: Array<number>; o: string } }; p: { q: { r: number }; s: { t: false | true; u: { v: number; w: string } } }; x: Array<string | number>; literalType: "option1" | "option2" | "option3"; mixedType: { a: number } & { b: string }; conditionalType: "active" | "inactive" | { status: "pending"; detail: string }; extended: { id: number; info: { description: string; tags: Array<"tag1" | "tag2" | "tag3">; settings: { mode: "auto" | "manual"; level: 1 | 2 | 3; extras: { feature: false | true; nestedRef: { name: "NestedRefType" } } } } } }
 ]]; // Extracted from typeAlias
 
-type main = ref_de6b4531102aa7d7c65bf50fa9f5bf29ba06528367e701c23bf665e5dff6af25;
-class ref_de6b4531102aa7d7c65bf50fa9f5bf29ba06528367e701c23bf665e5dff6af25 {
+type main = ref_0e9cb03e9ca54202505a39c6baaf6db7248f25b77cbfeba1f949dc9cd0f66dd5;
+class ref_0e9cb03e9ca54202505a39c6baaf6db7248f25b77cbfeba1f949dc9cd0f66dd5 {
     a: number;
     b: string;
     k: boolean;
@@ -117,7 +117,7 @@ class ref_de6b4531102aa7d7c65bf50fa9f5bf29ba06528367e701c23bf665e5dff6af25 {
                     level: 1 | 2 | 3;
                     extras?: {
                         feature: true | false;
-                        nestedRef: ref_6f2b3c7d08dd7c00df857b60b4d683f05362237b31b51cd9491c860d8af15ec5;
+                        nestedRef: ref_fec2c2b4fd7350e6435966fa7b6e4dc983f6cd92ea9097e65d26bf2a182d50ee;
                     };
                 };
             };
@@ -128,6 +128,6 @@ class ref_de6b4531102aa7d7c65bf50fa9f5bf29ba06528367e701c23bf665e5dff6af25 {
         this.k = huga.c.e.h.j.k;
     }
 }
-type ref_6f2b3c7d08dd7c00df857b60b4d683f05362237b31b51cd9491c860d8af15ec5 = {
+type ref_fec2c2b4fd7350e6435966fa7b6e4dc983f6cd92ea9097e65d26bf2a182d50ee = {
     name: "NestedRefType";
 };

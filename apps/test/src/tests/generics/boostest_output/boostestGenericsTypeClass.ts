@@ -1,5 +1,5 @@
 export function boostestGenericsTypeClass<T>(isArray = false) {
-	return new ref_922abc889fb1ea117383fa29a8775bedf197bd8959ab8da9651d1e0edff06ad9({
+	return new ref_8cdb8001f374fb3bb36d6084552ca2a0dadfa4a09c1ec7bba1107dd31fafe88d({
 		name: "test string data",
 		innerGeneric: {
 			name: "test string data",
@@ -45,7 +45,7 @@ export function boostestGenericsTypeClass<T>(isArray = false) {
 		age: 10
 	});
 }
-type main_output_target = ["classReference", ref_922abc889fb1ea117383fa29a8775bedf197bd8959ab8da9651d1e0edff06ad9, [
+type main_output_target = ["classReference", ref_8cdb8001f374fb3bb36d6084552ca2a0dadfa4a09c1ec7bba1107dd31fafe88d, [
   { name: string; innerGeneric: { name: string; ver: number; age: number }; innerGenericLiteral: "inner generic string" },
   { en: string; fr: string; it: string; es: string },
   { name: string; ver: number; age: number },
@@ -65,48 +65,48 @@ type main_output_target = ["classReference", ref_922abc889fb1ea117383fa29a8775be
   { ver: number; age: number }
 ]]; // Extracted from typeAlias
 
-type main = ref_922abc889fb1ea117383fa29a8775bedf197bd8959ab8da9651d1e0edff06ad9;
-class ref_922abc889fb1ea117383fa29a8775bedf197bd8959ab8da9651d1e0edff06ad9 {
-    constructor(public innserGenericInitializer: ref_f0e742c5fb1cb839e54d1d4fc22e384c86732233491f1011bfe18c39e5c8b20c, public mapperType: ref_e189c2ebdeeed447174ba35dcafbef0bad34be5487fc19edec8cc590db621f52, public keyOfMapperType: ref_8691d012e0a239ac0045869118b45b5709ea0dadbecd073f49f12ddf807c9639, public butterflyWithGenerics: ref_842b3faec7623be04d1ee8e981f59626b1b5e73ad87257b181ea995f89b9f9de<string>, public nonNullable: ref_9aee339117f1e88fb44c91e0707303c3608f89a97ec30de422f6a5793cbbe717<undefined | string | null>, public nestedPartial: {
-        childPartial: ref_18e7415508ed0889bb8741f71e6d74162fc6a3837513cf5562871af94f5df0e0<ref_098292025967766030fb75bd87a92107df14a0f7f9367c3088c15de28c69ebaa>;
-    }, public partial: ref_18e7415508ed0889bb8741f71e6d74162fc6a3837513cf5562871af94f5df0e0<ref_098292025967766030fb75bd87a92107df14a0f7f9367c3088c15de28c69ebaa>, public required: ref_be2d25f05632b4a609181dd7c91054661a43cf74b64df0e6fc6aaed1ec392a87<ref_098292025967766030fb75bd87a92107df14a0f7f9367c3088c15de28c69ebaa>, public readonly: ref_38996b248ca6e532217800bd6b7d70cb0c8df3d507635c8f6a48de91ed2d03d7<ref_098292025967766030fb75bd87a92107df14a0f7f9367c3088c15de28c69ebaa>, public extract: ref_d017e0103eed99c21c687c61929c6feb29b0f1d05cf8c0e1addc45ec67a47261<"A" | "B" | "C" | "D" | "E", "D" | "E">, public extractRefUnion: ref_d017e0103eed99c21c687c61929c6feb29b0f1d05cf8c0e1addc45ec67a47261<ref_d11edeb34e05b3e4600a689d5e5b687f3ec2f64c4b077499936eecb662187b86, "en" | "fr">, public exclude: ref_247e54ef48f53d3093dce8ec9d2ac9a69e1b224f332804bf91353c8d5f0cc48c<ref_aeb64cc99f4bd3e059bd88468ef2a548467269cd2e2d5ab5cd1303b947d4f278, "A">, public onDirectRefUnionType: ref_4e17212c5723cda18d6ec23c69e78690b41cf14d34cc8b657afc096d7ee7de21<"fr">, public array: Array<string>, public pick: ref_f5b07b26324580258d3c871e4aa5baba698e8d94a09b2f15209fe15976cb4f9e<ref_098292025967766030fb75bd87a92107df14a0f7f9367c3088c15de28c69ebaa, "name">, public pickMulti: ref_f5b07b26324580258d3c871e4aa5baba698e8d94a09b2f15209fe15976cb4f9e<ref_098292025967766030fb75bd87a92107df14a0f7f9367c3088c15de28c69ebaa, "ver" | "age">, public omit: ref_b77f55d6217e3bf6f91da40f1f560b9852ba78d026b8717e96bf03424b1a8079<ref_098292025967766030fb75bd87a92107df14a0f7f9367c3088c15de28c69ebaa, "name">) { }
+type main = ref_8cdb8001f374fb3bb36d6084552ca2a0dadfa4a09c1ec7bba1107dd31fafe88d;
+class ref_8cdb8001f374fb3bb36d6084552ca2a0dadfa4a09c1ec7bba1107dd31fafe88d {
+    constructor(public innserGenericInitializer: ref_65ecd8848beb3b193362c73284281242e5c53531155b0f8d390ffa81da7f0e35, public mapperType: ref_e7d2cb5782c7c0f3f865766f14de45fcc1a901a39ac7965514aa4e44e8065a0f, public keyOfMapperType: ref_faf7bacfff6eac957eba5147ed102b84fa3029818df4ec40ff0681d9e17b394a, public butterflyWithGenerics: ref_2f28aa726d14d35a2b3f2f7bcab6f9d99bfc59d2508a20912288c19a787e9d6c<string>, public nonNullable: ref_9b5e378137698035db7ab12985fab46f2e1d6d9b4350d04382336830ccc09692<undefined | string | null>, public nestedPartial: {
+        childPartial: ref_e0cc682ee701ec6857f6ef1084b24456bda67242293d1e4ac33f40f53cb5f05a<ref_3b9c3d089f7db9f57143e53b88cc52ac525a538747ab7942192e5880385639d8>;
+    }, public partial: ref_e0cc682ee701ec6857f6ef1084b24456bda67242293d1e4ac33f40f53cb5f05a<ref_3b9c3d089f7db9f57143e53b88cc52ac525a538747ab7942192e5880385639d8>, public required: ref_5f9b113693cce952fbe76b6cb7bcc817ab7a9bad4a92e4c4d86593167f7bda93<ref_3b9c3d089f7db9f57143e53b88cc52ac525a538747ab7942192e5880385639d8>, public readonly: ref_030dfbebcf173303887cef433eab00c81d9b2d23a1990129d1d10725c5ede59b<ref_3b9c3d089f7db9f57143e53b88cc52ac525a538747ab7942192e5880385639d8>, public extract: ref_07306641316c22f932def49e0ae9ea7eaf3d74e5ecbe42fcad665978f6d7c847<"A" | "B" | "C" | "D" | "E", "D" | "E">, public extractRefUnion: ref_07306641316c22f932def49e0ae9ea7eaf3d74e5ecbe42fcad665978f6d7c847<ref_ee77caf562ecd171f40f031328b141eb37b3459a578c81f3d7f6d18c1ddd184b, "en" | "fr">, public exclude: ref_08f323b7231c38e1286ac082c5ee7ab7beef1b23d64a2f959db5be1d1466e7be<ref_12d6555d5e73e93f9d0f4ce32b5fe45d601074bc41912980b2a1153314b990a7, "A">, public onDirectRefUnionType: ref_e70ce6e45ff698c81201758d19429f5853be7fef8d8c0c512c5602d1d39bd27f<"fr">, public array: Array<string>, public pick: ref_aeb691457540463b3f690f7a4ff24d628ddf0d2700933746245a66f4f9f2fb82<ref_3b9c3d089f7db9f57143e53b88cc52ac525a538747ab7942192e5880385639d8, "name">, public pickMulti: ref_aeb691457540463b3f690f7a4ff24d628ddf0d2700933746245a66f4f9f2fb82<ref_3b9c3d089f7db9f57143e53b88cc52ac525a538747ab7942192e5880385639d8, "ver" | "age">, public omit: ref_c97e0302c2c90d31f05906a1a2f84757c2b29ed110624baf203257ccf979b9b0<ref_3b9c3d089f7db9f57143e53b88cc52ac525a538747ab7942192e5880385639d8, "name">) { }
 }
-type ref_f0e742c5fb1cb839e54d1d4fc22e384c86732233491f1011bfe18c39e5c8b20c = {
+type ref_65ecd8848beb3b193362c73284281242e5c53531155b0f8d390ffa81da7f0e35 = {
     name: string;
-    innerGeneric: ref_51188c6b4f6c5fec901a3fb2f8ba8195743f696b54b3eaf8dc2aae0a2d0eb60d<ref_098292025967766030fb75bd87a92107df14a0f7f9367c3088c15de28c69ebaa>;
-    innerGenericLiteral: ref_51188c6b4f6c5fec901a3fb2f8ba8195743f696b54b3eaf8dc2aae0a2d0eb60d<"inner generic string">;
+    innerGeneric: ref_f630f49591c539abee5d224c14c675dbe9c73af3bf59e03663b65b93a9176789<ref_3b9c3d089f7db9f57143e53b88cc52ac525a538747ab7942192e5880385639d8>;
+    innerGenericLiteral: ref_f630f49591c539abee5d224c14c675dbe9c73af3bf59e03663b65b93a9176789<"inner generic string">;
 };
-type ref_098292025967766030fb75bd87a92107df14a0f7f9367c3088c15de28c69ebaa = {
+type ref_3b9c3d089f7db9f57143e53b88cc52ac525a538747ab7942192e5880385639d8 = {
     name: string;
     ver: number;
     age: number;
 };
-type ref_51188c6b4f6c5fec901a3fb2f8ba8195743f696b54b3eaf8dc2aae0a2d0eb60d<T> = T;
-type ref_e189c2ebdeeed447174ba35dcafbef0bad34be5487fc19edec8cc590db621f52 = {
-    [key in ref_d11edeb34e05b3e4600a689d5e5b687f3ec2f64c4b077499936eecb662187b86]: string;
+type ref_f630f49591c539abee5d224c14c675dbe9c73af3bf59e03663b65b93a9176789<T> = T;
+type ref_e7d2cb5782c7c0f3f865766f14de45fcc1a901a39ac7965514aa4e44e8065a0f = {
+    [key in ref_ee77caf562ecd171f40f031328b141eb37b3459a578c81f3d7f6d18c1ddd184b]: string;
 };
-type ref_d11edeb34e05b3e4600a689d5e5b687f3ec2f64c4b077499936eecb662187b86 = "en" | "fr" | "it" | "es";
-type ref_8691d012e0a239ac0045869118b45b5709ea0dadbecd073f49f12ddf807c9639 = {
-    [key in keyof ref_098292025967766030fb75bd87a92107df14a0f7f9367c3088c15de28c69ebaa]: ref_098292025967766030fb75bd87a92107df14a0f7f9367c3088c15de28c69ebaa[key];
+type ref_ee77caf562ecd171f40f031328b141eb37b3459a578c81f3d7f6d18c1ddd184b = "en" | "fr" | "it" | "es";
+type ref_faf7bacfff6eac957eba5147ed102b84fa3029818df4ec40ff0681d9e17b394a = {
+    [key in keyof ref_3b9c3d089f7db9f57143e53b88cc52ac525a538747ab7942192e5880385639d8]: ref_3b9c3d089f7db9f57143e53b88cc52ac525a538747ab7942192e5880385639d8[key];
 };
-type ref_842b3faec7623be04d1ee8e981f59626b1b5e73ad87257b181ea995f89b9f9de<T> = {
-    [key in ref_d11edeb34e05b3e4600a689d5e5b687f3ec2f64c4b077499936eecb662187b86]: T;
+type ref_2f28aa726d14d35a2b3f2f7bcab6f9d99bfc59d2508a20912288c19a787e9d6c<T> = {
+    [key in ref_ee77caf562ecd171f40f031328b141eb37b3459a578c81f3d7f6d18c1ddd184b]: T;
 };
-type ref_9aee339117f1e88fb44c91e0707303c3608f89a97ec30de422f6a5793cbbe717<T> = T & {};
-type ref_18e7415508ed0889bb8741f71e6d74162fc6a3837513cf5562871af94f5df0e0<T> = {
+type ref_9b5e378137698035db7ab12985fab46f2e1d6d9b4350d04382336830ccc09692<T> = T & {};
+type ref_e0cc682ee701ec6857f6ef1084b24456bda67242293d1e4ac33f40f53cb5f05a<T> = {
     [P in keyof T]?: T[P];
 };
-type ref_be2d25f05632b4a609181dd7c91054661a43cf74b64df0e6fc6aaed1ec392a87<T> = {
+type ref_5f9b113693cce952fbe76b6cb7bcc817ab7a9bad4a92e4c4d86593167f7bda93<T> = {
     [P in keyof T]-?: T[P];
 };
-type ref_38996b248ca6e532217800bd6b7d70cb0c8df3d507635c8f6a48de91ed2d03d7<T> = {
+type ref_030dfbebcf173303887cef433eab00c81d9b2d23a1990129d1d10725c5ede59b<T> = {
     readonly [P in keyof T]: T[P];
 };
-type ref_d017e0103eed99c21c687c61929c6feb29b0f1d05cf8c0e1addc45ec67a47261<T, U> = T extends U ? T : never;
-type ref_aeb64cc99f4bd3e059bd88468ef2a548467269cd2e2d5ab5cd1303b947d4f278 = "A" | "B" | "C" | "D" | "E";
-type ref_247e54ef48f53d3093dce8ec9d2ac9a69e1b224f332804bf91353c8d5f0cc48c<T, U> = T extends U ? never : T;
-type ref_4e17212c5723cda18d6ec23c69e78690b41cf14d34cc8b657afc096d7ee7de21<T> = T extends ref_d11edeb34e05b3e4600a689d5e5b687f3ec2f64c4b077499936eecb662187b86 ? T : never;
-type ref_f5b07b26324580258d3c871e4aa5baba698e8d94a09b2f15209fe15976cb4f9e<T, K extends keyof T> = {
+type ref_07306641316c22f932def49e0ae9ea7eaf3d74e5ecbe42fcad665978f6d7c847<T, U> = T extends U ? T : never;
+type ref_12d6555d5e73e93f9d0f4ce32b5fe45d601074bc41912980b2a1153314b990a7 = "A" | "B" | "C" | "D" | "E";
+type ref_08f323b7231c38e1286ac082c5ee7ab7beef1b23d64a2f959db5be1d1466e7be<T, U> = T extends U ? never : T;
+type ref_e70ce6e45ff698c81201758d19429f5853be7fef8d8c0c512c5602d1d39bd27f<T> = T extends ref_ee77caf562ecd171f40f031328b141eb37b3459a578c81f3d7f6d18c1ddd184b ? T : never;
+type ref_aeb691457540463b3f690f7a4ff24d628ddf0d2700933746245a66f4f9f2fb82<T, K extends keyof T> = {
     [P in K]: T[P];
 };
-type ref_b77f55d6217e3bf6f91da40f1f560b9852ba78d026b8717e96bf03424b1a8079<T, K extends keyof any> = ref_f5b07b26324580258d3c871e4aa5baba698e8d94a09b2f15209fe15976cb4f9e<T, ref_247e54ef48f53d3093dce8ec9d2ac9a69e1b224f332804bf91353c8d5f0cc48c<keyof T, K>>;
+type ref_c97e0302c2c90d31f05906a1a2f84757c2b29ed110624baf203257ccf979b9b0<T, K extends keyof any> = ref_aeb691457540463b3f690f7a4ff24d628ddf0d2700933746245a66f4f9f2fb82<T, ref_08f323b7231c38e1286ac082c5ee7ab7beef1b23d64a2f959db5be1d1466e7be<keyof T, K>>;

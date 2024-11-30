@@ -6,7 +6,7 @@ export function boostestTSInterfaceStringUnionType<T>(args?: Partial<T>): T {
 }
 type main_output_target = { type: "A" | "B" | "C" }; // Extracted from typeAlias
 
-type main = ref_be08e52360110c50f204cc71670b7de2ba580308813bbc9a59ea7f7beda7d3be;
-interface ref_be08e52360110c50f204cc71670b7de2ba580308813bbc9a59ea7f7beda7d3be {
+type main = ref_178ca1a3d529b2250e49132e6e7af8817d3fb292103255353aee2b1918114e07;
+interface ref_178ca1a3d529b2250e49132e6e7af8817d3fb292103255353aee2b1918114e07 {
     type: "A" | "B" | "C";
 }

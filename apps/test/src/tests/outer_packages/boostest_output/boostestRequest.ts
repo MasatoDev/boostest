@@ -3,16 +3,16 @@ export function boostestRequest<T>(args?: Partial<T>): T {
 }
 type main_output_target = {  }; // Extracted from typeAlias
 
-type main = ref_e821ded8622dd36e209a8cd49d3e510ae4a812d7637fc53745b1e05c9219dde2;
-interface ref_e821ded8622dd36e209a8cd49d3e510ae4a812d7637fc53745b1e05c9219dde2<P = ref_a056623caec632654f72085374b9b8a5b36570f99c0317355fd874eef1beb317, ResBody = any, ReqBody = any, ReqQuery = ref_69a6eed73f7c115b40dcd45dcdbb6939a5e63ac51e76deab439b649233749b64, Locals extends ref_0d4880c87d7e0cb5aa5bb96bf0bffe5e92a93517c3bd8e6509c1086e198135f0<string, any> = ref_0d4880c87d7e0cb5aa5bb96bf0bffe5e92a93517c3bd8e6509c1086e198135f0<string, any>> {
+type main = ref_664dd0ac81849d29651bd7d84ccd119c90d61ad6a64f9f7a00bf9a077e557856;
+interface ref_664dd0ac81849d29651bd7d84ccd119c90d61ad6a64f9f7a00bf9a077e557856<P = ref_c8731521a0647f377e3c1ac2aec4e2c9bc652a32d4dc41d8444b7516e13d3f84, ResBody = any, ReqBody = any, ReqQuery = ref_38a2fa01891503448fce0c3434f6e0c466b6193c1aea1c740506fe9ddb1ab6dd, Locals extends ref_8ad3e837da72be35720c18b236d83e0d5b5d5c7473eaa8fbf43b40257c73fe39<string, any> = ref_8ad3e837da72be35720c18b236d83e0d5b5d5c7473eaa8fbf43b40257c73fe39<string, any>> {
 }
-interface ref_a056623caec632654f72085374b9b8a5b36570f99c0317355fd874eef1beb317 {
+interface ref_c8731521a0647f377e3c1ac2aec4e2c9bc652a32d4dc41d8444b7516e13d3f84 {
     [key: string]: string;
 }
-type ref_69a6eed73f7c115b40dcd45dcdbb6939a5e63ac51e76deab439b649233749b64 = ref_78a3baefc91953611f45a23a412a13818cfbb5a9af1c7aacd278891e1a7ee9af;
-interface ref_78a3baefc91953611f45a23a412a13818cfbb5a9af1c7aacd278891e1a7ee9af {
-    [key: string]: undefined | string | Array<string> | ref_78a3baefc91953611f45a23a412a13818cfbb5a9af1c7aacd278891e1a7ee9af | Array<ref_78a3baefc91953611f45a23a412a13818cfbb5a9af1c7aacd278891e1a7ee9af>;
+type ref_38a2fa01891503448fce0c3434f6e0c466b6193c1aea1c740506fe9ddb1ab6dd = ref_5c93daf01347e29a627fa5b9141899d2b1ec8f94d5464ca94f674c6e3450d214;
+interface ref_5c93daf01347e29a627fa5b9141899d2b1ec8f94d5464ca94f674c6e3450d214 {
+    [key: string]: undefined | string | Array<string> | ref_5c93daf01347e29a627fa5b9141899d2b1ec8f94d5464ca94f674c6e3450d214 | Array<ref_5c93daf01347e29a627fa5b9141899d2b1ec8f94d5464ca94f674c6e3450d214>;
 }
-type ref_0d4880c87d7e0cb5aa5bb96bf0bffe5e92a93517c3bd8e6509c1086e198135f0<K extends keyof any, T> = {
+type ref_8ad3e837da72be35720c18b236d83e0d5b5d5c7473eaa8fbf43b40257c73fe39<K extends keyof any, T> = {
     [P in K]: T;
 };

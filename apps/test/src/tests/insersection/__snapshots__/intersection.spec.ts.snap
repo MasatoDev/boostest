@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Intersection Tests IntersectionClass matches snapshot 1`] = `"{"intersction":null,"intersction_obj":{"name":"test string data","ver":10},"intersction_string":"test string data","nonNullable":"test string data"}"`;
+exports[`Intersection Tests IntersectionClass matches snapshot 1`] = `"{"intersction_obj":{"name":"test string data","ver":10},"intersction_string":"hoga","nonNullable":"test string data"}"`;
 
-exports[`Intersection Tests IntersectionInterface matches snapshot 1`] = `"{"intersction":null,"intersction_obj":{"name":"test string data","ver":10},"intersction_string":"test string data","nonNullable":"test string data"}"`;
+exports[`Intersection Tests IntersectionInterface matches snapshot 1`] = `"{"intersction_obj":{"name":"test string data","ver":10},"intersction_string":"hoga","nonNullable":"test string data"}"`;
 
-exports[`Intersection Tests IntersectionTypeAlias matches snapshot 1`] = `"{"intersction":null,"intersction_obj":{"name":"test string data","ver":10},"intersction_string":"test string data","nonNullable":"test string data"}"`;
+exports[`Intersection Tests IntersectionTypeAlias matches snapshot 1`] = `"{"intersction_obj":{"name":"test string data","ver":10},"intersction_string":"hoga","nonNullable":"test string data"}"`;

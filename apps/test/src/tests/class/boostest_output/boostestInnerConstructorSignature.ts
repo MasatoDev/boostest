@@ -1,12 +1,12 @@
 export function boostestInnerConstructorSignature<T>(isArray = false) {
-	return ref_918c86bdc296277db65e6efd48c98da06b355275e634c30e981be851125588ff;
+	return ref_fde1c265eff56bba551d380c5ad4c0ad3670f2b5509a2ff5fb00a368f9444abc;
 }
-type main_output_target = ["classTypeofReference", ref_918c86bdc296277db65e6efd48c98da06b355275e634c30e981be851125588ff]; // Extracted from typeAlias
+type main_output_target = ["classTypeofReference", ref_fde1c265eff56bba551d380c5ad4c0ad3670f2b5509a2ff5fb00a368f9444abc]; // Extracted from typeAlias
 
-type main = ref_3554bd3f10d0e6c99e4448a8633ed724c498e31217971562f0d500c09d731648;
-type ref_3554bd3f10d0e6c99e4448a8633ed724c498e31217971562f0d500c09d731648 = {
-    new (name: string): ref_918c86bdc296277db65e6efd48c98da06b355275e634c30e981be851125588ff;
+type main = ref_da0eba347b6bfd9eaef39e7f651a3575ac8fe371c0d147ba2a7b89057e9e6a77;
+type ref_da0eba347b6bfd9eaef39e7f651a3575ac8fe371c0d147ba2a7b89057e9e6a77 = {
+    new (name: string): ref_fde1c265eff56bba551d380c5ad4c0ad3670f2b5509a2ff5fb00a368f9444abc;
 };
-class ref_918c86bdc296277db65e6efd48c98da06b355275e634c30e981be851125588ff {
+class ref_fde1c265eff56bba551d380c5ad4c0ad3670f2b5509a2ff5fb00a368f9444abc {
     constructor(public name: string) { }
 }

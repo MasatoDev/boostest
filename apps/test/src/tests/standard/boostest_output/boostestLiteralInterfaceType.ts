@@ -76,8 +76,8 @@ export function boostestLiteralInterfaceType<T>(args?: Partial<T>): T {
 }
 type main_output_target = { stringLiteral: string; numberLiteral: number; bigintLiteral: bigint; booleanLiteral: false | true; nullLiteral: null; undefinedId: undefined; anyLiteral: any; unknownLiteral: unknown; objectLiteral: object; voidLiteral: void; functionLiteral: () => void; arrayLiteral: Array<string>; referenceLiteral: { name: string; ver: number; age: number }; unionType: string | number; conditionalType: false; tsLiteralString: "string"; tsLiteralNumber: 20; tsBigInt: 10000000000000n; tsLiteralBoolean: true; tsNullLiteral: null; tsObject: {  }; tsArray: { length: 0 }; symbolLiteral: symbol; tsTuple: { 0: string; 1: number; 2: any; 3: { name: string; ver: number; age: number }; 4: { name: string; ver: number }; length: 5 }; tsNamedTuple: { 0: string; 1: number; 2: { name: string; ver: number; age: number }; 3: { name: string; ver: number }; length: 4 }; intersectionType: { name: string; ver: number; age: number } & { name: string; ver: number } & { name: string; age: number }; keyof: "name" | "ver" | "age"; indexAccessor: string }; // Extracted from typeAlias
 
-type main = ref_707c55b84b656c7431b0b9bc250c5c5b5a589d9da51ab7efb0a9bea41a71866e;
-type ref_707c55b84b656c7431b0b9bc250c5c5b5a589d9da51ab7efb0a9bea41a71866e = {
+type main = ref_ff384a4c7d17a36f74a1a34aed537799fc58bd13f6c9b7f5dec8bb355990164c;
+type ref_ff384a4c7d17a36f74a1a34aed537799fc58bd13f6c9b7f5dec8bb355990164c = {
     stringLiteral: string;
     numberLiteral: number;
     bigintLiteral: bigint;
@@ -90,7 +90,7 @@ type ref_707c55b84b656c7431b0b9bc250c5c5b5a589d9da51ab7efb0a9bea41a71866e = {
     voidLiteral: void;
     functionLiteral: () => void;
     arrayLiteral: Array<string>;
-    referenceLiteral: ref_098292025967766030fb75bd87a92107df14a0f7f9367c3088c15de28c69ebaa;
+    referenceLiteral: ref_3b9c3d089f7db9f57143e53b88cc52ac525a538747ab7942192e5880385639d8;
     unionType: string | number;
     conditionalType: string extends number ? true : false;
     tsLiteralString: "string";
@@ -106,28 +106,28 @@ type ref_707c55b84b656c7431b0b9bc250c5c5b5a589d9da51ab7efb0a9bea41a71866e = {
         string,
         number,
         any,
-        ref_098292025967766030fb75bd87a92107df14a0f7f9367c3088c15de28c69ebaa,
-        ref_7ec51250751ce6ad2694d49adfc576e095c555751e1d76e000d5752a28c1810d
+        ref_3b9c3d089f7db9f57143e53b88cc52ac525a538747ab7942192e5880385639d8,
+        ref_dbf297ee8019e5f745aefe9bded5aa35f434bc4c272ad8916592c5d691579fc3
     ];
     tsNamedTuple: [
         name: string,
         ver: number,
-        ref: ref_098292025967766030fb75bd87a92107df14a0f7f9367c3088c15de28c69ebaa,
-        refInterface: ref_7ec51250751ce6ad2694d49adfc576e095c555751e1d76e000d5752a28c1810d
+        ref: ref_3b9c3d089f7db9f57143e53b88cc52ac525a538747ab7942192e5880385639d8,
+        refInterface: ref_dbf297ee8019e5f745aefe9bded5aa35f434bc4c272ad8916592c5d691579fc3
     ];
-    intersectionType: ref_098292025967766030fb75bd87a92107df14a0f7f9367c3088c15de28c69ebaa & ref_7ec51250751ce6ad2694d49adfc576e095c555751e1d76e000d5752a28c1810d & {
+    intersectionType: ref_3b9c3d089f7db9f57143e53b88cc52ac525a538747ab7942192e5880385639d8 & ref_dbf297ee8019e5f745aefe9bded5aa35f434bc4c272ad8916592c5d691579fc3 & {
         name: string;
         age: number;
     };
-    keyof: keyof ref_098292025967766030fb75bd87a92107df14a0f7f9367c3088c15de28c69ebaa;
-    indexAccessor: ref_098292025967766030fb75bd87a92107df14a0f7f9367c3088c15de28c69ebaa["name"];
+    keyof: keyof ref_3b9c3d089f7db9f57143e53b88cc52ac525a538747ab7942192e5880385639d8;
+    indexAccessor: ref_3b9c3d089f7db9f57143e53b88cc52ac525a538747ab7942192e5880385639d8["name"];
 };
-type ref_098292025967766030fb75bd87a92107df14a0f7f9367c3088c15de28c69ebaa = {
+type ref_3b9c3d089f7db9f57143e53b88cc52ac525a538747ab7942192e5880385639d8 = {
     name: string;
     ver: number;
     age: number;
 };
-interface ref_7ec51250751ce6ad2694d49adfc576e095c555751e1d76e000d5752a28c1810d {
+interface ref_dbf297ee8019e5f745aefe9bded5aa35f434bc4c272ad8916592c5d691579fc3 {
     name: string;
     ver: number;
 }
