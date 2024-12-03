@@ -215,12 +215,19 @@ export function inferTsAlias(sourceCode: string) {
   return `${output}\n\n${code}`;
 }
 
-// const code = `
-// type main = ref_da030cb1de29fad61c37c573b32ed30449df12e581bcac6a0e0bfc342f06a0d6;
-// class ref_da030cb1de29fad61c37c573b32ed30449df12e581bcac6a0e0bfc342f06a0d6 {
-//
-//     constructor(hoge: () => void) { }
-// }
-//
-// `;
-// console.log(inferTsAlias(code));
+const code = `
+type main = CallSignatureInterface;
+type Hoge = Extract<'hoge' | 'huga', 'hoge'>
+type Extract<T, U> = T extends U ? T : never;
+
+export interface CallSignatureInterface {
+  (name: string, age: number, hoga: Hoge): void;
+  (): void;
+
+  name: Hoge;
+  func: () => Hoge;
+
+}
+`;
+
+console.log(inferTsAlias(code));
