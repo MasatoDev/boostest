@@ -11,14 +11,14 @@ export function boostestIntersectionTypeAlias<T>(args?: Partial<T>): T {
 }
 type main_output_target = { intersction_obj: { name: string } & { ver: number }; intersction_string: "hoga"; nonNullable: string }; // Extracted from typeAlias
 
-type main = ref_058b50e9adac546243acba66a08edd2e74d24f32d5eba9dfb75f1a774172061d;
-type ref_058b50e9adac546243acba66a08edd2e74d24f32d5eba9dfb75f1a774172061d = {
+type main = ref_4814cc7271af8644645e6184072b72e925c654de852384634035e852ff63c25d;
+type ref_4814cc7271af8644645e6184072b72e925c654de852384634035e852ff63c25d = {
     intersction_obj: {
         name: string;
     } & {
         ver: number;
     };
     intersction_string: string & "hoga";
-    nonNullable: ref_9b5e378137698035db7ab12985fab46f2e1d6d9b4350d04382336830ccc09692<undefined | string | null>;
+    nonNullable: ref_9aee339117f1e88fb44c91e0707303c3608f89a97ec30de422f6a5793cbbe717<undefined | string | null>;
 };
-type ref_9b5e378137698035db7ab12985fab46f2e1d6d9b4350d04382336830ccc09692<T> = T & {};
+type ref_9aee339117f1e88fb44c91e0707303c3608f89a97ec30de422f6a5793cbbe717<T> = T & {};

@@ -7,7 +7,7 @@ exports[`Class Tests ArgObjClass2 matches snapshot 1`] = `"{"name":"test string 
 exports[`Class Tests CallSignatureInterface matches snapshot 1`] = `"{}"`;
 
 exports[`Class Tests ConstructorSignature matches snapshot 1`] = `
-"class ref_fde1c265eff56bba551d380c5ad4c0ad3670f2b5509a2ff5fb00a368f9444abc {
+"class ref_918c86bdc296277db65e6efd48c98da06b355275e634c30e981be851125588ff {
     name;
     constructor(name) {
         this.name = name;
@@ -16,7 +16,7 @@ exports[`Class Tests ConstructorSignature matches snapshot 1`] = `
 `;
 
 exports[`Class Tests ConstructorSignatureInterface matches snapshot 1`] = `
-"class ref_fde1c265eff56bba551d380c5ad4c0ad3670f2b5509a2ff5fb00a368f9444abc {
+"class ref_918c86bdc296277db65e6efd48c98da06b355275e634c30e981be851125588ff {
     name;
     constructor(name) {
         this.name = name;
@@ -25,7 +25,7 @@ exports[`Class Tests ConstructorSignatureInterface matches snapshot 1`] = `
 `;
 
 exports[`Class Tests InnerConstructorSignature matches snapshot 1`] = `
-"class ref_fde1c265eff56bba551d380c5ad4c0ad3670f2b5509a2ff5fb00a368f9444abc {
+"class ref_918c86bdc296277db65e6efd48c98da06b355275e634c30e981be851125588ff {
     name;
     constructor(name) {
         this.name = name;

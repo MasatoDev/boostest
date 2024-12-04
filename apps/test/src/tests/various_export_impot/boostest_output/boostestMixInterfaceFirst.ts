@@ -6,7 +6,7 @@ export function boostestMixInterfaceFirst<T>(args?: Partial<T>): T {
 }
 type main_output_target = { name: "MixInterfaceFirst" }; // Extracted from typeAlias
 
-type main = ref_2ec6b0370500a6c968e961137126c61fdeff17ad33cc49f53a04bc75b2fec4f6;
-interface ref_2ec6b0370500a6c968e961137126c61fdeff17ad33cc49f53a04bc75b2fec4f6 {
+type main = ref_69140aba9374cf8bc22db5ed681a6f7fbfd5d97a75d5eb0b1b511caf2cc54a92;
+interface ref_69140aba9374cf8bc22db5ed681a6f7fbfd5d97a75d5eb0b1b511caf2cc54a92 {
     name: "MixInterfaceFirst";
 }

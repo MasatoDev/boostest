@@ -6,8 +6,8 @@ export function boostestCallSignature<T>(args?: Partial<T>): T {
 }
 type main_output_target = { name: string }; // Extracted from typeAlias
 
-type main = ref_e90ef42417246fac843a43cbd5c65db10517a1d30d0908d3feeedb01f863b0b6;
-type ref_e90ef42417246fac843a43cbd5c65db10517a1d30d0908d3feeedb01f863b0b6 = {
+type main = ref_5ab0896094b4280994e69dbd4f461ec60d22947b7a20efb3a201677cc047a2ec;
+type ref_5ab0896094b4280994e69dbd4f461ec60d22947b7a20efb3a201677cc047a2ec = {
     (name: string, age: number): void;
     (contents: string): string;
     (): void;

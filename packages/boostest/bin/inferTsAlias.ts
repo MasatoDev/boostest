@@ -1,41 +1,6 @@
 import ts, { Node } from "typescript";
 import { check } from "yargs";
 
-function removeDuplicateDeclarations(code: string) {
-  const sourceFile = ts.createSourceFile(
-    "temp.ts",
-    code,
-    ts.ScriptTarget.Latest,
-    true,
-  );
-
-  const seenDeclarations = new Set(); // 重複チェック用のセット
-  const uniqueStatements: Node[] = []; // ユニークなステートメントを保持
-
-  // ASTノードを解析
-  sourceFile.statements.forEach((node) => {
-    if (ts.isTypeAliasDeclaration(node) || ts.isClassDeclaration(node)) {
-      const key = node.getText(); // ノードの完全なテキストをキーとして保存
-      if (!seenDeclarations.has(key)) {
-        seenDeclarations.add(key);
-        uniqueStatements.push(node);
-      }
-    } else {
-      uniqueStatements.push(node); // その他のノードはそのまま追加
-    }
-  });
-
-  // ユニークなコードに変換
-  const printer = ts.createPrinter();
-  const result = uniqueStatements
-    .map((statement) =>
-      printer.printNode(ts.EmitHint.Unspecified, statement, sourceFile),
-    )
-    .join("\n");
-
-  return result;
-}
-
 /*******************************************/
 /*******************************************/
 /***********  inferTsAlias  ****************/
@@ -70,93 +35,6 @@ export function inferTsAlias(sourceCode: string) {
 
   const boostestTypes: any[] = [];
 
-  function getTypeStructure(type: ts.Type): string {
-    const isObjectType = (type: ts.Type) =>
-      (type.flags & ts.TypeFlags.Object) !== 0;
-
-    function isClassType(type: ts.Type): boolean {
-      const symbol = type.getSymbol();
-      if (!symbol) return false;
-      return symbol.getDeclarations()?.some(ts.isClassDeclaration) ?? false;
-    }
-
-    function isConstructorType(type: ts.Type): boolean {
-      return (
-        (type.getFlags() & ts.TypeFlags.Object) !== 0 &&
-        type.getConstructSignatures().length > 0
-      );
-    }
-
-    if (isConstructorType(type)) {
-      // typeofの場合
-      const instanceType = checker.getReturnTypeOfSignature(
-        type.getConstructSignatures()[0],
-      );
-      const className = checker.typeToString(instanceType);
-      return `["classTypeofReference", ${className}]`;
-    } else if (isClassType(type)) {
-      // Classの場合
-      const className = checker.typeToString(type);
-      const classSymbol = type.getSymbol();
-      const declarations = classSymbol?.getDeclarations();
-      const classDeclaration = declarations?.find(ts.isClassDeclaration);
-
-      let constructorArgTypes: string[] = [];
-
-      if (classDeclaration) {
-        const constructor = classDeclaration.members.find(
-          ts.isConstructorDeclaration,
-        );
-        if (constructor) {
-          constructor.parameters.forEach((param) => {
-            const paramType = checker.getTypeAtLocation(param);
-            let paramStructure = getTypeStructure(paramType);
-
-            if (param.type?.kind === ts.SyntaxKind.FunctionType) {
-              paramStructure = param.type.getText();
-            }
-
-            constructorArgTypes.push(paramStructure);
-          });
-        }
-      }
-
-      return `["classReference", ${className}, [\n  ${constructorArgTypes.join(
-        ",\n  ",
-      )}\n]]`;
-    } else if (type.isUnion()) {
-      return type.types.map((t) => getTypeStructure(t)).join(" | ");
-    } else if (type.isIntersection()) {
-      return type.types.map((t) => getTypeStructure(t)).join(" & ");
-    }
-    // else if (checker.isTupleType(type)) {
-    //   return checker.typeToString(type);
-    // }
-    else if (isObjectType(type)) {
-      const result = [];
-      for (const prop of type.getProperties()) {
-        // const declaration = prop.valueDeclaration || prop.declarations?.[0];
-        // if (!declaration) continue;
-        const propType = checker.getTypeOfSymbol(prop);
-        let propStructure = getTypeStructure(propType);
-
-        let hoge = prop.valueDeclaration;
-        if (hoge?.kind === ts.SyntaxKind.PropertySignature) {
-          let type = (hoge as ts.PropertySignature).type;
-          if (type?.kind === ts.SyntaxKind.FunctionType) {
-            propStructure = type.getText();
-          }
-        }
-
-        // const propType = checker.getTypeOfSymbolAtLocation(prop, declaration);
-        result.push(`${prop.name}: ${propStructure}`);
-      }
-      return `{ ${result.join("; ")} }`;
-    } else {
-      return checker.typeToString(type);
-    }
-  }
-
   function visit(node: Node) {
     if (
       ts.isTypeAliasDeclaration(node) &&
@@ -170,13 +48,13 @@ export function inferTsAlias(sourceCode: string) {
       // WARN: 分岐必要？
       if (isClassType(type)) {
         // クラス参照の場合
-        structure = getTypeStructure(type);
+        structure = getTypeStructure(checker, type);
       } else if (isConstructorType(type)) {
         // typeofクラス参照の場合
-        structure = getTypeStructure(type);
+        structure = getTypeStructure(checker, type);
       } else {
         // その他の型
-        structure = getTypeStructure(type);
+        structure = getTypeStructure(checker, type);
       }
 
       boostestTypes.push({
@@ -217,17 +95,204 @@ export function inferTsAlias(sourceCode: string) {
 
 const code = `
 type main = CallSignatureInterface;
-type Hoge = Extract<'hoge' | 'huga', 'hoge'>
-type Extract<T, U> = T extends U ? T : never;
+// type Hoge = Extract<'hoge' | 'huga', 'hoge'>
+// type Extract<T, U> = T extends U ? T : never;
 
 export interface CallSignatureInterface {
   (name: string, age: number, hoga: Hoge): void;
   (): void;
 
-  name: Hoge;
-  func: () => Hoge;
+  // name: Hoge;
+  // func: () => Hoge;
 
 }
 `;
 
 console.log(inferTsAlias(code));
+/**********************************************************/
+/**********************************************************/
+/**********************************************************/
+/**********************************************************/
+/**********************************************************/
+/**********************************************************/
+/***********        handle TYPE NODE       ****************/
+/**********************************************************/
+/**********************************************************/
+/**********************************************************/
+/**********************************************************/
+/**********************************************************/
+function getTextFromNode(
+  checker: ts.TypeChecker,
+  node: ts.Node,
+): string | undefined {
+  console.log("🍀", checker.typeToString(checker.getTypeAtLocation(node)));
+  if (ts.isPropertySignature(node)) {
+    if (node.type) {
+      return getTextFromNode(checker, node.type);
+    }
+  }
+
+  if (node.kind == ts.SyntaxKind.FunctionType) {
+    const type = checker.getTypeAtLocation(node);
+    return checker.typeToString(type);
+  }
+}
+
+/**********************************************************/
+/**********************************************************/
+/**********************************************************/
+/**********************************************************/
+/**********************************************************/
+/**********************************************************/
+/***********         handle TYPE           ****************/
+/**********************************************************/
+/**********************************************************/
+/**********************************************************/
+/**********************************************************/
+/**********************************************************/
+function getTypeStructure(checker: ts.TypeChecker, type: ts.Type): string {
+  if (isConstructorType(type)) {
+    // typeofの場合
+    const instanceType = checker.getReturnTypeOfSignature(
+      type.getConstructSignatures()[0],
+    );
+    const className = checker.typeToString(instanceType);
+    return `["classTypeofReference", ${className}]`;
+  } else if (isClassType(type)) {
+    // Classの場合
+    const className = checker.typeToString(type);
+    const classSymbol = type.getSymbol();
+    const declarations = classSymbol?.getDeclarations();
+    const classDeclaration = declarations?.find(ts.isClassDeclaration);
+
+    let constructorArgTypes: string[] = [];
+
+    if (classDeclaration) {
+      const constructor = classDeclaration.members.find(
+        ts.isConstructorDeclaration,
+      );
+      if (constructor) {
+        constructor.parameters.forEach((param) => {
+          let paramStructure;
+
+          if (param) {
+            const result = getTextFromNode(checker, param);
+            result && (paramStructure = result);
+          }
+
+          if (!paramStructure) {
+            const paramType = checker.getTypeAtLocation(param);
+            paramStructure = getTypeStructure(checker, paramType);
+          }
+
+          // if (param.type?.kind === ts.SyntaxKind.FunctionType) {
+          //   paramStructure = param.type.getText();
+          // }
+          //
+          constructorArgTypes.push(paramStructure);
+        });
+      }
+    }
+
+    return `["classReference", ${className}, [\n  ${constructorArgTypes.join(
+      ",\n  ",
+    )}\n]]`;
+  } else if (type.isUnion()) {
+    return type.types.map((t) => getTypeStructure(checker, t)).join(" | ");
+  } else if (type.isIntersection()) {
+    return type.types.map((t) => getTypeStructure(checker, t)).join(" & ");
+  }
+  // else if (checker.isTupleType(type)) {
+  //   return checker.typeToString(type);
+  // }
+  else if (isObjectType(type)) {
+    const result = [];
+
+    for (const prop of type.getProperties()) {
+      let propStructure;
+
+      const declaration = prop.valueDeclaration || prop.declarations?.[0];
+
+      if (declaration) {
+        const result = getTextFromNode(checker, declaration);
+        result && (propStructure = result);
+      }
+
+      if (!propStructure) {
+        const propType = checker.getTypeOfSymbol(prop);
+        propStructure = getTypeStructure(checker, propType);
+      }
+      result.push(`${prop.name}: ${propStructure}`);
+    }
+    return `{ ${result.join("; ")} }`;
+  } else {
+    return checker.typeToString(type);
+  }
+}
+
+/**********************************************************/
+/**********************  utils  ***************************/
+/**********************************************************/
+function isClassType(type: ts.Type): boolean {
+  const symbol = type.getSymbol();
+  if (!symbol) return false;
+  return symbol.getDeclarations()?.some(ts.isClassDeclaration) ?? false;
+}
+
+function isConstructorType(type: ts.Type): boolean {
+  return (
+    (type.getFlags() & ts.TypeFlags.Object) !== 0 &&
+    type.getConstructSignatures().length > 0
+  );
+}
+
+function isObjectType(type: ts.Type): boolean {
+  return (type.flags & ts.TypeFlags.Object) !== 0;
+}
+
+/**********************************************************/
+/**********************************************************/
+/**********************************************************/
+/**********************************************************/
+/**********************************************************/
+/**********************************************************/
+/***********  removeDuplicateDeclarations  ****************/
+/**********************************************************/
+/**********************************************************/
+/**********************************************************/
+/**********************************************************/
+/**********************************************************/
+function removeDuplicateDeclarations(code: string) {
+  const sourceFile = ts.createSourceFile(
+    "temp.ts",
+    code,
+    ts.ScriptTarget.Latest,
+    true,
+  );
+
+  const seenDeclarations = new Set(); // 重複チェック用のセット
+  const uniqueStatements: Node[] = []; // ユニークなステートメントを保持
+
+  // ASTノードを解析
+  sourceFile.statements.forEach((node) => {
+    if (ts.isTypeAliasDeclaration(node) || ts.isClassDeclaration(node)) {
+      const key = node.getText(); // ノードの完全なテキストをキーとして保存
+      if (!seenDeclarations.has(key)) {
+        seenDeclarations.add(key);
+        uniqueStatements.push(node);
+      }
+    } else {
+      uniqueStatements.push(node); // その他のノードはそのまま追加
+    }
+  });
+
+  // ユニークなコードに変換
+  const printer = ts.createPrinter();
+  const result = uniqueStatements
+    .map((statement) =>
+      printer.printNode(ts.EmitHint.Unspecified, statement, sourceFile),
+    )
+    .join("\n");
+
+  return result;
+}
