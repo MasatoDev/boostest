@@ -17,7 +17,8 @@ use colored::*;
 use spinoff::{spinners, Color, Spinner};
 use std::{
     collections::HashMap,
-    path::Path,
+    fs,
+    path::{Path, PathBuf},
     sync::{Arc, Mutex},
 };
 
@@ -135,9 +136,58 @@ pub fn resolve_target(
 }
 
 pub fn generate(output: HashMap<String, OutputCode>) {
+    for (_, output_code) in &output {
+        let OutputCode {
+            code,
+            path,
+            target_type,
+            ..
+        } = output_code;
+
+        let path = Path::new(&path);
+        let canonical_path = path.canonicalize();
+
+        if let Ok(canonical_path) = canonical_path {
+            let parent_path = canonical_path.parent();
+
+            if let Some(parent_path) = parent_path {
+                let dir_path = parent_path.join("boostest_output");
+                match manage_directory(&dir_path.to_string_lossy()) {
+                    Ok(_) => {}
+                    Err(e) => {
+                        println!("{}:{}", format!("failed to create test data"), e);
+                    }
+                }
+            }
+        }
+    }
+
     for (func_name, output_code) in output {
         if let Err(e) = handle_main_task(output_code, func_name) {
             println!("{}:{}", format!("failed to create test data"), e);
         }
     }
+}
+
+fn manage_directory(path: &str) -> std::io::Result<()> {
+    let dir_path = Path::new(path);
+
+    if dir_path.exists() {
+        // ディレクトリが存在する場合、中身を全て削除
+        for entry in fs::read_dir(dir_path)? {
+            let entry = entry?;
+            let entry_path = entry.path();
+
+            if entry_path.is_dir() {
+                fs::remove_dir_all(entry_path)?; // サブディレクトリを再帰的に削除
+            } else {
+                fs::remove_file(entry_path)?; // ファイルを削除
+            }
+        }
+    } else {
+        // ディレクトリが存在しない場合、新規作成
+        fs::create_dir_all(dir_path)?;
+    }
+
+    Ok(())
 }

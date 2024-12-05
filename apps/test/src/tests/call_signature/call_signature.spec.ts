@@ -13,13 +13,16 @@ import { boostestMathOperations } from "./boostest_output/boostestMathOperations
 
 describe("Call Signature Tests", () => {
   runSnapshotTest("CallSignature", boostestCallSignature<CallSignature>());
+
   runSnapshotTest(
     "CallSignatureInterface",
     boostestCallSignatureInterface<CallSignatureInterface>(),
   ); // FIXME: CallSignatureInterface
+
   runSnapshotTest(
     "SingleCallSignature",
     boostestSingleCallSignature<SingleCallSignature>(),
   );
+
   runSnapshotTest("MathOperations", boostestMathOperations<MathOperations>());
 });
