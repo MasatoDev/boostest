@@ -2138,6 +2138,102 @@ pub fn get_arg<'a>(
         TSType::TSNeverKeyword(_) => null_arg(ast_builder),
         TSType::TSArrayType(_) => array_arg(ast_builder, None),
         TSType::TSTupleType(ref mut ts_tuple_type) => {
+            let first_element = ts_tuple_type
+                .element_types
+                .first_mut()
+                .map(|x| ast_builder.move_ts_tuple_element(x));
+            let second_element = ts_tuple_type
+                .element_types
+                .get_mut(1)
+                .map(|x| ast_builder.move_ts_tuple_element(x));
+            let third_element = ts_tuple_type
+                .element_types
+                .get_mut(2)
+                .map(|x| ast_builder.move_ts_tuple_element(x));
+
+            if let Some(TSTupleElement::TSLiteralType(first_ts_type_ref)) = &first_element {
+                if let TSLiteral::StringLiteral(first_literal) = &first_ts_type_ref.literal {
+                    if let Some(TSTupleElement::TSTypeReference(second_ts_type_ref)) =
+                        &second_element
+                    {
+                        if let TSTypeName::IdentifierReference(second_id) =
+                            &second_ts_type_ref.type_name
+                        {
+                            // type main = ["classReference", ClassName, ["string", number]]
+                            // return) new ClassName("string", number)
+                            if first_literal.value == "classReference" {
+                                if let Some(third_element) = third_element {
+                                    let mut arguments = ast_builder.vec();
+
+                                    if let TSTupleElement::TSTupleType(mut third_ts_tuple) =
+                                        third_element
+                                    {
+                                        for element in third_ts_tuple.element_types.iter_mut() {
+                                            let ts_type =
+                                                ast_builder.move_ts_type(element.to_ts_type_mut());
+
+                                            let new = get_arg(
+                                                false,
+                                                ast_builder,
+                                                ts_type,
+                                                key_name,
+                                                mock_func_name,
+                                                vec![],
+                                                false,
+                                            );
+                                            arguments.push(new);
+                                        }
+                                    }
+
+                                    let new_name = ast_builder.atom(&second_id.name);
+                                    let new_callee =
+                                        ast_builder.expression_identifier_reference(SPAN, new_name);
+
+                                    let type_parameters: Option<
+                                        allocator::Box<TSTypeParameterInstantiation<'a>>,
+                                    > = None;
+
+                                    let expr = ast_builder.expression_new(
+                                        SPAN,
+                                        new_callee,
+                                        arguments,
+                                        type_parameters,
+                                    );
+                                    return Argument::from(expr);
+                                }
+                            }
+                            // type main = ["classTypeofReference", ClassName]
+                            // return) ClassName
+                            if first_literal.value == "classTypeofReference" {
+                                let new_name = ast_builder.atom(&second_id.name);
+                                let expr =
+                                    ast_builder.expression_identifier_reference(SPAN, new_name);
+                                return Argument::from(expr);
+                            }
+                        }
+                    }
+                }
+            }
+
+            // back
+            if let Some(mut first_element) = first_element {
+                if let Some(first) = ts_tuple_type.element_types.get_mut(0) {
+                    std::mem::swap(first, &mut first_element);
+                }
+            }
+
+            if let Some(mut second_element) = second_element {
+                if let Some(second) = ts_tuple_type.element_types.get_mut(1) {
+                    std::mem::swap(second, &mut second_element);
+                }
+            }
+
+            if let Some(mut third_element) = third_element {
+                if let Some(third) = ts_tuple_type.element_types.get_mut(2) {
+                    std::mem::swap(third, &mut third_element);
+                }
+            }
+
             let mut new_elements = ast_builder.vec();
             for element in ts_tuple_type.element_types.iter_mut() {
                 let ts_type = ast_builder.move_ts_type(element.to_ts_type_mut());

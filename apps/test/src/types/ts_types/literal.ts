@@ -51,14 +51,8 @@ export type LiteralTypeAlias = {
   intersectionType: RefType & { name: string; age: number };
   keyof: keyof RefType;
   indexAccessor: RefType["name"];
-
-  /**********************/
-  /******* FIXME: *******/
-  /**********************/
-
-  // constructorType: abstract new (...args: any) => any;
-  // classType: typeof Hoge;
-  // refTypeInterface: RefTypeInterface;
+  constructorType: abstract new (...args: any) => Hoge;
+  classType: typeof Hoge;
 };
 
 export type LiteralTypeInterface = {
@@ -98,63 +92,52 @@ export type LiteralTypeInterface = {
   intersectionType: RefType & RefTypeInterface & { name: string; age: number };
   keyof: keyof RefType;
   indexAccessor: RefType["name"];
-
-  /**********************/
-  /******* FIXME: *******/
-  /**********************/
-  // constructorType: abstract new (...args: any) => any;
-  // classType: typeof Hoge;
-  // refTypeInterface: RefTypeInterface;
+  constructorType: abstract new (...args: any) => Hoge;
+  classType: typeof Hoge;
 };
 
 export class LiteralTypeClass {
   constructor(
-    // public stringLiteral: string,
-    // public numberLiteral: number,
-    // public bigintLiteral: bigint,
-    // public booleanLiteral: boolean,
-    // public nullLiteral: null,
-    // public undefinedId: undefined,
-    // public anyLiteral: any,
-    // public unknownLiteral: unknown,
-    // // public neverLiteral: never,
-    // public objectLiteral: object,
-    // public voidLiteral: void,
+    public stringLiteral: string,
+    public numberLiteral: number,
+    public bigintLiteral: bigint,
+    public booleanLiteral: boolean,
+    public nullLiteral: null,
+    public undefinedId: undefined,
+    public anyLiteral: any,
+    public unknownLiteral: unknown,
+    // public neverLiteral: never,
+    public objectLiteral: object,
+    public voidLiteral: void,
     public functionLiteral: () => void,
-    // public arrayLiteral: string[],
-    // public referenceLiteral: RefType,
-    // public unionType: string | number,
-    //
-    // public tsLiteralString: "string",
-    // public tsLiteralNumber: 20,
-    // public tsBigInt: 10000000000000n,
-    // public tsLiteralBoolean: true,
-    // public tsNullLiteral: null,
-    // public tsObject: {},
-    // public tsArray: [],
-    //
-    // public symbolLiteral: symbol,
-    // public tsTuple: [string, number, any, RefType, RefTypeInterface, string],
-    // public tsNamedTuple: [
-    //   name: string,
-    //   ver: number,
-    //   ref: RefType,
-    //   refInterface: RefTypeInterface,
-    //   hello: number,
-    // ],
-    // public intersectionType: RefType &
-    //   RefTypeInterface & { name: string; age: number },
-    // public conditionalType: string extends number ? true : false,
-    //
-    // public keyof: keyof RefType,
-    // public indexAccessor: RefType["name"],
+    public arrayLiteral: string[],
+    public referenceLiteral: RefType,
+    public unionType: string | number,
 
-    /**********************/
-    /******* FIXME: *******/
-    /**********************/
-    // public constructorType: abstract new (...args: any) => any,
-    // public classType: typeof Hoge,
-    // public refTypeInterface: RefTypeInterface,
-    //
+    public tsLiteralString: "string",
+    public tsLiteralNumber: 20,
+    public tsBigInt: 10000000000000n,
+    public tsLiteralBoolean: true,
+    public tsNullLiteral: null,
+    public tsObject: {},
+    public tsArray: [],
+
+    public symbolLiteral: symbol,
+    public tsTuple: [string, number, any, RefType, RefTypeInterface, string],
+    public tsNamedTuple: [
+      name: string,
+      ver: number,
+      ref: RefType,
+      refInterface: RefTypeInterface,
+      hello: number,
+    ],
+    public intersectionType: RefType &
+      RefTypeInterface & { name: string; age: number },
+    public conditionalType: string extends number ? true : false,
+
+    public keyof: keyof RefType,
+    public indexAccessor: RefType["name"],
+    public constructorType: abstract new (...args: any) => Hoge,
+    public classType: typeof Hoge,
   ) {}
 }
