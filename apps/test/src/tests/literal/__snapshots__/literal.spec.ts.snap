@@ -1,3 +1,51 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`Literal Type Tests TsLiteralArrayUnionType matches snapshot 1`] = `"[]"`;
+
+exports[`Literal Type Tests TsLiteralBooleanUnionType matches snapshot 1`] = `"false"`;
+
+exports[`Literal Type Tests TsLiteralFunctionUnionType matches snapshot 1`] = `
+"(x) => {
+        return 10;
+    }"
+`;
+
+exports[`Literal Type Tests TsLiteralNumberUnionType matches snapshot 1`] = `"1"`;
+
+exports[`Literal Type Tests TsLiteralObjectUnionType matches snapshot 1`] = `"{"type":"A"}"`;
+
+exports[`Literal Type Tests TsLiteralTypeStringUnionType matches snapshot 1`] = `""A""`;
+
+exports[`Literal Type Tests TsTypeLiteralAlias matches snapshot 1`] = `"{"literalString":"test string data","literalLiteralString":"string","literalStringUnion":"A","literalNumber":10,"literalLiteralNumber":42,"literalNumberUnion":1,"literalBoolean":false,"literalLiteralBoolean":true,"literalBooleanUnion":false,"literalNull":null,"literalUndefined":"undefined","literalArray":[],"literalLiteralArray":[1,2,3],"literalArrayUnion":[],"literalObject":{},"literalLiteralObject":{"name":"test string data","age":10},"literalObjectUnion":{"type":"A"},"literalFunction":"() => { }","literalLiteralFunction":"() => { }","literalFunctionUnion":"(x) => {\\n            return 10;\\n        }","literalBigInt":"9007199254740991n","literalLiteralBigInt":"123n","literalBigIntUnion":"1n","literalSymbol":"Symbol()"}"`;
+
+exports[`Literal Type Tests TsTypeLiteralArray matches snapshot 1`] = `"[]"`;
+
+exports[`Literal Type Tests TsTypeLiteralBoolean matches snapshot 1`] = `"false"`;
+
+exports[`Literal Type Tests TsTypeLiteralFunction matches snapshot 1`] = `"() => { }"`;
+
 exports[`Literal Type Tests TsTypeLiteralInterface matches snapshot 1`] = `"{"literalString":"test string data","literalLiteralString":"string","literalStringUnion":"A","literalNumber":10,"literalLiteralNumber":42,"literalNumberUnion":1,"literalBoolean":false,"literalLiteralBoolean":true,"literalBooleanUnion":false,"literalNull":null,"literalUndefined":"undefined","literalArray":[],"literalLiteralArray":[1,2,3],"literalArrayUnion":[],"literalObject":{},"literalLiteralObject":{"name":"test string data","age":10},"literalObjectUnion":{"type":"A"},"literalFunction":"() => { }","literalLiteralFunction":"() => { }","literalFunctionUnion":"(x) => {\\n            return 10;\\n        }","literalBigInt":"9007199254740991n","literalLiteralBigInt":"123n","literalBigIntUnion":"1n","literalSymbol":"Symbol()"}"`;
+
+exports[`Literal Type Tests TsTypeLiteralLiteralArrayType matches snapshot 1`] = `"[1,2,3]"`;
+
+exports[`Literal Type Tests TsTypeLiteralLiteralBooleanType matches snapshot 1`] = `"true"`;
+
+exports[`Literal Type Tests TsTypeLiteralLiteralFunctionType matches snapshot 1`] = `"() => { }"`;
+
+exports[`Literal Type Tests TsTypeLiteralLiteralNumberType matches snapshot 1`] = `"42"`;
+
+exports[`Literal Type Tests TsTypeLiteralLiteralObjectType matches snapshot 1`] = `"{"name":"test string data","age":10}"`;
+
+exports[`Literal Type Tests TsTypeLiteralLiteralTypeString matches snapshot 1`] = `""string""`;
+
+exports[`Literal Type Tests TsTypeLiteralNull matches snapshot 1`] = `"null"`;
+
+exports[`Literal Type Tests TsTypeLiteralNumber matches snapshot 1`] = `"10"`;
+
+exports[`Literal Type Tests TsTypeLiteralObject matches snapshot 1`] = `"{}"`;
+
+exports[`Literal Type Tests TsTypeLiteralString matches snapshot 1`] = `""test string data""`;
+
+exports[`Literal Type Tests TsTypeLiteralSymbol matches snapshot 1`] = `"Symbol()"`;
+
+exports[`Literal Type Tests TsTypeLiteralUndefined matches snapshot 1`] = `""undefined""`;

@@ -17,7 +17,7 @@ describe("Call Signature Tests", () => {
   runSnapshotTest(
     "CallSignatureInterface",
     boostestCallSignatureInterface<CallSignatureInterface>(),
-  ); // FIXME: CallSignatureInterface
+  );
 
   runSnapshotTest(
     "SingleCallSignature",

@@ -269,6 +269,7 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
                 .ast_builder
                 .move_ts_type(&mut self.ts_type_alias.type_annotation);
 
+            // NOTE: call signatureは...argにしてreturnだけちゃんとしたい
             if let Some(call_signature_expr) = test_data_factory::get_first_call_signature(
                 &self.ast_builder,
                 ts_annotation,
