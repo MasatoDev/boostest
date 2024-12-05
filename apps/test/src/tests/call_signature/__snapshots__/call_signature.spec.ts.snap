@@ -4,7 +4,7 @@ exports[`Call Signature Tests CallSignature matches snapshot 1`] = `"(name, age)
 
 exports[`Call Signature Tests CallSignatureInterface matches snapshot 1`] = `"(name, age) => { }"`;
 
-exports[`Call Signature Tests MathOperations matches snapshot 1`] = `"{}"`;
+exports[`Call Signature Tests MathOperations matches snapshot 1`] = `"{"add":"(a, b) => {\\n            return 10;\\n        }","multiply":"(a, b) => {\\n            return 10;\\n        }"}"`;
 
 exports[`Call Signature Tests SingleCallSignature matches snapshot 1`] = `
 "(name, age) => {
