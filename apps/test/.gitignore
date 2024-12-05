@@ -3,5 +3,5 @@ node_modules/
 
 src/**/*_test_data.ts
 src/**/*_boostest.ts
-src/tests/**/boostest_output/
+src/tests/*/boostest_output/
 
