@@ -1,10 +1,10 @@
-export function boostestCallSignatureInterface<T>(args?: Partial<T>): T {
-	return { ...args } as T;
+export function boostestCallSignatureInterface<T>(isArray = false) {
+	return (name: string, age: number) => {};
 }
-type main_output_target = {  }; // Extracted from typeAlias
+type main_output_target = { (name: string, age: number): void; (): void }; // Extracted from typeAlias
 
-type main = ref_08ecafa31bbb43d20144f6cbd80b4e5963c90a456df43f902fdeda41fda63ee4;
-interface ref_08ecafa31bbb43d20144f6cbd80b4e5963c90a456df43f902fdeda41fda63ee4 {
+type main = ref_06d41fa5a59922caa91af7e529433d08521718052cc79936851bff1b721483e7;
+interface ref_06d41fa5a59922caa91af7e529433d08521718052cc79936851bff1b721483e7 {
     (name: string, age: number): void;
     (): void;
 }

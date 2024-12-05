@@ -25,8 +25,10 @@ export function boostestUseTSTypeLiteralInterface<T>(args?: Partial<T>): T {
 		},
 		literalObjectUnion: { type: "A" },
 		literalFunction: () => {},
-		literalLiteralFunction: {},
-		literalFunctionUnion: {},
+		literalLiteralFunction: () => {},
+		literalFunctionUnion: (x: number) => {
+			return 10;
+		},
 		literalBigInt: 9007199254740991n,
 		literalLiteralBigInt: 123n,
 		literalBigIntUnion: 1n,
@@ -34,7 +36,7 @@ export function boostestUseTSTypeLiteralInterface<T>(args?: Partial<T>): T {
 		...args
 	} as T;
 }
-type main_output_target = { literalString: string; literalLiteralString: "string"; literalStringUnion: "A" | "B" | "C"; literalNumber: number; literalLiteralNumber: 42; literalNumberUnion: 1 | 2 | 3; literalBoolean: false | true; literalLiteralBoolean: true; literalBooleanUnion: false | true; literalNull: null; literalUndefined: undefined; literalArray: Array<any>; literalLiteralArray: { 0: 1; 1: 2; 2: 3; length: 3 }; literalArrayUnion: { length: 0 } | { 0: 1; length: 1 } | { 0: 1; 1: 2; length: 2 }; literalObject: object; literalLiteralObject: { name: string; age: number }; literalObjectUnion: { type: "A" } | { type: "B"; value: number }; literalFunction: Function; literalLiteralFunction: {  }; literalFunctionUnion: {  } | {  }; literalBigInt: bigint; literalLiteralBigInt: 123n; literalBigIntUnion: 1n | 2n | 3n; literalSymbol: symbol }; // Extracted from typeAlias
+type main_output_target = { literalString: string; literalLiteralString: "string"; literalStringUnion: "A" | "B" | "C"; literalNumber: number; literalLiteralNumber: 42; literalNumberUnion: 1 | 2 | 3; literalBoolean: false | true; literalLiteralBoolean: true; literalBooleanUnion: false | true; literalNull: null; literalUndefined: undefined; literalArray: Array<any>; literalLiteralArray: { 0: 1; 1: 2; 2: 3; length: 3 }; literalArrayUnion: { length: 0 } | { 0: 1; length: 1 } | { 0: 1; 1: 2; length: 2 }; literalObject: object; literalLiteralObject: { name: string; age: number }; literalObjectUnion: { type: "A" } | { type: "B"; value: number }; literalFunction: Function; literalLiteralFunction: (() => void); literalFunctionUnion: ((x: number) => number) | ((x: string) => string); literalBigInt: bigint; literalLiteralBigInt: 123n; literalBigIntUnion: 1n | 2n | 3n; literalSymbol: symbol }; // Extracted from typeAlias
 
 type main = ref_26992badd16e1c8d38d8abe6974f9a78ddc8886f6f5442609975ed320ca31104;
 interface ref_26992badd16e1c8d38d8abe6974f9a78ddc8886f6f5442609975ed320ca31104 {

@@ -1,5 +1,8 @@
 import ts, { Node } from "typescript";
-import { check } from "yargs";
+
+const TypeOriginalFlag = {
+  constructorSignature: "constructorSignature",
+} as const;
 
 /*******************************************/
 /*******************************************/
@@ -94,21 +97,20 @@ export function inferTsAlias(sourceCode: string) {
 }
 
 const code = `
-type main = CallSignatureInterface;
-// type Hoge = Extract<'hoge' | 'huga', 'hoge'>
-// type Extract<T, U> = T extends U ? T : never;
+type main = TsLiteralFunctionUnionType;
 
-export interface CallSignatureInterface {
-  (name: string, age: number, hoga: Hoge): void;
-  (): void;
+type Hoge = Extract<'hoge' | 'huga', 'hoge'>
+type Extract<T, U> = T extends U ? T : never;
 
-  // name: Hoge;
-  // func: () => Hoge;
+export type TsTypeLiteralLiteralFunctionType = () => Hoge; 
 
-}
+export type TsLiteralFunctionUnionType =
+  | ((x: number) => Hoge)
+  | ((x: string) => string); 
 `;
 
-console.log(inferTsAlias(code));
+// console.log("⭐⭐RESULE: \n", inferTsAlias(code));
+
 /**********************************************************/
 /**********************************************************/
 /**********************************************************/
@@ -125,7 +127,6 @@ function getTextFromNode(
   checker: ts.TypeChecker,
   node: ts.Node,
 ): string | undefined {
-  console.log("🍀", checker.typeToString(checker.getTypeAtLocation(node)));
   if (ts.isPropertySignature(node)) {
     if (node.type) {
       return getTextFromNode(checker, node.type);
@@ -133,9 +134,16 @@ function getTextFromNode(
   }
 
   if (node.kind == ts.SyntaxKind.FunctionType) {
-    const type = checker.getTypeAtLocation(node);
-    return checker.typeToString(type);
+    return checker.typeToString(checker.getTypeAtLocation(node));
   }
+
+  // if (node.kind == ts.SyntaxKind.CallSignature) {
+  //   const callSignature = node as ts.SignatureDeclaration;
+  //
+  //   // return checker.typeToString(checker.getTypeAtLocation(node));
+  //
+  //   // type && getTextFromNode(checker, type);
+  // }
 }
 
 /**********************************************************/
@@ -150,7 +158,11 @@ function getTextFromNode(
 /**********************************************************/
 /**********************************************************/
 /**********************************************************/
-function getTypeStructure(checker: ts.TypeChecker, type: ts.Type): string {
+function getTypeStructure(
+  checker: ts.TypeChecker,
+  type: ts.Type,
+  typeOriginalFlag?: typeof TypeOriginalFlag,
+): string {
   if (isConstructorType(type)) {
     // typeofの場合
     const instanceType = checker.getReturnTypeOfSignature(
@@ -185,10 +197,6 @@ function getTypeStructure(checker: ts.TypeChecker, type: ts.Type): string {
             paramStructure = getTypeStructure(checker, paramType);
           }
 
-          // if (param.type?.kind === ts.SyntaxKind.FunctionType) {
-          //   paramStructure = param.type.getText();
-          // }
-          //
           constructorArgTypes.push(paramStructure);
         });
       }
@@ -208,6 +216,44 @@ function getTypeStructure(checker: ts.TypeChecker, type: ts.Type): string {
   else if (isObjectType(type)) {
     const result = [];
 
+    // constructor signature
+    // const constructSignatures = type
+    //   .getConstructSignatures()
+    //   .map((signature) => {
+    //     const parameters = signature.getParameters().map((param) => {
+    //       const paramType = checker.getTypeOfSymbolAtLocation(
+    //         param,
+    //         param.valueDeclaration!,
+    //       );
+    //       const expandedParamType = getTypeStructure(checker, paramType);
+    //       return `${param.getName()}: ${expandedParamType}`;
+    //     });
+    //     const returnType = checker.getReturnTypeOfSignature(signature);
+    //     const expandedReturnType = getTypeStructure(checker, returnType);
+    //     return `new (${parameters.join(", ")}): ${expandedReturnType}`;
+    //   });
+    //
+    // result.push(...constructSignatures);
+
+    // string index type / number index type
+    const indexInfos = checker.getIndexInfosOfType(type);
+
+    const indexSignatures = indexInfos.map((indexInfo) => {
+      const keyFlag = indexInfo.keyType.flags;
+      const keyType =
+        keyFlag & ts.TypeFlags.Number
+          ? "number"
+          : keyFlag & ts.TypeFlags.String
+            ? "string"
+            : "symbol";
+
+      const valueType = getTypeStructure(checker, indexInfo.type);
+      return `[key: ${keyType}]: ${valueType}`;
+    });
+
+    result.push(...indexSignatures);
+
+    // properties
     for (const prop of type.getProperties()) {
       let propStructure;
 
@@ -224,7 +270,39 @@ function getTypeStructure(checker: ts.TypeChecker, type: ts.Type): string {
       }
       result.push(`${prop.name}: ${propStructure}`);
     }
-    return `{ ${result.join("; ")} }`;
+
+    // call signature
+    const callSignaturesResult = [];
+    for (const signature of type.getCallSignatures()) {
+      const parameters = signature.getParameters().map((param) => {
+        const paramType = checker.getTypeOfSymbolAtLocation(
+          param,
+          param.valueDeclaration!,
+        );
+        const expandedParamType = getTypeStructure(checker, paramType);
+        return `${param.getName()}: ${expandedParamType}`;
+      });
+      const returnType = checker.getReturnTypeOfSignature(signature);
+      const expandedReturnType = getTypeStructure(checker, returnType);
+
+      const decl = signature.getDeclaration();
+      if (decl.kind === ts.SyntaxKind.CallSignature) {
+        callSignaturesResult.push(
+          `(${parameters.join(", ")}): ${expandedReturnType}`,
+        );
+      } else if (decl.kind === ts.SyntaxKind.FunctionType) {
+        callSignaturesResult.push(
+          `((${parameters.join(", ")}) => ${expandedReturnType})`,
+        );
+      }
+    }
+
+    if (result.length === 0 && callSignaturesResult.length === 1) {
+      // When there is only one call signature, do not use {}.
+      return `${callSignaturesResult.join("; ")}`;
+    }
+
+    return `{ ${[...result, ...callSignaturesResult].join("; ")} }`;
   } else {
     return checker.typeToString(type);
   }

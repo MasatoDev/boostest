@@ -383,8 +383,12 @@ pub fn function_expr<'a>(
         body,
     )
 }
-pub fn function_arg<'a>(ast_builder: &AstBuilder<'a>) -> Argument<'a> {
-    let (params, body) = function_parts(ast_builder, None, None);
+pub fn function_arg<'a>(
+    ast_builder: &AstBuilder<'a>,
+    formal_parameters: Option<allocator::Box<'a, FormalParameters<'a>>>,
+    return_expression: Option<Expression<'a>>,
+) -> Argument<'a> {
+    let (params, body) = function_parts(ast_builder, formal_parameters, return_expression);
 
     let arrow_func_expr = ArrowFunctionExpression {
         span: SPAN,
@@ -955,15 +959,8 @@ pub fn handle_ts_signature<'a>(
         TSSignature::TSIndexSignature(ts_index_signature) => {
             let ts_type =
                 ast_builder.move_ts_type(&mut ts_index_signature.type_annotation.type_annotation);
+
             if let Some(first) = ts_index_signature.parameters.first_mut() {
-                let new_parent_key: String;
-
-                if let Some(p_key) = parent_key_name {
-                    new_parent_key = format!("{}_{}", p_key, first.name.as_str());
-                } else {
-                    new_parent_key = first.name.to_string();
-                }
-
                 let key_ts_type =
                     ast_builder.move_ts_type(&mut first.type_annotation.type_annotation);
 
@@ -975,19 +972,17 @@ pub fn handle_ts_signature<'a>(
                     return None;
                 }
 
-                // let key = get_expression(
-                //     false,
-                //     ast_builder,
-                //     key_ts_type,
-                //     first.name.as_str(),
-                //     mock_func_name,
-                //     false,
-                //     false,
-                //     vec![],
-                // );
+                let key = match key_ts_type {
+                    TSType::TSStringKeyword(_) => {
+                        ast_builder.string_literal(SPAN, "key").to_string()
+                    }
+                    TSType::TSNumberKeyword(_) => ast_builder
+                        .numeric_literal(SPAN, 0.0, "0", NumberBase::Decimal)
+                        .to_string(),
+                    _ => ast_builder.string_literal(SPAN, "key").to_string(),
+                };
 
-                let new_prop_key =
-                    ast_builder.property_key_identifier_name(SPAN, first.name.as_str());
+                let new_prop_key = ast_builder.property_key_identifier_name(SPAN, key);
 
                 return Some((
                     new_prop_key,
@@ -995,7 +990,7 @@ pub fn handle_ts_signature<'a>(
                         false,
                         ast_builder,
                         ts_type,
-                        &new_parent_key,
+                        "",
                         mock_func_name,
                         false,
                         false,
@@ -1927,7 +1922,7 @@ pub fn get_arg<'a>(
         }
         TSType::TSTypeReference(ts_type_ref) if ast_utils::is_function_type(&ts_type_ref) => {
             // TODO: Array
-            function_arg(ast_builder)
+            function_arg(ast_builder, None, None)
         }
         TSType::TSTypeReference(ts_type_ref) if ast_utils::is_array_type(&ts_type_ref) => {
             array_arg(ast_builder, None)
@@ -2061,7 +2056,38 @@ pub fn get_arg<'a>(
         }
         TSType::TSObjectKeyword(_) => object_arg(ast_builder, None),
         TSType::TSVoidKeyword(_) => null_arg(ast_builder),
-        TSType::TSFunctionType(_) => function_arg(ast_builder),
+
+        TSType::TSFunctionType(ref mut ts_function_type) => {
+            let formal_parameters =
+                ast_builder.move_formal_parameters(&mut ts_function_type.params);
+            let alloced_formal_parameters = ast_builder.alloc(formal_parameters);
+
+            let ts_type =
+                ast_builder.move_ts_type(&mut ts_function_type.return_type.type_annotation);
+
+            let return_expression;
+
+            if let TSType::TSVoidKeyword(_) = ts_type {
+                return_expression = None;
+            } else {
+                return_expression = Some(get_expression(
+                    false,
+                    ast_builder,
+                    ts_type,
+                    key_name,
+                    mock_func_name,
+                    false,
+                    false,
+                    vec![],
+                ));
+            }
+
+            function_arg(
+                ast_builder,
+                Some(alloced_formal_parameters),
+                return_expression,
+            )
+        }
         TSType::TSUndefinedKeyword(_) => undefined_arg(ast_builder),
         TSType::TSUnknownKeyword(_) => undefined_arg(ast_builder),
         TSType::TSConditionalType(ref mut ts_conditional_type) => {
@@ -2276,9 +2302,19 @@ pub fn get_arg<'a>(
             // TODO
             object_arg(ast_builder, None)
         }
-        TSType::TSParenthesizedType(_) => {
-            // TODO
-            object_arg(ast_builder, None)
+        TSType::TSParenthesizedType(ref mut ts_parenthesized_type) => {
+            let ts_type = ast_builder.move_ts_type(&mut ts_parenthesized_type.type_annotation);
+            get_arg(
+                false,
+                ast_builder,
+                ts_type,
+                key_name,
+                mock_func_name,
+                vec![],
+                false,
+            )
+
+            // ast_builder.expression_object(SPAN, ast_builder.vec(), None)
         }
     }
 }

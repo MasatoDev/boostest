@@ -109,45 +109,45 @@ export type LiteralTypeInterface = {
 
 export class LiteralTypeClass {
   constructor(
-    public stringLiteral: string,
-    public numberLiteral: number,
-    public bigintLiteral: bigint,
-    public booleanLiteral: boolean,
-    public nullLiteral: null,
-    public undefinedId: undefined,
-    public anyLiteral: any,
-    public unknownLiteral: unknown,
-    // public neverLiteral: never,
-    public objectLiteral: object,
-    public voidLiteral: void,
+    // public stringLiteral: string,
+    // public numberLiteral: number,
+    // public bigintLiteral: bigint,
+    // public booleanLiteral: boolean,
+    // public nullLiteral: null,
+    // public undefinedId: undefined,
+    // public anyLiteral: any,
+    // public unknownLiteral: unknown,
+    // // public neverLiteral: never,
+    // public objectLiteral: object,
+    // public voidLiteral: void,
     public functionLiteral: () => void,
-    public arrayLiteral: string[],
-    public referenceLiteral: RefType,
-    public unionType: string | number,
-
-    public tsLiteralString: "string",
-    public tsLiteralNumber: 20,
-    public tsBigInt: 10000000000000n,
-    public tsLiteralBoolean: true,
-    public tsNullLiteral: null,
-    public tsObject: {},
-    public tsArray: [],
-
-    public symbolLiteral: symbol,
-    public tsTuple: [string, number, any, RefType, RefTypeInterface, string],
-    public tsNamedTuple: [
-      name: string,
-      ver: number,
-      ref: RefType,
-      refInterface: RefTypeInterface,
-      hello: number,
-    ],
-    public intersectionType: RefType &
-      RefTypeInterface & { name: string; age: number },
-    public conditionalType: string extends number ? true : false,
-
-    public keyof: keyof RefType,
-    public indexAccessor: RefType["name"],
+    // public arrayLiteral: string[],
+    // public referenceLiteral: RefType,
+    // public unionType: string | number,
+    //
+    // public tsLiteralString: "string",
+    // public tsLiteralNumber: 20,
+    // public tsBigInt: 10000000000000n,
+    // public tsLiteralBoolean: true,
+    // public tsNullLiteral: null,
+    // public tsObject: {},
+    // public tsArray: [],
+    //
+    // public symbolLiteral: symbol,
+    // public tsTuple: [string, number, any, RefType, RefTypeInterface, string],
+    // public tsNamedTuple: [
+    //   name: string,
+    //   ver: number,
+    //   ref: RefType,
+    //   refInterface: RefTypeInterface,
+    //   hello: number,
+    // ],
+    // public intersectionType: RefType &
+    //   RefTypeInterface & { name: string; age: number },
+    // public conditionalType: string extends number ? true : false,
+    //
+    // public keyof: keyof RefType,
+    // public indexAccessor: RefType["name"],
 
     /**********************/
     /******* FIXME: *******/
