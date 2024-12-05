@@ -1,15 +1,13 @@
 import { runSnapshotTest } from "../utils";
-import {
-  boostestIntersectionTypeAlias,
-  boostestIntersectionInterface,
-  boostestIntersectionClass,
-} from "./intersection.spec_test_data";
 
 import {
   IntersectionTypeAlias,
   IntersectionInterface,
   IntersectionClass,
 } from "../../types/ts_types/intersection";
+import { boostestIntersectionTypeAlias } from "./boostest_output/boostestIntersectionTypeAlias";
+import { boostestIntersectionInterface } from "./boostest_output/boostestIntersectionInterface";
+import { boostestIntersectionClass } from "./boostest_output/boostestIntersectionClass";
 
 describe("Intersection Tests", () => {
   runSnapshotTest(
@@ -22,6 +20,6 @@ describe("Intersection Tests", () => {
   );
   runSnapshotTest(
     "IntersectionClass",
-    boostestIntersectionClass<typeof IntersectionClass>(IntersectionClass),
+    boostestIntersectionClass<IntersectionClass>(),
   );
 });

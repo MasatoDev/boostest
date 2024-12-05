@@ -1,16 +1,25 @@
-use boostest::call_boostest;
-use std::path::Path;
+use boostest::{generate, resolve_target, OutputCode};
+use std::{collections::HashMap, path::Path};
 
 #[macro_use]
 extern crate napi_derive;
 
 #[napi]
-pub fn boostest(path: String, ts_config_path: Option<String>) {
+pub fn resolve(
+  path: String,
+  lib_file_path: String,
+  ts_config_path: Option<String>,
+) -> Option<HashMap<String, OutputCode>> {
+  let lib_file_path = Path::new(&lib_file_path);
   if let Some(ts_config_path) = ts_config_path {
     let ts_config_path = Path::new(&ts_config_path);
-    call_boostest(path, Some(ts_config_path));
-    return;
+    return resolve_target(path, Some(ts_config_path), lib_file_path);
   }
 
-  call_boostest(path, None);
+  resolve_target(path, None, lib_file_path)
+}
+
+#[napi]
+pub fn generatetest(output: HashMap<String, OutputCode>) {
+  generate(output)
 }

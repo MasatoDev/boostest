@@ -1,12 +1,12 @@
 export type SingleCallSignature = (name: string, age: number) => null;
 
 export type CallSignature = {
-  // TODO: support first fucnction type only
+  // NOTE: support first fucnction type only
   (name: string, age: number): void;
   (contents: string): string;
   (): void;
 
-  // TODO: this is not working
+  // WARN: this is not working
   name: string;
 };
 
@@ -16,10 +16,9 @@ export type MathOperations = {
 };
 
 export interface CallSignatureInterface {
-  // TODO: support first fucnction type only
   (name: string, age: number): void;
   (): void;
 
-  // TODO: this is not working
-  // name: string;
+  // WARN: this is not working
+  name: string;
 }

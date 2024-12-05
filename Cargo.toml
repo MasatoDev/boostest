@@ -16,7 +16,7 @@ repository = "https://github.com/hoge"
 
 [workspace.dependencies]
 
-oxc = { version = "0.34.0", features = ["sourcemap", "sourcemap_concurrent"] }
+oxc = { version = "0.38.0", features = ["sourcemap", "sourcemap_concurrent"] }
 oxc_resolver = { version = "2.0.0", features = ["package_json_raw_json_api"] }
 
 clap = { version = "4.4.7", features = ["derive", "env"] }
@@ -35,3 +35,9 @@ ropey = "1.6.1"
 
 boostest = { version = "0.0.1", path = "./crates/boostest" }
 spinoff = "0.8.0"
+
+sha2 = "0.10"
+
+
+napi = { version = "2.12.2", default-features = false, features = ["napi4"] }
+napi-derive = "2.12.2"

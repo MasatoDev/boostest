@@ -151,6 +151,7 @@ pub fn tsserver(
         }
     }
 
+    println!("🐟🐟🐟🐟🐟🐟 failed ts server{:?}", target_name);
     None
     // let _ = child.wait().expect("Failed to wait on tsserver");
 }

@@ -4,8 +4,9 @@ use oxc::{
     allocator::{self, Box},
     ast::{
         ast::{
-            Class, ClassType, FormalParameter, TSInterfaceDeclaration, TSType,
-            TSTypeAliasDeclaration, TSTypeParameterDeclaration, TSTypeParameterInstantiation,
+            Class, ClassType, FormalParameter, TSInterfaceDeclaration, TSSignature, TSTupleElement,
+            TSTupleType, TSType, TSTypeAliasDeclaration, TSTypeAnnotation,
+            TSTypeParameterDeclaration, TSTypeParameterInstantiation,
         },
         AstBuilder,
     },
@@ -29,10 +30,14 @@ pub trait AstBuilderExt<'a> {
 
     fn move_ts_type<'c>(self, decl: &'c mut TSType<'a>) -> TSType<'a>;
 
+    fn move_ts_tuple_element<'c>(self, decl: &'c mut TSTupleElement<'a>) -> TSTupleElement<'a>;
+
     fn move_ts_type_parameter_instantiation<'c>(
         self,
         decl: &'c mut TSTypeParameterInstantiation<'a>,
     ) -> TSTypeParameterInstantiation<'a>;
+
+    fn move_ts_signature<'c>(self, decl: &'c mut TSSignature<'a>) -> TSSignature<'a>;
 
     fn get_spread_arg(self) -> FormalParameter<'a>;
 
@@ -108,6 +113,15 @@ impl<'a> AstBuilderExt<'a> for AstBuilder<'a> {
         mem::replace(ts_type, empty_ts_type)
     }
 
+    fn move_ts_tuple_element<'c>(
+        self,
+        ts_tuple_type: &'c mut TSTupleElement<'a>,
+    ) -> TSTupleElement<'a> {
+        let empty_ts_tuple_type =
+            TSTupleElement::TSNullKeyword(self.alloc_ts_null_keyword(Span::default()));
+        mem::replace(ts_tuple_type, empty_ts_tuple_type)
+    }
+
     fn move_ts_type_parameter_instantiation<'c>(
         self,
         ts_type_parameter_instantiation: &'c mut TSTypeParameterInstantiation<'a>,
@@ -119,6 +133,20 @@ impl<'a> AstBuilderExt<'a> for AstBuilder<'a> {
             ts_type_parameter_instantiation,
             empty_ts_type_parameter_instantiation,
         )
+    }
+
+    fn move_ts_signature<'c>(self, ts_signature: &'c mut TSSignature<'a>) -> TSSignature<'a> {
+        let prop_key = self.property_key_identifier_name(SPAN, "");
+        let type_annotation: Option<allocator::Box<TSTypeAnnotation<'a>>> = None;
+        let empty_ts_signature = self.ts_signature_property_signature(
+            SPAN,
+            false,
+            false,
+            false,
+            prop_key,
+            type_annotation,
+        );
+        mem::replace(ts_signature, empty_ts_signature)
     }
 
     fn get_spread_arg(self) -> FormalParameter<'a> {

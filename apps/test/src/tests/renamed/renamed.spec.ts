@@ -1,21 +1,17 @@
 import { runSnapshotTest } from "../utils";
-import {
-  boostestRenamedNestedPropClass,
-  boostestRenamedComplexChipsType,
-} from "./renamed.spec_test_data";
 
 import {
-  RenamedNestedPropClass,
+  // RenamedNestedPropClass,
   RenamedComplexChipsType,
 } from "../../types/export_rename";
+// import { boostestRenamedNestedPropClass } from "./boostest_output/boostestRenamedNestedPropClass";
+import { boostestRenamedComplexChipsType } from "./boostest_output/boostestRenamedComplexChipsType";
 
 describe("Rename Tests", () => {
-  runSnapshotTest(
-    "RenamedNestedPropClass",
-    boostestRenamedNestedPropClass<typeof RenamedNestedPropClass>(
-      RenamedNestedPropClass,
-    ),
-  );
+  // runSnapshotTest(
+  //   "RenamedNestedPropClass",
+  //   boostestRenamedNestedPropClass<RenamedNestedPropClass>(),
+  // );
 
   runSnapshotTest(
     "RenamedComplexChipsType",

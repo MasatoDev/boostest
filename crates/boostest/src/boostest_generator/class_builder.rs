@@ -35,7 +35,6 @@ impl<'a> ClassBuilder<'a> {
         allocator: &'a Allocator,
         class: &'c mut Class<'a>,
         mock_func_name: String,
-        key_name: Option<String>,
     ) -> Self {
         let ast_builder = AstBuilder::new(allocator);
 
@@ -43,7 +42,7 @@ impl<'a> ClassBuilder<'a> {
 
         let mock_data = ClassMockData {
             mock_func_name,
-            key_name,
+            key_name: None,
             class_name: "".to_string(),
         };
 

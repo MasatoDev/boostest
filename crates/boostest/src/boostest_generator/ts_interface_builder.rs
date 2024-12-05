@@ -35,14 +35,13 @@ impl<'a> TSInterfaceBuilder<'a> {
         allocator: &'a Allocator,
         ts_interface: &'c mut TSInterfaceDeclaration<'a>,
         mock_func_name: String,
-        key_name: Option<String>,
     ) -> Self {
         let ast_builder = AstBuilder::new(allocator);
         let copied = ast_builder.move_ts_interface_declatration(ts_interface);
 
         let mock_data = TypeAliasMockData {
             mock_func_name,
-            key_name,
+            key_name: None,
         };
 
         Self {

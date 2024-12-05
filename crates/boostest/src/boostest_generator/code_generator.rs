@@ -12,19 +12,19 @@ use oxc::ast::VisitMut;
 use crate::boostest_generator::class_builder::ClassBuilder;
 use crate::boostest_generator::ts_interface_builder::TSInterfaceBuilder;
 use crate::boostest_generator::ts_type_alias_builder::TSTypeAliasBuilder;
-use crate::boostest_target::target::{TargetSupplement, TargetType};
+use crate::boostest_target::target::TargetSupplement;
+use crate::boostest_utils::napi::TargetType;
 
 pub struct CodeGenerator<'a> {
     pub is_main_target: bool,
     pub specifier: &'a str,
     pub func_name: &'a str,
-    pub target_type: &'a TargetType,
     target_name: &'a str,
-    key_name: Option<String>,
     source_text: &'a str,
     allocator: &'a Allocator,
     source_type: SourceType,
     target_supplement: Option<TargetSupplement>,
+    target_type: &'a TargetType,
 
     pub code: Option<String>,
 }
@@ -36,10 +36,9 @@ impl<'a, 'b: 'a> CodeGenerator<'a> {
         specifier: &'a str,
         func_name: &'a str,
         target_name: &'a str,
-        key_name: Option<String>,
         source_text: &'a str,
-        target_type: &'a TargetType,
         target_supplement: Option<TargetSupplement>,
+        target_type: &'a TargetType,
     ) -> Self {
         Self {
             is_main_target,
@@ -47,16 +46,17 @@ impl<'a, 'b: 'a> CodeGenerator<'a> {
             func_name,
             source_text,
             target_name,
-            key_name,
-            target_type,
             allocator,
             source_type: SourceType::ts(),
             code: None,
             target_supplement,
+            target_type,
         }
     }
 
     pub fn generate(&mut self) {
+        // println!("\n🎉🎉🎉🎉DDCode: {}", self.source_text);
+
         let parser = Parser::new(self.allocator, self.source_text, self.source_type);
         let mut program = parser.parse().program;
 
@@ -64,37 +64,34 @@ impl<'a, 'b: 'a> CodeGenerator<'a> {
     }
 
     fn gen_ts_interface<'c>(&mut self, ts_interface_decl: &'c mut TSInterfaceDeclaration<'a>) {
-        let key_name = self.key_name.clone();
         let mut ts_interface_builder = TSInterfaceBuilder::new(
             self.allocator,
             ts_interface_decl,
             self.func_name.to_string(),
-            key_name,
         );
 
         self.code = Some(ts_interface_builder.generate_code(self.source_type));
     }
 
     fn gen_ts_alias<'c>(&mut self, ts_type_alias_decl: &'c mut TSTypeAliasDeclaration<'a>) {
-        let key_name = self.key_name.clone();
-
         let mut ts_type_alias_builder = TSTypeAliasBuilder::new(
             self.is_main_target,
             self.allocator,
             ts_type_alias_decl,
             self.func_name.to_string(),
             self.target_name.to_string(),
-            key_name,
             self.target_supplement.clone(),
         );
 
-        self.code = Some(ts_type_alias_builder.generate_code(self.source_type));
+        let mut generated_code = ts_type_alias_builder.generate_code(self.source_type);
+        generated_code.push_str(self.source_text);
+
+        self.code = Some(generated_code);
     }
 
     fn gen_class<'c>(&mut self, class: &'c mut Class<'a>) {
-        let key_name = self.key_name.clone();
         let mut class_builder =
-            ClassBuilder::new(self.allocator, class, self.func_name.to_string(), key_name);
+            ClassBuilder::new(self.allocator, class, self.func_name.to_string());
 
         self.code = Some(class_builder.generate_code(self.source_type));
     }
@@ -178,24 +175,24 @@ impl<'a> VisitMut<'a> for CodeGenerator<'a> {
     /*************************************************/
     /*************************************************/
 
-    fn visit_class(&mut self, class: &mut Class<'a>) {
-        if let Some(identifier) = &class.id {
-            if identifier.name.to_string() == self.specifier {
-                self.gen_class(class);
-            }
-        }
-    }
+    // fn visit_class(&mut self, class: &mut Class<'a>) {
+    //     if let Some(identifier) = &class.id {
+    //         // if identifier.name.to_string() == self.specifier {
+    //         self.gen_class(class);
+    //         // }
+    //     }
+    // }
 
     // handle mock target is type alias
     fn visit_ts_type_alias_declaration(&mut self, decl: &mut TSTypeAliasDeclaration<'a>) {
-        if decl.id.name.to_string() == self.specifier {
+        if decl.id.name == "main_output_target" {
             self.gen_ts_alias(decl);
         }
     }
 
-    fn visit_ts_interface_declaration(&mut self, decl: &mut TSInterfaceDeclaration<'a>) {
-        if decl.id.name.to_string() == self.specifier {
-            self.gen_ts_interface(decl);
-        }
-    }
+    // fn visit_ts_interface_declaration(&mut self, decl: &mut TSInterfaceDeclaration<'a>) {
+    //     // if decl.id.name.to_string() == self.specifier {
+    //     self.gen_ts_interface(decl);
+    //     // }
+    // }
 }

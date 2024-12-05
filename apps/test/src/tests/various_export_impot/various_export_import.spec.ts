@@ -1,30 +1,4 @@
 import { runSnapshotTest } from "../utils";
-import {
-  boostestComplexChipsType,
-  boostestAnoExportDefaultInterface,
-  boostestAnoExportDefaultClass,
-  boostestExportDefaultClass,
-  boostestExportDefaultClassWithDecl,
-  boostestExportNamedDecl,
-  boostestExportDefaultNamedDecl,
-  boostestExportNamedDeclInterface,
-  boostestAnoExportNamedDeclClass,
-  boostestAnoMixInterface,
-  boostestMixCompTSAlias,
-  boostestMixInterfaceFirst,
-  boostestMixInterfaceSecond,
-  boostestMixInterfaceFirst2,
-  boostestMixInterfaceSecond2,
-  boostestMixTSAliasFirst,
-  boostestMixTSAliasSecond,
-  boostestMixTSAliasFirst2,
-  boostestMixTSAliasSecond2,
-  boostestMixClassFirst,
-  boostestMixClassSecond,
-  boostestMixClassFirst2,
-  boostestMixClassSecond2,
-  boostestAccessorClass,
-} from "./various_export_import.spec_test_data";
 
 import { ComplexChipsType } from "../../types/export_decl";
 import AnoExportDefaultInterface from "../../types/export_default_interface";
@@ -56,6 +30,31 @@ import MixClassFirst2, {
 } from "../../types/mix_default_normal/mix_class2";
 import { AccessorClass } from "../../types/pattern/accessor_class";
 
+import { boostestComplexChipsType } from "./boostest_output/boostestComplexChipsType";
+import { boostestAnoExportDefaultInterface } from "./boostest_output/boostestAnoExportDefaultInterface";
+import { boostestAnoExportDefaultClass } from "./boostest_output/boostestAnoExportDefaultClass";
+import { boostestExportDefaultClass } from "./boostest_output/boostestExportDefaultClass";
+import { boostestExportDefaultClassWithDecl } from "./boostest_output/boostestExportDefaultClassWithDecl";
+import { boostestExportNamedDecl } from "./boostest_output/boostestExportNamedDecl";
+import { boostestExportDefaultNamedDecl } from "./boostest_output/boostestExportDefaultNamedDecl";
+import { boostestExportNamedDeclInterface } from "./boostest_output/boostestExportNamedDeclInterface";
+import { boostestAnoMixInterface } from "./boostest_output/boostestAnoMixInterface";
+import { boostestMixCompTSAlias } from "./boostest_output/boostestMixCompTSAlias";
+import { boostestMixInterfaceFirst } from "./boostest_output/boostestMixInterfaceFirst";
+import { boostestMixInterfaceSecond } from "./boostest_output/boostestMixInterfaceSecond";
+import { boostestMixInterfaceFirst2 } from "./boostest_output/boostestMixInterfaceFirst2";
+import { boostestMixInterfaceSecond2 } from "./boostest_output/boostestMixInterfaceSecond2";
+import { boostestMixTSAliasFirst } from "./boostest_output/boostestMixTSAliasFirst";
+import { boostestMixTSAliasSecond } from "./boostest_output/boostestMixTSAliasSecond";
+import { boostestMixTSAliasFirst2 } from "./boostest_output/boostestMixTSAliasFirst2";
+import { boostestMixTSAliasSecond2 } from "./boostest_output/boostestMixTSAliasSecond2";
+import { boostestMixClassFirst } from "./boostest_output/boostestMixClassFirst";
+import { boostestMixClassSecond } from "./boostest_output/boostestMixClassSecond";
+import { boostestMixClassFirst2 } from "./boostest_output/boostestMixClassFirst2";
+import { boostestMixClassSecond2 } from "./boostest_output/boostestMixClassSecond2";
+import { boostestAccessorClass } from "./boostest_output/boostestAccessorClass";
+import { boostestAnoExportNamedDeclClass } from "./boostest_output/boostestAnoExportNamedDeclClass";
+
 describe("Various Export Methods Tests", () => {
   runSnapshotTest(
     "ComplexChipsType",
@@ -71,21 +70,17 @@ describe("Various Export Methods Tests", () => {
 
   runSnapshotTest(
     "AnoExportDefaultClass",
-    boostestAnoExportDefaultClass<typeof AnoExportDefaultClass>(
-      AnoExportDefaultClass,
-    ),
+    boostestAnoExportDefaultClass<AnoExportDefaultClass>(),
   );
 
   runSnapshotTest(
     "ExportDefaultClass",
-    boostestExportDefaultClass<typeof ExportDefaultClass>(ExportDefaultClass),
+    boostestExportDefaultClass<ExportDefaultClass>(),
   );
 
   runSnapshotTest(
     "ExportDefaultClassWithDecl",
-    boostestExportDefaultClassWithDecl<typeof ExportDefaultClassWithDecl>(
-      ExportDefaultClassWithDecl,
-    ),
+    boostestExportDefaultClassWithDecl<ExportDefaultClassWithDecl>(),
   );
 
   runSnapshotTest(
@@ -105,9 +100,7 @@ describe("Various Export Methods Tests", () => {
 
   runSnapshotTest(
     "AnoExportNamedDeclClass",
-    boostestAnoExportNamedDeclClass<typeof AnoExportNamedDeclClass>(
-      AnoExportNamedDeclClass,
-    ),
+    boostestAnoExportNamedDeclClass<AnoExportNamedDeclClass>(),
   );
 
   runSnapshotTest("Mix", boostestAnoMixInterface<Mix>({ name: "mix" }));
@@ -152,26 +145,14 @@ describe("Various Export Methods Tests", () => {
     boostestMixTSAliasSecond2<MixTSAliasSecond2>(),
   );
 
-  runSnapshotTest(
-    "MixClassFirst",
-    boostestMixClassFirst<typeof MixClassFirst>(MixClassFirst),
-  );
-  runSnapshotTest(
-    "MixClassSecond",
-    boostestMixClassSecond<typeof MixClassSecond>(MixClassSecond),
-  );
+  runSnapshotTest("MixClassFirst", boostestMixClassFirst<MixClassFirst>());
+  runSnapshotTest("MixClassSecond", boostestMixClassSecond<MixClassSecond>());
 
-  runSnapshotTest(
-    "MixClassFirst2",
-    boostestMixClassFirst2<typeof MixClassFirst2>(MixClassFirst2),
-  );
+  runSnapshotTest("MixClassFirst2", boostestMixClassFirst2<MixClassFirst2>());
   runSnapshotTest(
     "MixClassSecond2",
-    boostestMixClassSecond2<typeof MixClassSecond2>(MixClassSecond2),
+    boostestMixClassSecond2<MixClassSecond2>(),
   );
 
-  runSnapshotTest(
-    "AccessorClass",
-    boostestAccessorClass<typeof AccessorClass>(AccessorClass),
-  );
+  runSnapshotTest("AccessorClass", boostestAccessorClass<AccessorClass>());
 });

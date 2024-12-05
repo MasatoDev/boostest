@@ -1,7 +1,13 @@
 use oxc::{
     allocator::{self},
-    ast::ast::{TSTypeName, TSTypeReference},
+    ast::ast::{TSTupleElement, TSTupleType, TSTypeName, TSTypeReference},
+    span::Atom,
 };
+
+pub fn ignore_ref_name(atom: &Atom) -> bool {
+    let name = atom.to_string();
+    name == "Array" || name == "Function" || name == "true" || name == "false"
+}
 
 // common functions
 pub fn is_array_type<'a>(ts_type_ref: &allocator::Box<'a, TSTypeReference<'a>>) -> bool {
@@ -35,6 +41,34 @@ pub fn is_false_type<'a>(ts_type_ref: &allocator::Box<'a, TSTypeReference<'a>>) 
     if let TSTypeName::IdentifierReference(id) = &ts_type_ref.type_name {
         if id.name == "false" {
             return true;
+        }
+    }
+    false
+}
+
+pub fn is_class_reference_type<'a>(ts_tuple_type: &allocator::Box<'a, TSTupleType<'a>>) -> bool {
+    if let Some(element) = ts_tuple_type.element_types.first() {
+        if let TSTupleElement::TSTypeReference(ts_type_ref) = element {
+            if let TSTypeName::IdentifierReference(id) = &ts_type_ref.type_name {
+                if id.name == "classReference" {
+                    return true;
+                }
+            }
+        }
+    }
+    false
+}
+
+pub fn is_class_typeof_reference_type<'a>(
+    ts_tuple_type: &allocator::Box<'a, TSTupleType<'a>>,
+) -> bool {
+    if let Some(element) = ts_tuple_type.element_types.first() {
+        if let TSTupleElement::TSTypeReference(ts_type_ref) = element {
+            if let TSTypeName::IdentifierReference(id) = &ts_type_ref.type_name {
+                if id.name == "classTypeofReference" {
+                    return true;
+                }
+            }
         }
     }
     false

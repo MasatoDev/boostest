@@ -1,5 +1,6 @@
 import type { ComplexChipsType } from "./deepfiles/lib/comp_type_alias";
-import ClassObj from "./nested_prop_class";
+import RenamedNestedPropClass from "./nested_prop_class";
 
-export const RenamedNestedPropClass = ClassObj;
+// WARN: constで代入するとtypeとして利用できない
+// export const RenamedNestedPropClass = ClassObj;
 export type RenamedComplexChipsType = ComplexChipsType;
