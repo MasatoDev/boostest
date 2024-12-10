@@ -4,7 +4,7 @@ use regex::Regex;
 use ropey::Rope;
 use serde::Deserialize;
 use serde_json::Value;
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 use std::ffi::OsStr;
 use std::io::{BufRead, BufReader, Write};
 use std::path::PathBuf;
@@ -12,6 +12,8 @@ use std::process::{Command, Stdio};
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 use std::{fs, thread};
+
+use crate::boostest_utils::id_name::get_id_with_hash;
 
 #[derive(Deserialize, Debug)]
 pub struct Position {
@@ -65,7 +67,9 @@ pub fn tsserver(
 ) -> Option<(PathBuf, Span)> {
     let mut locked_cache = ts_server_cache.lock().unwrap();
 
-    if let Some(definition) = locked_cache.get_definition(target_name) {
+    let hash_key = get_id_with_hash(file_path.to_string_lossy().to_string(), span);
+
+    if let Some(definition) = locked_cache.get_definition(target_name, &hash_key) {
         return Some((definition.result.0.clone(), definition.result.1.clone()));
     }
 
@@ -135,7 +139,11 @@ pub fn tsserver(
                                         ),
                                     );
 
-                                    locked_cache.set_definition(target_name, result.clone());
+                                    locked_cache.set_definition(
+                                        target_name,
+                                        &hash_key,
+                                        result.clone(),
+                                    );
 
                                     return Some(result);
                                 } else {
@@ -194,6 +202,7 @@ pub struct TSServerCache {
     pub constructor_type: Option<DefinitionCache>,
     pub instance_type: Option<DefinitionCache>,
     pub promise_type: Option<DefinitionCache>,
+    pub hash_map: HashMap<String, DefinitionCache>,
 }
 
 impl TSServerCache {
@@ -214,6 +223,7 @@ impl TSServerCache {
             constructor_type: None,
             instance_type: None,
             promise_type: None,
+            hash_map: HashMap::new(),
         }
     }
 
@@ -259,7 +269,7 @@ impl TSServerCache {
         handle.join().expect("Thread panicked")
     }
 
-    pub fn set_definition(&mut self, name: &str, result: (PathBuf, Span)) {
+    pub fn set_definition(&mut self, name: &str, hash_key: &str, result: (PathBuf, Span)) {
         let definition = DefinitionCache {
             name: name.to_string(),
             result,
@@ -281,11 +291,13 @@ impl TSServerCache {
             "ConstructorParameters" => self.constructor_type = Some(definition),
             "InstanceType" => self.instance_type = Some(definition),
             "Promise" => self.promise_type = Some(definition),
-            _ => (),
+            _ => {
+                self.hash_map.insert(hash_key.to_string(), definition);
+            }
         }
     }
 
-    fn get_definition(&self, name: &str) -> Option<&DefinitionCache> {
+    fn get_definition(&self, name: &str, hash_key: &str) -> Option<&DefinitionCache> {
         match name {
             "ThisType" => self.this_type.as_ref(),
             "Partial" => self.partial_type.as_ref(),
@@ -302,7 +314,7 @@ impl TSServerCache {
             "ConstructorParameters" => self.constructor_type.as_ref(),
             "InstanceType" => self.instance_type.as_ref(),
             "Promise" => self.promise_type.as_ref(),
-            _ => None,
+            _ => self.hash_map.get(hash_key),
         }
     }
 }

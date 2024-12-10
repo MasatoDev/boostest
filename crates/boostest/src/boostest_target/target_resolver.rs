@@ -1,12 +1,8 @@
 use anyhow::{anyhow, Result};
 use colored::*;
 use oxc::allocator::Vec as AllocVec;
-use oxc::ast::visit::walk_mut::{
-    walk_class, walk_method_definition, walk_ts_function_type, walk_ts_interface_declaration,
-    walk_ts_type_name,
-};
+use oxc::ast::visit::walk_mut::walk_ts_function_type;
 use oxc::parser::Parser;
-use oxc::semantic::ScopeFlags;
 use oxc::span::{SourceType, Span};
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
@@ -14,11 +10,10 @@ use std::thread;
 use std::time::Duration;
 
 use oxc::ast::ast::{
-    BindingPatternKind, Class, ClassBody, ExportDefaultDeclaration, ExportDefaultDeclarationKind,
-    ExportNamedDeclaration, Expression, MethodDefinition, PropertyDefinition,
-    TSInterfaceDeclaration, TSModuleReference, TSSignature, TSTupleElement, TSType,
-    TSTypeAliasDeclaration, TSTypeAnnotation, TSTypeName, TSTypeQueryExprName, VariableDeclaration,
-    VariableDeclarator,
+    BindingPatternKind, Class, ExportDefaultDeclaration, ExportDefaultDeclarationKind,
+    ExportNamedDeclaration, MethodDefinition, TSInterfaceDeclaration, TSModuleReference,
+    TSSignature, TSTupleElement, TSType, TSTypeAliasDeclaration, TSTypeName, TSTypeQueryExprName,
+    VariableDeclaration,
 };
 use oxc::ast::{
     ast::{
@@ -28,9 +23,7 @@ use oxc::ast::{
     VisitMut,
 };
 
-use super::super::boostest_manager::propety_assignment::{
-    calc_prop_span, ts_type_assign_as_property, TargetReferenceInfo,
-};
+use super::super::boostest_manager::propety_assignment::calc_prop_span;
 use super::super::boostest_utils::{module_resolver::resolve_specifier, tsserver::tsserver};
 
 use super::target::{ResolvedDefinitions, Target, TargetDefinition, TargetReference};
@@ -86,7 +79,6 @@ pub struct Import {
     pub loaded: bool,
     pub index_d_ts_loaded: bool,
     pub file_d_ts_loaded: bool,
-    pub lib_d_ts_loaded: bool,
 
     pub need_reload: bool,
 }
@@ -264,7 +256,6 @@ impl TargetResolver {
             loaded: false,
             index_d_ts_loaded: false,
             file_d_ts_loaded: false,
-            lib_d_ts_loaded: false,
         };
 
         if let Some(vec) = &mut self.temp_import_source_vec {
@@ -1221,7 +1212,6 @@ pub fn resolve_target_ast_with_tsserver(
     depth: u8,
     ts_server_cache: Arc<Mutex<TSServerCache>>,
 ) -> Result<()> {
-    println!("use tsserver");
     let target_file_path = target_resolver
         .target
         .lock()
@@ -1258,6 +1248,8 @@ pub fn resolve_target_ast_with_tsserver(
         let span = target.target_reference.span.clone();
         drop(target);
 
+        println!("tsserver {:?}", name);
+
         target_resolver.use_tsserver = true;
 
         if let Some(result) = tsserver(
@@ -1267,6 +1259,7 @@ pub fn resolve_target_ast_with_tsserver(
             &name,
             ts_server_cache.clone(),
         ) {
+            println!("tsserver result {:?}", span);
             let (target_file_path, span) = result;
 
             let target_source = file_utils::read(&target_file_path).unwrap_or(String::new());

@@ -18,7 +18,7 @@ use spinoff::{spinners, Color, Spinner};
 use std::{
     collections::HashMap,
     fs,
-    path::{Path, PathBuf},
+    path::Path,
     sync::{Arc, Mutex},
 };
 
