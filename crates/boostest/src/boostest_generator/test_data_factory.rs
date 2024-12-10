@@ -115,7 +115,6 @@ pub fn get_func_expr_from_call_signature_decl<'a>(
                 key_name,
                 mock_func_name,
                 false,
-                false,
                 vec![],
             ));
         }
@@ -943,7 +942,6 @@ pub fn handle_ts_signature<'a>(
                                     &new_parent_key,
                                     mock_func_name,
                                     false,
-                                    false,
                                     generic,
                                 ),
                             ))
@@ -992,7 +990,6 @@ pub fn handle_ts_signature<'a>(
                         ts_type,
                         "",
                         mock_func_name,
-                        false,
                         false,
                         vec![],
                     ),
@@ -1050,7 +1047,6 @@ pub fn handle_ts_signatures<'a>(
             &parent_key_name.unwrap_or_default(),
             mock_func_name,
             false,
-            false,
             generic,
         );
     }
@@ -1084,7 +1080,6 @@ pub fn get_expression<'a>(
     mut type_annotation: TSType<'a>,
     key_name: &str,
     mock_func_name: &str,
-    is_mapped_type: bool,
     is_array: bool,
     generic: Vec<String>,
 ) -> Expression<'a> {
@@ -1214,7 +1209,6 @@ pub fn get_expression<'a>(
                             arg_ts_type,
                             key_name,
                             mock_func_name,
-                            false,
                             true,
                             generic.clone(),
                         );
@@ -1318,7 +1312,6 @@ pub fn get_expression<'a>(
                     key_name,
                     mock_func_name,
                     false,
-                    false,
                     vec![],
                 ));
             }
@@ -1403,7 +1396,6 @@ pub fn get_expression<'a>(
                     ts_type,
                     key_name,
                     mock_func_name,
-                    false,
                     false,
                     vec![],
                 );
@@ -1516,7 +1508,6 @@ pub fn get_expression<'a>(
                     key_name,
                     mock_func_name,
                     false,
-                    false,
                     vec![],
                 );
                 let array_expr = ArrayExpressionElement::from(new);
@@ -1533,7 +1524,6 @@ pub fn get_expression<'a>(
                 ts_type,
                 key_name,
                 mock_func_name,
-                false,
                 false,
                 vec![],
             )
@@ -1569,7 +1559,6 @@ pub fn get_expression<'a>(
                     new_ts_type,
                     key_name,
                     mock_func_name,
-                    false,
                     false,
                     vec![],
                 );
@@ -1674,7 +1663,6 @@ pub fn get_expression<'a>(
                                     moved_value_ts_type,
                                     key_name,
                                     mock_func_name,
-                                    is_mapped_type,
                                     false,
                                     generic,
                                 ));
@@ -1761,7 +1749,6 @@ pub fn get_expression<'a>(
                                         moved_value_ts_type,
                                         key_name,
                                         mock_func_name,
-                                        is_mapped_type,
                                         false,
                                         generic,
                                     ));
@@ -1869,7 +1856,6 @@ pub fn get_expression<'a>(
                 ts_type,
                 key_name,
                 mock_func_name,
-                false,
                 false,
                 vec![],
             )
@@ -2108,7 +2094,6 @@ pub fn get_arg<'a>(
                             key_name,
                             mock_func_name,
                             false,
-                            false,
                             generic.clone(),
                         );
 
@@ -2207,7 +2192,6 @@ pub fn get_arg<'a>(
                     ts_type,
                     key_name,
                     mock_func_name,
-                    false,
                     false,
                     vec![],
                 ));
@@ -2375,7 +2359,6 @@ pub fn get_arg<'a>(
                     key_name,
                     mock_func_name,
                     false,
-                    false,
                     vec![],
                 );
                 let array_expr = ArrayExpressionElement::from(new);
@@ -2420,7 +2403,6 @@ pub fn get_arg<'a>(
                     new_ts_type,
                     key_name,
                     mock_func_name,
-                    false,
                     false,
                     vec![],
                 );

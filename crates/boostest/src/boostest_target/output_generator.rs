@@ -19,9 +19,7 @@ use oxc::ast::ast::{Declaration, Statement};
 use oxc::ast::{AstBuilder, VisitMut};
 
 use crate::boostest_generator::extends_ast_builder::AstBuilderExt;
-use crate::boostest_manager::propety_assignment::calc_prop_span;
-use crate::boostest_target::target::TargetSupplement;
-use crate::boostest_utils::ast_utils::{self, ignore_ref_name};
+use crate::boostest_utils::ast_utils::{self, calc_prop_span, ignore_ref_name};
 use crate::boostest_utils::id_name::get_id_with_hash;
 
 use super::target::ResolvedDefinitions;

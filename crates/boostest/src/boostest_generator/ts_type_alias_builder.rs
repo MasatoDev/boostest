@@ -230,13 +230,6 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
         if !test_data_factory::is_ts_type_literal(&self.ts_type_alias.type_annotation) {
             let id_name = self.ts_type_alias.id.name.to_string();
 
-            let is_mapped_type = self
-                .mock_data
-                .target_supplement
-                .clone()
-                .map(|s| s.is_mapped_type)
-                .unwrap_or(false);
-
             let is_generic_property = self
                 .mock_data
                 .target_supplement
@@ -254,7 +247,6 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
                 ts_annotation,
                 &id_name,
                 &self.mock_data.mock_func_name,
-                is_mapped_type,
                 is_generic_property,
                 self.mock_data.generic.clone(),
             );

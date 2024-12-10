@@ -14,22 +14,17 @@ use std::{
     time::Duration,
 };
 
+use oxc::ast::ast::TSTypeName;
 use oxc::ast::ast::TSTypeParameterInstantiation;
-use oxc::ast::ast::{Argument, CallExpression, TSType::TSTypeReference, TSTypeName};
 
-use crate::{
-    boostest_manager::propety_assignment::{ts_type_assign_as_property, TargetReferenceInfo},
-    boostest_utils::{
-        ast_utils::{self, get_generic_prefix, ignore_ref_name},
-        id_name::get_id_with_hash,
-        napi::TargetType,
-    },
+use crate::boostest_utils::{
+    ast_utils::{self, ignore_ref_name},
+    id_name::get_id_with_hash,
+    napi::TargetType,
 };
 
-// UNUSED
 #[derive(Debug, Clone)]
 pub struct TargetSupplement {
-    pub is_mapped_type: bool,
     pub is_generic_property: bool,
 }
 
@@ -354,4 +349,14 @@ impl<'a> Visit<'a> for MainTarget {
             _ => {}
         }
     }
+}
+
+pub fn gen_target_supplement(is_generic_property: bool) -> Option<TargetSupplement> {
+    if !is_generic_property {
+        return None;
+    }
+
+    Some(TargetSupplement {
+        is_generic_property,
+    })
 }

@@ -23,13 +23,13 @@ use oxc::ast::{
     VisitMut,
 };
 
-use super::super::boostest_manager::propety_assignment::calc_prop_span;
 use super::super::boostest_utils::{module_resolver::resolve_specifier, tsserver::tsserver};
 
-use super::target::{ResolvedDefinitions, Target, TargetDefinition, TargetReference};
+use super::target::{
+    gen_target_supplement, ResolvedDefinitions, Target, TargetDefinition, TargetReference,
+};
 
-use crate::boostest_manager::propety_assignment::gen_target_supplement;
-use crate::boostest_utils::ast_utils::ignore_ref_name;
+use crate::boostest_utils::ast_utils::{calc_prop_span, ignore_ref_name};
 use crate::boostest_utils::buf::{source_text_from_span, utf16_span_to_utf8_span};
 use crate::boostest_utils::id_name::get_parent_key_name;
 use crate::boostest_utils::napi::TargetType;
@@ -691,7 +691,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
         let target_ref = TargetReference {
             span: calc_prop_span(identifier.span, self.read_file_span),
             file_path: self.temp_current_read_file_path.clone(),
-            target_supplement: gen_target_supplement(false, self.is_generic_property()),
+            target_supplement: gen_target_supplement(self.is_generic_property()),
         };
 
         self.add_prop_with_retry(self.key_name.clone(), id_name, target_ref);
@@ -796,10 +796,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
                         let target_ref = TargetReference {
                             span: calc_prop_span(identifier.span, self.read_file_span),
                             file_path: self.temp_current_read_file_path.clone(),
-                            target_supplement: gen_target_supplement(
-                                false,
-                                self.is_generic_property(),
-                            ),
+                            target_supplement: gen_target_supplement(self.is_generic_property()),
                         };
 
                         self.add_prop_with_retry(self.key_name.clone(), id_name, target_ref);
@@ -810,10 +807,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
                         let target_ref = TargetReference {
                             span: calc_prop_span(qualified_name.right.span, self.read_file_span),
                             file_path: self.temp_current_read_file_path.clone(),
-                            target_supplement: gen_target_supplement(
-                                false,
-                                self.is_generic_property(),
-                            ),
+                            target_supplement: gen_target_supplement(self.is_generic_property()),
                         };
 
                         self.add_prop_with_retry(self.key_name.clone(), id_name, target_ref);
@@ -862,7 +856,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
                     let target_ref = TargetReference {
                         span: calc_prop_span(identifier.span, self.read_file_span),
                         file_path: self.temp_current_read_file_path.clone(),
-                        target_supplement: gen_target_supplement(false, self.is_generic_property()),
+                        target_supplement: gen_target_supplement(self.is_generic_property()),
                     };
                     self.add_prop_with_retry(
                         self.key_name.clone(),
@@ -877,7 +871,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
                     let target_ref = TargetReference {
                         span: calc_prop_span(ts_type_ref.span, self.read_file_span),
                         file_path: self.temp_current_read_file_path.clone(),
-                        target_supplement: gen_target_supplement(false, self.is_generic_property()),
+                        target_supplement: gen_target_supplement(self.is_generic_property()),
                     };
 
                     self.add_prop_with_retry(
@@ -894,7 +888,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
                     let target_ref = TargetReference {
                         span: calc_prop_span(ts_object_type_ref.span, self.read_file_span),
                         file_path: self.temp_current_read_file_path.clone(),
-                        target_supplement: gen_target_supplement(false, self.is_generic_property()),
+                        target_supplement: gen_target_supplement(self.is_generic_property()),
                     };
                     self.add_prop_with_retry(
                         self.key_name.clone(),

@@ -1,7 +1,7 @@
 use oxc::{
     allocator::{self},
     ast::ast::{TSTupleElement, TSTupleType, TSTypeName, TSTypeReference},
-    span::Atom,
+    span::{Atom, Span},
 };
 
 pub fn ignore_ref_name(atom: &Atom) -> bool {
@@ -260,4 +260,15 @@ pub fn get_generic_prefix<'a>(n: usize) -> &'a str {
         20 => "twentieth",
         _ => "number out of range",
     }
+}
+
+pub fn calc_prop_span(span: Span, read_file_span: Option<Span>) -> Span {
+    if let Some(read_file_span) = read_file_span {
+        return Span::new(
+            span.start + read_file_span.start,
+            span.end + read_file_span.start,
+        );
+    };
+
+    span
 }
