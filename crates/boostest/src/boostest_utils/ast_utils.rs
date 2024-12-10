@@ -6,7 +6,7 @@ use oxc::{
 
 pub fn ignore_ref_name(atom: &Atom) -> bool {
     let name = atom.to_string();
-    name == "Array" || name == "Function" || name == "true" || name == "false"
+    name == "Array" || name == "Function" || name == "true" || name == "false" || name == "Promise"
 }
 
 // common functions

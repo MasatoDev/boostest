@@ -1,10 +1,6 @@
 import { RefType } from "@/ts_types/utils";
 
-interface RefTypeInterface {
-  name: string;
-  ver: number;
-}
-class Hoge {
+class SimpleClass {
   name: string;
   ver: number;
   constructor(name: string, ver: number) {
@@ -38,10 +34,6 @@ type KeyOfButterfly = {
   [key in keyof RefType]: RefType[key];
 };
 
-type ButterflyWithGenericsForKey<T> = {
-  [key in keyof T]: string;
-};
-
 type OnDirectRefUnionType<T> = T extends SystemSupportLanguage ? T : never;
 
 export type GenericsTypeAlias = {
@@ -64,16 +56,17 @@ export type GenericsTypeAlias = {
   pick: Pick<RefType, "name">;
   pickMulti: Pick<RefType, "ver" | "age">;
   omit: Omit<RefType, "name">;
-  /**********************/
-  /******* FIXME: *******/
-  /**********************/
-  // ButterflyWithGenericsForKey: ButterflyWithGenericsForKey<SystemSupportLanguage>;
-  // promise: Promise<RefType>;
+  record: Record<SystemSupportLanguage, string>;
+  parameters: Parameters<(name: string, age: number) => void>;
+  returnType: ReturnType<() => RefType>;
+  instanceType: InstanceType<typeof SimpleClass>;
+  constructorParameters: ConstructorParameters<typeof SimpleClass>;
+  promise: Promise<RefType>;
 
-  // parameters: Parameters<() => void>;
-  // returnType: ReturnType<() => void>;
-  // constructorParameters: ConstructorParameters<typeof LiteralTypeClass>;
-  // instanceType: InstanceType<typeof LiteralTypeClass>;
+  /**********************/
+  /******* TODO: *******/
+  /**********************/
+
   // thisType: ThisType<string>;
 };
 
@@ -99,16 +92,17 @@ export type GenericsInterface = {
   pick: Pick<RefType, "name">;
   pickMulti: Pick<RefType, "ver" | "age">;
   omit: Omit<RefType, "name">;
+  record: Record<SystemSupportLanguage, string>;
+  parameters: Parameters<(name: string, age: number) => void>;
+  returnType: ReturnType<() => RefType>;
+  instanceType: InstanceType<typeof SimpleClass>;
+  constructorParameters: ConstructorParameters<typeof SimpleClass>;
+  promise: Promise<RefType>;
+
   /**********************/
-  /******* FIXME: *******/
+  /******* TODO: *******/
   /**********************/
-  // innserGenericInitializer: InnerGenericInitializer;
   // thisType: ThisType<string>;
-  // parameters: Parameters<() => void>;
-  // constructorParameters: ConstructorParameters<typeof LiteralTypeClass>;
-  // returnType: ReturnType<() => void>;
-  // instanceType: InstanceType<typeof LiteralTypeClass>;
-  // promise: Promise<RefType>;
 };
 
 export class GenericsClass {
@@ -132,19 +126,16 @@ export class GenericsClass {
     public pick: Pick<RefType, "name">,
     public pickMulti: Pick<RefType, "ver" | "age">,
     public omit: Omit<RefType, "name">,
+    public record: Record<SystemSupportLanguage, string>,
+    public parameters: Parameters<(name: string, age: number) => void>,
+    public returnType: ReturnType<() => RefType>,
+    public instanceType: InstanceType<typeof SimpleClass>,
+    public constructorParameters: ConstructorParameters<typeof SimpleClass>,
+    public promise: Promise<RefType>,
 
     /**********************/
-    /******* FIXME: *******/
+    /******* TODO: *******/
     /**********************/
-
-    // public innserGenericInitializer: InnerGenericInitializer,
     // public thisType: ThisType<string>,
-    // public extract: Extract<string | number, string>,
-    // public exclude: Exclude<string | number, string>,
-    // public parameters: Parameters<() => void>,
-    // public constructorParameters: ConstructorParameters<typeof Hoge>,
-    // public returnType: ReturnType<() => void>,
-    // public instanceType: InstanceType<typeof Hoge>,
-    // public promise: Promise<RefType>,
   ) {}
 }

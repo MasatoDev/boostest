@@ -44,19 +44,13 @@ export function inferTsAlias(sourceCode: string) {
       node.name.getText().includes("main")
     ) {
       const aliasName = node.name.getText();
+
+      let structure: string | undefined;
+
+      structure = getTextFromNode(checker, node.type);
+
       const type = checker.getTypeAtLocation(node.type);
-
-      let structure: string;
-
-      // WARN: 分岐必要？
-      if (isClassType(type)) {
-        // クラス参照の場合
-        structure = getTypeStructure(checker, type);
-      } else if (isConstructorType(type)) {
-        // typeofクラス参照の場合
-        structure = getTypeStructure(checker, type);
-      } else {
-        // その他の型
+      if (!structure) {
         structure = getTypeStructure(checker, type);
       }
 
@@ -96,19 +90,18 @@ export function inferTsAlias(sourceCode: string) {
   return `${output}\n\n${code}`;
 }
 
-const code = `
-type main = TsLiteralFunctionUnionType;
-
-type Hoge = Extract<'hoge' | 'huga', 'hoge'>
-type Extract<T, U> = T extends U ? T : never;
-
-export type TsTypeLiteralLiteralFunctionType = () => Hoge; 
-
-export type TsLiteralFunctionUnionType =
-  | ((x: number) => Hoge)
-  | ((x: string) => string); 
-`;
-
+// const code = `
+// type main = TsLiteralFunctionUnionType;
+//
+// type Hoge = {
+//     name: string;
+//     ver: number;
+//     age: number;
+// };
+//
+// export type TsLiteralFunctionUnionType = Promise<Hoge>
+// `;
+//
 // console.log("⭐⭐RESULE: \n", inferTsAlias(code));
 
 /**********************************************************/
@@ -137,6 +130,16 @@ function getTextFromNode(
     return checker.typeToString(checker.getTypeAtLocation(node));
   }
 
+  if (node.kind == ts.SyntaxKind.TypeReference) {
+    if (node.getText().includes("Promise")) {
+      const arg = (node as ts.TypeReferenceNode).typeArguments?.[0];
+
+      if (!arg) return;
+      const type = checker.getTypeFromTypeNode(arg);
+      return `Promise<${getTypeStructure(checker, type)}>`;
+    }
+  }
+
   // if (node.kind == ts.SyntaxKind.CallSignature) {
   //   const callSignature = node as ts.SignatureDeclaration;
   //
@@ -163,6 +166,13 @@ function getTypeStructure(
   type: ts.Type,
   typeOriginalFlag?: typeof TypeOriginalFlag,
 ): string {
+  if (checker.typeToString(type).startsWith("Promise")) {
+    const arg_type = type.aliasTypeArguments?.[0];
+    if (arg_type) {
+      return `Promise<${getTypeStructure(checker, arg_type)}>`;
+    }
+  }
+
   if (isConstructorType(type)) {
     // typeofの場合
     const instanceType = checker.getReturnTypeOfSignature(

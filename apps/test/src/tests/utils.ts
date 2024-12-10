@@ -1,20 +1,14 @@
-/************************************************************/
-/*********************  HELPER  *****************************/
-/************************************************************/
-/** @see: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/BigInt#use_within_json */
-
-// Helper function to run snapshot tests
 export const runSnapshotTest = (name: string, value: any) => {
   if (typeof value === "function" || typeof value === "symbol") {
     test(`${name} matches snapshot`, () => {
       expect(value.toString()).toMatchSnapshot();
     });
-
     return;
   }
 
-  test(`${name} matches snapshot`, () => {
-    expect(stringifySafely(value)).toMatchSnapshot();
+  test(`${name} matches snapshot`, async () => {
+    const str = await stringifySafely(value);
+    expect(str).toMatchSnapshot();
   });
 };
 
@@ -24,10 +18,36 @@ export const failedTest = (name: string) => {
   });
 };
 
-function stringifySafely(obj) {
+// Promiseを再帰的に解決して返すヘルパー関数
+async function resolvePromises(obj: any, seen = new WeakMap()) {
+  if (obj && typeof obj === "object") {
+    if (seen.has(obj)) {
+      return obj; // 循環参照の場合そのまま返す(または[Circular]扱い)
+    }
+    seen.set(obj, obj);
+
+    // Promise の場合は解決する
+    if (typeof obj.then === "function" && typeof obj.catch === "function") {
+      obj = await obj;
+    }
+
+    // 解決後もオブジェクトであれば、再帰的にプロパティを処理
+    if (obj && typeof obj === "object") {
+      for (const [k, v] of Object.entries(obj)) {
+        obj[k] = await resolvePromises(v, seen);
+      }
+    }
+  }
+  return obj;
+}
+
+async function stringifySafely(obj) {
+  // まずPromiseを全て解決する
+  const resolved = await resolvePromises(obj);
+
   const seen = new WeakSet();
 
-  const replacer = (key, value) => {
+  function replacer(key, value) {
     // 循環参照のチェック
     if (typeof value === "object" && value !== null) {
       if (seen.has(value)) {
@@ -107,11 +127,8 @@ function stringifySafely(obj) {
       };
     }
 
-    // その他のオブジェクト（必要に応じて追加）
-
     return value;
-  };
+  }
 
-  return JSON.stringify(obj, replacer);
+  return JSON.stringify(resolved, replacer);
 }
-// カスタム文字列化関数
