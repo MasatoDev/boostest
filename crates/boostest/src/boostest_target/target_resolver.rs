@@ -634,16 +634,16 @@ impl<'a> VisitMut<'a> for TargetResolver {
                             &self.target.lock().unwrap().target_reference,
                             target_def,
                         );
-                }
 
-                if let Some(id) = &mut class.id {
-                    self.visit_binding_identifier(id);
-                }
+                    if let Some(id) = &mut class.id {
+                        self.visit_binding_identifier(id);
+                    }
 
-                if let Some(implements) = &mut class.implements {
-                    self.visit_ts_class_implementses(implements);
+                    if let Some(implements) = &mut class.implements {
+                        self.visit_ts_class_implementses(implements);
+                    }
+                    self.visit_class_body(&mut class.body);
                 }
-                self.visit_class_body(&mut class.body);
 
                 self.set_resolved();
             }
@@ -673,13 +673,18 @@ impl<'a> VisitMut<'a> for TargetResolver {
         // walk_method_definition(self, method);
     }
 
-    // fn visit_static_member_expression(
-    //     &mut self,
-    //     it: &mut oxc::ast::ast::StaticMemberExpression<'a>,
-    // ) {
-    //     it.property
-    // }
-    //
+    fn visit_property_key(&mut self, it: &mut oxc::ast::ast::PropertyKey<'a>) {
+        /* NOTE: skip property key name */
+        // class SimpleClass {
+        //   name: string; // Skip ‘name’ through visit_identifier_name.
+        //   ver: number; // Skip ‘name’ through visit_identifier_name.
+        //   constructor(name: string, ver: number) {
+        //     this.name = name;
+        //     this.ver = ver;
+        //   }
+        // }
+    }
+
     fn visit_identifier_name(&mut self, identifier: &mut oxc::ast::ast::IdentifierName<'a>) {
         let id_name = identifier.name.clone().into_string();
 
@@ -985,9 +990,8 @@ impl<'a> VisitMut<'a> for TargetResolver {
                 self.visit_ts_type_parameter_declaration(type_parameters);
             }
 
-            self.visit_ts_type(&mut decl.type_annotation);
-
             if !ignore_ref_name(&decl.id.name) {
+                self.visit_ts_type(&mut decl.type_annotation);
                 let target_def = TargetDefinition {
                     specifier: decl.id.name.to_string(),
                     span: calc_prop_span(decl.span, self.read_file_span),
@@ -1019,9 +1023,8 @@ impl<'a> VisitMut<'a> for TargetResolver {
                 self.visit_ts_type_parameter_declaration(type_parameters);
             }
 
-            self.visit_ts_interface_body(&mut decl.body);
-
             if !ignore_ref_name(&decl.id.name) {
+                self.visit_ts_interface_body(&mut decl.body);
                 let target_def = TargetDefinition {
                     specifier: decl.id.name.to_string(),
                     span: calc_prop_span(decl.span, self.read_file_span),
@@ -1248,7 +1251,7 @@ pub fn resolve_target_ast_with_tsserver(
         let span = target.target_reference.span.clone();
         drop(target);
 
-        println!("tsserver {:?}", name);
+        println!("tsserver {:?}, SPAN: {:?}", name, span);
 
         target_resolver.use_tsserver = true;
 
@@ -1259,7 +1262,6 @@ pub fn resolve_target_ast_with_tsserver(
             &name,
             ts_server_cache.clone(),
         ) {
-            println!("tsserver result {:?}", span);
             let (target_file_path, span) = result;
 
             let target_source = file_utils::read(&target_file_path).unwrap_or(String::new());
