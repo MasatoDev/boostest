@@ -90,9 +90,6 @@ pub struct TargetResolver {
 
     pub defined_generics: Vec<String>,
 
-    pub parent_key_name: Option<String>,
-    pub key_name: Option<String>,
-
     pub status: ResolveStatus,
     pub read_file_span: Option<Span>,
 
@@ -106,6 +103,7 @@ pub struct TargetResolver {
     - unresolved -> set_import_source
     */
     pub import: Vec<Import>,
+
     // for utility types and so on
     pub lib_file_loaded: bool,
     pub temp_import_source_vec: Option<Vec<Import>>,
@@ -122,8 +120,6 @@ impl TargetResolver {
             target,
             defined_generics: Vec::new(),
             resolved_definitions,
-            parent_key_name: None,
-            key_name: None,
             status: ResolveStatus::Nothing,
             import: Vec::new(),
             lib_file_loaded: false,
@@ -174,35 +170,15 @@ impl TargetResolver {
         );
     }
 
-    pub fn update_key_name(&mut self, key_name: String) {
-        self.key_name = Some(key_name);
-    }
-
-    pub fn clear_key_name(&mut self) {
-        self.key_name = None;
-    }
-
     pub fn get_target_name(&self) -> String {
         self.target.clone().lock().unwrap().name.to_string()
     }
 
-    pub fn add_prop_with_retry(
-        &mut self,
-        key_name: Option<String>,
-        id: String,
-        target_reference: TargetReference,
-    ) {
+    pub fn add_prop_with_retry(&mut self, id: String, target_reference: TargetReference) {
         if !self.defined_generics.contains(&id) {
-            let target_name = self.get_target_name();
-
             loop {
                 match self.target.clone().lock() {
                     Ok(mut target) => {
-                        let new_parent_key_name = get_parent_key_name(
-                            self.parent_key_name.clone(),
-                            key_name,
-                            target_name,
-                        );
                         target.add_property(id, target_reference);
                         break;
                     }
@@ -694,7 +670,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
             target_supplement: gen_target_supplement(self.is_generic_property()),
         };
 
-        self.add_prop_with_retry(self.key_name.clone(), id_name, target_ref);
+        self.add_prop_with_retry(id_name, target_ref);
     }
 
     /** NOTE: not used? */
@@ -714,30 +690,12 @@ impl<'a> VisitMut<'a> for TargetResolver {
     //     }
     // }
 
-    // fn visit_ts_signatures(&mut self, it: &mut AllocVec<'a, TSSignature<'a>>) {
-    //     for el in it.iter_mut() {
-    //         if self.key_name.is_none() {
-    //             self.visit_ts_signature(el);
-    //             self.clear_key_name();
-    //         } else {
-    //             self.clear_key_name();
-    //             self.visit_ts_signature(el);
-    //         }
-    //     }
-    // }
-
     fn visit_ts_signature(&mut self, signature: &mut TSSignature<'a>) {
         match signature {
             TSSignature::TSPropertySignature(ts_prop_signature) => {
-                // if let Some(key_name) = ts_prop_signature.key.name() {
-                if let Some(prop_key) = ts_prop_signature.key.name() {
-                    self.update_key_name(prop_key.to_string());
-                }
-
                 for annotation in &mut ts_prop_signature.type_annotation.iter_mut() {
                     self.visit_ts_type(&mut annotation.type_annotation);
                 }
-                // }
             }
             TSSignature::TSIndexSignature(it) => self.visit_ts_index_signature(it),
             TSSignature::TSConstructSignatureDeclaration(it) => {
@@ -751,22 +709,6 @@ impl<'a> VisitMut<'a> for TargetResolver {
             _ => {}
         }
     }
-
-    // fn visit_ts_type_name(&mut self, it: &mut TSTypeName<'a>) {
-    //     if let TSTypeName::IdentifierReference(identifier) = it {
-    //         let id_name = identifier.name.clone().into_string();
-    //
-    //         let target_ref = TargetReference {
-    //             span: calc_prop_span(identifier.span, self.read_file_span),
-    //             file_path: self.temp_current_read_file_path.clone(),
-    //             target_supplement: gen_target_supplement(false, self.is_generic_property()),
-    //         };
-    //
-    //         self.add_prop_with_retry(self.key_name.clone(), id_name, target_ref);
-    //     }
-    //     walk_ts_type_name(self, it);
-    // }
-    //
 
     fn visit_ts_type(&mut self, ts_type: &mut TSType<'a>) {
         // NOTE: handle mock target property
@@ -799,7 +741,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
                             target_supplement: gen_target_supplement(self.is_generic_property()),
                         };
 
-                        self.add_prop_with_retry(self.key_name.clone(), id_name, target_ref);
+                        self.add_prop_with_retry(id_name, target_ref);
                     }
                     TSTypeName::QualifiedName(qualified_name) => {
                         let id_name = qualified_name.right.name.clone().into_string();
@@ -810,7 +752,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
                             target_supplement: gen_target_supplement(self.is_generic_property()),
                         };
 
-                        self.add_prop_with_retry(self.key_name.clone(), id_name, target_ref);
+                        self.add_prop_with_retry(id_name, target_ref);
                     }
                 }
             }
@@ -858,11 +800,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
                         file_path: self.temp_current_read_file_path.clone(),
                         target_supplement: gen_target_supplement(self.is_generic_property()),
                     };
-                    self.add_prop_with_retry(
-                        self.key_name.clone(),
-                        identifier.name.clone().into_string(),
-                        target_ref,
-                    );
+                    self.add_prop_with_retry(identifier.name.clone().into_string(), target_ref);
                 }
             }
             TSType::TSTypeOperatorType(ts_type_operator_type) => {
@@ -874,11 +812,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
                         target_supplement: gen_target_supplement(self.is_generic_property()),
                     };
 
-                    self.add_prop_with_retry(
-                        self.key_name.clone(),
-                        ts_type_ref.type_name.to_string(),
-                        target_ref,
-                    );
+                    self.add_prop_with_retry(ts_type_ref.type_name.to_string(), target_ref);
                 }
             }
             TSType::TSIndexedAccessType(ts_indexed_access_type) => {
@@ -890,11 +824,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
                         file_path: self.temp_current_read_file_path.clone(),
                         target_supplement: gen_target_supplement(self.is_generic_property()),
                     };
-                    self.add_prop_with_retry(
-                        self.key_name.clone(),
-                        ts_object_type_ref.type_name.to_string(),
-                        target_ref,
-                    );
+                    self.add_prop_with_retry(ts_object_type_ref.type_name.to_string(), target_ref);
                 }
             }
             TSType::TSMappedType(ts_mapped_type) => {
