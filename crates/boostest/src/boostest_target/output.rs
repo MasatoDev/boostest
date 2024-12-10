@@ -26,6 +26,10 @@ pub fn handle_output_main_task(
 
     let mut hash_map: HashMap<String, OutputCode> = HashMap::new();
 
+    // TODO:
+    // targetがPromiseなどの場合は除外する。main_targetには混ざってしまう...orz
+    // Promise系でも<>で型を指定している場合は、その型を取得しないと除外しちゃダメだ
+
     // NOTE: if this loop change to multi-thread, the f(file) is need change to Arc<Mutex<File>>
     for main_target in main_targets {
         let writed = Arc::new(Mutex::new(Vec::new()));

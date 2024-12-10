@@ -1089,9 +1089,74 @@ pub fn get_expression<'a>(
     generic: Vec<String>,
 ) -> Expression<'a> {
     let val = match type_annotation {
-        TSType::TSTypeReference(ts_type_ref) if ast_utils::is_defined_type(&ts_type_ref) => {
-            // TODO: Defined type
-            object_expr(ast_builder, None)
+        TSType::TSTypeReference(mut ts_type_ref) if ast_utils::is_promise_type(&ts_type_ref) => {
+            let mut arguments = ast_builder.vec();
+
+            if let Some(type_parameters) = &mut ts_type_ref.type_parameters {
+                if let Some(param_type) = type_parameters.params.first_mut() {
+                    let ts_type = ast_builder.move_ts_type(param_type);
+
+                    let result_expr = get_arg(
+                        is_main_target,
+                        ast_builder,
+                        ts_type,
+                        key_name,
+                        mock_func_name,
+                        generic,
+                        false,
+                    );
+                    let mut result_args = ast_builder.vec();
+                    result_args.push(result_expr);
+
+                    let new_name = ast_builder.atom("resolve");
+                    let new_callee = ast_builder.expression_identifier_reference(SPAN, new_name);
+
+                    let type_parameters: Option<allocator::Box<TSTypeParameterInstantiation<'a>>> =
+                        None;
+                    let call_expr = ast_builder.expression_call(
+                        SPAN,
+                        new_callee,
+                        type_parameters,
+                        result_args,
+                        false,
+                    );
+
+                    let binding_kind =
+                        ast_builder.binding_pattern_kind_binding_identifier(SPAN, "resolve");
+                    let ts_type_annotation: Option<allocator::Box<TSTypeAnnotation<'a>>> = None;
+                    let binding_paramter =
+                        ast_builder.binding_pattern(binding_kind, ts_type_annotation, false);
+                    let formal_parameter = ast_builder.formal_parameter(
+                        SPAN,
+                        ast_builder.vec(),
+                        binding_paramter,
+                        None,
+                        false,
+                        false,
+                    );
+
+                    let mut formal_parameters = ast_builder.vec();
+                    formal_parameters.push(formal_parameter);
+
+                    let none_binding_rest_ele: Option<allocator::Box<BindingRestElement<'a>>> =
+                        None;
+                    let alloc_formal_parameters = ast_builder.alloc_formal_parameters(
+                        SPAN,
+                        FormalParameterKind::ArrowFormalParameters,
+                        formal_parameters,
+                        none_binding_rest_ele,
+                    );
+
+                    let function_expr =
+                        function_expr(ast_builder, Some(alloc_formal_parameters), Some(call_expr));
+                    arguments.push(Argument::from(function_expr));
+                }
+            }
+
+            let new_name = ast_builder.atom("Promise");
+            let new_callee = ast_builder.expression_identifier_reference(SPAN, new_name);
+            let type_parameters: Option<allocator::Box<TSTypeParameterInstantiation<'a>>> = None;
+            ast_builder.expression_new(SPAN, new_callee, arguments, type_parameters)
         }
         TSType::TSTypeReference(ts_type_ref) if ast_utils::is_function_type(&ts_type_ref) => {
             // TODO: Array
@@ -1916,9 +1981,75 @@ pub fn get_arg<'a>(
         TSType::TSNullKeyword(_) => null_arg(ast_builder),
         TSType::TSNumberKeyword(_) => number_arg(ast_builder, None, None, None),
         TSType::TSStringKeyword(_) => string_arg(ast_builder, None),
-        TSType::TSTypeReference(ts_type_ref) if ast_utils::is_defined_type(&ts_type_ref) => {
-            // TODO
-            object_arg(ast_builder, None)
+        TSType::TSTypeReference(mut ts_type_ref) if ast_utils::is_promise_type(&ts_type_ref) => {
+            let mut arguments = ast_builder.vec();
+
+            if let Some(type_parameters) = &mut ts_type_ref.type_parameters {
+                if let Some(param_type) = type_parameters.params.first_mut() {
+                    let ts_type = ast_builder.move_ts_type(param_type);
+
+                    let result_expr = get_arg(
+                        is_main_target,
+                        ast_builder,
+                        ts_type,
+                        key_name,
+                        mock_func_name,
+                        generic,
+                        false,
+                    );
+                    let mut result_args = ast_builder.vec();
+                    result_args.push(result_expr);
+
+                    let new_name = ast_builder.atom("resolve");
+                    let new_callee = ast_builder.expression_identifier_reference(SPAN, new_name);
+
+                    let type_parameters: Option<allocator::Box<TSTypeParameterInstantiation<'a>>> =
+                        None;
+                    let call_expr = ast_builder.expression_call(
+                        SPAN,
+                        new_callee,
+                        type_parameters,
+                        result_args,
+                        false,
+                    );
+
+                    let binding_kind =
+                        ast_builder.binding_pattern_kind_binding_identifier(SPAN, "resolve");
+                    let ts_type_annotation: Option<allocator::Box<TSTypeAnnotation<'a>>> = None;
+                    let binding_paramter =
+                        ast_builder.binding_pattern(binding_kind, ts_type_annotation, false);
+                    let formal_parameter = ast_builder.formal_parameter(
+                        SPAN,
+                        ast_builder.vec(),
+                        binding_paramter,
+                        None,
+                        false,
+                        false,
+                    );
+
+                    let mut formal_parameters = ast_builder.vec();
+                    formal_parameters.push(formal_parameter);
+
+                    let none_binding_rest_ele: Option<allocator::Box<BindingRestElement<'a>>> =
+                        None;
+                    let alloc_formal_parameters = ast_builder.alloc_formal_parameters(
+                        SPAN,
+                        FormalParameterKind::ArrowFormalParameters,
+                        formal_parameters,
+                        none_binding_rest_ele,
+                    );
+
+                    let function_expr =
+                        function_expr(ast_builder, Some(alloc_formal_parameters), Some(call_expr));
+                    arguments.push(Argument::from(function_expr));
+                }
+            }
+
+            let new_name = ast_builder.atom("Promise");
+            let new_callee = ast_builder.expression_identifier_reference(SPAN, new_name);
+            let type_parameters: Option<allocator::Box<TSTypeParameterInstantiation<'a>>> = None;
+            let expr = ast_builder.expression_new(SPAN, new_callee, arguments, type_parameters);
+            return Argument::from(expr);
         }
         TSType::TSTypeReference(ts_type_ref) if ast_utils::is_function_type(&ts_type_ref) => {
             // TODO: Array

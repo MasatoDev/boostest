@@ -20,7 +20,7 @@ use oxc::ast::ast::{Argument, CallExpression, TSType::TSTypeReference, TSTypeNam
 use crate::{
     boostest_manager::propety_assignment::{ts_type_assign_as_property, TargetReferenceInfo},
     boostest_utils::{
-        ast_utils::{self, get_generic_prefix},
+        ast_utils::{self, get_generic_prefix, ignore_ref_name},
         id_name::get_id_with_hash,
         napi::TargetType,
     },
@@ -262,7 +262,6 @@ impl<'a> Visit<'a> for MainTarget {
 
     fn visit_ts_type(&mut self, ts_type: &TSType<'a>) {
         match ts_type {
-            TSType::TSTypeReference(ty_ref) if ast_utils::is_defined_type(&ty_ref) => {}
             TSType::TSTypeReference(ty_ref) if ast_utils::is_function_type(&ty_ref) => {}
             TSType::TSTypeReference(ty_ref) if ast_utils::is_array_type(&ty_ref) => {}
             TSType::TSTypeReference(ty_ref) if ast_utils::is_boolean_type(&ty_ref) => {}
@@ -274,6 +273,10 @@ impl<'a> Visit<'a> for MainTarget {
                 }
 
                 if let TSTypeName::IdentifierReference(identifier) = &ts_type_ref.type_name {
+                    if ignore_ref_name(&identifier.name) {
+                        return;
+                    }
+
                     let id_name = identifier.name.clone().into_string();
                     self.add_prop_with_retry(id_name, identifier.span);
                 }

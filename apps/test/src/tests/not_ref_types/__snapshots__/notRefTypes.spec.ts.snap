@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Rename Tests Direct Promise matches snapshot 1`] = `"{"name":"test string data","age":10}"`;
