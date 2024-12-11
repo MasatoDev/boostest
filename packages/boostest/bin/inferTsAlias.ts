@@ -47,7 +47,7 @@ export function inferTsAlias(sourceCode: string) {
 
       let structure: string | undefined;
 
-      structure = getTextFromNode(checker, node.type);
+      structure = getTextFromNode(checker, node.type, true);
 
       const type = checker.getTypeAtLocation(node.type);
       if (!structure) {
@@ -91,15 +91,14 @@ export function inferTsAlias(sourceCode: string) {
 }
 
 // const code = `
-// type main = TsLiteralFunctionUnionType;
+// type main = (hoge: Hoge)=>Hoge;
 //
 // type Hoge = {
-//     name: string;
+//     name: ()=>void;
 //     ver: number;
 //     age: number;
 // };
 //
-// export type TsLiteralFunctionUnionType = Promise<Hoge>
 // `;
 //
 // console.log("⭐⭐RESULE: \n", inferTsAlias(code));
@@ -119,6 +118,7 @@ export function inferTsAlias(sourceCode: string) {
 function getTextFromNode(
   checker: ts.TypeChecker,
   node: ts.Node,
+  is_root: boolean = false,
 ): string | undefined {
   if (ts.isPropertySignature(node)) {
     if (node.type) {
@@ -126,7 +126,7 @@ function getTextFromNode(
     }
   }
 
-  if (node.kind == ts.SyntaxKind.FunctionType) {
+  if (node.kind == ts.SyntaxKind.FunctionType && !is_root) {
     return checker.typeToString(checker.getTypeAtLocation(node));
   }
 

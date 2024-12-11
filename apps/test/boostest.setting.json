@@ -1,5 +1,5 @@
 {
-  "target_pattern": ["./src/tests/**/**/notRefTypes.spec.ts"],
+  "target_pattern": ["./src/tests/**/**/*.spec.ts"],
   "name": "boostest",
   "out_file_name": "test_data",
   "tsconfig": "./tsconfig.json"

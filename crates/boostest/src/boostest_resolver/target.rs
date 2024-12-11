@@ -1,7 +1,7 @@
 use oxc::{
     ast::{
-        ast::{TSTupleElement, TSType, TSTypeQueryExprName},
-        visit::walk::walk_ts_type_parameter_instantiation,
+        ast::{TSTupleElement, TSType, TSTypeName, TSTypeQueryExprName},
+        visit::walk::{walk_ts_type_name, walk_ts_type_parameter_instantiation},
         Visit,
     },
     span::Span,
@@ -14,7 +14,6 @@ use std::{
     time::Duration,
 };
 
-use oxc::ast::ast::TSTypeName;
 use oxc::ast::ast::TSTypeParameterInstantiation;
 
 use crate::boostest_utils::{
@@ -223,6 +222,7 @@ impl ResolvedDefinitions {
 }
 
 impl<'a> Visit<'a> for MainTarget {
+    // boostestHoeg<Hoge>:  visit_ts_type_parameter_instantiation -> Hoge
     fn visit_ts_type_parameter_instantiation(&mut self, ty: &TSTypeParameterInstantiation<'a>) {
         if !self.initialized {
             if let Some(ts_type) = ty.params.first() {
@@ -255,100 +255,123 @@ impl<'a> Visit<'a> for MainTarget {
         walk_ts_type_parameter_instantiation(self, ty);
     }
 
-    fn visit_ts_type(&mut self, ts_type: &TSType<'a>) {
-        match ts_type {
-            TSType::TSTypeReference(ty_ref) if ast_utils::is_function_type(&ty_ref) => {}
-            TSType::TSTypeReference(ty_ref) if ast_utils::is_array_type(&ty_ref) => {}
-            TSType::TSTypeReference(ty_ref) if ast_utils::is_boolean_type(&ty_ref) => {}
-            TSType::TSTypeReference(ts_type_ref) => {
-                if let Some(type_parameters) = &ts_type_ref.type_parameters {
-                    for param in type_parameters.params.iter() {
-                        self.visit_ts_type(param);
-                    }
-                }
+    fn visit_ts_type_name(&mut self, it: &TSTypeName<'a>) {
+        if let TSTypeName::IdentifierReference(identifier) = it {
+            let id = identifier.name.clone();
+            if ignore_ref_name(&id) {
+                return;
+            }
 
-                if let TSTypeName::IdentifierReference(identifier) = &ts_type_ref.type_name {
-                    if ignore_ref_name(&identifier.name) {
-                        return;
-                    }
-
-                    let id_name = identifier.name.clone().into_string();
-                    self.add_prop_with_retry(id_name, identifier.span);
-                }
-            }
-            TSType::TSTypeLiteral(ts_type_literal) => {
-                self.visit_ts_signatures(&ts_type_literal.members);
-            }
-            TSType::TSConditionalType(ts_condition_type) => {
-                self.visit_ts_type(&ts_condition_type.check_type);
-                self.visit_ts_type(&ts_condition_type.extends_type);
-                self.visit_ts_type(&ts_condition_type.true_type);
-                self.visit_ts_type(&ts_condition_type.false_type);
-            }
-            TSType::TSUnionType(ts_union_type) => {
-                for ts_type in ts_union_type.types.iter() {
-                    self.visit_ts_type(ts_type);
-                }
-            }
-            TSType::TSTupleType(ts_tuple_type) => {
-                for element in ts_tuple_type.element_types.iter() {
-                    self.visit_ts_type(element.to_ts_type());
-                }
-            }
-            TSType::TSNamedTupleMember(ts_named_tuple_member) => {
-                match &ts_named_tuple_member.element_type {
-                    TSTupleElement::TSOptionalType(_) => {
-                        // &ts_named_tuple_member.element_type,
-                    }
-                    TSTupleElement::TSRestType(_) => {}
-                    ts_tuple_type => {
-                        self.visit_ts_type(ts_tuple_type.to_ts_type());
-                    }
-                }
-            }
-            TSType::TSIntersectionType(ts_intersection_type) => {
-                for ts_type in ts_intersection_type.types.iter() {
-                    self.visit_ts_type(ts_type);
-                }
-            }
-            TSType::TSTypeQuery(ts_type_query) => {
-                if let TSTypeQueryExprName::IdentifierReference(identifier) =
-                    &ts_type_query.expr_name
-                {
-                    self.add_prop_with_retry(
-                        identifier.name.clone().into_string(),
-                        identifier.span,
-                    );
-                }
-            }
-            TSType::TSTypeOperatorType(ts_type_operator_type) => {
-                if let TSType::TSTypeReference(ts_type_ref) = &ts_type_operator_type.type_annotation
-                {
-                    self.add_prop_with_retry(ts_type_ref.type_name.to_string(), ts_type_ref.span);
-                }
-            }
-            TSType::TSIndexedAccessType(ts_indexed_access_type) => {
-                if let TSType::TSTypeReference(ts_object_type_ref) =
-                    &ts_indexed_access_type.object_type
-                {
-                    self.add_prop_with_retry(
-                        ts_object_type_ref.type_name.to_string(),
-                        ts_object_type_ref.span,
-                    );
-                }
-            }
-            TSType::TSMappedType(ts_mapped_type) => {
-                if let Some(ts_type) = &ts_mapped_type.type_parameter.constraint {
-                    self.visit_ts_type(ts_type);
-                }
-
-                if let Some(ts_type) = &ts_mapped_type.type_annotation {
-                    self.visit_ts_type(ts_type);
-                }
-            }
-            _ => {}
+            self.add_prop_with_retry(id.to_string(), identifier.span);
         }
+
+        if let TSTypeName::QualifiedName(qualified_name) = it {
+            let id = &qualified_name.right.name;
+            if ignore_ref_name(id) {
+                return;
+            }
+
+            self.add_prop_with_retry(id.to_string(), qualified_name.right.span);
+        }
+
+        walk_ts_type_name(self, it);
     }
+
+    // fn visit_ts_type(&mut self, ts_type: &TSType<'a>) {
+    //     match ts_type {
+    //         TSType::TSTypeReference(ty_ref) if ast_utils::is_function_type(&ty_ref) => {}
+    //         TSType::TSTypeReference(ty_ref) if ast_utils::is_array_type(&ty_ref) => {}
+    //         TSType::TSTypeReference(ty_ref) if ast_utils::is_boolean_type(&ty_ref) => {}
+    //         TSType::TSTypeReference(ts_type_ref) => {
+    //             if let Some(type_parameters) = &ts_type_ref.type_parameters {
+    //                 for param in type_parameters.params.iter() {
+    //                     self.visit_ts_type(param);
+    //                 }
+    //             }
+    //
+    //             if let TSTypeName::IdentifierReference(identifier) = &ts_type_ref.type_name {
+    //                 if ignore_ref_name(&identifier.name) {
+    //                     return;
+    //                 }
+    //
+    //                 let id_name = identifier.name.clone().into_string();
+    //                 self.add_prop_with_retry(id_name, identifier.span);
+    //             }
+    //         }
+    //         TSType::TSTypeLiteral(ts_type_literal) => {
+    //             self.visit_ts_signatures(&ts_type_literal.members);
+    //         }
+    //         TSType::TSConditionalType(ts_condition_type) => {
+    //             self.visit_ts_type(&ts_condition_type.check_type);
+    //             self.visit_ts_type(&ts_condition_type.extends_type);
+    //             self.visit_ts_type(&ts_condition_type.true_type);
+    //             self.visit_ts_type(&ts_condition_type.false_type);
+    //         }
+    //         TSType::TSUnionType(ts_union_type) => {
+    //             for ts_type in ts_union_type.types.iter() {
+    //                 self.visit_ts_type(ts_type);
+    //             }
+    //         }
+    //         TSType::TSTupleType(ts_tuple_type) => {
+    //             for element in ts_tuple_type.element_types.iter() {
+    //                 self.visit_ts_type(element.to_ts_type());
+    //             }
+    //         }
+    //         TSType::TSNamedTupleMember(ts_named_tuple_member) => {
+    //             match &ts_named_tuple_member.element_type {
+    //                 TSTupleElement::TSOptionalType(_) => {
+    //                     // &ts_named_tuple_member.element_type,
+    //                 }
+    //                 TSTupleElement::TSRestType(_) => {}
+    //                 ts_tuple_type => {
+    //                     self.visit_ts_type(ts_tuple_type.to_ts_type());
+    //                 }
+    //             }
+    //         }
+    //         TSType::TSIntersectionType(ts_intersection_type) => {
+    //             for ts_type in ts_intersection_type.types.iter() {
+    //                 self.visit_ts_type(ts_type);
+    //             }
+    //         }
+    //         TSType::TSTypeQuery(ts_type_query) => {
+    //             if let TSTypeQueryExprName::IdentifierReference(identifier) =
+    //                 &ts_type_query.expr_name
+    //             {
+    //                 self.add_prop_with_retry(
+    //                     identifier.name.clone().into_string(),
+    //                     identifier.span,
+    //                 );
+    //             }
+    //         }
+    //         TSType::TSTypeOperatorType(ts_type_operator_type) => {
+    //             if let TSType::TSTypeReference(ts_type_ref) = &ts_type_operator_type.type_annotation
+    //             {
+    //                 self.add_prop_with_retry(ts_type_ref.type_name.to_string(), ts_type_ref.span);
+    //             }
+    //         }
+    //         TSType::TSIndexedAccessType(ts_indexed_access_type) => {
+    //             if let TSType::TSTypeReference(ts_object_type_ref) =
+    //                 &ts_indexed_access_type.object_type
+    //             {
+    //                 self.add_prop_with_retry(
+    //                     ts_object_type_ref.type_name.to_string(),
+    //                     ts_object_type_ref.span,
+    //                 );
+    //             }
+    //         }
+    //         TSType::TSMappedType(ts_mapped_type) => {
+    //             if let Some(ts_type) = &ts_mapped_type.type_parameter.constraint {
+    //                 self.visit_ts_type(ts_type);
+    //             }
+    //
+    //             if let Some(ts_type) = &ts_mapped_type.type_annotation {
+    //                 self.visit_ts_type(ts_type);
+    //             }
+    //         }
+    //
+    //         _ => {}
+    //     }
+    // }
 }
 
 pub fn gen_target_supplement(is_generic_property: bool) -> Option<TargetSupplement> {

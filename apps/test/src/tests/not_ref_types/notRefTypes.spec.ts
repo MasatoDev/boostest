@@ -43,8 +43,10 @@ describe("not ref types(direct) Tests", () => {
   runSnapshotTest("Direct unknown", boostestUnknown<unknown>());
   runSnapshotTest("Direct object", boostestObject<object>());
   runSnapshotTest("Direct void", boostestVoid<void>());
-  // TODO:
-  runSnapshotTest("Direct function", boostestFunction<() => void>());
+  runSnapshotTest(
+    "Direct function",
+    boostestFunction<(arg: RefType) => RefInterface>(),
+  );
   runSnapshotTest("Direct array", boostestArray<string[]>());
   runSnapshotTest("Direct reference", boostestReference<RefType>());
   runSnapshotTest("Direct union", boostestUnion<string | number>());
@@ -72,7 +74,6 @@ describe("not ref types(direct) Tests", () => {
     "Direct index accessor",
     boostestIndexAccessor<RefType["name"]>(),
   );
-  // TODO:
   runSnapshotTest(
     "Direct constructor",
     boostestConstructor<abstract new (...args: any) => Hoge>(),
