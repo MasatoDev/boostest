@@ -17,8 +17,11 @@ use oxc::allocator;
 
 use crate::boostest_target::target::{self, TargetSupplement};
 
-use super::extends_ast_builder::AstBuilderExt;
-use super::test_data_factory;
+use super::{
+    extends_ast_builder::AstBuilderExt, get_expression::get_expression,
+    handle_ts_signatures::handle_ts_signatures,
+};
+use super::{get_expression::get_first_call_signature, test_data_factory};
 
 const SPAN: Span = Span::new(0, 0);
 
@@ -241,13 +244,11 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
                 .ast_builder
                 .move_ts_type(&mut self.ts_type_alias.type_annotation);
 
-            let new_expr = test_data_factory::get_expression(
+            let new_expr = get_expression(
                 self.is_main_target,
                 &self.ast_builder,
                 ts_annotation,
-                &id_name,
                 &self.mock_data.mock_func_name,
-                is_generic_property,
                 self.mock_data.generic.clone(),
             );
 
@@ -262,10 +263,9 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
                 .move_ts_type(&mut self.ts_type_alias.type_annotation);
 
             // NOTE: call signatureは...argにしてreturnだけちゃんとしたい
-            if let Some(call_signature_expr) = test_data_factory::get_first_call_signature(
+            if let Some(call_signature_expr) = get_first_call_signature(
                 &self.ast_builder,
                 ts_annotation,
-                "call_signature",
                 &self.mock_data.mock_func_name,
             ) {
                 let _ = std::mem::replace(expr, call_signature_expr);
@@ -318,7 +318,7 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
                             _ => &mut vec,
                         };
 
-                        let new_obj_expr = test_data_factory::handle_ts_signatures(
+                        let new_obj_expr = handle_ts_signatures(
                             self.is_main_target,
                             &self.ast_builder,
                             ts_signatures,
