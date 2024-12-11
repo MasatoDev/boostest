@@ -11,7 +11,6 @@ use oxc::ast::VisitMut;
 
 use crate::boostest_generator::ts_type_alias_builder::TSTypeAliasBuilder;
 use crate::boostest_target::target::TargetSupplement;
-use crate::boostest_utils::napi::TargetType;
 
 pub struct CodeGenerator<'a> {
     pub is_main_target: bool,

@@ -57,7 +57,6 @@ pub fn handle_output_main_task(
         drop(locked_target);
 
         let code = get_code(
-            true,
             locked_main_target.target.clone(),
             resolved_definitions.clone(),
         );
@@ -117,7 +116,7 @@ pub fn write_ref_properties(
     writed: Arc<Mutex<Vec<String>>>,
 ) -> Result<()> {
     for children_prop in property_targets.iter() {
-        let code = get_code(false, children_prop.clone(), resolved_definitions.clone());
+        let code = get_code(children_prop.clone(), resolved_definitions.clone());
 
         match code {
             Some((code, var_name)) => {
@@ -155,7 +154,6 @@ pub fn write_ref_properties(
 }
 
 fn get_code(
-    is_main_target: bool,
     target: Arc<Mutex<Target>>,
     resolved_definitions: Arc<Mutex<ResolvedDefinitions>>,
 ) -> Option<(String, String)> {
@@ -178,7 +176,6 @@ fn get_code(
         );
 
         let mut code_generator = OutputGenerator::new(
-            is_main_target,
             resolved_definitions.clone(),
             &allocator,
             &target_definition.specifier,

@@ -1,31 +1,25 @@
 use std::sync::{Arc, Mutex};
 
-use oxc::allocator::{self, Allocator, Vec as AllocVec};
+use oxc::allocator::{self, Allocator};
 use oxc::ast::visit::walk_mut::{
-    walk_class, walk_ts_interface_declaration, walk_ts_type, walk_ts_type_alias_declaration,
-    walk_ts_type_name, walk_variable_declarator,
+    walk_ts_type, walk_ts_type_alias_declaration, walk_ts_type_name, walk_variable_declarator,
 };
 use oxc::codegen::Codegen;
 use oxc::parser::Parser;
-use oxc::semantic::ScopeFlags;
 use oxc::span::{SourceType, Span, SPAN};
 
 use oxc::ast::ast::{
-    Class, ExportDefaultDeclaration, ExportDefaultDeclarationKind, ExportNamedDeclaration,
-    Expression, TSInterfaceDeclaration, TSType, TSTypeAliasDeclaration, TSTypeAnnotation,
-    TSTypeName, TSTypeParameterInstantiation,
+    Class, TSInterfaceDeclaration, TSType, TSTypeAliasDeclaration, TSTypeAnnotation, TSTypeName,
 };
-use oxc::ast::ast::{Declaration, Statement};
 use oxc::ast::{AstBuilder, VisitMut};
 
 use crate::boostest_generator::extends_ast_builder::AstBuilderExt;
-use crate::boostest_utils::ast_utils::{self, calc_prop_span, ignore_ref_name};
+use crate::boostest_utils::ast_utils::{calc_prop_span, ignore_ref_name};
 use crate::boostest_utils::id_name::get_id_with_hash;
 
 use super::target::ResolvedDefinitions;
 
 pub struct OutputGenerator<'a> {
-    pub is_main_target: bool,
     pub resolved_definitions: Arc<Mutex<ResolvedDefinitions>>,
     pub specifier: &'a str,
     var_name: String,
@@ -43,7 +37,6 @@ pub struct OutputGenerator<'a> {
 
 impl<'a, 'b: 'a> OutputGenerator<'a> {
     pub fn new(
-        is_main_target: bool,
         resolved_definitions: Arc<Mutex<ResolvedDefinitions>>,
         allocator: &'b Allocator,
         specifier: &'a str,
@@ -55,7 +48,6 @@ impl<'a, 'b: 'a> OutputGenerator<'a> {
     ) -> Self {
         let ast_builder = AstBuilder::new(allocator);
         Self {
-            is_main_target,
             resolved_definitions,
             specifier,
             source_text,

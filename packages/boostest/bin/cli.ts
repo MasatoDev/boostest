@@ -7,8 +7,6 @@ import {
   TargetType,
 } from "../index";
 import { inferTsAlias } from "./inferTsAlias";
-import { infferTsInterface } from "./inferTSInterface";
-import { infferClass } from "./inferClass";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import ts from "typescript";
@@ -34,17 +32,6 @@ const infferTypes = (result: Output): Output => {
   for (const [key, value] of Object.entries(result)) {
     let types;
     types = inferTsAlias(value.code);
-    // switch (value.targetType) {
-    //   case 0:
-    //     types = infferClass(value.code);
-    //     break;
-    //   case 1:
-    //     types = infferTsInterface(value.code);
-    //     break;
-    //   case 2:
-    //     types = infferTsAlias(value.code);
-    //     break;
-    // }
 
     if (types) {
       codeRecord[key] = {

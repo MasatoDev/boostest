@@ -16,10 +16,7 @@ use oxc::{
         AstBuilder,
     },
     span::{Atom, Span},
-    syntax::{
-        identifier,
-        number::{BigintBase, NumberBase},
-    },
+    syntax::number::{BigintBase, NumberBase},
 };
 
 use crate::boostest_utils::ast_utils::get_generic_prefix;
