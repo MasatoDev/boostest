@@ -25,8 +25,6 @@ pub fn resolve_target(
     depth: u8,
     ts_server_cache: Arc<Mutex<TSServerCache>>,
 ) -> Result<()> {
-    println!("target_name: {:?}", target_resolver.get_target_name());
-
     // prevent infinite loop
     if depth > 50 {
         println!(
@@ -50,6 +48,12 @@ pub fn resolve_target(
     let mut program = parser.parse().program;
     target_resolver.visit_statements(&mut program.body);
 
+    println!(
+        "\ntarget_name: {:?} TO resolved: {:?}",
+        target_resolver.get_target_name(),
+        target_resolver.resolved()
+    );
+
     // /*
     //  * NOTE:
     //  * start analysis for ref_properties after original mock_target_ast analysis is started
@@ -62,7 +66,6 @@ pub fn resolve_target(
     if target_resolver.resolved() {
         return Ok(());
     };
-    println!("resolved {:?}", target_resolver.resolved());
 
     target_resolver.set_import_source();
 

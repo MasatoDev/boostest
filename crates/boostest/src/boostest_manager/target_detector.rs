@@ -67,6 +67,8 @@ impl TargetDetector {
             },
         );
 
+        println!("\nmain_target: {:?}", main_target);
+
         main_target.visit_call_expression(expr);
 
         self.main_targets.push(Arc::new(Mutex::new(main_target)));

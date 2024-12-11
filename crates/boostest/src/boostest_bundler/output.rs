@@ -73,12 +73,7 @@ pub fn handle_output_main_task(
                 output.push_str(&code);
                 output.push_str("\n");
             }
-            None => {
-                println!(
-                    "{}",
-                    format!("failed to create test data: {}", func_name).red()
-                );
-            }
+            None => {}
         }
 
         write_ref_properties(

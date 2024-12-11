@@ -5,7 +5,7 @@ interface RefTypeInterface {
   ver: number;
 }
 
-class Hoge {
+export class Hoge {
   name: string;
   ver: number;
   constructor(name: string, ver: number) {

@@ -54,7 +54,8 @@ pub fn resolve_target_ast_with_tsserver(
         let span = target.target_reference.span.clone();
         drop(target);
 
-        println!("tsserver {:?}, SPAN: {:?}", name, span);
+        println!("\n🆚🆚🆚🆚🆚🆚 tsserver {:?}, ", name);
+        println!("\nSPAN: {:?}", span);
 
         target_resolver.use_tsserver = true;
 

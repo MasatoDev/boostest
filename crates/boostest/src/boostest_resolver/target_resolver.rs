@@ -112,18 +112,25 @@ impl TargetResolver {
         ts_server_cache: Arc<Mutex<TSServerCache>>,
         lib_file_path: &PathBuf,
     ) {
-        // 循環参照防止
+        // NOTE: prevent from circular referencing
         let target_ref = self.target.lock().unwrap().target_reference.clone();
         let is_resolved = self
             .resolved_definitions
             .lock()
             .unwrap()
             .is_resolved(&target_ref);
-
         if is_resolved {
             println!("Already resolved: {}", self.get_target_name().green());
             return;
         };
+
+        let target_name = self.target.lock().unwrap().name.clone();
+
+        // NOTE: if main target isn't reference, main target doesn't have target
+        if target_name.is_empty() {
+            println!("Empty target name: {:?}", target_ref);
+            return;
+        }
 
         self.status = ResolveStatus::Start;
         let file_path = self
