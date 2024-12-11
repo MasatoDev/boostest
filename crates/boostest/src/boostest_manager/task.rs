@@ -1,25 +1,13 @@
 use crate::boostest_generator::code_generator::CodeGenerator;
-use crate::boostest_generator::fallback_func_builder::FallbackFuncBuilder;
-use crate::boostest_target::target::{MainTarget, Target};
-use crate::boostest_utils::file_utils;
 use crate::boostest_utils::napi::OutputCode;
 
 use anyhow::Result;
-use colored::*;
-use oxc::span::SourceType;
-use std::ffi::OsStr;
 use std::fs::{self, File};
 use std::io::prelude::*;
 use std::path::Path;
-use std::sync::{Arc, Mutex};
 
 pub fn handle_main_task(output: OutputCode, func_name: String) -> Result<()> {
-    let OutputCode {
-        code,
-        path,
-        target_type,
-        ..
-    } = output;
+    let OutputCode { code, path, .. } = output;
 
     let path = Path::new(&path);
     let canonical_path = path.canonicalize()?;
@@ -49,16 +37,7 @@ pub fn handle_main_task(output: OutputCode, func_name: String) -> Result<()> {
 
     let allocator = oxc::allocator::Allocator::default();
 
-    let mut code_generator = CodeGenerator::new(
-        true,
-        &allocator,
-        "",
-        &func_name,
-        "",
-        &code,
-        None,
-        &target_type,
-    );
+    let mut code_generator = CodeGenerator::new(true, &allocator, &func_name, "", &code, None);
 
     code_generator.generate();
 
