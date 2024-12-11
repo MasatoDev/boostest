@@ -7,7 +7,7 @@ use oxc::parser::Parser;
 use oxc::semantic::SemanticBuilder;
 use oxc::span::{SourceType, Span};
 
-use crate::boostest_target::target::{MainTarget, TargetReference};
+use crate::boostest_resolver::target::{MainTarget, TargetReference};
 use crate::boostest_utils::file_utils;
 
 pub struct TargetDetector {

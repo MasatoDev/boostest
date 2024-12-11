@@ -1,4 +1,4 @@
-use crate::boostest_target::target::{MainTarget, Target};
+use crate::boostest_resolver::target::{MainTarget, ResolvedDefinitions, Target};
 use crate::boostest_utils::file_utils;
 use crate::boostest_utils::id_name::get_id_with_hash;
 use crate::boostest_utils::napi::{OutputCode, TargetType};
@@ -12,7 +12,6 @@ use std::sync::{Arc, Mutex};
 
 use super::output_generator::OutputGenerator;
 use super::output_main_generator::OutputMainGenerator;
-use super::target::ResolvedDefinitions;
 
 pub fn handle_output_main_task(
     main_targets: Vec<Arc<Mutex<MainTarget>>>,

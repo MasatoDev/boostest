@@ -14,10 +14,9 @@ use oxc::ast::ast::{
 use oxc::ast::{AstBuilder, VisitMut};
 
 use crate::boostest_generator::extends_ast_builder::AstBuilderExt;
+use crate::boostest_resolver::target::ResolvedDefinitions;
 use crate::boostest_utils::ast_utils::{calc_prop_span, ignore_ref_name};
 use crate::boostest_utils::id_name::get_id_with_hash;
-
-use super::target::ResolvedDefinitions;
 
 pub struct OutputGenerator<'a> {
     pub resolved_definitions: Arc<Mutex<ResolvedDefinitions>>,

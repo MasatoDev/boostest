@@ -15,7 +15,7 @@ use oxc::{
 
 use oxc::allocator;
 
-use crate::boostest_target::target::{self, TargetSupplement};
+use crate::boostest_resolver::target::{self, TargetSupplement};
 
 use super::{
     extends_ast_builder::AstBuilderExt, get_expression::get_expression,

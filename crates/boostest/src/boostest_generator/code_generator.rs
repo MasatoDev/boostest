@@ -1,8 +1,12 @@
 use oxc::allocator::{Allocator, Vec as AllocVec};
+use oxc::ast::visit::walk_mut::{
+    walk_identifier_name, walk_identifier_reference, walk_ts_type_name,
+};
+use oxc::codegen::Codegen;
 use oxc::parser::Parser;
 use oxc::span::SourceType;
 
-use oxc::ast::ast::{Declaration, Statement};
+use oxc::ast::ast::{Declaration, Statement, TSTypeName};
 use oxc::ast::ast::{
     ExportDefaultDeclaration, ExportDefaultDeclarationKind, ExportNamedDeclaration,
     TSTypeAliasDeclaration,
@@ -10,7 +14,7 @@ use oxc::ast::ast::{
 use oxc::ast::VisitMut;
 
 use crate::boostest_generator::ts_type_alias_builder::TSTypeAliasBuilder;
-use crate::boostest_target::target::TargetSupplement;
+use crate::boostest_resolver::target::TargetSupplement;
 
 pub struct CodeGenerator<'a> {
     pub is_main_target: bool,
@@ -46,12 +50,46 @@ impl<'a, 'b: 'a> CodeGenerator<'a> {
     }
 
     pub fn generate(&mut self) {
-        // println!("\n🎉🎉🎉🎉DDCode: {}", self.source_text);
-
         let parser = Parser::new(self.allocator, self.source_text, self.source_type);
         let mut program = parser.parse().program;
 
         self.visit_statements(&mut program.body);
+
+        if let Some(code) = &self.code {
+            let parser = Parser::new(self.allocator, code, self.source_type);
+            let mut code_program = parser.parse().program;
+
+            // [1] detect ref of main functiion
+            let mut clean_up_detector = CleanupDetectVisitor::new();
+            clean_up_detector.visit_program(&mut code_program);
+            clean_up_detector.visit_program(&mut program);
+
+            // // [2]remain main function refarences
+            let mut clean_up = CleanupVisitor::new(clean_up_detector.targets);
+            clean_up.visit_program(&mut program);
+            //
+            // // add [1]'s ref and [2]'s ref
+            // let mut all_clean_up_detector = CleanupDetectVisitor::new();
+            // all_clean_up_detector.visit_program(&mut program);
+            //
+            // println!(
+            //     "\nclean_up_detector.targets: {:?}",
+            //     all_clean_up_detector.targets
+            // );
+
+            // // reset program
+            // let new_parser = Parser::new(self.allocator, self.source_text, self.source_type);
+            // let mut new_program = new_parser.parse().program;
+
+            // remove unused other functions
+
+            if let Some(code) = &self.code {
+                let mut generated_code = code.clone();
+                let retain_text = Codegen::new().build(&program).code;
+                generated_code.push_str(&retain_text);
+                self.code = Some(generated_code);
+            }
+        }
     }
 
     fn gen_ts_alias<'c>(&mut self, ts_type_alias_decl: &'c mut TSTypeAliasDeclaration<'a>) {
@@ -64,9 +102,7 @@ impl<'a, 'b: 'a> CodeGenerator<'a> {
             self.target_supplement.clone(),
         );
 
-        let mut generated_code = ts_type_alias_builder.generate_code(self.source_type);
-        generated_code.push_str(self.source_text);
-
+        let generated_code = ts_type_alias_builder.generate_code(self.source_type);
         self.code = Some(generated_code);
     }
 }
@@ -154,5 +190,88 @@ impl<'a> VisitMut<'a> for CodeGenerator<'a> {
         if decl.id.name == "main_output_target" {
             self.gen_ts_alias(decl);
         }
+    }
+}
+
+struct CleanupDetectVisitor {
+    pub targets: Vec<String>,
+}
+
+impl CleanupDetectVisitor {
+    fn new() -> Self {
+        Self { targets: vec![] }
+    }
+}
+
+impl<'a> VisitMut<'a> for CleanupDetectVisitor {
+    fn visit_identifier_reference(&mut self, it: &mut oxc::ast::ast::IdentifierReference<'a>) {
+        self.targets.push(it.name.to_string());
+        walk_identifier_reference(self, it);
+    }
+
+    fn visit_ts_type_name(&mut self, it: &mut oxc::ast::ast::TSTypeName<'a>) {
+        if let TSTypeName::IdentifierReference(identifier) = it {
+            let id_name = identifier.name.clone();
+            self.targets.push(id_name.to_string());
+        }
+
+        if let TSTypeName::QualifiedName(qualified_name) = it {
+            self.targets.push(qualified_name.right.to_string());
+        }
+        walk_ts_type_name(self, it);
+    }
+
+    fn visit_identifier_name(&mut self, it: &mut oxc::ast::ast::IdentifierName<'a>) {
+        self.targets.push(it.to_string());
+        walk_identifier_name(self, it);
+    }
+}
+
+struct CleanupVisitor {
+    pub targets: Vec<String>,
+}
+
+impl CleanupVisitor {
+    fn new(targets: Vec<String>) -> Self {
+        Self { targets }
+    }
+}
+
+impl<'a> VisitMut<'a> for CleanupVisitor {
+    fn visit_statements(&mut self, it: &mut AllocVec<'a, Statement<'a>>) {
+        it.retain(|stmt| {
+            let result: bool = match stmt {
+                Statement::TSTypeAliasDeclaration(decl) => {
+                    // 削除対象の型名に一致する場合は削除
+                    self.targets.contains(&decl.id.name.to_string())
+                }
+                Statement::TSInterfaceDeclaration(decl) => {
+                    // 削除対象の型名に一致する場合は削除
+                    self.targets.contains(&decl.id.name.to_string())
+                }
+                Statement::ClassDeclaration(decl) => {
+                    // 削除対象の型名に一致する場合は削除
+                    if let Some(id) = &decl.id {
+                        self.targets.contains(&id.name.to_string())
+                    } else {
+                        false
+                    }
+                }
+                // Statement::VariableDeclaration(decl) => {
+                //     // 削除対象の型名に一致する場合は削除
+                //     //
+                //     decl.declarations.retain(|decl| {
+                //         if let Some(id) = &decl.id.get_identifier() {
+                //             !self.targets.contains(&id.to_string())
+                //         } else {
+                //             true
+                //         }
+                //     });
+                //     true
+                // }
+                _ => false,
+            };
+            result
+        });
     }
 }

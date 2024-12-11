@@ -1,12 +1,12 @@
+mod boostest_bundler;
 mod boostest_generator;
 mod boostest_manager;
-mod boostest_target;
+mod boostest_resolver;
 mod boostest_utils;
 
+use boostest_bundler::output::handle_output_main_task;
 use boostest_manager::{target_detector::TargetDetector, task::handle_main_task};
-use boostest_target::{
-    main_target_resolver::main_targets_resolve, output::handle_output_main_task,
-};
+use boostest_resolver::main_target_resolver::main_targets_resolve;
 pub use boostest_utils::{
     file_utils,
     napi::OutputCode,
