@@ -64,13 +64,13 @@ pub fn tsserver(
     span: Span,
     target_name: &str,
     ts_server_cache: Arc<Mutex<TSServerCache>>,
-) -> Option<(PathBuf, Span)> {
+) -> Option<Vec<(PathBuf, Span)>> {
     let mut locked_cache = ts_server_cache.lock().unwrap();
 
     let hash_key = get_id_with_hash(file_path.to_string_lossy().to_string(), span);
 
     if let Some(definition) = locked_cache.get_definition(target_name, &hash_key) {
-        return Some((definition.result.0.clone(), definition.result.1.clone()));
+        return Some((definition.result.clone()));
     }
 
     let Span {
@@ -128,8 +128,9 @@ pub fn tsserver(
                     if command == "definitionAndBoundSpan-full" {
                         match serde_json::from_value::<Response>(data) {
                             Ok(response) => {
-                                // 1つ目のdefinitionから必要な情報を取得
-                                if let Some(definition) = response.body.definitions.get(0) {
+                                let mut definitions = Vec::new();
+
+                                for definition in response.body.definitions {
                                     let result: (PathBuf, Span) = (
                                         definition.fileName.clone().into(),
                                         Span::new(
@@ -139,16 +140,16 @@ pub fn tsserver(
                                         ),
                                     );
 
-                                    locked_cache.set_definition(
-                                        target_name,
-                                        &hash_key,
-                                        result.clone(),
-                                    );
-
-                                    return Some(result);
-                                } else {
-                                    println!("No definitions found.");
+                                    definitions.push(result);
                                 }
+
+                                locked_cache.set_definition(
+                                    target_name,
+                                    &hash_key,
+                                    definitions.clone(),
+                                );
+
+                                return Some(definitions);
                             }
                             Err(e) => eprintln!("Error parsing response: {} \n {}", e, response),
                         }
@@ -183,7 +184,7 @@ fn offset_to_position(offset: u32, source_text: &str) -> Option<Position> {
 
 pub struct DefinitionCache {
     pub name: String,
-    pub result: (PathBuf, Span),
+    pub result: Vec<(PathBuf, Span)>,
 }
 
 pub struct TSServerCache {
@@ -269,7 +270,7 @@ impl TSServerCache {
         handle.join().expect("Thread panicked")
     }
 
-    pub fn set_definition(&mut self, name: &str, hash_key: &str, result: (PathBuf, Span)) {
+    pub fn set_definition(&mut self, name: &str, hash_key: &str, result: Vec<(PathBuf, Span)>) {
         let definition = DefinitionCache {
             name: name.to_string(),
             result,

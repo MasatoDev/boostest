@@ -1,7 +1,9 @@
 use oxc::{
     allocator,
     ast::{
-        ast::{Expression, ObjectPropertyKind, PropertyKey, TSSignature, TSType},
+        ast::{
+            Expression, FormalParameterKind, ObjectPropertyKind, PropertyKey, TSSignature, TSType,
+        },
         AstBuilder,
     },
     span::SPAN,
@@ -10,8 +12,8 @@ use oxc::{
 
 use super::{
     extends_ast_builder::AstBuilderExt,
-    get_expression::get_expression,
-    test_data_factory::{get_obj_expr, handle_tuple_type},
+    get_expression::{get_expression, get_first_call_signature_from_call_sig},
+    test_data_factory::{self, function_expr, get_obj_expr, handle_tuple_type},
 };
 
 pub fn handle_ts_signature<'a>(
@@ -39,6 +41,24 @@ pub fn handle_ts_signature<'a>(
 
                     match &mut ts_type_annotation.type_annotation {
                         TSType::TSTypeLiteral(ts_type_literal) => {
+                            if test_data_factory::has_call_signature(&ts_type_literal) {
+                                /**
+                                    toLocaleString: {
+                                    (): string;
+                                    (locales?: any, options?: Intl.DateTimeFormatOptions): string;
+                                    };
+                                */
+                                let first_call_expr = get_first_call_signature_from_call_sig(
+                                    ast_builder,
+                                    ts_type_literal,
+                                    mock_func_name,
+                                );
+
+                                if let Some(first_call_expr) = first_call_expr {
+                                    return Some((new_prop_key, first_call_expr));
+                                }
+                            }
+
                             return Some((
                                 new_prop_key,
                                 handle_ts_signatures(
@@ -117,24 +137,50 @@ pub fn handle_ts_signature<'a>(
          * Because functions without key cannot be added using interface
          * const hoge: Hoge = { (): => {} } // cannot be added
          */
-        // TSSignature::TSCallSignatureDeclaration(ts_call_signature_decl) => {
-        //     println!("TSCallSignatureDeclaration:{:?}", ts_call_signature_decl);
-        //     if let Some(func_expr) = get_func_expr_from_call_signature_decl(
-        //         ast_builder,
-        //         ts_call_signature_decl,
-        //         "call_signature",
-        //         mock_func_name,
-        //     ) {
-        //         let new_key = ast_builder.string_literal(SPAN, "call_signature");
-        //         let new_key_expr = ast_builder.literal_string_expression(new_key);
-        //         let new_prop_key = ast_builder.property_key_expression(new_key_expr);
+        TSSignature::TSCallSignatureDeclaration(ts_call_signature_decl) => {
+            println!("TSCallSignatureDeclaration:{:?}", ts_call_signature_decl);
+            // if let Some(func_expr) = get_func_expr_from_call_signature_decl(
+            //     ast_builder,
+            //     ts_call_signature_decl,
+            //     "call_signature",
+            //     mock_func_name,
+            // ) {
+            //     let new_key = ast_builder.string_literal(SPAN, "call_signature");
+            //     let new_key_expr = ast_builder.literal_string_expression(new_key);
+            //     let new_prop_key = ast_builder.property_key_expression(new_key_expr);
+            //
+            //     return Some((new_prop_key, func_expr));
+            // }
 
-        //         return Some((new_prop_key, func_expr));
+            None
+        }
+
+        // TSSignature::TSMethodSignature(ref mut ts_method_singature) => {
+        //     if let Some(return_type) = &mut ts_method_singature.return_type {
+        //         let return_type = ast_builder.move_ts_type(&mut return_type.type_annotation);
+        //         let return_expr =
+        //             get_expression(false, ast_builder, return_type, mock_func_name, vec![]);
+        //
+        //         let formal_parameters =
+        //             ast_builder.move_formal_parameters(&mut ts_method_singature.params);
+        //         let allocated_formal_parameters = ast_builder.alloc(formal_parameters);
+        //
+        //         let function_expr = function_expr(
+        //             ast_builder,
+        //             Some(allocated_formal_parameters),
+        //             Some(return_expr),
+        //         );
+        //
+        //         if let Some(key) = ts_method_singature.key.name() {
+        //             let new_prop_key = ast_builder.property_key_identifier_name(SPAN, key);
+        //
+        //             return Some((new_prop_key, function_expr));
+        //         }
+        //
+        //         return None;
         //     }
-
         //     None
         // }
-        TSSignature::TSMethodSignature(_ts_method_singature) => None,
         TSSignature::TSConstructSignatureDeclaration(_ts_construct_signature) => None,
         _ => None,
     }

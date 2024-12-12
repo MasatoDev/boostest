@@ -31,7 +31,7 @@ pub struct TargetSupplement {
 #[derive(Debug)]
 pub struct ResolvedDefinitions {
     // [reference hash]: definition
-    pub inner: HashMap<String, Option<TargetDefinition>>,
+    pub inner: HashMap<String, Option<Vec<TargetDefinition>>>,
 }
 
 #[derive(Debug, Clone)]
@@ -176,13 +176,21 @@ impl ResolvedDefinitions {
             target_reference.span,
         );
 
-        self.inner.insert(key, Some(target_definition));
+        println!("target_definition: {:?}", target_definition);
+        if let Some(mut target_defs) = self.get_target_definition(target_reference) {
+            println!("add");
+            target_defs.push(target_definition.clone());
+            self.inner.insert(key.clone(), Some(target_defs));
+        } else {
+            println!("new");
+            self.inner.insert(key, Some(vec![target_definition]));
+        }
     }
 
     pub fn get_target_definition(
         &self,
         target_reference: &TargetReference,
-    ) -> Option<TargetDefinition> {
+    ) -> Option<Vec<TargetDefinition>> {
         let key = get_id_with_hash(
             target_reference.file_path.to_string_lossy().to_string(),
             target_reference.span,
@@ -196,12 +204,12 @@ impl ResolvedDefinitions {
     }
 
     pub fn get_target_def_hash_name_with_key(&self, key: &str) -> Option<String> {
-        if let Some(Some(definition)) = self.inner.get(key) {
-            let name = get_id_with_hash(
-                definition.file_path.to_string_lossy().to_string(),
-                definition.span,
-            );
-            Some(name)
+        if let Some(Some(definitions)) = self.inner.get(key) {
+            if let Some((file_path, span, _)) = bundle_target_defs(definitions) {
+                let name = get_id_with_hash(file_path, span);
+                return Some(name);
+            }
+            return None;
         } else {
             None
         }
@@ -213,8 +221,11 @@ impl ResolvedDefinitions {
             target_reference.span,
         );
 
-        if let Some(Some(definition)) = self.inner.get(&key) {
-            Some(definition.target_type.clone())
+        if let Some(Some(definitions)) = self.inner.get(&key) {
+            if let Some(definition) = definitions.first() {
+                return Some(definition.target_type.clone());
+            }
+            None
         } else {
             None
         }
@@ -382,4 +393,22 @@ pub fn gen_target_supplement(is_generic_property: bool) -> Option<TargetSuppleme
     Some(TargetSupplement {
         is_generic_property,
     })
+}
+
+pub fn bundle_target_defs(
+    definitions: &Vec<TargetDefinition>,
+) -> Option<(String, Span, Vec<String>)> {
+    if let Some(definition) = definitions.first() {
+        let file_path = definition.file_path.to_string_lossy().to_string();
+        let mut defined_generics = definition.defined_generics.clone();
+        let mut new_span = Span::new(0, 0);
+
+        for def in definitions.iter() {
+            new_span = Span::new(new_span.start + def.span.start, new_span.end + def.span.end);
+            defined_generics.extend(def.defined_generics.clone());
+        }
+
+        return Some((file_path, new_span, defined_generics));
+    }
+    return None;
 }

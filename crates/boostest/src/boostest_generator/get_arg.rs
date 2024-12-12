@@ -13,9 +13,12 @@ use oxc::{
 
 use super::{
     super::boostest_utils::ast_utils,
-    get_expression::handle_ts_signatures_with_args,
+    get_expression::{
+        get_first_call_signature, get_first_call_signature_from_call_sig,
+        handle_ts_signatures_with_args,
+    },
     test_data_factory::{
-        any_arg, bigint_arg, boolean_arg, null_arg, number_arg, string_arg, symbol_arg,
+        self, any_arg, bigint_arg, boolean_arg, null_arg, number_arg, string_arg, symbol_arg,
         undefined_arg,
     },
 };
@@ -305,6 +308,19 @@ pub fn get_arg<'a>(
         TSType::TSTypeLiteral(ref mut ts_type_literal) => {
             // {name: string, age: number}
             // { x: number; y: number; }`
+
+            if test_data_factory::has_call_signature(&ts_type_literal) {
+                let first_call_expr = get_first_call_signature_from_call_sig(
+                    ast_builder,
+                    ts_type_literal,
+                    mock_func_name,
+                );
+
+                if let Some(first_call_expr) = first_call_expr {
+                    return Argument::from(first_call_expr);
+                }
+            }
+
             handle_ts_signatures_with_args(
                 is_main_target,
                 ast_builder,

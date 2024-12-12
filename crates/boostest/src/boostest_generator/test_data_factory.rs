@@ -10,8 +10,8 @@ use oxc::{
             ComputedMemberExpression, Expression, FormalParameterKind, FormalParameters,
             FunctionBody, IdentifierReference, NullLiteral, NumericLiteral, ObjectExpression,
             ObjectPropertyKind, PropertyKey, PropertyKind, StringLiteral, TSLiteral, TSSignature,
-            TSTupleElement, TSType, TSTypeAnnotation, TSTypeName, TSTypeParameterDeclaration,
-            TSTypeParameterInstantiation,
+            TSTupleElement, TSType, TSTypeAnnotation, TSTypeLiteral, TSTypeName,
+            TSTypeParameterDeclaration, TSTypeParameterInstantiation,
         },
         AstBuilder,
     },
@@ -70,17 +70,19 @@ pub fn is_ts_type_literal(ts_type: &TSType) -> bool {
 
 pub fn is_call_signature(ts_type: &TSType) -> bool {
     match ts_type {
-        TSType::TSTypeLiteral(ts_type_literal) => {
-            ts_type_literal
-                .members
-                .iter()
-                .any(|ts_signature| match ts_signature {
-                    TSSignature::TSCallSignatureDeclaration(_) => true,
-                    _ => false,
-                })
-        }
+        TSType::TSTypeLiteral(ts_type_literal) => has_call_signature(ts_type_literal),
         _ => false,
     }
+}
+
+pub fn has_call_signature(ts_type_literal: &TSTypeLiteral) -> bool {
+    ts_type_literal
+        .members
+        .iter()
+        .any(|ts_signature| match ts_signature {
+            TSSignature::TSCallSignatureDeclaration(_) => true,
+            _ => false,
+        })
 }
 
 const SPAN: Span = Span::new(0, 0);

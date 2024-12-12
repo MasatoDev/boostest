@@ -5,7 +5,7 @@ use oxc::{
             Argument, ArrayExpressionElement, BindingRestElement, Expression, FormalParameterKind,
             ObjectExpression, ObjectPropertyKind, PropertyKey, PropertyKind,
             TSCallSignatureDeclaration, TSLiteral, TSSignature, TSTupleElement, TSType,
-            TSTypeAnnotation, TSTypeName, TSTypeParameterInstantiation,
+            TSTypeAnnotation, TSTypeLiteral, TSTypeName, TSTypeParameterInstantiation,
         },
         AstBuilder,
     },
@@ -17,7 +17,7 @@ use super::{
     get_arg::get_arg,
     handle_ts_signatures::{handle_ts_signature, handle_ts_signatures},
     test_data_factory::{
-        any_expr, bigint_expr, boolean_expr, function_expr, get_expr_with_ts_literal_type,
+        self, any_expr, bigint_expr, boolean_expr, function_expr, get_expr_with_ts_literal_type,
         handle_tuple_type, null_expr, number_expr, object_expr, string_expr, symbol_expr,
         undefined_expr,
     },
@@ -276,8 +276,17 @@ pub fn get_expression<'a>(
             get_expression(false, ast_builder, ts_type, mock_func_name, vec![])
         }
         TSType::TSTypeLiteral(ref mut ts_type_literal) => {
-            // {name: string, age: number}
-            // { x: number; y: number; }`
+            if test_data_factory::has_call_signature(&ts_type_literal) {
+                let first_call_expr = get_first_call_signature_from_call_sig(
+                    ast_builder,
+                    ts_type_literal,
+                    mock_func_name,
+                );
+
+                if let Some(first_call_expr) = first_call_expr {
+                    return first_call_expr;
+                }
+            }
 
             handle_ts_signatures(
                 is_main_target,
@@ -486,6 +495,28 @@ pub fn get_func_expr_from_call_signature_decl<'a>(
         Some(boxed_formal_parameters),
         None,
     ));
+}
+
+pub fn get_first_call_signature_from_call_sig<'a>(
+    ast_builder: &AstBuilder<'a>,
+    ts_type_literal: &mut TSTypeLiteral<'a>,
+    mock_func_name: &str,
+) -> Option<Expression<'a>> {
+    for ts_type_literal in ts_type_literal.members.iter_mut() {
+        match ts_type_literal {
+            TSSignature::TSCallSignatureDeclaration(ts_call_signature) => {
+                return get_func_expr_from_call_signature_decl(
+                    ast_builder,
+                    ts_call_signature,
+                    mock_func_name,
+                );
+            }
+            _ => {
+                continue;
+            }
+        }
+    }
+    None
 }
 
 pub fn get_first_call_signature<'a>(

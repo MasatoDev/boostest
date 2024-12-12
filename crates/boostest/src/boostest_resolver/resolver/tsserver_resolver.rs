@@ -66,18 +66,21 @@ pub fn resolve_target_ast_with_tsserver(
             &name,
             ts_server_cache.clone(),
         ) {
-            let (target_file_path, span) = result;
+            // println!("\n 💪💪💪💪💪💪 result: {:?}", result);
+            let mut target_source_text = String::new();
 
-            let target_source = file_utils::read(&target_file_path).unwrap_or(String::new());
-            let utf8_span = utf16_span_to_utf8_span(span, &target_source);
+            for (target_file_path, result_span) in result.iter() {
+                let target_source = file_utils::read(&target_file_path).unwrap_or(String::new());
+                let utf8_span = utf16_span_to_utf8_span(result_span.clone(), &target_source);
 
-            // NOTE: 対象ファイルから定義元のspanを取得
-            // それをsouce_textとしてast visitするため完全なファイルではない
-            // 抽出位置からのspanとなるため、抽出地点のSPANを加えられるよう一時保存する
-            target_resolver.read_file_span = Some(utf8_span);
-            target_resolver.temp_current_read_file_path = target_file_path.clone();
+                // NOTE: 対象ファイルから定義元のspanを取得
+                // それをsouce_textとしてast visitするため完全なファイルではない
+                // 抽出位置からのspanとなるため、抽出地点のSPANを加えられるよう一時保存する
+                target_resolver.read_file_span = Some(utf8_span);
+                target_resolver.temp_current_read_file_path = target_file_path.clone();
 
-            let target_source_text = source_text_from_span(span, &target_source);
+                target_source_text.push_str(source_text_from_span(span, &target_source));
+            }
 
             let source_type = SourceType::ts();
             let allocator = oxc::allocator::Allocator::default();

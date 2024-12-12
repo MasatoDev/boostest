@@ -1,7 +1,7 @@
 use napi_derive::napi;
 
 #[napi()]
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum TargetType {
     Class,
     TSInterface,
