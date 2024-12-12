@@ -1,6 +1,11 @@
 {
-  "target_pattern": ["./src/tests/**/**/*.spec.ts"],
+  "target_pattern": ["./src/tests/**/**/buildIn.spec.ts"],
   "name": "boostest",
   "out_file_name": "test_data",
-  "tsconfig": "./tsconfig.json"
+  "tsconfig": "./tsconfig.json",
+
+  "initial_value": {
+    "string": " initial value",
+    "number": 500
+  }
 }

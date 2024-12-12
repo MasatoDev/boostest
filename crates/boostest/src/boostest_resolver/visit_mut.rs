@@ -1,6 +1,6 @@
 use oxc::allocator::Vec as AllocVec;
 
-use oxc::ast::visit::walk_mut::walk_ts_function_type;
+use oxc::ast::visit::walk_mut::{walk_ts_function_type, walk_ts_type_parameter_declaration};
 
 use oxc::ast::ast::{
     BindingPatternKind, Class, ExportDefaultDeclaration, ExportDefaultDeclarationKind,
@@ -309,41 +309,15 @@ impl<'a> VisitMut<'a> for TargetResolver {
         self.add_prop_with_retry(id_name, target_ref);
     }
 
-    /** NOTE: not used? */
-    // fn visit_property_definition(&mut self, def: &mut PropertyDefinition<'a>) {
-    //     for annotation in def.type_annotation.iter_mut() {
-    //         if let Some(key_name) = def.key.name() {
-    //             ts_type_assign_as_property(
-    //                 self.target.clone(),
-    //                 TargetReferenceInfo {
-    //                     file_path: self.temp_current_read_file_path.clone(),
-    //                 },
-    //                 self.read_file_span,
-    //                 &annotation.type_annotation,
-    //                 key_name.to_string(),
-    //             );
-    //         }
-    //     }
-    // }
-
-    fn visit_ts_signature(&mut self, signature: &mut TSSignature<'a>) {
-        match signature {
-            TSSignature::TSPropertySignature(ts_prop_signature) => {
-                for annotation in &mut ts_prop_signature.type_annotation.iter_mut() {
-                    self.visit_ts_type(&mut annotation.type_annotation);
-                }
-            }
-            TSSignature::TSIndexSignature(it) => self.visit_ts_index_signature(it),
-            TSSignature::TSConstructSignatureDeclaration(it) => {
-                self.visit_ts_construct_signature_declaration(it)
-            }
-            TSSignature::TSMethodSignature(it) => self.visit_ts_method_signature(it),
-            // FIXME:
-            // TSSignature::TSCallSignatureDeclaration(it) => {
-            //     self.visit_ts_call_signature_declaration(it)
-            // }
-            _ => {}
+    fn visit_ts_type_parameter_declaration(
+        &mut self,
+        it: &mut oxc::ast::ast::TSTypeParameterDeclaration<'a>,
+    ) {
+        for param in it.params.iter_mut() {
+            self.defined_generics.push(param.name.to_string());
         }
+
+        walk_ts_type_parameter_declaration(self, it);
     }
 
     fn visit_ts_type(&mut self, ts_type: &mut TSType<'a>) {
