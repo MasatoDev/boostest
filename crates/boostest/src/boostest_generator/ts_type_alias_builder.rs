@@ -40,7 +40,6 @@ pub struct TypeAliasMockData {
 
 pub struct TSTypeAliasBuilder<'a> {
     pub output_option_arc: Arc<OutputOption>,
-    is_main_target: bool,
     mock_data: TypeAliasMockData,
     ast_builder: AstBuilder<'a>,
     ts_type_alias: TSTypeAliasDeclaration<'a>,
@@ -49,7 +48,6 @@ pub struct TSTypeAliasBuilder<'a> {
 impl<'a> TSTypeAliasBuilder<'a> {
     pub fn new<'c>(
         output_option_arc: Arc<OutputOption>,
-        is_main_target: bool,
         allocator: &'a Allocator,
         ts_type_alias: &'c mut TSTypeAliasDeclaration<'a>,
         mock_func_name: String,
@@ -69,7 +67,6 @@ impl<'a> TSTypeAliasBuilder<'a> {
 
         Self {
             output_option_arc,
-            is_main_target,
             ast_builder,
             mock_data,
             ts_type_alias: copied,
@@ -155,52 +152,6 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
                         let new_binding = self.ast_builder.binding_identifier(SPAN, name);
 
                         let _ = std::mem::replace(id, new_binding);
-
-                        let mut formal_parameters = self.ast_builder.vec();
-
-                        if let Some(type_parameters) = &self.ts_type_alias.type_parameters {
-                            for parameter in type_parameters.params.iter() {
-                                self.mock_data.generic.push(parameter.name.to_string());
-
-                                // NOTE: main target doesn't need to add generic type parameters
-                                // because it's already added references
-                                if !self.is_main_target {
-                                    let new_arg_name = format!(
-                                        "{}_{}_{}",
-                                        self.mock_data.target_name,
-                                        parameter.name,
-                                        self.mock_data.mock_func_name
-                                    );
-                                    let pattern_kind =
-                                        self.ast_builder.binding_pattern_kind_binding_identifier(
-                                            SPAN,
-                                            new_arg_name,
-                                        );
-                                    let any = self.ast_builder.ts_type_any_keyword(SPAN);
-                                    let type_annotation =
-                                        self.ast_builder.alloc_ts_type_annotation(SPAN, any);
-                                    let pattern = self.ast_builder.binding_pattern(
-                                        pattern_kind,
-                                        Some(type_annotation),
-                                        false,
-                                    );
-                                    let formal_parameter = self.ast_builder.formal_parameter(
-                                        SPAN,
-                                        self.ast_builder.vec(),
-                                        pattern,
-                                        None,
-                                        false,
-                                        false,
-                                    );
-                                    formal_parameters.push(formal_parameter);
-                                }
-                            }
-
-                            let arg_formal_parameter = self.ast_builder.get_spread_arg();
-
-                            func.params.items = formal_parameters;
-                            func.params.items.push(arg_formal_parameter);
-                        }
                     }
                 }
 
@@ -253,7 +204,6 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
                 .move_ts_type(&mut self.ts_type_alias.type_annotation);
 
             let new_expr = get_expression(
-                self.is_main_target,
                 &self.ast_builder,
                 ts_annotation,
                 &self.mock_data.mock_func_name,
@@ -327,7 +277,6 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
                         };
 
                         let new_obj_expr = handle_ts_signatures(
-                            self.is_main_target,
                             &self.ast_builder,
                             ts_signatures,
                             Some(last),

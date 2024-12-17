@@ -188,7 +188,9 @@ pub fn generate(output: HashMap<String, OutputCode>, output_option: OutputOption
 
         let dir_path = single_output_dir_path.clone().unwrap_or(output_dir_path);
 
-        if let Err(e) = handle_main_task(output_option.clone(), func_name, output_code, dir_path) {
+        if let Err(e) =
+            handle_main_task(output_option_arc.clone(), func_name, output_code, dir_path)
+        {
             println!("failed to create test data :{}", e);
         }
     }

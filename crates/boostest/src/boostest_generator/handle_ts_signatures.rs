@@ -17,7 +17,6 @@ use super::{
 };
 
 pub fn handle_ts_signature<'a>(
-    is_main_target: bool,
     ast_builder: &AstBuilder<'a>,
     ts_signature: &mut TSSignature<'a>,
     mock_func_name: &str,
@@ -62,7 +61,6 @@ pub fn handle_ts_signature<'a>(
                             return Some((
                                 new_prop_key,
                                 handle_ts_signatures(
-                                    is_main_target,
                                     ast_builder,
                                     &mut ts_type_literal.members,
                                     None,
@@ -77,13 +75,7 @@ pub fn handle_ts_signature<'a>(
 
                             Some((
                                 new_prop_key,
-                                get_expression(
-                                    is_main_target,
-                                    ast_builder,
-                                    ts_type,
-                                    mock_func_name,
-                                    generic,
-                                ),
+                                get_expression(ast_builder, ts_type, mock_func_name, generic),
                             ))
                         }
                     }
@@ -124,7 +116,7 @@ pub fn handle_ts_signature<'a>(
 
                 return Some((
                     new_prop_key,
-                    get_expression(false, ast_builder, ts_type, mock_func_name, vec![]),
+                    get_expression(ast_builder, ts_type, mock_func_name, vec![]),
                 ));
             }
             None
@@ -187,7 +179,6 @@ pub fn handle_ts_signature<'a>(
 }
 
 pub fn handle_ts_signatures<'a>(
-    is_main_target: bool,
     ast_builder: &AstBuilder<'a>,
     ts_signatures: &mut allocator::Vec<'a, TSSignature<'a>>,
     last: Option<ObjectPropertyKind<'a>>,
@@ -198,18 +189,11 @@ pub fn handle_ts_signatures<'a>(
     let mut props_expr: Vec<(PropertyKey, Expression)> = Vec::new();
 
     if let Some(ts_tuple_type) = handle_tuple_type(ast_builder, ts_signatures) {
-        return get_expression(
-            is_main_target,
-            ast_builder,
-            ts_tuple_type,
-            mock_func_name,
-            generic,
-        );
+        return get_expression(ast_builder, ts_tuple_type, mock_func_name, generic);
     }
 
     for member in ts_signatures.iter_mut() {
         if let Some((key, expr)) = handle_ts_signature(
-            is_main_target,
             ast_builder,
             member,
             mock_func_name,

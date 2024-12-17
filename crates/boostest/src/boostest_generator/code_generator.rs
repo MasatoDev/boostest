@@ -21,7 +21,6 @@ use crate::OutputOption;
 
 pub struct CodeGenerator<'a> {
     pub output_option_arc: Arc<OutputOption>,
-    pub is_main_target: bool,
     pub func_name: &'a str,
     target_name: &'a str,
     source_text: &'a str,
@@ -35,7 +34,6 @@ pub struct CodeGenerator<'a> {
 impl<'a, 'b: 'a> CodeGenerator<'a> {
     pub fn new(
         output_option_arc: Arc<OutputOption>,
-        is_main_target: bool,
         allocator: &'b Allocator,
         func_name: &'a str,
         target_name: &'a str,
@@ -44,7 +42,6 @@ impl<'a, 'b: 'a> CodeGenerator<'a> {
     ) -> Self {
         Self {
             output_option_arc,
-            is_main_target,
             func_name,
             source_text,
             target_name,
@@ -100,7 +97,7 @@ impl<'a, 'b: 'a> CodeGenerator<'a> {
 
     fn gen_ts_alias<'c>(&mut self, ts_type_alias_decl: &'c mut TSTypeAliasDeclaration<'a>) {
         let mut ts_type_alias_builder = TSTypeAliasBuilder::new(
-            self.is_main_target,
+            self.output_option_arc.clone(),
             self.allocator,
             ts_type_alias_decl,
             self.func_name.to_string(),

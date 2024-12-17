@@ -21,7 +21,14 @@ pub fn handle_main_task(
 
     let allocator = oxc::allocator::Allocator::default();
 
-    let mut code_generator = CodeGenerator::new(true, &allocator, &func_name, "", &code, None);
+    let mut code_generator = CodeGenerator::new(
+        output_option_arc.clone(),
+        &allocator,
+        &func_name,
+        "",
+        &code,
+        None,
+    );
 
     code_generator.generate();
 
