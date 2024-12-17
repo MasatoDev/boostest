@@ -73,7 +73,7 @@ pub fn handle_output_main_task(
         match code {
             Some((code, _var_name)) => {
                 output.push_str(&code);
-                output.push_str("\n");
+                output.push('\n');
             }
             None => {}
         }

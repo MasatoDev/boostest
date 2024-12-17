@@ -14,5 +14,23 @@ export interface OutputCode {
   targetType: TargetType
   path: string
 }
-export declare function resolve(path: string, libFilePath: string, tsConfigPath?: string | undefined | null): Record<string, OutputCode> | null
-export declare function generatetest(output: Record<string, OutputCode>): void
+export interface DefaultValueOption {
+  boolean: boolean
+  number: number
+  string: string
+  undefined: string
+  null: string
+  bigint: string
+  any: string
+}
+export interface OutputOption {
+  single: boolean
+  projectRootPath?: string
+  defaultValueOption: DefaultValueOption
+}
+export interface ResolvedResult {
+  outputCode?: Record<string, OutputCode>
+  outputOption: OutputOption
+}
+export declare function resolve(path: string, libFilePath: string, tsConfigPath?: string | undefined | null): ResolvedResult
+export declare function generatetest(output: Record<string, OutputCode>, outputOption: OutputOption): void

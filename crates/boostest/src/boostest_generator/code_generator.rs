@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use oxc::allocator::{Allocator, Vec as AllocVec};
 use oxc::ast::visit::walk_mut::{
     walk_identifier_name, walk_identifier_reference, walk_ts_type_name,
@@ -15,8 +17,10 @@ use oxc::ast::VisitMut;
 
 use crate::boostest_generator::ts_type_alias_builder::TSTypeAliasBuilder;
 use crate::boostest_resolver::target::TargetSupplement;
+use crate::OutputOption;
 
 pub struct CodeGenerator<'a> {
+    pub output_option_arc: Arc<OutputOption>,
     pub is_main_target: bool,
     pub func_name: &'a str,
     target_name: &'a str,
@@ -30,6 +34,7 @@ pub struct CodeGenerator<'a> {
 
 impl<'a, 'b: 'a> CodeGenerator<'a> {
     pub fn new(
+        output_option_arc: Arc<OutputOption>,
         is_main_target: bool,
         allocator: &'b Allocator,
         func_name: &'a str,
@@ -38,6 +43,7 @@ impl<'a, 'b: 'a> CodeGenerator<'a> {
         target_supplement: Option<TargetSupplement>,
     ) -> Self {
         Self {
+            output_option_arc,
             is_main_target,
             func_name,
             source_text,

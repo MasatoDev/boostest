@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use oxc::{
     allocator::Allocator,
     ast::{
@@ -15,7 +17,10 @@ use oxc::{
 
 use oxc::allocator;
 
-use crate::boostest_resolver::target::{self, TargetSupplement};
+use crate::{
+    boostest_resolver::target::{self, TargetSupplement},
+    OutputOption,
+};
 
 use super::{
     extends_ast_builder::AstBuilderExt, get_expression::get_expression,
@@ -34,6 +39,7 @@ pub struct TypeAliasMockData {
 }
 
 pub struct TSTypeAliasBuilder<'a> {
+    pub output_option_arc: Arc<OutputOption>,
     is_main_target: bool,
     mock_data: TypeAliasMockData,
     ast_builder: AstBuilder<'a>,
@@ -42,6 +48,7 @@ pub struct TSTypeAliasBuilder<'a> {
 
 impl<'a> TSTypeAliasBuilder<'a> {
     pub fn new<'c>(
+        output_option_arc: Arc<OutputOption>,
         is_main_target: bool,
         allocator: &'a Allocator,
         ts_type_alias: &'c mut TSTypeAliasDeclaration<'a>,
@@ -61,6 +68,7 @@ impl<'a> TSTypeAliasBuilder<'a> {
         };
 
         Self {
+            output_option_arc,
             is_main_target,
             ast_builder,
             mock_data,

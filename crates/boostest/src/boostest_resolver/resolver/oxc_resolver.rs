@@ -11,7 +11,7 @@ use crate::boostest_utils::module_resolver::resolve_specifier;
 use oxc::ast::VisitMut;
 
 use crate::boostest_utils::file_utils;
-use crate::TSServerCache;
+use crate::{Setting, TSServerCache};
 
 /*************************/
 /* main func for resolve */
@@ -19,9 +19,7 @@ use crate::TSServerCache;
 pub fn resolve_target(
     target_resolver: &mut TargetResolver,
     target_file_path: PathBuf,
-    ts_config_path: &Option<PathBuf>,
-    lib_file_path: &PathBuf,
-    project_root_path: &Option<PathBuf>,
+    setting: Arc<Setting>,
     depth: u8,
     ts_server_cache: Arc<Mutex<TSServerCache>>,
 ) -> Result<()> {
@@ -47,12 +45,6 @@ pub fn resolve_target(
 
     let mut program = parser.parse().program;
     target_resolver.visit_statements(&mut program.body);
-
-    println!(
-        "\ntarget_name: {:?} TO resolved: {:?}",
-        target_resolver.get_target_name(),
-        target_resolver.resolved()
-    );
 
     // /*
     //  * NOTE:
@@ -110,7 +102,7 @@ pub fn resolve_target(
                     next_import.loaded = true;
 
                     let resolution_result =
-                        resolve_specifier(parent_path, &next_import.full_path, ts_config_path);
+                        resolve_specifier(parent_path, &next_import.full_path, &setting.tsconfig);
 
                     if let Ok(resolution) = resolution_result {
                         read_file_path = resolution.full_path();
@@ -122,7 +114,7 @@ pub fn resolve_target(
                 }
 
                 if !read_file_path.exists() {
-                    if let Some(project_root_path) = project_root_path {
+                    if let Some(project_root_path) = &setting.project_root_path {
                         resolve_target_ast_with_tsserver(
                             target_resolver,
                             &Some(project_root_path.clone()),
@@ -138,9 +130,7 @@ pub fn resolve_target(
                 resolve_target(
                     target_resolver,
                     read_file_path,
-                    ts_config_path,
-                    lib_file_path,
-                    project_root_path,
+                    setting,
                     depth + 1,
                     ts_server_cache.clone(),
                 )?;
@@ -150,18 +140,19 @@ pub fn resolve_target(
             if !target_resolver.lib_file_loaded {
                 target_resolver.lib_file_loaded = true;
                 println!("use lib path");
-                resolve_target(
-                    target_resolver,
-                    lib_file_path.clone(),
-                    ts_config_path,
-                    lib_file_path,
-                    project_root_path,
-                    depth + 1,
-                    ts_server_cache.clone(),
-                )?;
+
+                if let Some(lib_file_path) = &setting.default_lib_file_path {
+                    resolve_target(
+                        target_resolver,
+                        lib_file_path.clone(),
+                        setting,
+                        depth + 1,
+                        ts_server_cache.clone(),
+                    )?;
+                }
                 return Ok(());
             } else {
-                if let Some(project_root_path) = project_root_path {
+                if let Some(project_root_path) = &setting.project_root_path {
                     println!("outer tsserver");
                     resolve_target_ast_with_tsserver(
                         target_resolver,

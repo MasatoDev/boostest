@@ -17,9 +17,9 @@ pub struct TargetDetector {
 }
 
 impl TargetDetector {
-    pub fn new(pattern: Option<String>) -> Self {
+    pub fn new(pattern: String) -> Self {
         Self {
-            pattern: pattern.unwrap_or(String::from("boostest")),
+            pattern,
             main_targets: Vec::new(),
             temp_target_file_path: PathBuf::new(),
         }

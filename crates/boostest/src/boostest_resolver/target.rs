@@ -176,7 +176,6 @@ impl ResolvedDefinitions {
             target_reference.span,
         );
 
-        println!("target_definition: {:?}", target_definition);
         if let Some(mut target_defs) = self.get_target_definition(target_reference) {
             println!("add");
             target_defs.push(target_definition.clone());

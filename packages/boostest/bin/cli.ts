@@ -81,10 +81,10 @@ yargs(hideBin(process.argv))
       if (!path && !tsconfig) {
         console.log(blue + "arguments are not set." + reset);
         console.log(blue + "boostest with boostest.setting.json" + reset);
-        let result = resolve("", libFilePath);
-        if (result) {
-          const output = infferTypes(result);
-          generate(output);
+        let { outputCode, outputOption } = resolve("", libFilePath);
+        if (outputCode) {
+          const output = infferTypes(outputCode);
+          generate(output, outputOption);
         }
         return;
       }
@@ -94,11 +94,11 @@ yargs(hideBin(process.argv))
         console.log(
           blue + `boostest with boostest.setting.json with ${tsconfig}` + reset,
         );
-        let result = resolve("", libFilePath, tsconfig);
+        let { outputCode, outputOption } = resolve("", libFilePath, tsconfig);
 
-        if (result) {
-          const output = infferTypes(result);
-          generate(output);
+        if (outputCode) {
+          const output = infferTypes(outputCode);
+          generate(output, outputOption);
         }
         return;
       }
@@ -107,11 +107,11 @@ yargs(hideBin(process.argv))
         console.log(blue + `target file: ${path}` + reset);
         console.log(blue + "tsconfig is not set." + reset);
         console.log(blue + "boostest with boostest.setting.json" + reset);
-        let result = resolve(path, libFilePath);
+        let { outputCode, outputOption } = resolve(path, libFilePath);
 
-        if (result) {
-          const output = infferTypes(result);
-          generate(output);
+        if (outputCode) {
+          const output = infferTypes(outputCode);
+          generate(output, outputOption);
         }
         return;
       }
@@ -119,10 +119,10 @@ yargs(hideBin(process.argv))
       if (path && tsconfig) {
         console.log(blue + `target file: ${path}` + reset);
         console.log(blue + `tsconfig: ${tsconfig}` + reset);
-        let result = resolve(path, libFilePath, tsconfig);
-        if (result) {
-          const output = infferTypes(result);
-          generate(output);
+        let { outputCode, outputOption } = resolve(path, libFilePath, tsconfig);
+        if (outputCode) {
+          const output = infferTypes(outputCode);
+          generate(output, outputOption);
         }
 
         return;

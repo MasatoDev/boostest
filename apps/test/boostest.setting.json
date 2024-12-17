@@ -1,11 +1,20 @@
 {
-  "target_pattern": ["./src/tests/**/**/buildIn.spec.ts"],
+  "target_pattern": ["./src/tests/**/**/*.spec.ts"],
   "name": "boostest",
-  "out_file_name": "test_data",
+
   "tsconfig": "./tsconfig.json",
 
+  "output": {
+    "single": false
+  },
+
   "initial_value": {
-    "string": " initial value",
-    "number": 500
+    "string": "initial value",
+    "number": 500,
+    "boolean": true,
+    "undefined": "undefined",
+    "null": "null",
+    "bigint": "9007199254740991n",
+    "any": "any"
   }
 }

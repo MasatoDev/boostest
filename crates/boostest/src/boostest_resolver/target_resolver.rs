@@ -9,6 +9,7 @@ use super::resolver::oxc_resolver::resolve_target;
 use super::target::{ResolvedDefinitions, Target, TargetReference};
 
 use crate::boostest_utils::tsserver::TSServerCache;
+use crate::Setting;
 
 /**
 
@@ -105,13 +106,7 @@ impl TargetResolver {
         }
     }
 
-    pub fn resolve(
-        &mut self,
-        ts_config_path: &Option<PathBuf>,
-        project_root_path: &Option<PathBuf>,
-        ts_server_cache: Arc<Mutex<TSServerCache>>,
-        lib_file_path: &PathBuf,
-    ) {
+    pub fn resolve(&mut self, setting: Arc<Setting>, ts_server_cache: Arc<Mutex<TSServerCache>>) {
         // NOTE: prevent from circular referencing
         let target_ref = self.target.lock().unwrap().target_reference.clone();
         let is_resolved = self
@@ -140,15 +135,7 @@ impl TargetResolver {
             .target_reference
             .file_path
             .clone();
-        resolve_target(
-            self,
-            file_path,
-            ts_config_path,
-            lib_file_path,
-            project_root_path,
-            1,
-            ts_server_cache,
-        );
+        resolve_target(self, file_path, setting, 1, ts_server_cache);
     }
 
     pub fn get_target_name(&self) -> String {
