@@ -208,6 +208,7 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
                 ts_annotation,
                 &self.mock_data.mock_func_name,
                 self.mock_data.generic.clone(),
+                self.output_option_arc.clone(),
             );
 
             let _ = std::mem::replace(expr, new_expr);
@@ -225,6 +226,7 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
                 &self.ast_builder,
                 ts_annotation,
                 &self.mock_data.mock_func_name,
+                self.output_option_arc.clone(),
             ) {
                 let _ = std::mem::replace(expr, call_signature_expr);
                 return;
@@ -283,6 +285,7 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
                             &self.mock_data.mock_func_name,
                             None,
                             self.mock_data.generic.clone(),
+                            self.output_option_arc.clone(),
                         );
 
                         let new_ts_as_expr =

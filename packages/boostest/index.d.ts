@@ -15,13 +15,13 @@ export interface OutputCode {
   path: string
 }
 export interface DefaultValueOption {
-  boolean: boolean
   number: number
   string: string
-  undefined: string
-  null: string
   bigint: string
   any: string
+  undefined: string
+  boolean: boolean
+  null: string
 }
 export interface OutputOption {
   single: boolean

@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use oxc::{
     allocator,
     ast::{
@@ -10,6 +12,8 @@ use oxc::{
     },
     span::SPAN,
 };
+
+use crate::OutputOption;
 
 use super::{
     super::boostest_utils::ast_utils,
@@ -35,14 +39,31 @@ pub fn get_arg<'a>(
     mut ts_type: TSType<'a>,
     mock_func_name: &str,
     generic: Vec<String>,
+    output_option_arc: Arc<OutputOption>,
 ) -> Argument<'a> {
     match ts_type {
-        TSType::TSAnyKeyword(_) => any_arg(ast_builder),
-        TSType::TSBigIntKeyword(_) => bigint_arg(ast_builder, None, None),
-        TSType::TSBooleanKeyword(_) => boolean_arg(ast_builder, None),
+        TSType::TSAnyKeyword(_) => any_arg(
+            ast_builder,
+            Some(&output_option_arc.default_value_option.any),
+        ),
+        TSType::TSBigIntKeyword(_) => {
+            let bigint_atom = ast_builder.atom(&output_option_arc.default_value_option.bigint);
+            bigint_arg(ast_builder, Some(&bigint_atom), None)
+        }
+        TSType::TSBooleanKeyword(_) => boolean_arg(
+            ast_builder,
+            Some(output_option_arc.default_value_option.boolean),
+        ),
         TSType::TSNullKeyword(_) => null_arg(ast_builder),
-        TSType::TSNumberKeyword(_) => number_arg(ast_builder, None, None, None),
-        TSType::TSStringKeyword(_) => string_arg(ast_builder, None),
+        TSType::TSNumberKeyword(_) => number_arg(
+            ast_builder,
+            Some(output_option_arc.default_value_option.number),
+            None,
+        ),
+        TSType::TSStringKeyword(_) => string_arg(
+            ast_builder,
+            Some(&output_option_arc.default_value_option.string),
+        ),
 
         TSType::TSTypeReference(mut ts_type_ref) if ast_utils::is_promise_type(&ts_type_ref) => {
             let mut arguments = ast_builder.vec();
@@ -51,7 +72,13 @@ pub fn get_arg<'a>(
                 if let Some(param_type) = type_parameters.params.first_mut() {
                     let ts_type = ast_builder.move_ts_type(param_type);
 
-                    let result_expr = get_arg(ast_builder, ts_type, mock_func_name, generic);
+                    let result_expr = get_arg(
+                        ast_builder,
+                        ts_type,
+                        mock_func_name,
+                        generic,
+                        output_option_arc,
+                    );
                     let mut result_args = ast_builder.vec();
                     result_args.push(result_expr);
 
@@ -141,8 +168,13 @@ pub fn get_arg<'a>(
             if let TSType::TSVoidKeyword(_) = ts_type {
                 return_expression = None;
             } else {
-                return_expression =
-                    Some(get_expression(ast_builder, ts_type, mock_func_name, vec![]));
+                return_expression = Some(get_expression(
+                    ast_builder,
+                    ts_type,
+                    mock_func_name,
+                    vec![],
+                    output_option_arc,
+                ));
             }
 
             function_arg(
@@ -166,7 +198,13 @@ pub fn get_arg<'a>(
 
             if let Some(target_ts_type) = non_null_types {
                 let ts_type = ast_builder.move_ts_type(target_ts_type);
-                return get_arg(ast_builder, ts_type, mock_func_name, generic);
+                return get_arg(
+                    ast_builder,
+                    ts_type,
+                    mock_func_name,
+                    generic,
+                    output_option_arc,
+                );
             }
             // fallback
             null_arg(ast_builder)
@@ -211,6 +249,7 @@ pub fn get_arg<'a>(
                                                 ts_type,
                                                 mock_func_name,
                                                 vec![],
+                                                output_option_arc.clone(),
                                             );
                                             arguments.push(new);
                                         }
@@ -268,7 +307,13 @@ pub fn get_arg<'a>(
             let mut new_elements = ast_builder.vec();
             for element in ts_tuple_type.element_types.iter_mut() {
                 let ts_type = ast_builder.move_ts_type(element.to_ts_type_mut());
-                let new = get_expression(ast_builder, ts_type, mock_func_name, vec![]);
+                let new = get_expression(
+                    ast_builder,
+                    ts_type,
+                    mock_func_name,
+                    vec![],
+                    output_option_arc.clone(),
+                );
                 let array_expr = ArrayExpressionElement::from(new);
                 new_elements.push(array_expr);
             }
@@ -278,7 +323,13 @@ pub fn get_arg<'a>(
             // type Point = [x: number, y: number];
             let ts_type =
                 ast_builder.move_ts_type(ts_named_tuple_member.element_type.to_ts_type_mut());
-            get_arg(ast_builder, ts_type, mock_func_name, generic)
+            get_arg(
+                ast_builder,
+                ts_type,
+                mock_func_name,
+                generic,
+                output_option_arc,
+            )
         }
         TSType::TSTypeLiteral(ref mut ts_type_literal) => {
             // {name: string, age: number}
@@ -289,6 +340,7 @@ pub fn get_arg<'a>(
                     ast_builder,
                     ts_type_literal,
                     mock_func_name,
+                    output_option_arc.clone(),
                 );
 
                 if let Some(first_call_expr) = first_call_expr {
@@ -303,6 +355,7 @@ pub fn get_arg<'a>(
                 mock_func_name,
                 Some("test".to_string()),
                 generic,
+                output_option_arc.clone(),
             )
         }
         TSType::TSIntersectionType(ref mut ts_intersection_type) => {
@@ -310,7 +363,13 @@ pub fn get_arg<'a>(
 
             for ts_type in ts_intersection_type.types.iter_mut() {
                 let new_ts_type = ast_builder.move_ts_type(ts_type);
-                let expr = get_expression(ast_builder, new_ts_type, mock_func_name, vec![]);
+                let expr = get_expression(
+                    ast_builder,
+                    new_ts_type,
+                    mock_func_name,
+                    vec![],
+                    output_option_arc.clone(),
+                );
                 let spread_expr = ast_builder.alloc_spread_element(SPAN, expr);
                 let obj_prop_expr = ObjectPropertyKind::SpreadProperty(spread_expr);
                 temp_expr.push(obj_prop_expr);
@@ -321,7 +380,13 @@ pub fn get_arg<'a>(
 
         TSType::TSParenthesizedType(ref mut ts_parenthesized_type) => {
             let ts_type = ast_builder.move_ts_type(&mut ts_parenthesized_type.type_annotation);
-            get_arg(ast_builder, ts_type, mock_func_name, vec![])
+            get_arg(
+                ast_builder,
+                ts_type,
+                mock_func_name,
+                vec![],
+                output_option_arc,
+            )
 
             // ast_builder.expression_object(SPAN, ast_builder.vec(), None)
         }
@@ -329,8 +394,11 @@ pub fn get_arg<'a>(
         TSType::TSSymbolKeyword(_) => symbol_arg(ast_builder),
         TSType::TSNeverKeyword(_) => null_arg(ast_builder),
         TSType::TSArrayType(_) => array_arg(ast_builder, None),
-        TSType::TSUndefinedKeyword(_) => undefined_arg(ast_builder),
-        TSType::TSUnknownKeyword(_) => undefined_arg(ast_builder),
+        TSType::TSUndefinedKeyword(_) => undefined_arg(
+            ast_builder,
+            Some(&output_option_arc.default_value_option.undefined),
+        ),
+        TSType::TSUnknownKeyword(_) => undefined_arg(ast_builder, None),
 
         /***********************************************************/
         /***********************************************************/

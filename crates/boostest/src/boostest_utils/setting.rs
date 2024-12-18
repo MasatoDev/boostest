@@ -91,30 +91,30 @@ impl Setting {
                 }
                 "initial_value" => {
                     if let Value::Object(map_val) = value {
-                        if let Some(Value::String(single)) = map_val.get("string") {
-                            self.output_option.default_value_option.string = single.clone();
+                        if let Some(Value::String(string)) = map_val.get("string") {
+                            self.output_option.default_value_option.string = string.clone();
                         }
                         if let Some(Value::Number(single)) = map_val.get("number") {
-                            if let Some(single) = single.as_i64() {
+                            if let Some(single) = single.as_f64() {
                                 self.output_option.default_value_option.number = single;
                             } else {
                                 return Err(anyhow!("boostest setting json cloud not be parsed"));
                             }
                         }
-                        if let Some(Value::Bool(single)) = map_val.get("boolean") {
-                            self.output_option.default_value_option.boolean = *single;
+                        // if let Some(Value::Bool(boolean)) = map_val.get("boolean") {
+                        //     self.output_option.default_value_option.boolean = *boolean;
+                        // }
+                        // if let Some(Value::String(single)) = map_val.get("undefined") {
+                        //     self.output_option.default_value_option.undefined = single.clone();
+                        // }
+                        // if let Some(Value::String(single)) = map_val.get("null") {
+                        //     self.output_option.default_value_option.null = single.clone();
+                        // }
+                        if let Some(Value::String(bigint)) = map_val.get("bigint") {
+                            self.output_option.default_value_option.bigint = bigint.clone();
                         }
-                        if let Some(Value::String(single)) = map_val.get("undefined") {
-                            self.output_option.default_value_option.undefined = single.clone();
-                        }
-                        if let Some(Value::String(single)) = map_val.get("null") {
-                            self.output_option.default_value_option.null = single.clone();
-                        }
-                        if let Some(Value::String(single)) = map_val.get("bigint") {
-                            self.output_option.default_value_option.bigint = single.clone();
-                        }
-                        if let Some(Value::String(single)) = map_val.get("any") {
-                            self.output_option.default_value_option.any = single.clone();
+                        if let Some(Value::String(any)) = map_val.get("any") {
+                            self.output_option.default_value_option.any = any.clone();
                         }
                     }
                 }

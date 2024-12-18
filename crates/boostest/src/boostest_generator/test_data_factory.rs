@@ -140,11 +140,10 @@ pub fn string_arg<'a>(ast_builder: &AstBuilder<'a>, default_str: Option<&str>) -
 fn number_literal<'a>(
     ast_builder: &AstBuilder<'a>,
     value: Option<f64>,
-    raw: Option<&'a str>,
     base: Option<NumberBase>,
 ) -> NumericLiteral<'a> {
     let v = value.unwrap_or(10.0);
-    let r = raw.unwrap_or("10");
+    let r = v.to_string();
     let b = base.unwrap_or(NumberBase::Decimal);
 
     ast_builder.numeric_literal(SPAN, v, r, b)
@@ -152,11 +151,10 @@ fn number_literal<'a>(
 pub fn number_expr<'a>(
     ast_builder: &AstBuilder<'a>,
     value: Option<f64>,
-    raw: Option<&'a str>,
     base: Option<NumberBase>,
 ) -> Expression<'a> {
     let v = value.unwrap_or(10.0);
-    let r = raw.unwrap_or("10");
+    let r = v.to_string();
     let b = base.unwrap_or(NumberBase::Decimal);
 
     ast_builder.expression_numeric_literal(SPAN, v, r, b)
@@ -164,10 +162,9 @@ pub fn number_expr<'a>(
 pub fn number_arg<'a>(
     ast_builder: &AstBuilder<'a>,
     value: Option<f64>,
-    raw: Option<&'a str>,
     base: Option<NumberBase>,
 ) -> Argument<'a> {
-    let r = ast_builder.alloc(number_literal(ast_builder, value, raw, base));
+    let r = ast_builder.alloc(number_literal(ast_builder, value, base));
     Argument::NumericLiteral(r)
 }
 
@@ -227,26 +224,36 @@ pub fn null_arg<'a>(ast_builder: &AstBuilder<'a>) -> Argument<'a> {
 }
 
 // TSType::TSUndefinedKeyword
-fn undefined_id<'a>(ast_builder: &AstBuilder<'a>) -> IdentifierReference<'a> {
-    ast_builder.identifier_reference(SPAN, "undefined")
+fn undefined_id<'a>(
+    ast_builder: &AstBuilder<'a>,
+    default_val: Option<&str>,
+) -> IdentifierReference<'a> {
+    let value = default_val.unwrap_or("undefined");
+    ast_builder.identifier_reference(SPAN, value)
 }
-pub fn undefined_expr<'a>(ast_builder: &AstBuilder<'a>) -> Expression<'a> {
-    ast_builder.expression_identifier_reference(SPAN, "undefined")
+pub fn undefined_expr<'a>(
+    ast_builder: &AstBuilder<'a>,
+    default_val: Option<&str>,
+) -> Expression<'a> {
+    let value = default_val.unwrap_or("undefined");
+    ast_builder.expression_identifier_reference(SPAN, value)
 }
-pub fn undefined_arg<'a>(ast_builder: &AstBuilder<'a>) -> Argument<'a> {
-    let r = ast_builder.alloc(undefined_id(ast_builder));
+pub fn undefined_arg<'a>(ast_builder: &AstBuilder<'a>, default_val: Option<&str>) -> Argument<'a> {
+    let r = ast_builder.alloc(undefined_id(ast_builder, default_val));
     Argument::Identifier(r)
 }
 
 // TSType::TSAnyKeyword
-fn any_literal<'a>(ast_builder: &AstBuilder<'a>) -> StringLiteral<'a> {
-    ast_builder.string_literal(SPAN, "any")
+fn any_literal<'a>(ast_builder: &AstBuilder<'a>, default_str: Option<&str>) -> StringLiteral<'a> {
+    let value = default_str.unwrap_or("any");
+    ast_builder.string_literal(SPAN, value)
 }
-pub fn any_expr<'a>(ast_builder: &AstBuilder<'a>) -> Expression<'a> {
-    ast_builder.expression_string_literal(SPAN, "any")
+pub fn any_expr<'a>(ast_builder: &AstBuilder<'a>, default_str: Option<&str>) -> Expression<'a> {
+    let value = default_str.unwrap_or("any");
+    ast_builder.expression_string_literal(SPAN, value)
 }
-pub fn any_arg<'a>(ast_builder: &AstBuilder<'a>) -> Argument<'a> {
-    let r = ast_builder.alloc(any_literal(ast_builder));
+pub fn any_arg<'a>(ast_builder: &AstBuilder<'a>, default_str: Option<&str>) -> Argument<'a> {
+    let r = ast_builder.alloc(any_literal(ast_builder, default_str));
     Argument::StringLiteral(r)
 }
 
@@ -720,7 +727,6 @@ pub fn get_expr_with_ts_literal_type<'a>(
         TSLiteral::NumericLiteral(numeric_literal) => number_expr(
             ast_builder,
             Some(numeric_literal.value),
-            Some(numeric_literal.raw),
             Some(numeric_literal.base),
         ),
         TSLiteral::BooleanLiteral(boolean_literal) => {
@@ -772,7 +778,6 @@ pub fn get_arg_with_ts_literal_type<'a>(
         TSLiteral::NumericLiteral(numeric_literal) => number_arg(
             ast_builder,
             Some(numeric_literal.value),
-            Some(numeric_literal.raw),
             Some(numeric_literal.base),
         ),
         TSLiteral::BooleanLiteral(boolean_literal) => {

@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use oxc::{
     allocator,
     ast::{
@@ -9,6 +11,8 @@ use oxc::{
     span::SPAN,
     syntax::number::NumberBase,
 };
+
+use crate::OutputOption;
 
 use super::{
     extends_ast_builder::AstBuilderExt,
@@ -22,6 +26,7 @@ pub fn handle_ts_signature<'a>(
     mock_func_name: &str,
     parent_key_name: Option<String>,
     generic: Vec<String>,
+    output_option_arc: Arc<OutputOption>,
 ) -> Option<(PropertyKey<'a>, Expression<'a>)> {
     match ts_signature {
         TSSignature::TSPropertySignature(ref mut ts_prop_signature) => {
@@ -51,6 +56,7 @@ pub fn handle_ts_signature<'a>(
                                     ast_builder,
                                     ts_type_literal,
                                     mock_func_name,
+                                    output_option_arc.clone(),
                                 );
 
                                 if let Some(first_call_expr) = first_call_expr {
@@ -67,6 +73,7 @@ pub fn handle_ts_signature<'a>(
                                     mock_func_name,
                                     Some(new_parent_key.clone()),
                                     generic,
+                                    output_option_arc.clone(),
                                 ),
                             ));
                         }
@@ -75,7 +82,13 @@ pub fn handle_ts_signature<'a>(
 
                             Some((
                                 new_prop_key,
-                                get_expression(ast_builder, ts_type, mock_func_name, generic),
+                                get_expression(
+                                    ast_builder,
+                                    ts_type,
+                                    mock_func_name,
+                                    generic,
+                                    output_option_arc,
+                                ),
                             ))
                         }
                     }
@@ -116,7 +129,13 @@ pub fn handle_ts_signature<'a>(
 
                 return Some((
                     new_prop_key,
-                    get_expression(ast_builder, ts_type, mock_func_name, vec![]),
+                    get_expression(
+                        ast_builder,
+                        ts_type,
+                        mock_func_name,
+                        vec![],
+                        output_option_arc,
+                    ),
                 ));
             }
             None
@@ -185,11 +204,18 @@ pub fn handle_ts_signatures<'a>(
     mock_func_name: &str,
     parent_key_name: Option<String>,
     generic: Vec<String>,
+    output_option_arc: Arc<OutputOption>,
 ) -> Expression<'a> {
     let mut props_expr: Vec<(PropertyKey, Expression)> = Vec::new();
 
     if let Some(ts_tuple_type) = handle_tuple_type(ast_builder, ts_signatures) {
-        return get_expression(ast_builder, ts_tuple_type, mock_func_name, generic);
+        return get_expression(
+            ast_builder,
+            ts_tuple_type,
+            mock_func_name,
+            generic,
+            output_option_arc,
+        );
     }
 
     for member in ts_signatures.iter_mut() {
@@ -199,6 +225,7 @@ pub fn handle_ts_signatures<'a>(
             mock_func_name,
             parent_key_name.clone(),
             generic.clone(),
+            output_option_arc.clone(),
         ) {
             props_expr.push((key, expr));
         }

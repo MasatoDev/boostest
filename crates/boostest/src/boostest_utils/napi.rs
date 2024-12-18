@@ -22,13 +22,15 @@ pub struct OutputCode {
 #[napi(object)]
 #[derive(Debug, Clone)]
 pub struct DefaultValueOption {
-    pub boolean: bool,
-    pub number: i64,
+    pub number: f64,
     pub string: String,
-    pub undefined: String,
-    pub null: String,
     pub bigint: String,
     pub any: String,
+
+    // unused props
+    pub undefined: String,
+    pub boolean: bool,
+    pub null: String,
 }
 
 impl Default for DefaultValueOption {
@@ -41,7 +43,7 @@ impl DefaultValueOption {
     pub fn new() -> Self {
         Self {
             boolean: true,
-            number: 10,
+            number: 10.0,
             string: "test string data".to_string(),
             undefined: "undefined".to_string(),
             null: "null".to_string(),
