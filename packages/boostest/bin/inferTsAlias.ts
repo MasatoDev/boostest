@@ -64,6 +64,8 @@ export function inferTsAlias(sourceCode: string) {
     ts.forEachChild(node, visit);
   }
 
+  visit(sourceFile);
+
   function isClassType(type: ts.Type): boolean {
     const symbol = type.getSymbol();
     if (!symbol) return false;
@@ -87,14 +89,22 @@ export function inferTsAlias(sourceCode: string) {
     .join("\n");
 
   // console.log("🎉🎉🎉", `${output}\n\n${code}`);
+  // console.log("🎉🎉🎉", `${output}\n`);
   return `${output}\n\n${code}`;
 }
 
 // const code = `
-// type main = Hoge;
+// type main = ref_8fa900714581ef4b0ef680d700516c6a590097bd4bc2adbb44922c3a99774834;
+// type ref_8fa900714581ef4b0ef680d700516c6a590097bd4bc2adbb44922c3a99774834 = {
+//     map: ref_f5ef5f60613beeb2ba63d47b09fc9021370fb07cba141862733631b79f14bd7a<string, number>;
+// };
+// interface ref_f5ef5f60613beeb2ba63d47b09fc9021370fb07cba141862733631b79f14bd7a<K, V> {
+// 	forEach(callbackfn: (value: V, key: K, map: Map<K, V>) => void, thisArg?: any): void;
+// }
+//
 // `;
 //
-// console.log("⭐⭐RESULE: \n", inferTsAlias(code));
+// inferTsAlias(code);
 
 /**********************************************************/
 /**********************************************************/
@@ -260,26 +270,46 @@ function getTypeStructure(
 
     result.push(...indexSignatures);
 
-    // properties
+    // interface Hoge<K, V> {
+    //   get(key: K): V | undefined;
+    //   sampleFunc: (name: K) =>V
+    //   sampleFunc2: (name: K, hoge: V) =>V
+    //   hoge: K;
+    // }
     for (const prop of type.getProperties()) {
       let propStructure;
 
-      const declaration = prop.valueDeclaration || prop.declarations?.[0];
+      const propType = checker.getTypeOfSymbol(prop);
+      const callSignatures = propType.getCallSignatures();
 
-      if (declaration) {
-        const result = getTextFromNode(checker, declaration);
-        result && (propStructure = result);
+      if (callSignatures.length > 0) {
+        let resultOfParams = "";
+
+        let target = callSignatures[0];
+
+        for (const param of target.parameters) {
+          const propType = checker.getTypeOfSymbol(param);
+          propStructure = getTypeStructure(checker, propType);
+          resultOfParams =
+            (!!resultOfParams ? resultOfParams + ", " : "") +
+            // `${param.getName()}: ${propStructure}`;
+            `${param.getName()}: any`;
+        }
+
+        propStructure = `(${resultOfParams}) => ${checker.typeToString(target.getReturnType())}`;
       }
 
       if (!propStructure) {
         const propType = checker.getTypeOfSymbol(prop);
         propStructure = getTypeStructure(checker, propType);
       }
+
       result.push(`${prop.name}: ${propStructure}`);
     }
 
     // call signature
     const callSignaturesResult = [];
+
     for (const signature of type.getCallSignatures()) {
       const parameters = signature.getParameters().map((param) => {
         const paramType = checker.getTypeOfSymbolAtLocation(

@@ -518,7 +518,20 @@ pub fn get_func_expr_from_call_signature_decl<'a>(
     mock_func_name: &str,
     output_option_arc: Arc<OutputOption>,
 ) -> Option<Expression<'a>> {
-    let formal_parameters = ast_builder.move_formal_parameters(&mut ts_call_signature.params);
+    let mut formal_parameters = ast_builder.move_formal_parameters(&mut ts_call_signature.params);
+
+    for param in formal_parameters.items.iter_mut() {
+        if let Some(ref mut type_annotation) = param.pattern.type_annotation {
+            match &mut type_annotation.type_annotation {
+                TSType::TSTypeReference(ref mut ts_type_ref) => {
+                    let type_name = ast_builder.ts_type_name_identifier_reference(SPAN, "any");
+                    ts_type_ref.type_name = type_name;
+                }
+                _ => {}
+            }
+        }
+    }
+
     let boxed_formal_parameters = ast_builder.alloc(formal_parameters);
 
     if let Some(return_type) = &mut ts_call_signature.return_type {
