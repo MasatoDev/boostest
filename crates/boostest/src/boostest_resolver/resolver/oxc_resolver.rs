@@ -2,10 +2,12 @@ use anyhow::{anyhow, Result};
 use colored::*;
 use oxc::parser::Parser;
 use oxc::span::SourceType;
+use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
 use crate::boostest_resolver::resolver::tsserver_resolver::resolve_target_ast_with_tsserver;
+use crate::boostest_resolver::target_resolver;
 use crate::boostest_resolver::visit_mut::TargetResolver;
 use crate::boostest_utils::module_resolver::resolve_specifier;
 use oxc::ast::VisitMut;
@@ -17,6 +19,7 @@ use crate::{Setting, TSServerCache};
 /* main func for resolve */
 /*************************/
 pub fn resolve_target(
+    is_recursive: bool,
     target_resolver: &mut TargetResolver,
     target_file_path: PathBuf,
     setting: Arc<Setting>,
@@ -54,6 +57,10 @@ pub fn resolve_target(
     //     prop.lock().unwrap().analysis_start();
     //     resolve_mock_target_ast(prop, program, path, ts_config_path, project_root_path, 1)?;
     // }
+
+    if (!is_recursive) {
+        return Ok(());
+    }
 
     if target_resolver.resolved() {
         return Ok(());
@@ -120,6 +127,7 @@ pub fn resolve_target(
                 }
 
                 resolve_target(
+                    true,
                     target_resolver,
                     read_file_path,
                     setting,
@@ -134,6 +142,7 @@ pub fn resolve_target(
 
                 if let Some(lib_file_path) = &setting.default_lib_file_path {
                     resolve_target(
+                        true,
                         target_resolver,
                         lib_file_path.clone(),
                         setting,
@@ -141,6 +150,43 @@ pub fn resolve_target(
                         ts_server_cache.clone(),
                     )?;
                 }
+
+                return Ok(());
+            }
+            if !target_resolver.all_lib_files_loaded {
+                target_resolver.all_lib_files_loaded = true;
+                if let Some(lib_file_path) = &setting.default_lib_file_path {
+                    if let Some(parent_dir_path) = lib_file_path.parent() {
+                        if let Ok(lib_files) = fs::read_dir(parent_dir_path) {
+                            let mut lib_files_vec = Vec::new();
+
+                            for entry in lib_files.into_iter().flatten() {
+                                let path = entry.path();
+
+                                if path.is_file() {
+                                    if let Some(file_name) = path.file_name() {
+                                        let file_name_str = file_name.to_string_lossy();
+                                        if file_name_str.starts_with("lib") {
+                                            lib_files_vec.push(path);
+                                        }
+                                    }
+                                }
+                            }
+
+                            for lib_file in lib_files_vec {
+                                resolve_target(
+                                    false,
+                                    target_resolver,
+                                    lib_file,
+                                    setting.clone(),
+                                    depth + 1,
+                                    ts_server_cache.clone(),
+                                )?;
+                            }
+                        }
+                    }
+                }
+
                 return Ok(());
             } else {
                 if let Some(project_root_path) = &setting.project_root_path {

@@ -81,6 +81,7 @@ pub struct TargetResolver {
 
     // for utility types and so on
     pub lib_file_loaded: bool,
+    pub all_lib_files_loaded: bool,
     pub temp_import_source_vec: Option<Vec<Import>>,
     pub temp_current_read_file_path: PathBuf,
     pub temp_renamed_var_decl_span: Option<Span>,
@@ -98,6 +99,7 @@ impl TargetResolver {
             status: ResolveStatus::Nothing,
             import: Vec::new(),
             lib_file_loaded: false,
+            all_lib_files_loaded: false,
             use_tsserver: false,
             temp_import_source_vec: None,
             temp_current_read_file_path: PathBuf::new(),
@@ -133,7 +135,7 @@ impl TargetResolver {
             .target_reference
             .file_path
             .clone();
-        resolve_target(self, file_path, setting, 1, ts_server_cache);
+        resolve_target(true, self, file_path, setting, 1, ts_server_cache);
     }
 
     pub fn get_target_name(&self) -> String {
@@ -150,7 +152,7 @@ impl TargetResolver {
                     }
                     Err(_) => {
                         // ロック取得に失敗した場合、少し待ってからリトライ
-                        thread::sleep(Duration::from_millis(10));
+                        thread::sleep(Duration::from_millis(50));
                     }
                 }
             }

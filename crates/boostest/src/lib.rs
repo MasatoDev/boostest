@@ -119,7 +119,7 @@ pub fn resolve_target(
 pub fn generate(output: HashMap<String, OutputCode>, output_option: OutputOption) {
     let mut spinner = Spinner::new(
         spinners::Dots,
-        "Boostest generating has started.",
+        "Boostest generating has started",
         Color::Blue,
     );
     let mut single_output_dir_path = None;
