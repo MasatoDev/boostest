@@ -54,9 +54,6 @@ pub fn resolve_target_ast_with_tsserver(
         let span = target.target_reference.span.clone();
         drop(target);
 
-        println!("\n🆚🆚🆚🆚🆚🆚 tsserver {:?}, ", name);
-        println!("\nSPAN: {:?}", span);
-
         target_resolver.use_tsserver = true;
 
         if let Some(result) = tsserver(
@@ -66,7 +63,6 @@ pub fn resolve_target_ast_with_tsserver(
             &name,
             ts_server_cache.clone(),
         ) {
-            // println!("\n 💪💪💪💪💪💪 result: {:?}", result);
             let mut target_source_text = String::new();
 
             for (target_file_path, result_span) in result.iter() {

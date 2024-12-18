@@ -90,12 +90,11 @@ export function inferTsAlias(sourceCode: string) {
   return `${output}\n\n${code}`;
 }
 
-const code = `
-type main = Hoge;
-type Hoge = boolean
-`;
-
-console.log("⭐⭐RESULE: \n", inferTsAlias(code));
+// const code = `
+// type main = Hoge;
+// `;
+//
+// console.log("⭐⭐RESULE: \n", inferTsAlias(code));
 
 /**********************************************************/
 /**********************************************************/

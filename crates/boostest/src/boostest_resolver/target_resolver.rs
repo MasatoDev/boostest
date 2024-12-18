@@ -115,7 +115,6 @@ impl TargetResolver {
             .unwrap()
             .is_resolved(&target_ref);
         if is_resolved {
-            println!("Already resolved: {}", self.get_target_name().green());
             return;
         };
 
@@ -123,7 +122,6 @@ impl TargetResolver {
 
         // NOTE: if main target isn't reference, main target doesn't have target
         if target_name.is_empty() {
-            println!("Empty target name: {:?}", target_ref);
             return;
         }
 
