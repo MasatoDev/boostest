@@ -14,7 +14,8 @@
     "boostest:cli": "boostest ./src/*.ts -t tsconfig.json",
     "boostest:direct": "boostest ./src/direct_path/direct_path.ts",
     "test": "jest --config ./jest.config.js",
-    "snapshot": "jest --config ./jest.config.js --updateSnapshot"
+    "snapshot": "jest --config ./jest.config.js --updateSnapshot",
+    "build": "rolldown -c"
   },
   "keywords": [],
   "author": "",
@@ -31,6 +32,7 @@
   "devDependencies": {
     "@jest/globals": "^29.7.0",
     "@types/jest": "^29.5.12",
-    "ts-jest": "^29.1.5"
+    "ts-jest": "^29.1.5",
+    "rolldown": "nightly"
   }
 }

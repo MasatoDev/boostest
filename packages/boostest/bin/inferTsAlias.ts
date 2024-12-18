@@ -47,7 +47,7 @@ export function inferTsAlias(sourceCode: string) {
 
       let structure: string | undefined;
 
-      structure = getTextFromNode(checker, node.type);
+      structure = getTextFromNode(checker, node.type, true);
 
       const type = checker.getTypeAtLocation(node.type);
       if (!structure) {
@@ -90,19 +90,12 @@ export function inferTsAlias(sourceCode: string) {
   return `${output}\n\n${code}`;
 }
 
-// const code = `
-// type main = TsLiteralFunctionUnionType;
-//
-// type Hoge = {
-//     name: string;
-//     ver: number;
-//     age: number;
-// };
-//
-// export type TsLiteralFunctionUnionType = Promise<Hoge>
-// `;
-//
-// console.log("⭐⭐RESULE: \n", inferTsAlias(code));
+const code = `
+type main = Hoge;
+type Hoge = boolean
+`;
+
+console.log("⭐⭐RESULE: \n", inferTsAlias(code));
 
 /**********************************************************/
 /**********************************************************/
@@ -119,6 +112,7 @@ export function inferTsAlias(sourceCode: string) {
 function getTextFromNode(
   checker: ts.TypeChecker,
   node: ts.Node,
+  is_root: boolean = false,
 ): string | undefined {
   if (ts.isPropertySignature(node)) {
     if (node.type) {
@@ -126,7 +120,11 @@ function getTextFromNode(
     }
   }
 
-  if (node.kind == ts.SyntaxKind.FunctionType) {
+  if (ts.isMethodSignature(node)) {
+    return checker.typeToString(checker.getTypeAtLocation(node));
+  }
+
+  if (node.kind == ts.SyntaxKind.FunctionType && !is_root) {
     return checker.typeToString(checker.getTypeAtLocation(node));
   }
 

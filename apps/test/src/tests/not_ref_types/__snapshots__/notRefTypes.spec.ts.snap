@@ -1,3 +1,75 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Rename Tests Direct Promise matches snapshot 1`] = `"{"name":"test string data","age":10}"`;
+exports[`not ref types(direct) Tests Direct Promise matches snapshot 1`] = `"{"name":"test string data","age":10}"`;
+
+exports[`not ref types(direct) Tests Direct any matches snapshot 1`] = `""any""`;
+
+exports[`not ref types(direct) Tests Direct array matches snapshot 1`] = `"[]"`;
+
+exports[`not ref types(direct) Tests Direct bigint matches snapshot 1`] = `""9007199254740991n""`;
+
+exports[`not ref types(direct) Tests Direct boolean matches snapshot 1`] = `"false"`;
+
+exports[`not ref types(direct) Tests Direct class matches snapshot 1`] = `
+"class ref_7d1e1a1571ff97c69aae931fab051730ed59a740c7d92243ad0feb9cde416f42 {
+    name;
+    ver;
+    constructor(name, ver) {
+        this.name = name;
+        this.ver = ver;
+    }
+}"
+`;
+
+exports[`not ref types(direct) Tests Direct conditional matches snapshot 1`] = `"false"`;
+
+exports[`not ref types(direct) Tests Direct constructor matches snapshot 1`] = `
+"class ref_7d1e1a1571ff97c69aae931fab051730ed59a740c7d92243ad0feb9cde416f42 {
+    name;
+    ver;
+    constructor(name, ver) {
+        this.name = name;
+        this.ver = ver;
+    }
+}"
+`;
+
+exports[`not ref types(direct) Tests Direct function matches snapshot 1`] = `
+"(arg) => {
+        return {
+            name: "test string data",
+            ver: 10,
+            age: 10
+        };
+    }"
+`;
+
+exports[`not ref types(direct) Tests Direct index accessor matches snapshot 1`] = `""test string data""`;
+
+exports[`not ref types(direct) Tests Direct intersection matches snapshot 1`] = `"{"name":"test string data","ver":10,"age":10}"`;
+
+exports[`not ref types(direct) Tests Direct keyof matches snapshot 1`] = `""name""`;
+
+exports[`not ref types(direct) Tests Direct named tuple matches snapshot 1`] = `"["test string data",10,{"name":"test string data","ver":10,"age":10},{"name":"test string data","ver":10,"age":10}]"`;
+
+exports[`not ref types(direct) Tests Direct null matches snapshot 1`] = `"null"`;
+
+exports[`not ref types(direct) Tests Direct number matches snapshot 1`] = `"10"`;
+
+exports[`not ref types(direct) Tests Direct object matches snapshot 1`] = `"{}"`;
+
+exports[`not ref types(direct) Tests Direct reference matches snapshot 1`] = `"{"name":"test string data","ver":10,"age":10}"`;
+
+exports[`not ref types(direct) Tests Direct string matches snapshot 1`] = `""test string data""`;
+
+exports[`not ref types(direct) Tests Direct symbol matches snapshot 1`] = `"Symbol()"`;
+
+exports[`not ref types(direct) Tests Direct tuple matches snapshot 1`] = `"["test string data",10,"any",{"name":"test string data","ver":10,"age":10},{"name":"test string data","ver":10,"age":10}]"`;
+
+exports[`not ref types(direct) Tests Direct undefined matches snapshot 1`] = `""undefined""`;
+
+exports[`not ref types(direct) Tests Direct union matches snapshot 1`] = `""test string data""`;
+
+exports[`not ref types(direct) Tests Direct unknown matches snapshot 1`] = `""undefined""`;
+
+exports[`not ref types(direct) Tests Direct void matches snapshot 1`] = `"null"`;

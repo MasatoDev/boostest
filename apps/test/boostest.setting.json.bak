@@ -6,5 +6,12 @@
 
   "output": {
     "single": false
+  },
+
+  "initial_value": {
+    "string": "changed initial value",
+    "number": 500,
+    "bigint": "556455199254740991n",
+    "any": "any"
   }
 }

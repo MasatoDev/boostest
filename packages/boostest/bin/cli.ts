@@ -7,8 +7,6 @@ import {
   TargetType,
 } from "../index";
 import { inferTsAlias } from "./inferTsAlias";
-import { infferTsInterface } from "./inferTSInterface";
-import { infferClass } from "./inferClass";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import ts from "typescript";
@@ -34,17 +32,6 @@ const infferTypes = (result: Output): Output => {
   for (const [key, value] of Object.entries(result)) {
     let types;
     types = inferTsAlias(value.code);
-    // switch (value.targetType) {
-    //   case 0:
-    //     types = infferClass(value.code);
-    //     break;
-    //   case 1:
-    //     types = infferTsInterface(value.code);
-    //     break;
-    //   case 2:
-    //     types = infferTsAlias(value.code);
-    //     break;
-    // }
 
     if (types) {
       codeRecord[key] = {
@@ -94,10 +81,10 @@ yargs(hideBin(process.argv))
       if (!path && !tsconfig) {
         console.log(blue + "arguments are not set." + reset);
         console.log(blue + "boostest with boostest.setting.json" + reset);
-        let result = resolve("", libFilePath);
-        if (result) {
-          const output = infferTypes(result);
-          generate(output);
+        let { outputCode, outputOption } = resolve("", libFilePath);
+        if (outputCode) {
+          const output = infferTypes(outputCode);
+          generate(output, outputOption);
         }
         return;
       }
@@ -107,11 +94,11 @@ yargs(hideBin(process.argv))
         console.log(
           blue + `boostest with boostest.setting.json with ${tsconfig}` + reset,
         );
-        let result = resolve("", libFilePath, tsconfig);
+        let { outputCode, outputOption } = resolve("", libFilePath, tsconfig);
 
-        if (result) {
-          const output = infferTypes(result);
-          generate(output);
+        if (outputCode) {
+          const output = infferTypes(outputCode);
+          generate(output, outputOption);
         }
         return;
       }
@@ -120,11 +107,11 @@ yargs(hideBin(process.argv))
         console.log(blue + `target file: ${path}` + reset);
         console.log(blue + "tsconfig is not set." + reset);
         console.log(blue + "boostest with boostest.setting.json" + reset);
-        let result = resolve(path, libFilePath);
+        let { outputCode, outputOption } = resolve(path, libFilePath);
 
-        if (result) {
-          const output = infferTypes(result);
-          generate(output);
+        if (outputCode) {
+          const output = infferTypes(outputCode);
+          generate(output, outputOption);
         }
         return;
       }
@@ -132,10 +119,10 @@ yargs(hideBin(process.argv))
       if (path && tsconfig) {
         console.log(blue + `target file: ${path}` + reset);
         console.log(blue + `tsconfig: ${tsconfig}` + reset);
-        let result = resolve(path, libFilePath, tsconfig);
-        if (result) {
-          const output = infferTypes(result);
-          generate(output);
+        let { outputCode, outputOption } = resolve(path, libFilePath, tsconfig);
+        if (outputCode) {
+          const output = infferTypes(outputCode);
+          generate(output, outputOption);
         }
 
         return;

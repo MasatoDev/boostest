@@ -2,25 +2,20 @@ use std::sync::{Arc, Mutex};
 
 use oxc::allocator::{self, Allocator};
 use oxc::ast::visit::walk_mut::{
-    walk_call_expression, walk_ts_type, walk_ts_type_name, walk_ts_type_parameter_instantiation,
+    walk_ts_type, walk_ts_type_name, walk_ts_type_parameter_instantiation,
 };
 use oxc::codegen::Codegen;
 use oxc::parser::Parser;
-use oxc::semantic::SemanticBuilder;
 use oxc::span::{SourceType, Span, SPAN};
 
 use crate::boostest_generator::extends_ast_builder::AstBuilderExt;
+use crate::boostest_resolver::target::ResolvedDefinitions;
 use crate::boostest_utils::napi::TargetType;
-use oxc::ast::ast::{
-    Statement, TSType, TSTypeName, TSTypeParameterDeclaration, TSTypeQueryExprName,
-};
-use oxc::ast::{AstBuilder, AstKind, VisitMut};
+use oxc::ast::ast::{Statement, TSType, TSTypeName, TSTypeParameterDeclaration};
+use oxc::ast::{AstBuilder, VisitMut};
 
-use crate::boostest_manager::propety_assignment::calc_prop_span;
-use crate::boostest_utils::ast_utils::{self, ignore_ref_name};
+use crate::boostest_utils::ast_utils::{calc_prop_span, ignore_ref_name};
 use crate::boostest_utils::id_name::get_id_with_hash;
-
-use super::target::ResolvedDefinitions;
 
 pub struct OutputMainGenerator<'a> {
     pub resolved_definitions: Arc<Mutex<ResolvedDefinitions>>,

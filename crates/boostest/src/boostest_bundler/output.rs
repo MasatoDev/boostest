@@ -1,4 +1,6 @@
-use crate::boostest_target::target::{MainTarget, Target};
+use crate::boostest_resolver::target::{
+    bundle_target_defs, MainTarget, ResolvedDefinitions, Target,
+};
 use crate::boostest_utils::file_utils;
 use crate::boostest_utils::id_name::get_id_with_hash;
 use crate::boostest_utils::napi::{OutputCode, TargetType};
@@ -12,7 +14,6 @@ use std::sync::{Arc, Mutex};
 
 use super::output_generator::OutputGenerator;
 use super::output_main_generator::OutputMainGenerator;
-use super::target::ResolvedDefinitions;
 
 pub fn handle_output_main_task(
     main_targets: Vec<Arc<Mutex<MainTarget>>>,
@@ -57,7 +58,6 @@ pub fn handle_output_main_task(
         drop(locked_target);
 
         let code = get_code(
-            true,
             locked_main_target.target.clone(),
             resolved_definitions.clone(),
         );
@@ -73,14 +73,9 @@ pub fn handle_output_main_task(
         match code {
             Some((code, _var_name)) => {
                 output.push_str(&code);
-                output.push_str("\n");
+                output.push('\n');
             }
-            None => {
-                println!(
-                    "{}",
-                    format!("failed to create test data: {}", func_name).red()
-                );
-            }
+            None => {}
         }
 
         write_ref_properties(
@@ -117,7 +112,7 @@ pub fn write_ref_properties(
     writed: Arc<Mutex<Vec<String>>>,
 ) -> Result<()> {
     for children_prop in property_targets.iter() {
-        let code = get_code(false, children_prop.clone(), resolved_definitions.clone());
+        let code = get_code(children_prop.clone(), resolved_definitions.clone());
 
         match code {
             Some((code, var_name)) => {
@@ -155,44 +150,60 @@ pub fn write_ref_properties(
 }
 
 fn get_code(
-    is_main_target: bool,
     target: Arc<Mutex<Target>>,
     resolved_definitions: Arc<Mutex<ResolvedDefinitions>>,
 ) -> Option<(String, String)> {
     let locked_target = target.lock().unwrap();
 
-    let target_definition = &resolved_definitions
+    let target_definitions = &resolved_definitions
         .lock()
         .unwrap()
         .get_target_definition(&locked_target.target_reference);
 
-    if let Some(target_definition) = target_definition {
-        let target_source = file_utils::read(&target_definition.file_path).unwrap_or_default();
+    if let Some(target_definitions) = target_definitions {
+        if let Some(first_target_def) = target_definitions.first() {
+            let target_source = file_utils::read(&first_target_def.file_path).unwrap_or_default();
+            let mut target_source_text = first_target_def
+                .span
+                .source_text(&target_source)
+                .to_string();
 
-        let target_source_text = target_definition.span.source_text(&target_source);
-        let allocator = oxc::allocator::Allocator::default();
+            if first_target_def.target_type == TargetType::TSInterface {
+                for target_def in &target_definitions[1..] {
+                    target_source_text.push_str(
+                        &target_def.span.source_text(
+                            &file_utils::read(&target_def.file_path).unwrap_or_default(),
+                        ),
+                    );
+                }
+            }
 
-        let var_name = get_id_with_hash(
-            target_definition.file_path.to_string_lossy().to_string(),
-            target_definition.span,
-        );
+            let allocator = oxc::allocator::Allocator::default();
 
-        let mut code_generator = OutputGenerator::new(
-            is_main_target,
-            resolved_definitions.clone(),
-            &allocator,
-            &target_definition.specifier,
-            var_name.clone(),
-            target_definition.span,
-            target_definition.file_path.to_string_lossy().to_string(),
-            target_definition.defined_generics.clone(),
-            target_source_text,
-        );
+            // get_hash_name_from_target_defs()
 
-        code_generator.generate();
+            if let Some((file_path, span, defined_generics)) =
+                bundle_target_defs(target_definitions)
+            {
+                let var_name = get_id_with_hash(file_path.clone(), span);
 
-        if let Some(code) = code_generator.code {
-            return Some((code, var_name));
+                let mut code_generator = OutputGenerator::new(
+                    resolved_definitions.clone(),
+                    &allocator,
+                    &first_target_def.specifier,
+                    var_name.clone(),
+                    span,
+                    file_path,
+                    defined_generics,
+                    &target_source_text,
+                );
+
+                code_generator.generate();
+
+                if let Some(code) = code_generator.code {
+                    return Some((code, var_name));
+                }
+            }
         }
     }
 

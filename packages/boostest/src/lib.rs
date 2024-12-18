@@ -1,4 +1,4 @@
-use boostest::{generate, resolve_target, OutputCode};
+use boostest::{generate, resolve_target, OutputCode, OutputOption, ResolvedResult};
 use std::{collections::HashMap, path::Path};
 
 #[macro_use]
@@ -9,7 +9,7 @@ pub fn resolve(
   path: String,
   lib_file_path: String,
   ts_config_path: Option<String>,
-) -> Option<HashMap<String, OutputCode>> {
+) -> ResolvedResult {
   let lib_file_path = Path::new(&lib_file_path);
   if let Some(ts_config_path) = ts_config_path {
     let ts_config_path = Path::new(&ts_config_path);
@@ -20,6 +20,6 @@ pub fn resolve(
 }
 
 #[napi]
-pub fn generatetest(output: HashMap<String, OutputCode>) {
-  generate(output)
+pub fn generatetest(output: HashMap<String, OutputCode>, output_option: OutputOption) {
+  generate(output, output_option)
 }
