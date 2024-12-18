@@ -149,7 +149,6 @@ pub fn handle_ts_signature<'a>(
          * const hoge: Hoge = { (): => {} } // cannot be added
          */
         TSSignature::TSCallSignatureDeclaration(ts_call_signature_decl) => {
-            println!("TSCallSignatureDeclaration:{:?}", ts_call_signature_decl);
             // if let Some(func_expr) = get_func_expr_from_call_signature_decl(
             //     ast_builder,
             //     ts_call_signature_decl,

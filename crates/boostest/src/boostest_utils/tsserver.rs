@@ -4,13 +4,12 @@ use regex::Regex;
 use ropey::Rope;
 use serde::Deserialize;
 use serde_json::Value;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::ffi::OsStr;
 use std::io::{BufRead, BufReader, Write};
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
 use std::sync::{Arc, Mutex};
-use std::time::Duration;
 use std::{fs, thread};
 
 use crate::boostest_utils::id_name::get_id_with_hash;
@@ -160,7 +159,6 @@ pub fn tsserver(
         }
     }
 
-    println!("🐟🐟🐟🐟🐟🐟 failed ts server{:?}", target_name);
     None
     // let _ = child.wait().expect("Failed to wait on tsserver");
 }

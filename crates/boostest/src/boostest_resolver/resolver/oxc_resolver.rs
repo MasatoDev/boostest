@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Result};
 use colored::*;
 use oxc::parser::Parser;
-use oxc::span::{SourceType, Span};
+use oxc::span::SourceType;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
@@ -62,18 +62,13 @@ pub fn resolve_target(
     target_resolver.set_import_source();
 
     if let Ok(module_path) = target_file_path.canonicalize() {
-        println!("module_path");
         if let Some(parent_path) = module_path.parent() {
-            println!("parent_path");
             if let Some(next_import) = target_resolver.get_next_import() {
-                println!("next_import{:?}", depth);
-
                 let mut read_file_path: PathBuf = PathBuf::new();
                 let parent_path_buf = parent_path.to_path_buf();
 
                 // important the order of is_loaded_hogehoge() because these func handle loaded flag
                 if TargetResolver::is_loaded_index_d_ts(next_import) {
-                    println!("index_d_ts_loaded");
                     next_import.file_d_ts_loaded = true;
 
                     let next_file_stem = Path::new(&next_import.full_path)
@@ -92,13 +87,11 @@ pub fn resolve_target(
                 }
 
                 if TargetResolver::is_loaded_full_path(next_import) {
-                    println!("full_path_loaded");
                     next_import.index_d_ts_loaded = true;
                     read_file_path = parent_path_buf.join("index.d.ts");
                 }
 
                 if TargetResolver::is_unloaded_import(next_import) {
-                    println!("unloaded_import");
                     next_import.loaded = true;
 
                     let resolution_result =
@@ -126,7 +119,6 @@ pub fn resolve_target(
                     return Ok(());
                 }
 
-                println!("re resolve");
                 resolve_target(
                     target_resolver,
                     read_file_path,
@@ -139,7 +131,6 @@ pub fn resolve_target(
 
             if !target_resolver.lib_file_loaded {
                 target_resolver.lib_file_loaded = true;
-                println!("use lib path");
 
                 if let Some(lib_file_path) = &setting.default_lib_file_path {
                     resolve_target(
@@ -153,7 +144,6 @@ pub fn resolve_target(
                 return Ok(());
             } else {
                 if let Some(project_root_path) = &setting.project_root_path {
-                    println!("outer tsserver");
                     resolve_target_ast_with_tsserver(
                         target_resolver,
                         &Some(project_root_path.clone()),

@@ -1,6 +1,6 @@
 use oxc::{
     ast::{
-        ast::{TSTupleElement, TSType, TSTypeName, TSTypeQueryExprName},
+        ast::{TSType, TSTypeName},
         visit::walk::{walk_ts_type_name, walk_ts_type_parameter_instantiation},
         Visit,
     },
@@ -177,11 +177,9 @@ impl ResolvedDefinitions {
         );
 
         if let Some(mut target_defs) = self.get_target_definition(target_reference) {
-            println!("add");
             target_defs.push(target_definition.clone());
             self.inner.insert(key.clone(), Some(target_defs));
         } else {
-            println!("new");
             self.inner.insert(key, Some(vec![target_definition]));
         }
     }

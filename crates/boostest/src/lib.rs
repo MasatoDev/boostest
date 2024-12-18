@@ -29,7 +29,7 @@ pub fn resolve_target(
     ts_config_path: Option<&Path>,
     default_lib_file_path: &Path,
 ) -> ResolvedResult {
-    let mut spinner = Spinner::new(spinners::Dots, "Start!", Color::Blue);
+    let mut spinner = Spinner::new(spinners::Dots, "Boostest parsing has started.", Color::Blue);
     let mut setting = Setting::new();
 
     if let Err(e) = setting.get_setting(Some(default_lib_file_path.to_path_buf())) {
@@ -95,7 +95,7 @@ pub fn resolve_target(
         spinner.update(
             spinners::Dots2,
             format!(
-                "Handling File:  {}",
+                "Handling File: {}",
                 path_buf.file_name().unwrap().to_string_lossy()
             ),
             None,
@@ -108,7 +108,7 @@ pub fn resolve_target(
             result.extend(output);
         }
     }
-    spinner.success("Resolution end");
+    spinner.success("Parsing Complete");
 
     ResolvedResult {
         output_code: Some(result),
@@ -117,7 +117,11 @@ pub fn resolve_target(
 }
 
 pub fn generate(output: HashMap<String, OutputCode>, output_option: OutputOption) {
-    let mut spinner = Spinner::new(spinners::Dots, "Code Generating Start!", Color::Blue);
+    let mut spinner = Spinner::new(
+        spinners::Dots,
+        "Boostest generating has started.",
+        Color::Blue,
+    );
     let mut single_output_dir_path = None;
 
     if let Some(project_root_path) = output_option.project_root_path.clone() {
@@ -194,4 +198,6 @@ pub fn generate(output: HashMap<String, OutputCode>, output_option: OutputOption
             println!("failed to create test data :{}", e);
         }
     }
+
+    spinner.success("Creation Complete");
 }
