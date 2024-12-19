@@ -1,6 +1,10 @@
 {
-  "name": "boostest-linux-x-gnu",
-  "version": "0.6.2-0",
+  "name": "@boostest/boostest-linux-x64-gnu",
+  "version": "0.6.4",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
   "os": [
     "linux"
   ],
@@ -19,4 +23,3 @@
     "glibc"
   ]
 }
-

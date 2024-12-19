@@ -1,18 +1,26 @@
 {
-  "name": "boostest",
-  "version": "0.6.3",
+  "name": "@boostest/boostest",
+  "version": "0.6.4",
   "description": "Boostest is a tool that generates test code from type definitions.",
   "main": "index.js",
   "types": "index.d.ts",
   "publishConfig": {
-    "@MasatoDev:registry": "https://npm.pkg.github.com"
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
   },
   "bin": {
     "boostest": "./dist/cli.js"
   },
   "napi": {
-    "name": "boostest",
-    "triples": {}
+    "name": "@boostest/boostest",
+    "triples": {
+      "additional": [
+        "darwin-arm64"
+      ],
+      "package": {
+        "name": "@boostest/boostest"
+      }
+    }
   },
   "devDependencies": {
     "@napi-rs/cli": "^2.18.3",
@@ -26,7 +34,7 @@
   },
   "scripts": {
     "artifacts": "napi artifacts",
-    "build": "napi build --platform --release",
+    "build": "napi build --platform --release --js-package-name @boostest/boostest",
     "build:debug": "napi build --platform",
     "test": "ava",
     "universal": "napi universal",
@@ -42,10 +50,10 @@
     "yargs": "^17.7.2"
   },
   "optionalDependencies": {
-    "boostest-win-x-msvc": "0.6.2-0",
-    "boostest-darwin-x": "0.6.2-0",
-    "boostest-darwin-arm": "0.6.2-0",
-    "boostest-linux-x-gnu": "0.6.2-0"
+    "@boostest/boostest-win32-x64-msvc": "0.6.4",
+    "@boostest/boostest-darwin-x64": "0.6.4",
+    "@boostest/boostest-linux-x64-gnu": "0.6.4",
+    "@boostest/boostest-darwin-arm64": "0.6.4"
   },
   "author": "MasatoDev",
   "license": "MIT",
@@ -62,3 +70,4 @@
     "debug"
   ]
 }
+

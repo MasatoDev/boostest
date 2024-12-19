@@ -1,6 +1,10 @@
 {
-  "name": "boostest-darwin-arm",
-  "version": "0.6.2-0",
+  "name": "@boostest/boostest-darwin-arm64",
+  "version": "0.6.4",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  },
   "os": [
     "darwin"
   ],
