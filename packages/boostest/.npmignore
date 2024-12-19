@@ -16,3 +16,4 @@ renovate.json
 build.rs
 Cargo.toml
 bin/
+npm/
