@@ -29,13 +29,17 @@ pub fn resolve_target(
     ts_config_path: Option<&Path>,
     default_lib_file_path: &Path,
 ) -> ResolvedResult {
+    let output_dir_name = "boostest_output";
     let mut spinner = Spinner::new(spinners::Dots, "Boostest parsing has started.", Color::Blue);
     let mut setting = Setting::new();
 
     if let Err(e) = setting.get_setting(Some(default_lib_file_path.to_path_buf())) {
-        println!("{}:{}", "Setting file could not be read".red(), e);
+        println!("{}: {}", "\nSetting file could not be read".blue(), e);
+
+        if path.is_empty() {
+            std::process::exit(0);
+        }
     };
-    let output_dir_name = "boostest_output";
 
     // Preference for command line argument target path if it exists
     if !path.is_empty() {
@@ -48,18 +52,24 @@ pub fn resolve_target(
         setting.set_tsconfig(ts_config_path);
     }
 
-    let target = &setting.target.clone().unwrap_or_else(|| {
-        println!("{}", "Not found target files".red());
+    let target = &mut setting.target.clone().unwrap_or_else(|| {
+        println!("{}", "\nNot found target files".red());
         std::process::exit(0);
     });
+    target.retain(|s| !s.is_empty());
+    let all_empty = target.iter().all(|s| s.is_empty());
+    if all_empty {
+        println!("{}", "\nNot found target files".red());
+        std::process::exit(0);
+    }
 
     let contents = file_utils::read_matching_files(target, output_dir_name).unwrap_or_else(|e| {
-        println!("{}:{}", "Target files cloud not parsed".red(), e);
+        println!("{}: {}", "\nTarget files cloud not parsed".red(), e);
         std::process::exit(0);
     });
 
     if contents.is_empty() {
-        println!("{}", "Not found target code".red());
+        println!("{}", "\nNot found target code".red());
         std::process::exit(0);
     }
 
@@ -74,7 +84,7 @@ pub fn resolve_target(
         spinner.update(
             spinners::Dots2,
             format!(
-                "Detecting Target: {}",
+                "Parsing File: {}",
                 path_buf.file_name().unwrap().to_string_lossy()
             ),
             None,
@@ -91,15 +101,6 @@ pub fn resolve_target(
             let b = b.lock().unwrap().target.lock().unwrap().func_name.clone();
             a.cmp(&b)
         });
-
-        spinner.update(
-            spinners::Dots2,
-            format!(
-                "Handling File: {}",
-                path_buf.file_name().unwrap().to_string_lossy()
-            ),
-            None,
-        );
 
         main_targets_resolve(&main_targets, setting_arc.clone(), tsserver_cache.clone());
 
@@ -131,7 +132,7 @@ pub fn generate(output: HashMap<String, OutputCode>, output_option: OutputOption
                 match handle_reset_and_create_files(&project_root_path, false) {
                     Ok(path) => single_output_dir_path = Some(path),
                     Err(e) => {
-                        println!("failed to create test data :{}", e);
+                        println!("\n Failed to create test data: {}", e);
                         std::process::exit(0);
                     }
                 }
@@ -140,7 +141,7 @@ pub fn generate(output: HashMap<String, OutputCode>, output_option: OutputOption
             false => match handle_reset_and_create_files(&project_root_path, true) {
                 Ok(_) => (),
                 Err(e) => {
-                    println!("failed clean files :{}", e);
+                    println!("\n Failed clean files: {}", e);
                 }
             },
         }
@@ -167,7 +168,7 @@ pub fn generate(output: HashMap<String, OutputCode>, output_option: OutputOption
 
             if single_output_dir_path.is_some() {
                 if let Err(e) = handle_reset_and_create_files(path, true) {
-                    println!("failed clean files :{}", e);
+                    println!("\n Failed clean files: {}", e);
                 }
                 return new_return_val;
             }
@@ -178,7 +179,7 @@ pub fn generate(output: HashMap<String, OutputCode>, output_option: OutputOption
                     new_return_val
                 }
                 Err(e) => {
-                    println!("failed clean files :{}", e);
+                    println!("\n Failed clean files: {}", e);
                     new_return_val
                 }
             }
@@ -195,7 +196,7 @@ pub fn generate(output: HashMap<String, OutputCode>, output_option: OutputOption
         if let Err(e) =
             handle_main_task(output_option_arc.clone(), func_name, output_code, dir_path)
         {
-            println!("failed to create test data :{}", e);
+            println!("\n Failed to create test data: {}", e);
         }
     }
 

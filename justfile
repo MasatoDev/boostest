@@ -30,7 +30,11 @@ test:
   pnpm --filter test boostest
   pnpm --filter test test
 
-test_cli:
+init:
+  just debug_build
+  pnpm --filter test boostest:init
+
+cli:
   just debug_build
   pnpm --filter test boostest:version
   pnpm --filter test boostest:help

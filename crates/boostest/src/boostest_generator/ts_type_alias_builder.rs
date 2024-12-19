@@ -190,15 +190,6 @@ impl<'a> VisitMut<'a> for TSTypeAliasBuilder<'a> {
         */
 
         if !test_data_factory::is_ts_type_literal(&self.ts_type_alias.type_annotation) {
-            let id_name = self.ts_type_alias.id.name.to_string();
-
-            let is_generic_property = self
-                .mock_data
-                .target_supplement
-                .clone()
-                .map(|s| s.is_generic_property)
-                .unwrap_or(false);
-
             let ts_annotation = self
                 .ast_builder
                 .move_ts_type(&mut self.ts_type_alias.type_annotation);

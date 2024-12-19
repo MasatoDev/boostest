@@ -1,7 +1,7 @@
 use anyhow::Result;
+use globwalker::glob;
 use std::path::{Path, PathBuf};
 
-use glob::glob;
 use std::collections::HashMap;
 use std::ffi::OsStr;
 use std::fs::{self, File};
@@ -26,7 +26,8 @@ pub fn read_matching_files(
         let result_glob = glob(pattern)?;
 
         for entry in result_glob {
-            let path = entry?;
+            let dir_entry = entry?;
+            let path = dir_entry.path().to_path_buf();
 
             if let Some(parent) = path.parent() {
                 if parent.file_name() == Some(OsStr::new(output_dir_name)) {

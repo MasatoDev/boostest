@@ -11,6 +11,7 @@ import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import ts from "typescript";
 import path from "path";
+import fs from "fs";
 
 const newFileName = "lib.es5.d.ts";
 let defaultLibFilePath = ts.getDefaultLibFilePath({} as ts.CompilerOptions);
@@ -23,6 +24,23 @@ const libFilePath = path.join(path.dirname(defaultLibFilePath), newFileName);
 // } else {
 //   boostest('');
 // }
+
+const initialSettingFile = `
+{
+  "target_pattern": ["src/**/*.ts"],
+  "name": "boostest",
+  "tsconfig": "./tsconfig.json",
+  "output": {
+    "single": true
+  },
+  "initial_value": {
+    "string": "init string value",
+    "number": 10000,
+    "bigint": "556455199254740991n",
+    "any": "any value"
+  }
+}
+`;
 
 type Output = Record<string, OutputCode>;
 
@@ -53,6 +71,23 @@ yargs(hideBin(process.argv))
     type: "string",
     description: "tsconfig.json path",
   })
+  .command(
+    "init",
+    "Create boostest.setting.json",
+    () => {},
+    (argv) => {
+      // boostest initコマンド時にboostest.setting.jsonを生成
+      const fileName = "boostest.setting.json";
+
+      if (!fs.existsSync(fileName)) {
+        fs.writeFileSync(fileName, initialSettingFile);
+
+        console.log(`Created ${fileName} with`);
+      } else {
+        console.log(`${fileName} already exists. Skipping creation.`);
+      }
+    },
+  )
   .command(
     "* [target_file_path]",
     "",
