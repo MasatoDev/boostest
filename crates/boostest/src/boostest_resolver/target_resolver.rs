@@ -152,7 +152,7 @@ impl TargetResolver {
                     }
                     Err(_) => {
                         // ロック取得に失敗した場合、少し待ってからリトライ
-                        thread::sleep(Duration::from_millis(50));
+                        thread::sleep(Duration::from_millis(20));
                     }
                 }
             }

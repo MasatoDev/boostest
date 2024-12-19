@@ -10,8 +10,8 @@ use std::sync::Arc;
 
 pub fn handle_main_task(
     output_option_arc: Arc<OutputOption>,
-    func_name: String,
-    output: OutputCode,
+    func_name: &str,
+    output: &OutputCode,
     output_dir_path: PathBuf,
 ) -> Result<()> {
     let OutputCode { code, .. } = output;
@@ -24,9 +24,9 @@ pub fn handle_main_task(
     let mut code_generator = CodeGenerator::new(
         output_option_arc.clone(),
         &allocator,
-        &func_name,
+        func_name,
         "",
-        &code,
+        code,
         None,
     );
 
