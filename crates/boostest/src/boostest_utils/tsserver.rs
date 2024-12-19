@@ -1,5 +1,6 @@
 use colored::Colorize;
 use oxc::span::Span;
+use rayon::prelude::*;
 use regex::Regex;
 use ropey::Rope;
 use serde::Deserialize;
@@ -248,24 +249,20 @@ impl TSServerCache {
             .write_all(requests.as_bytes())
             .expect("Failed to write to stdin");
 
-        let handle = thread::spawn(move || {
-            let reader = BufReader::new(stdout);
-            let mut output = String::new();
+        let reader = BufReader::new(stdout);
+        let mut output = String::new();
 
-            for line in reader.lines() {
-                let line = line.expect("Failed to read line");
-                output.push_str(&line);
-                output.push('\n');
+        for line in reader.lines() {
+            let line = line.expect("Failed to read line");
+            output.push_str(&line);
+            output.push('\n');
 
-                if line.contains("definitionAndBoundSpan-full") {
-                    break;
-                }
+            if line.contains("definitionAndBoundSpan-full") {
+                break;
             }
+        }
 
-            output
-        });
-
-        handle.join().expect("Thread panicked")
+        output
     }
 
     pub fn set_definition(&mut self, name: &str, hash_key: &str, result: Vec<(PathBuf, Span)>) {

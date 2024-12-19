@@ -1,7 +1,6 @@
 use anyhow::Result;
-use std::path::PathBuf;
+use rayon::prelude::*;
 use std::sync::{Arc, Mutex};
-use std::thread;
 
 use crate::boostest_utils::tsserver::TSServerCache;
 use crate::Setting;
@@ -14,21 +13,13 @@ pub fn main_targets_resolve(
     setting: Arc<Setting>,
     tsserver_cache: Arc<Mutex<TSServerCache>>,
 ) {
-    let mut handles = vec![];
-
-    for main_target in main_targets {
+    main_targets.par_iter().for_each(|main_target| {
         let cloned_main_target = main_target.clone();
         let cloned_tsserver_cache = tsserver_cache.clone();
         let cloned_setting = setting.clone();
 
-        let handle = thread::spawn(move || {
-            main_target_resolve(cloned_main_target, cloned_setting, cloned_tsserver_cache);
-        });
-        handles.push(handle);
-    }
-    for handle in handles {
-        handle.join().unwrap();
-    }
+        main_target_resolve(cloned_main_target, cloned_setting, cloned_tsserver_cache);
+    });
 }
 
 fn main_target_resolve(
@@ -43,36 +34,22 @@ fn main_target_resolve(
     TargetResolver::new(cloned_target, cloned_resolved_definitions.clone())
         .resolve(setting.clone(), tsserver_cache.clone());
 
-    let mut handles = vec![];
-
-    for prop in main_target.target.lock().unwrap().ref_properties.iter() {
-        if prop.lock().unwrap().is_resolved {
-            continue;
-        }
-
-        let cloned_prop = prop.clone();
-        let cloned_resolved_definitions = cloned_resolved_definitions.clone();
-        let cloned_tsserver_cache = tsserver_cache.clone();
-        let cloned_setting = setting.clone();
-
-        let handle = thread::spawn(move || {
+    main_target
+        .target
+        .lock()
+        .unwrap()
+        .ref_properties
+        .par_iter()
+        .for_each(|prop| {
             if let Err(e) = property_target_resolve(
-                cloned_prop,
-                cloned_resolved_definitions,
-                cloned_setting,
-                cloned_tsserver_cache,
+                prop.clone(),
+                cloned_resolved_definitions.clone(),
+                setting.clone(),
+                tsserver_cache.clone(),
             ) {
                 println!("[Error] main_target_resolve: {}", e);
             }
         });
-        handles.push(handle);
-    }
-
-    drop(main_target);
-
-    for handle in handles {
-        handle.join().unwrap();
-    }
 }
 
 fn property_target_resolve(
@@ -84,35 +61,21 @@ fn property_target_resolve(
     TargetResolver::new(target.clone(), resolved_definitions.clone())
         .resolve(setting.clone(), tsserver_cache.clone());
 
-    let mut handles = vec![];
-
-    for prop in target.lock().unwrap().ref_properties.iter() {
-        if prop.lock().unwrap().is_resolved {
-            continue;
-        }
-
-        let cloned_prop = prop.clone();
-        let cloned_resolved_definitions = resolved_definitions.clone();
-        let cloned_tsserver_cache = tsserver_cache.clone();
-        let cloned_setting = setting.clone();
-
-        let handle = thread::spawn(move || {
+    target
+        .lock()
+        .unwrap()
+        .ref_properties
+        .par_iter()
+        .for_each(|prop| {
             if let Err(e) = property_target_resolve(
-                cloned_prop,
-                cloned_resolved_definitions,
-                cloned_setting,
-                cloned_tsserver_cache,
+                prop.clone(),
+                resolved_definitions.clone(),
+                setting.clone(),
+                tsserver_cache.clone(),
             ) {
                 println!("[Error] property_target_resolve: {}", e);
             }
         });
-
-        handles.push(handle);
-    }
-
-    for handle in handles {
-        handle.join().unwrap();
-    }
 
     Ok(())
 }

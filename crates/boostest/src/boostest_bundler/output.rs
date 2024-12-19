@@ -8,6 +8,7 @@ use crate::boostest_utils::napi::{OutputCode, TargetType};
 use anyhow::Result;
 use colored::*;
 use oxc::span::Span;
+use rayon::prelude::*;
 use std::collections::HashMap;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
@@ -23,14 +24,14 @@ pub fn handle_output_main_task(
         return None;
     }
 
-    let mut hash_map: HashMap<String, OutputCode> = HashMap::new();
+    let hash_map: Arc<Mutex<HashMap<String, OutputCode>>> = Arc::new(Mutex::new(HashMap::new()));
 
     // TODO:
     // targetがPromiseなどの場合は除外する。main_targetには混ざってしまう...orz
     // Promise系でも<>で型を指定している場合は、その型を取得しないと除外しちゃダメだ
 
     // NOTE: if this loop change to multi-thread, the f(file) is need change to Arc<Mutex<File>>
-    for main_target in main_targets {
+    main_targets.par_iter().for_each(|main_target| {
         let writed = Arc::new(Mutex::new(Vec::new()));
 
         let mut output = String::new();
@@ -90,7 +91,7 @@ pub fn handle_output_main_task(
 
         // println!("\n🎉🎉🎉🎉BEFORE: {}", output);
 
-        hash_map.insert(
+        hash_map.lock().unwrap().insert(
             func_name,
             OutputCode {
                 target_type,
@@ -98,9 +99,19 @@ pub fn handle_output_main_task(
                 path: path.to_string_lossy().to_string(),
             },
         );
+    });
+
+    match Arc::try_unwrap(hash_map) {
+        Ok(mutex) => {
+            let hashmap = mutex.into_inner().unwrap();
+            return Some(hashmap);
+        }
+        Err(_) => {
+            println!("{}", "\nFailed resolving".red());
+        }
     }
 
-    Some(hash_map)
+    Some(HashMap::new())
 }
 
 pub fn write_ref_properties(

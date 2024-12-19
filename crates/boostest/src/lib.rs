@@ -17,6 +17,7 @@ pub use boostest_utils::{
     tsserver::TSServerCache,
 };
 use colored::*;
+use rayon::prelude::*;
 use spinoff::{spinners, Color, Spinner};
 use std::{
     collections::HashMap,
@@ -30,7 +31,11 @@ pub fn resolve_target(
     default_lib_file_path: &Path,
 ) -> ResolvedResult {
     let output_dir_name = "boostest_output";
-    let mut spinner = Spinner::new(spinners::Dots, "Boostest parsing has started.", Color::Blue);
+    let spinner = Arc::new(Mutex::new(Spinner::new(
+        spinners::Dots,
+        "Boostest parsing target files",
+        Color::Blue,
+    )));
     let mut setting = Setting::new();
 
     if let Err(e) = setting.get_setting(Some(default_lib_file_path.to_path_buf())) {
@@ -75,23 +80,12 @@ pub fn resolve_target(
 
     let tsserver_cache = Arc::new(Mutex::new(TSServerCache::new()));
 
-    let mut result: HashMap<String, OutputCode> = HashMap::new();
-
+    let result: Arc<Mutex<HashMap<String, OutputCode>>> = Arc::new(Mutex::new(HashMap::new()));
     let setting_arc = Arc::new(setting);
 
-    for (path_buf, _file) in contents {
-        // update console output spinner
-        spinner.update(
-            spinners::Dots2,
-            format!(
-                "Parsing File: {}",
-                path_buf.file_name().unwrap().to_string_lossy()
-            ),
-            None,
-        );
-
+    contents.par_iter().for_each(|(path_buf, _file)| {
         let mut detector = TargetDetector::new(setting_arc.name.clone());
-        detector.detect(&path_buf);
+        detector.detect(path_buf);
 
         let mut main_targets = detector.main_targets;
 
@@ -104,25 +98,41 @@ pub fn resolve_target(
 
         main_targets_resolve(&main_targets, setting_arc.clone(), tsserver_cache.clone());
 
-        let output = handle_output_main_task(main_targets, &path_buf);
+        let output = handle_output_main_task(main_targets, path_buf);
+
         if let Some(output) = output {
+            let mut result = result.lock().unwrap();
             result.extend(output);
         }
+    });
+
+    spinner.lock().unwrap().success("Parsing Complete");
+
+    match Arc::try_unwrap(result) {
+        Ok(mutex) => {
+            let hashmap = mutex.into_inner().unwrap();
+            return ResolvedResult {
+                output_code: Some(hashmap),
+                output_option: setting_arc.output_option.clone(),
+            };
+        }
+        Err(_) => {
+            println!("{}", "\nFailed resolving".red());
+        }
     }
-    spinner.success("Parsing Complete");
 
     ResolvedResult {
-        output_code: Some(result),
+        output_code: Some(HashMap::new()),
         output_option: setting_arc.output_option.clone(),
     }
 }
 
 pub fn generate(output: HashMap<String, OutputCode>, output_option: OutputOption) {
-    let mut spinner = Spinner::new(
+    let spinner = Arc::new(Mutex::new(Spinner::new(
         spinners::Dots,
-        "Boostest generating has started",
+        "Boostest generating files",
         Color::Blue,
-    );
+    )));
     let mut single_output_dir_path = None;
 
     if let Some(project_root_path) = output_option.project_root_path.clone() {
@@ -188,17 +198,19 @@ pub fn generate(output: HashMap<String, OutputCode>, output_option: OutputOption
 
     let output_option_arc = Arc::new(output_option);
 
-    for (func_name, output_code, output_dir_path) in prepared_output {
-        spinner.update(spinners::Dots2, format!("Generating: {}", func_name), None);
+    prepared_output
+        .par_iter()
+        .for_each(|(func_name, output_code, output_dir_path)| {
+            let dir_path = single_output_dir_path
+                .clone()
+                .unwrap_or(output_dir_path.clone());
 
-        let dir_path = single_output_dir_path.clone().unwrap_or(output_dir_path);
+            if let Err(e) =
+                handle_main_task(output_option_arc.clone(), func_name, output_code, dir_path)
+            {
+                println!("\n Failed to create test data: {}", e);
+            }
+        });
 
-        if let Err(e) =
-            handle_main_task(output_option_arc.clone(), func_name, output_code, dir_path)
-        {
-            println!("\n Failed to create test data: {}", e);
-        }
-    }
-
-    spinner.success("Creation Complete");
+    spinner.lock().unwrap().success("Creation Complete");
 }
