@@ -6,13 +6,14 @@
   "main": "index.js",
   "scripts": {
     "boostest": "boostest",
+    "boostest:init": "boostest init",
     "boostest:help": "boostest --help",
     "boostest:version": "boostest --version",
     "boostest:cli:nofile": "boostest hoeghoge -t hogege",
     "boostest:cli:failed": "boostest hoeghoge hogege",
     "boostest:cli:tsconfig": "boostest -t tsconfig.json",
-    "boostest:cli": "boostest ./src/*.ts -t tsconfig.json",
-    "boostest:direct": "boostest ./src/direct_path/direct_path.ts",
+    "boostest:cli": "boostest src/**/*.spec.ts -t tsconfig.json",
+    "boostest:direct": "boostest src/direct_path/direct_path.ts",
     "test": "jest --config ./jest.config.js",
     "snapshot": "jest --config ./jest.config.js --updateSnapshot",
     "build": "rolldown -c"

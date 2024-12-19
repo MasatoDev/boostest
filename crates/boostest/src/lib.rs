@@ -34,7 +34,7 @@ pub fn resolve_target(
     let mut setting = Setting::new();
 
     if let Err(e) = setting.get_setting(Some(default_lib_file_path.to_path_buf())) {
-        println!("{}: {}", "\nSetting file could not be read".red(), e);
+        println!("{}: {}", "\nSetting file could not be read".blue(), e);
 
         if path.is_empty() {
             std::process::exit(0);
@@ -52,10 +52,16 @@ pub fn resolve_target(
         setting.set_tsconfig(ts_config_path);
     }
 
-    let target = &setting.target.clone().unwrap_or_else(|| {
+    let target = &mut setting.target.clone().unwrap_or_else(|| {
         println!("{}", "\nNot found target files".red());
         std::process::exit(0);
     });
+    target.retain(|s| !s.is_empty());
+    let all_empty = target.iter().all(|s| s.is_empty());
+    if all_empty {
+        println!("{}", "\nNot found target files".red());
+        std::process::exit(0);
+    }
 
     let contents = file_utils::read_matching_files(target, output_dir_name).unwrap_or_else(|e| {
         println!("{}: {}", "\nTarget files cloud not parsed".red(), e);

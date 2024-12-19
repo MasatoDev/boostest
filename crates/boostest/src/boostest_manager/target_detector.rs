@@ -36,8 +36,6 @@ impl TargetDetector {
         let parser = Parser::new(&allocator, &target_source, source_type);
         let mut program = parser.parse().program;
 
-        println!("program: {:?}", program);
-
         self.visit_statements(&mut program.body);
 
         // let ret = Parser::new(&allocator, &target_source, source_type).parse();
@@ -85,13 +83,10 @@ impl TargetDetector {
 }
 impl<'a> VisitMut<'a> for TargetDetector {
     fn visit_call_expression(&mut self, call_expr: &mut CallExpression) {
-        println!("visit_call_expression{:?}", call_expr);
         let function_name = match &call_expr.callee {
             Expression::Identifier(ident) => ident.name.clone().into_string(),
             _ => String::new(),
         };
-
-        println!("function_name: {}", function_name);
 
         let pattern = &self.pattern;
 
