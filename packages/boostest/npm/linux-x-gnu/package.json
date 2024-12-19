@@ -1,6 +1,6 @@
 {
   "name": "boostest-linux-x-gnu",
-  "version": "0.6.0-0",
+  "version": "0.6.2-0",
   "os": [
     "linux"
   ],
@@ -19,3 +19,4 @@
     "glibc"
   ]
 }
+

@@ -1,6 +1,6 @@
 {
   "name": "boostest-win-x-msvc",
-  "version": "0.6.0-0",
+  "version": "0.6.2-0",
   "os": [
     "win32"
   ],
@@ -16,3 +16,4 @@
     "node": ">= 10"
   }
 }
+
