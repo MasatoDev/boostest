@@ -1,6 +1,6 @@
 {
   "name": "boostest",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "description": "Boostest is a tool that generates test code from type definitions.",
   "main": "index.js",
   "types": "index.d.ts",
