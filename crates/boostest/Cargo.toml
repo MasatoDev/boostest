@@ -15,7 +15,7 @@ workspace = true
 oxc = { workspace = true, features = ["semantic", "codegen"] }
 oxc_resolver = { workspace = true }
 anyhow = { workspace = true }
-glob = { workspace = true }
+globwalker = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 colored = { workspace = true }

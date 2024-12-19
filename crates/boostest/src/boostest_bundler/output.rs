@@ -20,8 +20,6 @@ pub fn handle_output_main_task(
     path: &Path,
 ) -> Option<HashMap<String, OutputCode>> {
     if main_targets.is_empty() {
-        println!("{}", format!("not found target function: {:?}", path).red());
-
         return None;
     }
 
