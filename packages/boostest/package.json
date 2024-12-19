@@ -1,6 +1,6 @@
 {
   "name": "boostest",
-  "version": "0.6.0-0",
+  "version": "0.6.1-0",
   "description": "Boostest is a tool that generates test code from type definitions.",
   "main": "index.js",
   "types": "index.d.ts",
@@ -28,7 +28,6 @@
     "artifacts": "napi artifacts",
     "build": "napi build --platform --release",
     "build:debug": "napi build --platform",
-    "prepublishOnly": "napi prepublish -t npm",
     "test": "ava",
     "universal": "napi universal",
     "version": "napi version",
