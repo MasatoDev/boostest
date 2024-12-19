@@ -52,8 +52,10 @@ build_release:
   pnpm --filter boostest build --target aarch64-apple-darwin
   pnpm --filter boostest build --target x86_64-pc-windows-msvc
   pnpm --filter boostest build --target x86_64-unknown-linux-gnu
+  pnpm --filter boostest build --target aarch64-unknown-linux-gnu
   pnpm --filter boostest build --target riscv64gc-unknown-linux-gnu
   pnpm --filter boostest bin:build
+
 pre_release_boostest:
   # cd packages/boostest
   npm version patch
@@ -71,8 +73,15 @@ cl:
 
   # # win
   # cargo install cargo-xwin
+  # rustup target add x86_64-pc-windows-msvc
 
   # # mac
   # sudo apt update
   # sudo apt install snapd
   # sudo snap install zig --beta --classic
+  #
+
+## on MAC [x86]
+# https://github.com/messense/homebrew-macos-cross-toolchains
+# brew tap messense/macos-cross-toolchains
+# brew install x86_64-unknown-linux-gnu
