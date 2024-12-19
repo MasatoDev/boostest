@@ -1,12 +1,12 @@
 import { runSnapshotTest } from "../utils";
 import {
-  // BuiltInClass,
+  BuiltInClass,
   BuiltInInterface,
   BuiltInType,
 } from "@/ts_types/built_in_class";
 import { boostestTSAliasBuiltInType } from "./boostest_output/boostestTSAliasBuiltInType";
 import { boostestInterfaceBuiltInType } from "./boostest_output/boostestInterfaceBuiltInType";
-// import { boostestClassBuiltInType } from "./boostest_output/boostestClassBuiltInType";
+import { boostestClassBuiltInType } from "./boostest_output/boostestClassBuiltInType";
 
 describe("BuiltIn Tests", () => {
   runSnapshotTest(
@@ -17,5 +17,5 @@ describe("BuiltIn Tests", () => {
     "interface BuiltIn",
     boostestInterfaceBuiltInType<BuiltInInterface>(),
   );
-  // runSnapshotTest("class BuiltIn", boostestClassBuiltInType<BuiltInClass>());
+  runSnapshotTest("class BuiltIn", boostestClassBuiltInType<BuiltInClass>());
 });

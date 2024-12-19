@@ -82,7 +82,7 @@ yargs(hideBin(process.argv))
       if (!fs.existsSync(fileName)) {
         fs.writeFileSync(fileName, initialSettingFile);
 
-        console.log(`Created ${fileName} with`);
+        console.log(`Created ${fileName}`);
       } else {
         console.log(`${fileName} already exists. Skipping creation.`);
       }
