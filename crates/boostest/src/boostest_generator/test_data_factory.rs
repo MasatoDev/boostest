@@ -819,3 +819,16 @@ pub fn get_obj_expr<'a>(
 
     ast_builder.expression_object(SPAN, new_props, None)
 }
+
+pub fn as_any_empty_object_expr<'a>(ast_builder: &AstBuilder<'a>) -> Expression<'a> {
+    let obj_expr = ast_builder.expression_object(SPAN, ast_builder.vec(), None);
+    let any_type = ast_builder.ts_type_any_keyword(SPAN);
+    ast_builder.expression_ts_as(SPAN, obj_expr, any_type)
+}
+pub fn as_any_empty_object_arg<'a>(ast_builder: &AstBuilder<'a>) -> Argument<'a> {
+    let obj_expr = ast_builder.expression_object(SPAN, ast_builder.vec(), None);
+    let any_type = ast_builder.ts_type_any_keyword(SPAN);
+    let expr = ast_builder.ts_as_expression(SPAN, obj_expr, any_type);
+    let argument_item = ast_builder.alloc(expr);
+    Argument::TSAsExpression(argument_item)
+}

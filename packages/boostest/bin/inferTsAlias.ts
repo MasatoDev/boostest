@@ -96,10 +96,23 @@ export function inferTsAlias(sourceCode: string) {
 // const code = `
 // type main = ref_8fa900714581ef4b0ef680d700516c6a590097bd4bc2adbb44922c3a99774834;
 // type ref_8fa900714581ef4b0ef680d700516c6a590097bd4bc2adbb44922c3a99774834 = {
-//     map: ref_f5ef5f60613beeb2ba63d47b09fc9021370fb07cba141862733631b79f14bd7a<string, number>;
+//     map: ref_624f9d3e9fa6da81cbd5a726917a0357d0350dde4dfe0e348eb3ee3324cfd927<string>;
 // };
-// interface ref_f5ef5f60613beeb2ba63d47b09fc9021370fb07cba141862733631b79f14bd7a<K, V> {
-// 	forEach(callbackfn: (value: V, key: K, map: Map<K, V>) => void, thisArg?: any): void;
+//
+// interface ref_624f9d3e9fa6da81cbd5a726917a0357d0350dde4dfe0e348eb3ee3324cfd927<T> {
+//     [Symbol.iterator](): IterableIterator<T>;
+//     entries(): IterableIterator<[
+//         T,
+//         T
+//     ]>;
+//     /**
+//     * Despite its name, returns an iterable of the values in the set.
+//     */
+//     keys(): IterableIterator<T>;
+//     /**
+//     * Returns an iterable of values in the set.
+//     */
+//     values(): IterableIterator<T>;
 // }
 //
 // `;

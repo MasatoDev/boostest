@@ -21,9 +21,9 @@ use super::{
     get_arg::get_arg,
     handle_ts_signatures::{handle_ts_signature, handle_ts_signatures},
     test_data_factory::{
-        self, any_expr, bigint_expr, boolean_expr, function_expr, get_expr_with_ts_literal_type,
-        handle_tuple_type, null_expr, number_expr, object_expr, string_expr, symbol_expr,
-        undefined_expr,
+        self, any_expr, as_any_empty_object_expr, bigint_expr, boolean_expr, function_expr,
+        get_expr_with_ts_literal_type, handle_tuple_type, null_expr, number_expr, object_expr,
+        string_expr, symbol_expr, undefined_expr,
     },
 };
 use super::{extends_ast_builder::AstBuilderExt, test_data_factory::array_expr};
@@ -42,7 +42,7 @@ pub fn get_expression<'a>(
     generic: Vec<String>,
     output_option_arc: Arc<OutputOption>,
 ) -> Expression<'a> {
-    let val: _ = match type_annotation {
+    let val = match type_annotation {
         TSType::TSTypeReference(mut ts_type_ref) if ast_utils::is_promise_type(&ts_type_ref) => {
             let mut arguments = ast_builder.vec();
 
@@ -123,7 +123,7 @@ pub fn get_expression<'a>(
         TSType::TSTypeReference(ts_type_ref) if ast_utils::is_false_type(&ts_type_ref) => {
             boolean_expr(ast_builder, Some(false))
         }
-        TSType::TSTypeReference(_) => ast_builder.expression_object(SPAN, ast_builder.vec(), None),
+        TSType::TSTypeReference(_) => as_any_empty_object_expr(ast_builder),
         TSType::TSStringKeyword(_) => string_expr(
             ast_builder,
             Some(&output_option_arc.default_value_option.string),
@@ -177,9 +177,7 @@ pub fn get_expression<'a>(
             Some(&output_option_arc.default_value_option.undefined),
         ),
         TSType::TSUnknownKeyword(_) => undefined_expr(ast_builder, None),
-        TSType::TSConditionalType(_) => {
-            ast_builder.expression_object(SPAN, ast_builder.vec(), None)
-        }
+        TSType::TSConditionalType(_) => as_any_empty_object_expr(ast_builder),
         TSType::TSUnionType(box_ts_union_type) => {
             let ts_union_type = &mut box_ts_union_type.unbox();
             let first_union_type = ts_union_type.types.first_mut();
@@ -232,14 +230,17 @@ pub fn get_expression<'a>(
                                             let ts_type =
                                                 ast_builder.move_ts_type(element.to_ts_type_mut());
 
-                                            let new = get_arg(
+                                            let new = get_expression(
                                                 ast_builder,
                                                 ts_type,
                                                 mock_func_name,
                                                 vec![],
                                                 output_option_arc.clone(),
                                             );
-                                            arguments.push(new);
+                                            let any_type = ast_builder.ts_type_any_keyword(SPAN);
+                                            let new_as_any =
+                                                ast_builder.expression_ts_as(SPAN, new, any_type);
+                                            arguments.push(Argument::from(new_as_any));
                                         }
                                     }
 
@@ -299,7 +300,9 @@ pub fn get_expression<'a>(
                     vec![],
                     output_option_arc.clone(),
                 );
-                let array_expr = ArrayExpressionElement::from(new);
+                let any_type = ast_builder.ts_type_any_keyword(SPAN);
+                let new_as_any = ast_builder.expression_ts_as(SPAN, new, any_type);
+                let array_expr = ArrayExpressionElement::from(new_as_any);
                 new_elements.push(array_expr);
             }
             array_expr(ast_builder, Some(new_elements))
@@ -367,38 +370,34 @@ pub fn get_expression<'a>(
         }
         TSType::TSTypeOperatorType(_) => {
             // keyof T
-            ast_builder.expression_object(SPAN, ast_builder.vec(), None)
+            as_any_empty_object_expr(ast_builder)
         }
         TSType::TSInferType(_ts_infer_type) => {
             // infer R ? R : never
-            ast_builder.expression_object(SPAN, ast_builder.vec(), None)
+            as_any_empty_object_expr(ast_builder)
         }
-        TSType::TSMappedType(_) => ast_builder.expression_object(SPAN, ast_builder.vec(), None),
+        TSType::TSMappedType(_) => as_any_empty_object_expr(ast_builder),
         TSType::TSQualifiedName(_) => {
             // Namespace.MyType
-            ast_builder.expression_object(SPAN, ast_builder.vec(), None)
+            as_any_empty_object_expr(ast_builder)
         }
-        TSType::TSTypeQuery(_ts_type_query) => {
-            ast_builder.expression_object(SPAN, ast_builder.vec(), None)
-        }
+        TSType::TSTypeQuery(_ts_type_query) => as_any_empty_object_expr(ast_builder),
         TSType::TSTypePredicate(_) => {
             // x is string
-            ast_builder.expression_object(SPAN, ast_builder.vec(), None)
+            as_any_empty_object_expr(ast_builder)
         }
         TSType::TSTemplateLiteralType(_) => {
             // `${string}`, \`hello ${string}\`
-            ast_builder.expression_object(SPAN, ast_builder.vec(), None)
+            as_any_empty_object_expr(ast_builder)
         }
         TSType::TSThisType(_) => {
             // error
-            ast_builder.expression_object(SPAN, ast_builder.vec(), None)
+            as_any_empty_object_expr(ast_builder)
         }
-        TSType::TSConstructorType(_) => {
-            ast_builder.expression_object(SPAN, ast_builder.vec(), None)
-        }
+        TSType::TSConstructorType(_) => as_any_empty_object_expr(ast_builder),
         TSType::TSIndexedAccessType(_ts_indexed_access_type) => {
             // person["name"]
-            ast_builder.expression_object(SPAN, ast_builder.vec(), None)
+            as_any_empty_object_expr(ast_builder)
         }
         TSType::TSParenthesizedType(ref mut ts_parenthesized_type) => {
             let ts_type = ast_builder.move_ts_type(&mut ts_parenthesized_type.type_annotation);
@@ -410,7 +409,7 @@ pub fn get_expression<'a>(
                 output_option_arc,
             )
 
-            // ast_builder.expression_object(SPAN, ast_builder.vec(), None)
+            // as_any_empty_object_expr(ast_builder)
         }
 
         /***********************************************************/
@@ -418,17 +417,11 @@ pub fn get_expression<'a>(
         /******************** Unused Types *************************/
         /***********************************************************/
         /***********************************************************/
-        TSType::JSDocNullableType(_) => {
-            ast_builder.expression_object(SPAN, ast_builder.vec(), None)
-        }
-        TSType::JSDocUnknownType(_) => ast_builder.expression_object(SPAN, ast_builder.vec(), None),
-        TSType::TSImportType(_) => ast_builder.expression_object(SPAN, ast_builder.vec(), None),
-        TSType::TSIntrinsicKeyword(_) => {
-            ast_builder.expression_object(SPAN, ast_builder.vec(), None)
-        }
-        TSType::JSDocNonNullableType(_) => {
-            ast_builder.expression_object(SPAN, ast_builder.vec(), None)
-        }
+        TSType::JSDocNullableType(_) => as_any_empty_object_expr(ast_builder),
+        TSType::JSDocUnknownType(_) => as_any_empty_object_expr(ast_builder),
+        TSType::TSImportType(_) => as_any_empty_object_expr(ast_builder),
+        TSType::TSIntrinsicKeyword(_) => as_any_empty_object_expr(ast_builder),
+        TSType::JSDocNonNullableType(_) => as_any_empty_object_expr(ast_builder),
     };
 
     val

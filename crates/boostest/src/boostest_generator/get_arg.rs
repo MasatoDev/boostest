@@ -22,8 +22,8 @@ use super::{
         handle_ts_signatures_with_args,
     },
     test_data_factory::{
-        self, any_arg, bigint_arg, boolean_arg, null_arg, number_arg, string_arg, symbol_arg,
-        undefined_arg,
+        self, any_arg, as_any_empty_object_arg, bigint_arg, boolean_arg, null_arg, number_arg,
+        string_arg, symbol_arg, undefined_arg,
     },
 };
 use super::{
@@ -148,7 +148,7 @@ pub fn get_arg<'a>(
         }
         TSType::TSTypeReference(_) => {
             // Unused
-            object_arg(ast_builder, None)
+            as_any_empty_object_arg(ast_builder)
         }
         TSType::TSLiteralType(literal_type) => {
             // string, number, boolean, null...
@@ -244,14 +244,17 @@ pub fn get_arg<'a>(
                                             let ts_type =
                                                 ast_builder.move_ts_type(element.to_ts_type_mut());
 
-                                            let new = get_arg(
+                                            let new = get_expression(
                                                 ast_builder,
                                                 ts_type,
                                                 mock_func_name,
                                                 vec![],
                                                 output_option_arc.clone(),
                                             );
-                                            arguments.push(new);
+                                            let any_type = ast_builder.ts_type_any_keyword(SPAN);
+                                            let new_as_any =
+                                                ast_builder.expression_ts_as(SPAN, new, any_type);
+                                            arguments.push(Argument::from(new_as_any));
                                         }
                                     }
 
@@ -314,7 +317,10 @@ pub fn get_arg<'a>(
                     vec![],
                     output_option_arc.clone(),
                 );
-                let array_expr = ArrayExpressionElement::from(new);
+
+                let any_type = ast_builder.ts_type_any_keyword(SPAN);
+                let new_as_any = ast_builder.expression_ts_as(SPAN, new, any_type);
+                let array_expr = ArrayExpressionElement::from(new_as_any);
                 new_elements.push(array_expr);
             }
             array_arg(ast_builder, Some(new_elements))
@@ -405,37 +411,39 @@ pub fn get_arg<'a>(
         /******************** Unused Types *************************/
         /***********************************************************/
         /***********************************************************/
-        TSType::TSConditionalType(ref mut ts_conditional_type) => object_arg(ast_builder, None),
-        TSType::TSObjectKeyword(_) => object_arg(ast_builder, None),
-        TSType::TSTypeOperatorType(_) => object_arg(ast_builder, None),
-        TSType::TSThisType(_) => object_arg(ast_builder, None),
+        TSType::TSConditionalType(ref mut ts_conditional_type) => {
+            as_any_empty_object_arg(ast_builder)
+        }
+        TSType::TSObjectKeyword(_) => as_any_empty_object_arg(ast_builder),
+        TSType::TSTypeOperatorType(_) => as_any_empty_object_arg(ast_builder),
+        TSType::TSThisType(_) => as_any_empty_object_arg(ast_builder),
         TSType::TSMappedType(_) => {
             // {[K in keyof T]: T[K]}
-            object_arg(ast_builder, None)
+            as_any_empty_object_arg(ast_builder)
         }
         TSType::TSQualifiedName(_) => {
             // Namespace.MyType
-            object_arg(ast_builder, None)
+            as_any_empty_object_arg(ast_builder)
         }
         TSType::TSTypePredicate(_) => {
             // x is string
-            object_arg(ast_builder, None)
+            as_any_empty_object_arg(ast_builder)
         }
-        TSType::TSTypeQuery(ts_type_query) => object_arg(ast_builder, None),
+        TSType::TSTypeQuery(ts_type_query) => as_any_empty_object_arg(ast_builder),
         TSType::TSTemplateLiteralType(_) => {
             // `${string}`, \`hello ${string}\`
-            object_arg(ast_builder, None)
+            as_any_empty_object_arg(ast_builder)
         }
-        TSType::TSConstructorType(_) => object_arg(ast_builder, None),
-        TSType::TSIndexedAccessType(ts_indexed_access_type) => object_arg(ast_builder, None),
+        TSType::TSConstructorType(_) => as_any_empty_object_arg(ast_builder),
+        TSType::TSIndexedAccessType(ts_indexed_access_type) => as_any_empty_object_arg(ast_builder),
         TSType::TSInferType(_) => {
             // infer R ? R : never
-            object_arg(ast_builder, None)
+            as_any_empty_object_arg(ast_builder)
         }
-        TSType::JSDocNullableType(_) => object_arg(ast_builder, None),
-        TSType::JSDocUnknownType(_) => object_arg(ast_builder, None),
-        TSType::TSImportType(_) => object_arg(ast_builder, None),
-        TSType::JSDocNonNullableType(_) => object_arg(ast_builder, None),
-        TSType::TSIntrinsicKeyword(_) => object_arg(ast_builder, None),
+        TSType::JSDocNullableType(_) => as_any_empty_object_arg(ast_builder),
+        TSType::JSDocUnknownType(_) => as_any_empty_object_arg(ast_builder),
+        TSType::TSImportType(_) => as_any_empty_object_arg(ast_builder),
+        TSType::JSDocNonNullableType(_) => as_any_empty_object_arg(ast_builder),
+        TSType::TSIntrinsicKeyword(_) => as_any_empty_object_arg(ast_builder),
     }
 }
