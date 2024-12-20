@@ -11,8 +11,8 @@ setup:
   echo "✅ Setup complete!"
 
 debug_build:
-  pnpm --filter boostest build:debug
-  pnpm --filter boostest bin:build
+  pnpm --filter @boostest/cli build:debug
+  pnpm --filter @boostest/cli bin:build
 
 debug:
   just debug_build
@@ -49,17 +49,17 @@ cli:
 
 # FOR PRODUCTION
 build:
-  pnpm --filter boostest build
-  pnpm --filter boostest bin:build
+  pnpm --filter @boostest/cli build
+  pnpm --filter @boostest/cli bin:build
 build_release:
-  pnpm --filter boostest build --target x86_64-apple-darwin
-  pnpm --filter boostest build --target aarch64-apple-darwin
-  pnpm --filter boostest build --target x86_64-pc-windows-msvc
-  pnpm --filter boostest build --target x86_64-unknown-linux-gnu
+  pnpm --filter @boostest/cli build --target x86_64-apple-darwin
+  pnpm --filter @boostest/cli build --target aarch64-apple-darwin
+  pnpm --filter @boostest/cli build --target x86_64-pc-windows-msvc
+  pnpm --filter @boostest/cli build --target x86_64-unknown-linux-gnu
 
-  pnpm --filter boostest build --target aarch64-unknown-linux-gnu
-  pnpm --filter boostest build --target riscv64gc-unknown-linux-gnu
-  pnpm --filter boostest bin:build
+  pnpm --filter @boostest/cli build --target aarch64-unknown-linux-gnu
+  pnpm --filter @boostest/cli build --target riscv64gc-unknown-linux-gnu
+  pnpm --filter @boostest/cli bin:build
 
 pre_release_boostest:
   # cd packages/boostest
@@ -69,11 +69,11 @@ pre_release_boostest:
   # npm version preminor
   # npm version prerelease
 cl:
-  pnpm --filter boostest bin:build
+  pnpm --filter @boostest/cli bin:build
   pnpm --filter example start:boostest
 
   # failed now
-  # pnpm --filter boostest build --target s390x-unknown-linux-gnu
+  # pnpm --filter @boostest/cli build --target s390x-unknown-linux-gnu
 
 
   # # win
