@@ -10,7 +10,7 @@ importers:
 
   apps/example:
     dependencies:
-      '@boost/boostest':
+      '@boostest/boostest':
         specifier: workspace:*
         version: link:../../packages/boostest
       '@sendgrid/mail':
@@ -34,7 +34,7 @@ importers:
 
   apps/test:
     dependencies:
-      '@boost/boostest':
+      '@boostest/boostest':
         specifier: workspace:*
         version: link:../../packages/boostest
       '@sendgrid/mail':
@@ -89,10 +89,20 @@ importers:
       yargs:
         specifier: ^17.7.2
         version: 17.7.2
+    optionalDependencies:
+      '@boostest/boostest-darwin-x64':
+        specifier: 0.6.4
+        version: 0.6.4
+      '@boostest/boostest-linux-x64-gnu':
+        specifier: 0.6.4
+        version: 0.6.4
+      '@boostest/boostest-win32-x64-msvc':
+        specifier: 0.6.4
+        version: 0.6.4
     devDependencies:
       '@napi-rs/cli':
-        specifier: ^2.18.3
-        version: 2.18.3
+        specifier: ^2.18.4
+        version: 2.18.4
       ava:
         specifier: ^6.0.1
         version: 6.1.3
@@ -270,6 +280,24 @@ packages:
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
 
+  '@boostest/boostest-darwin-x64@0.6.4':
+    resolution: {integrity: sha512-3ohcxcLP1OnfDOBADaoqtIrcZ7b1bfv/wMXIgj1WbdVZq7i0qI/zaClaCDdj2ayP7x49EhY6DZomkbxRy5Ow4Q==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [darwin]
+
+  '@boostest/boostest-linux-x64-gnu@0.6.4':
+    resolution: {integrity: sha512-c7cxRs0yUSnkO+ksxsDMXgiAE6kevP/P2U26qXPDZzg/XqAQeS0HTYXjG89fP7E4MvFDWAy/cChU5eAQFtLWoQ==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [linux]
+
+  '@boostest/boostest-win32-x64-msvc@0.6.4':
+    resolution: {integrity: sha512-Oy1ueQibiNUm4XymBwwGWU+fU1iYVv9NugaUX/InRishe5lKVLDZAnP4WCpDQAHAYIIIHQC/EAf4uVeH6Ev06w==}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [win32]
+
   '@colors/colors@1.6.0':
     resolution: {integrity: sha512-Ir+AOibqzrIsL6ajt3Rz3LskB7OiMVHqltZmspbW/TJuTVuyOMirVqAkjfY6JISiLHgyNqicAC8AyHHGzNd/dA==}
     engines: {node: '>=0.1.90'}
@@ -389,8 +417,8 @@ packages:
     resolution: {integrity: sha512-Yhlar6v9WQgUp/He7BdgzOz8lqMQ8sU+jkCq7Wx8Myc5YFJLbEe7lgui/V7G1qB1DJykHSGwreceSaD60Y0PUQ==}
     hasBin: true
 
-  '@napi-rs/cli@2.18.3':
-    resolution: {integrity: sha512-L0f4kP0dyG8W5Qtc7MtP73VvLLrOLyRcUEBzknIfu8Jk4Jfhrsx1ItMHgyalYqMSslWdY3ojEfAaU5sx1VyeQQ==}
+  '@napi-rs/cli@2.18.4':
+    resolution: {integrity: sha512-SgJeA4df9DE2iAEpr3M2H0OKl/yjtg1BnRI5/JyowS71tUWhrfSu2LT0V3vlHET+g1hBVlrO60PmEXwUEKp8Mg==}
     engines: {node: '>= 10'}
     hasBin: true
 
@@ -2542,6 +2570,15 @@ snapshots:
 
   '@bcoe/v8-coverage@0.2.3': {}
 
+  '@boostest/boostest-darwin-x64@0.6.4':
+    optional: true
+
+  '@boostest/boostest-linux-x64-gnu@0.6.4':
+    optional: true
+
+  '@boostest/boostest-win32-x64-msvc@0.6.4':
+    optional: true
+
   '@colors/colors@1.6.0': {}
 
   '@cspotcode/source-map-support@0.8.1':
@@ -2779,7 +2816,7 @@ snapshots:
       - encoding
       - supports-color
 
-  '@napi-rs/cli@2.18.3': {}
+  '@napi-rs/cli@2.18.4': {}
 
   '@napi-rs/wasm-runtime@0.2.5':
     dependencies:
