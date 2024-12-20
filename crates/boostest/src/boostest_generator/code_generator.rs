@@ -1,3 +1,4 @@
+use std::collections::HashSet;
 use std::sync::Arc;
 
 use oxc::allocator::{Allocator, Vec as AllocVec};
@@ -52,46 +53,56 @@ impl<'a, 'b: 'a> CodeGenerator<'a> {
         }
     }
 
-    pub fn generate(&mut self) {
-        let parser = Parser::new(self.allocator, self.source_text, self.source_type);
+    pub fn clean_up(&mut self, remain_targets: HashSet<String>) -> String {
+        let source_text_parser = Parser::new(self.allocator, self.source_text, self.source_type);
+        let mut source_text_program = source_text_parser.parse().program;
+
+        // remove unused decl
+        let mut cleanup = CleanupVisitor::new(remain_targets);
+        cleanup.visit_program(&mut source_text_program);
+
+        Codegen::new().build(&source_text_program).code
+    }
+
+    fn clean_recursively(
+        &mut self,
+        cleanup_detector: &mut CleanupDetectVisitor,
+        remain_code: String,
+    ) -> String {
+        // find used decl from binded_code
+        let parser = Parser::new(self.allocator, &remain_code, self.source_type);
         let mut program = parser.parse().program;
+        let is_detected = cleanup_detector.detect(&mut program);
 
-        self.visit_statements(&mut program.body);
+        if is_detected {
+            // remove unused decl from binded_code
+            let remain_code = &self.clean_up(cleanup_detector.remain_targets.clone());
 
-        if let Some(code) = &self.code {
-            let parser = Parser::new(self.allocator, code, self.source_type);
-            let mut code_program = parser.parse().program;
-
-            // [1] detect ref of main functiion
-            let mut clean_up_detector = CleanupDetectVisitor::new();
-            clean_up_detector.visit_program(&mut code_program);
-            clean_up_detector.visit_program(&mut program);
-
-            // // [2]remain main function refarences
-            let mut clean_up = CleanupVisitor::new(clean_up_detector.targets);
-            clean_up.visit_program(&mut program);
-            //
-            // // add [1]'s ref and [2]'s ref
-            // let mut all_clean_up_detector = CleanupDetectVisitor::new();
-            // all_clean_up_detector.visit_program(&mut program);
-            //
-            // println!(
-            //     "\nclean_up_detector.targets: {:?}",
-            //     all_clean_up_detector.targets
-            // );
-
-            // // reset program
-            // let new_parser = Parser::new(self.allocator, self.source_text, self.source_type);
-            // let mut new_program = new_parser.parse().program;
-
-            // remove unused other functions
-
+            // join code that has used decl and generated code
             if let Some(code) = &self.code {
                 let mut generated_code = code.clone();
-                let retain_text = Codegen::new().build(&program).code;
-                generated_code.push_str(&retain_text);
-                self.code = Some(generated_code);
+                generated_code.push_str(remain_code);
+
+                return self.clean_recursively(cleanup_detector, generated_code);
             }
+        }
+
+        remain_code
+    }
+
+    pub fn generate(&mut self) {
+        let source_text_parser = Parser::new(self.allocator, self.source_text, self.source_type);
+        let mut source_text_program = source_text_parser.parse().program;
+
+        self.visit_statements(&mut source_text_program.body);
+
+        // self.code = Some(self.source_text.to_string());
+
+        if let Some(code) = self.code.clone() {
+            let mut clean_up_detector = CleanupDetectVisitor::new();
+
+            let binded_code = self.clean_recursively(&mut clean_up_detector, code);
+            self.code = Some(binded_code);
         }
     }
 
@@ -197,46 +208,64 @@ impl<'a> VisitMut<'a> for CodeGenerator<'a> {
 }
 
 struct CleanupDetectVisitor {
-    pub targets: Vec<String>,
+    pub before_targets_len: usize,
+    pub remain_targets: HashSet<String>,
 }
 
 impl CleanupDetectVisitor {
     fn new() -> Self {
-        Self { targets: vec![] }
+        Self {
+            before_targets_len: 0,
+            remain_targets: HashSet::new(),
+        }
+    }
+
+    fn detect(&mut self, program: &mut oxc::ast::ast::Program<'_>) -> bool {
+        self.visit_program(program);
+
+        let is_detected = self.remain_targets.len() > self.before_targets_len;
+        self.before_targets_len = self.remain_targets.len();
+        is_detected
+    }
+
+    fn add_target(&mut self, target: String) {
+        if target.starts_with("ref_") {
+            self.remain_targets.insert(target);
+        }
     }
 }
 
 impl<'a> VisitMut<'a> for CleanupDetectVisitor {
     fn visit_identifier_reference(&mut self, it: &mut oxc::ast::ast::IdentifierReference<'a>) {
-        self.targets.push(it.name.to_string());
+        self.add_target(it.name.to_string());
         walk_identifier_reference(self, it);
     }
 
     fn visit_ts_type_name(&mut self, it: &mut oxc::ast::ast::TSTypeName<'a>) {
         if let TSTypeName::IdentifierReference(identifier) = it {
             let id_name = identifier.name.clone();
-            self.targets.push(id_name.to_string());
+            self.add_target(id_name.to_string());
         }
 
         if let TSTypeName::QualifiedName(qualified_name) = it {
-            self.targets.push(qualified_name.right.to_string());
+            self.add_target(qualified_name.right.to_string());
         }
         walk_ts_type_name(self, it);
     }
 
     fn visit_identifier_name(&mut self, it: &mut oxc::ast::ast::IdentifierName<'a>) {
-        self.targets.push(it.to_string());
+        self.add_target(it.to_string());
         walk_identifier_name(self, it);
     }
 }
 
 struct CleanupVisitor {
-    pub targets: Vec<String>,
+    pub remain_targets: HashSet<String>,
 }
 
 impl CleanupVisitor {
-    fn new(targets: Vec<String>) -> Self {
-        Self { targets }
+    fn new(remain_targets: HashSet<String>) -> Self {
+        Self { remain_targets }
     }
 }
 
@@ -245,27 +274,22 @@ impl<'a> VisitMut<'a> for CleanupVisitor {
         it.retain(|stmt| {
             let result: bool = match stmt {
                 Statement::TSTypeAliasDeclaration(decl) => {
-                    // 削除対象の型名に一致する場合は削除
-                    self.targets.contains(&decl.id.name.to_string())
+                    self.remain_targets.contains(&decl.id.name.to_string())
                 }
                 Statement::TSInterfaceDeclaration(decl) => {
-                    // 削除対象の型名に一致する場合は削除
-                    self.targets.contains(&decl.id.name.to_string())
+                    self.remain_targets.contains(&decl.id.name.to_string())
                 }
                 Statement::ClassDeclaration(decl) => {
-                    // 削除対象の型名に一致する場合は削除
                     if let Some(id) = &decl.id {
-                        self.targets.contains(&id.name.to_string())
+                        self.remain_targets.contains(&id.name.to_string())
                     } else {
                         false
                     }
                 }
                 // Statement::VariableDeclaration(decl) => {
-                //     // 削除対象の型名に一致する場合は削除
-                //     //
                 //     decl.declarations.retain(|decl| {
                 //         if let Some(id) = &decl.id.get_identifier() {
-                //             !self.targets.contains(&id.to_string())
+                //             !self.remain_targets.contains(&id.to_string())
                 //         } else {
                 //             true
                 //         }

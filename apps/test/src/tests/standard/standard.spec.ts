@@ -18,6 +18,7 @@ describe("Standard Tests", () => {
     "LiteralTypeInterface",
     boostestLiteralInterfaceType<LiteralTypeInterface>(),
   );
+
   runSnapshotTest(
     "LiteralTypeClass",
     boostestLiteralTypeClass<LiteralTypeClass>(),

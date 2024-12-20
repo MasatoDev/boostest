@@ -85,46 +85,47 @@ export interface BuiltInInterface {
 }
 
 export class BuiltInClass {
-  constructor() // public date: Date,
-  // public set: Set<string>,
-  // public map: Map<string, number>,
-  // public array: Array<string>,
-  // public object: Object,
-  // public string: String,
-  // public number: Number,
-  // public boolean: Boolean,
-  // public symbol: Symbol,
-  // public function_class: Function,
-  // public regexp: RegExp,
-  // public error: Error,
-  // public promise: Promise<string>,
-  // public arrayBuffer: ArrayBuffer,
-  // public dataView: DataView,
-  // public int8Array: Int8Array,
-  // public uint8Array: Uint8Array,
-  // public uint8ClampedArray: Uint8ClampedArray,
-  // public int16Array: Int16Array,
-  // public uint16Array: Uint16Array,
-  // public int32Array: Int32Array,
-  // public uint32Array: Uint32Array,
-  // public float32Array: Float32Array,
-  // public float64Array: Float64Array,
-  // public bigInt64Array: BigInt64Array,
-  // public bigUint64Array: BigUint64Array,
-  // public mapIterator: IterableIterator<[string, number]>,
-  // public setIterator: IterableIterator<string>,
-  // public arrayIterator: IterableIterator<string>,
-  // public stringIterator: IterableIterator<string>,
-  // public sharedArrayBuffer: SharedArrayBuffer,
-  // public atomics: Atomics,
+  constructor(
+    public date: Date,
+    public set: Set<string>,
+    public map: Map<string, number>,
+    public array: Array<string>,
+    public object: Object,
+    public string: String,
+    public number: Number,
+    public boolean: Boolean,
+    public symbol: Symbol,
+    public function_class: Function,
+    public regexp: RegExp,
+    public error: Error,
+    public promise: Promise<string>,
+    public arrayBuffer: ArrayBuffer,
+    public dataView: DataView,
+    public int8Array: Int8Array,
+    public uint8Array: Uint8Array,
+    public uint8ClampedArray: Uint8ClampedArray,
+    public int16Array: Int16Array,
+    public uint16Array: Uint16Array,
+    public int32Array: Int32Array,
+    public uint32Array: Uint32Array,
+    public float32Array: Float32Array,
+    public float64Array: Float64Array,
+    public bigInt64Array: BigInt64Array,
+    public bigUint64Array: BigUint64Array,
+    public mapIterator: IterableIterator<[string, number]>,
+    public setIterator: IterableIterator<string>,
+    public arrayIterator: IterableIterator<string>,
+    public stringIterator: IterableIterator<string>,
+    public sharedArrayBuffer: SharedArrayBuffer,
+    public atomics: Atomics,
 
-  // TODO
-  // webAssembly: typeof WebAssembly;
-  // webAssemblyCompileError: WebAssembly.CompileError;
-  // webAssemblyLinkError: WebAssembly.LinkError;
-  // webAssemblyRuntimeError: WebAssembly.RuntimeError;
-  // webAssemblyInstance: WebAssembly.Instance;
-  // webAssemblyMemory: WebAssembly.Memory;
-  // webAssemblyModule: WebAssembly.Module;
-  {}
+    // TODO
+    // webAssembly: typeof WebAssembly;
+    // webAssemblyCompileError: WebAssembly.CompileError;
+    // webAssemblyLinkError: WebAssembly.LinkError;
+    // webAssemblyRuntimeError: WebAssembly.RuntimeError;
+    // webAssemblyInstance: WebAssembly.Instance;
+    // webAssemblyMemory: WebAssembly.Memory;
+    // webAssemblyModule: WebAssembly.Module;
+  ) {}
 }
