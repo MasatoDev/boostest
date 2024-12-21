@@ -7,7 +7,6 @@ use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
 use crate::boostest_resolver::resolver::tsserver_resolver::resolve_target_ast_with_tsserver;
-use crate::boostest_resolver::target_resolver;
 use crate::boostest_resolver::visit_mut::TargetResolver;
 use crate::boostest_utils::module_resolver::resolve_specifier;
 use oxc::ast::VisitMut;
