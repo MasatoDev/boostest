@@ -222,18 +222,6 @@ impl TargetResolver {
         self.reset_temp_import_source();
     }
 
-    // pub fn get_needs_start_analysis_properties(&mut self) -> Vec<Arc<Mutex<Target>>> {
-    //     let mut result = Vec::new();
-    //
-    //     for prop in &mut self.target.ref_properties {
-    //         let prop_lock = prop.lock().unwrap();
-    //         if !prop_lock.resolved() && !prop_lock.analysis_started {
-    //             result.push(prop.clone());
-    //         }
-    //     }
-    //     result
-    // }
-
     // import {Hoge(imported) as Huga(local)} from '...'
     pub fn get_decl_name_for_resolve(&self) -> String {
         if let Some(last) = self.import.last() {
