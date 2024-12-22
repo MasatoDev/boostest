@@ -40,6 +40,7 @@ pub fn resolve_target(
     }
 
     target_resolver.temp_current_read_file_path = target_file_path.clone();
+    println!("\ntarget_file_path: {:?}", target_file_path);
     let file = file_utils::read(&target_file_path).unwrap_or_default();
     let source_type = SourceType::ts();
     let allocator = oxc::allocator::Allocator::default();
@@ -47,6 +48,8 @@ pub fn resolve_target(
 
     let mut program = parser.parse().program;
     target_resolver.visit_statements(&mut program.body);
+
+    println!("\ntarget_resolver: {:?}", target_resolver.resolved());
 
     // /*
     //  * NOTE:
@@ -57,7 +60,7 @@ pub fn resolve_target(
     //     resolve_mock_target_ast(prop, program, path, ts_config_path, project_root_path, 1)?;
     // }
 
-    if (!is_recursive) {
+    if !is_recursive {
         return Ok(());
     }
 
@@ -66,15 +69,18 @@ pub fn resolve_target(
     };
 
     target_resolver.set_import_source();
+    println!("go");
 
     if let Ok(module_path) = target_file_path.canonicalize() {
+        println!("module_path: {:?}", module_path);
         if let Some(parent_path) = module_path.parent() {
-            if let Some(next_import) = target_resolver.get_next_import() {
+            println!("parent_path: {:?}", parent_path);
+            if let Some(next_import) = target_resolver.get_next_read_import() {
                 let mut read_file_path: PathBuf = PathBuf::new();
                 let parent_path_buf = parent_path.to_path_buf();
 
                 // important the order of is_loaded_hogehoge() because these func handle loaded flag
-                if TargetResolver::is_loaded_index_d_ts(next_import) {
+                if TargetResolver::is_loaded_index_ts(next_import) {
                     next_import.file_d_ts_loaded = true;
 
                     let next_file_stem = Path::new(&next_import.full_path)
@@ -90,6 +96,11 @@ pub fn resolve_target(
                         read_file_path =
                             parent_path_buf.join(format!("{}{}", next_file_name, ".d.ts"));
                     }
+                }
+
+                if TargetResolver::is_loaded_index_d_ts(next_import) {
+                    next_import.index_ts_loaded = true;
+                    read_file_path = parent_path_buf.join("index.ts");
                 }
 
                 if TargetResolver::is_loaded_full_path(next_import) {
@@ -108,12 +119,16 @@ pub fn resolve_target(
                     }
                 }
 
+                println!("\nnext_import: {:?}", next_import);
+                println!("\nread_file_path: {:?}", read_file_path);
+
                 if next_import.need_reload {
                     read_file_path = target_file_path;
                 }
 
                 if !read_file_path.exists() {
                     if let Some(project_root_path) = &setting.project_root_path {
+                        println!("tsserver");
                         resolve_target_ast_with_tsserver(
                             target_resolver,
                             &Some(project_root_path.clone()),

@@ -53,6 +53,7 @@ pub struct Import {
 
     pub loaded: bool,
     pub index_d_ts_loaded: bool,
+    pub index_ts_loaded: bool,
     pub file_d_ts_loaded: bool,
 
     pub need_reload: bool,
@@ -77,7 +78,7 @@ pub struct TargetResolver {
     - end visit
     - unresolved -> set_import_source
     */
-    pub import: Vec<Import>,
+    pub imports: Vec<Import>,
 
     // for utility types and so on
     pub lib_file_loaded: bool,
@@ -97,7 +98,7 @@ impl TargetResolver {
             defined_generics: Vec::new(),
             resolved_definitions,
             status: ResolveStatus::Nothing,
-            import: Vec::new(),
+            imports: Vec::new(),
             lib_file_loaded: false,
             all_lib_files_loaded: false,
             use_tsserver: false,
@@ -198,6 +199,7 @@ impl TargetResolver {
             default_import,
             need_reload: false,
             loaded: false,
+            index_ts_loaded: false,
             index_d_ts_loaded: false,
             file_d_ts_loaded: false,
         };
@@ -209,6 +211,26 @@ impl TargetResolver {
         }
     }
 
+    // all flag: export * from '...'
+    pub fn set_all_flag_temp_import_source(&mut self, full_path: String) {
+        if let Some(last) = self.imports.last() {
+            let import = Import {
+                full_path,
+                loaded: false,
+                index_ts_loaded: false,
+                index_d_ts_loaded: false,
+                file_d_ts_loaded: false,
+                ..last.clone()
+            };
+
+            if let Some(vec) = &mut self.temp_import_source_vec {
+                vec.push(import);
+            } else {
+                self.temp_import_source_vec = Some(vec![import]);
+            }
+        }
+    }
+
     // if not resolved set import as a target to resolve
     pub fn set_import_source(&mut self) {
         if self.resolved() {
@@ -216,7 +238,7 @@ impl TargetResolver {
         }
 
         if let Some(vec) = &self.temp_import_source_vec {
-            self.import = vec.clone();
+            self.imports = vec.clone();
         }
 
         self.reset_temp_import_source();
@@ -224,7 +246,7 @@ impl TargetResolver {
 
     // import {Hoge(imported) as Huga(local)} from '...'
     pub fn get_decl_name_for_resolve(&self) -> String {
-        if let Some(last) = self.import.last() {
+        if let Some(last) = self.imports.last() {
             if let Some(original_name) = &last.identifier_original_name {
                 return original_name.to_string();
             }
@@ -239,7 +261,7 @@ impl TargetResolver {
     }
 
     pub fn get_next_import(&mut self) -> Option<&mut Import> {
-        if let Some(last) = self.import.last_mut() {
+        if let Some(last) = self.imports.last_mut() {
             if TargetResolver::is_loaded_file_d_ts(last) {
                 return None;
             }
@@ -248,8 +270,20 @@ impl TargetResolver {
         None
     }
 
+    pub fn get_next_read_import(&mut self) -> Option<&mut Import> {
+        if let Some(last) = self
+            .imports
+            .iter_mut()
+            .rfind(|i| !TargetResolver::is_loaded_file_d_ts(i))
+        {
+            return Some(last);
+        }
+
+        None
+    }
+
     pub fn is_default_import(&self) -> bool {
-        if let Some(last) = self.import.last() {
+        if let Some(last) = self.imports.last() {
             return last.default_import;
         }
         false
@@ -257,7 +291,7 @@ impl TargetResolver {
 
     // export const Hoge = Huga;
     pub fn set_renamed_decl(&mut self, renamed_decl_name: String) {
-        if let Some(last) = self.import.last_mut() {
+        if let Some(last) = self.imports.last_mut() {
             last.identifier_original_name = Some(renamed_decl_name.clone());
             last.need_reload = true;
         }
@@ -310,16 +344,34 @@ impl TargetResolver {
     /**********************/
 
     pub fn is_unloaded_import(import: &Import) -> bool {
-        !import.loaded && !import.index_d_ts_loaded && !import.file_d_ts_loaded
+        !import.loaded
+            && !import.index_d_ts_loaded
+            && !import.index_ts_loaded
+            && !import.file_d_ts_loaded
     }
     pub fn is_loaded_full_path(import: &Import) -> bool {
-        import.loaded && !import.index_d_ts_loaded && !import.file_d_ts_loaded
+        import.loaded
+            && !import.index_d_ts_loaded
+            && !import.index_ts_loaded
+            && !import.file_d_ts_loaded
     }
     pub fn is_loaded_index_d_ts(import: &Import) -> bool {
-        import.loaded && import.index_d_ts_loaded && !import.file_d_ts_loaded
+        import.loaded
+            && import.index_d_ts_loaded
+            && !import.index_ts_loaded
+            && !import.file_d_ts_loaded
+    }
+    pub fn is_loaded_index_ts(import: &Import) -> bool {
+        import.loaded
+            && import.index_d_ts_loaded
+            && import.index_ts_loaded
+            && !import.file_d_ts_loaded
     }
     pub fn is_loaded_file_d_ts(import: &Import) -> bool {
-        import.loaded && import.index_d_ts_loaded && import.file_d_ts_loaded
+        import.loaded
+            && import.index_d_ts_loaded
+            && import.index_ts_loaded
+            && import.file_d_ts_loaded
     }
 
     pub fn is_generic_property(&self) -> bool {
