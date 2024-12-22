@@ -66,8 +66,12 @@ pub fn resolve_target_ast_with_tsserver(
             let mut target_source_text = String::new();
 
             for (target_file_path, result_span) in result.iter() {
-                let target_source = file_utils::read(&target_file_path).unwrap_or(String::new());
+                let target_source = file_utils::read(target_file_path).unwrap_or_default();
+                println!("target_source: {:?}", target_source);
+
                 let utf8_span = utf16_span_to_utf8_span(result_span.clone(), &target_source);
+
+                println!("utf8_span: {:?}", utf8_span);
 
                 // NOTE: 対象ファイルから定義元のspanを取得
                 // それをsouce_textとしてast visitするため完全なファイルではない
@@ -75,8 +79,11 @@ pub fn resolve_target_ast_with_tsserver(
                 target_resolver.read_file_span = Some(utf8_span);
                 target_resolver.temp_current_read_file_path = target_file_path.clone();
 
+                // FIXME: 二重でutf変換している
                 target_source_text.push_str(source_text_from_span(span, &target_source));
             }
+
+            println!("target_source_text: {:?}", target_source_text);
 
             let source_type = SourceType::ts();
             let allocator = oxc::allocator::Allocator::default();

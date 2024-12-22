@@ -6,9 +6,10 @@ use oxc::ast::visit::walk_mut::{
 };
 
 use oxc::ast::ast::{
-    BindingPatternKind, Class, ExportDefaultDeclaration, ExportDefaultDeclarationKind,
-    ExportNamedDeclaration, MethodDefinition, TSInterfaceDeclaration, TSModuleReference,
-    TSTypeAliasDeclaration, TSTypeName, TSTypeQueryExprName, VariableDeclaration,
+    BindingPatternKind, Class, ExportAllDeclaration, ExportDefaultDeclaration,
+    ExportDefaultDeclarationKind, ExportNamedDeclaration, MethodDefinition, TSInterfaceDeclaration,
+    TSModuleReference, TSTypeAliasDeclaration, TSTypeName, TSTypeQueryExprName,
+    VariableDeclaration,
 };
 use oxc::ast::{
     ast::{
@@ -27,6 +28,7 @@ use crate::boostest_utils::napi::TargetType;
 impl<'a> VisitMut<'a> for TargetResolver {
     fn visit_statements(&mut self, stmts: &mut AllocVec<'a, Statement<'a>>) {
         for stmt in stmts.iter_mut() {
+            // println!("\nstmt: {:?}", stmt);
             match stmt {
                 /**********/
                 /* Import */
@@ -44,6 +46,10 @@ impl<'a> VisitMut<'a> for TargetResolver {
                 }
                 Statement::ExportDefaultDeclaration(export_default_decl) => {
                     self.visit_export_default_declaration(export_default_decl);
+                }
+                Statement::ExportAllDeclaration(export_all_decl) => {
+                    // println!("ExportAllDeclaration {:?}", export_all_decl);
+                    self.visit_export_all_declaration(export_all_decl);
                 }
 
                 /***************/
@@ -214,6 +220,12 @@ impl<'a> VisitMut<'a> for TargetResolver {
                 }
             }
         }
+    }
+
+    fn visit_export_all_declaration(&mut self, decl: &mut ExportAllDeclaration<'a>) {
+        println!("ExportAllDeclaration {:?}", decl);
+        let full_path = decl.source.value.clone().into_string();
+        self.set_all_flag_temp_import_source(full_path);
     }
 
     /*************************************************/
