@@ -11,25 +11,6 @@ use super::target::{ResolvedDefinitions, Target, TargetReference};
 use crate::boostest_utils::tsserver::TSServerCache;
 use crate::Setting;
 
-/**
-
-[Resolver Logic]
-
-- [1] visit file that first(top) target is defined
-  - [OK] if target is defined, then add target_definition
-- [2] find `Impot Decl` and add to import
-- [3] resolve module with specifers of `Import Decl`
-- [4] visit resolved module(file)
-  - [OK] if target is defined, then add target_definition
-- [6] resolve module with specifers that use `index.d.ts`
-  - [OK] if target is defined, then add target_definition
-- [7] resolve module with specifers that use `[filename].d.ts`
-  - [OK] if target is defined, then add target_definition
-- [8] use tsserver to get definition
-  - [OK] add target_definition with calculated span
-
-*/
-
 #[derive(Debug, Clone, PartialEq)]
 pub enum ResolveStatus {
     Nothing,
@@ -39,50 +20,45 @@ pub enum ResolveStatus {
 
 #[derive(Debug, Clone)]
 pub struct Import {
-    // original_name: Option<String>,
-    identifier_original_name: Option<String>, // export {original_name as local_name(or default)};
+    // export {original_name as local_name(or default)};
+    identifier_original_name: Option<String>,
 
     // import {Hoge as Huga} from '.'
     // -> imported: Hoge, local: Huga
     imported: Option<String>,
     local: String,
 
+    // import Hoge from '.'
     pub default_import: bool,
 
+    // import {Hoge} from '../../hoge'
+    // -> full_path: '../../hoge'
     pub full_path: String,
 
-    pub loaded: bool,
-    pub index_d_ts_loaded: bool,
-    pub index_ts_loaded: bool,
-    pub file_d_ts_loaded: bool,
-
-    pub need_reload: bool,
+    pub loaded: bool,      // start visit file
+    pub is_loading: bool,  // visit file that is loaded with this import
+    pub need_reload: bool, // start visit file after local is renamed
 }
 
 #[derive(Debug)]
 pub struct TargetResolver {
     pub target: Arc<Mutex<Target>>,
-    pub resolved_definitions: Arc<Mutex<ResolvedDefinitions>>,
-
-    pub defined_generics: Vec<String>,
-
     pub status: ResolveStatus,
+    pub resolved_definitions: Arc<Mutex<ResolvedDefinitions>>,
     pub read_file_span: Option<Span>,
 
+    pub defined_generics: Vec<String>,
     pub use_tsserver: bool,
 
-    /*
-    - visit ast
-    - add temp_import_source_vec
-    - continue visit ast
-    - end visit
-    - unresolved -> set_import_source
-    */
+    // Import has infomation needed for reading the next file
     pub imports: Vec<Import>,
 
     // for utility types and so on
-    pub lib_file_loaded: bool,
-    pub all_lib_files_loaded: bool,
+    pub typescript_default_lib_file_loaded: bool,
+    pub typescript_lib_files: Vec<PathBuf>,
+    pub typescript_lib_files_loaded: bool,
+
+    // temp fields
     pub temp_import_source_vec: Option<Vec<Import>>,
     pub temp_current_read_file_path: PathBuf,
     pub temp_renamed_var_decl_span: Option<Span>,
@@ -99,8 +75,9 @@ impl TargetResolver {
             resolved_definitions,
             status: ResolveStatus::Nothing,
             imports: Vec::new(),
-            lib_file_loaded: false,
-            all_lib_files_loaded: false,
+            typescript_lib_files: Vec::new(),
+            typescript_default_lib_file_loaded: false,
+            typescript_lib_files_loaded: false,
             use_tsserver: false,
             temp_import_source_vec: None,
             temp_current_read_file_path: PathBuf::new(),
@@ -137,10 +114,6 @@ impl TargetResolver {
             .file_path
             .clone();
         resolve_target(true, self, file_path, setting, 1, ts_server_cache);
-    }
-
-    pub fn get_target_name(&self) -> String {
-        self.target.clone().lock().unwrap().name.to_string()
     }
 
     pub fn add_prop_with_retry(&mut self, id: String, target_reference: TargetReference) {
@@ -197,11 +170,9 @@ impl TargetResolver {
             full_path,
             identifier_original_name: None,
             default_import,
+            is_loading: false,
             need_reload: false,
             loaded: false,
-            index_ts_loaded: false,
-            index_d_ts_loaded: false,
-            file_d_ts_loaded: false,
         };
 
         if let Some(vec) = &mut self.temp_import_source_vec {
@@ -217,9 +188,6 @@ impl TargetResolver {
             let import = Import {
                 full_path,
                 loaded: false,
-                index_ts_loaded: false,
-                index_d_ts_loaded: false,
-                file_d_ts_loaded: false,
                 ..last.clone()
             };
 
@@ -260,33 +228,26 @@ impl TargetResolver {
         self.target.clone().lock().unwrap().name.to_string()
     }
 
-    pub fn get_next_import(&mut self) -> Option<&mut Import> {
-        if let Some(last) = self.imports.last_mut() {
-            if TargetResolver::is_loaded_file_d_ts(last) {
-                return None;
-            }
-            return Some(last);
-        }
-        None
+    pub fn get_current_loading_import(&mut self) -> Option<&mut Import> {
+        self.imports.iter_mut().rfind(|i| i.is_loading)
     }
 
     pub fn get_next_read_import(&mut self) -> Option<&mut Import> {
-        if let Some(last) = self
-            .imports
-            .iter_mut()
-            .rfind(|i| !TargetResolver::is_loaded_file_d_ts(i))
-        {
-            return Some(last);
-        }
+        let index = self.imports.iter().position(|i| !i.loaded || i.need_reload);
 
+        if let Some(index) = index {
+            let target_import = &mut self.imports[index];
+            let target_full_path = target_import.full_path.clone();
+
+            for import in &mut self.imports {
+                import.is_loading = import.full_path == target_full_path;
+            }
+        }
+        if let Some(index) = index {
+            let target_import = &mut self.imports[index];
+            return Some(target_import);
+        }
         None
-    }
-
-    pub fn is_default_import(&self) -> bool {
-        if let Some(last) = self.imports.last() {
-            return last.default_import;
-        }
-        false
     }
 
     // export const Hoge = Huga;
@@ -297,13 +258,13 @@ impl TargetResolver {
         }
     }
 
-    pub fn set_default_import_name(&mut self, exported: &String, local: &String) {
-        if let Some(import) = self.get_next_import() {
+    pub fn set_default_import_name(&mut self, exported: &str, local: &str) {
+        if let Some(import) = self.get_current_loading_import() {
             if import.default_import
                 && import.identifier_original_name.is_none()
-                && exported.clone() == String::from("default")
+                && exported == "default"
             {
-                import.identifier_original_name = Some(local.clone());
+                import.identifier_original_name = Some(local.to_string());
                 import.need_reload = true;
                 // Once read, it is skipped, so read again and look for the declaration
                 // MockAstLoader::reset_loaded_import(import);
@@ -311,8 +272,8 @@ impl TargetResolver {
         }
     }
 
-    pub fn set_original_name(&mut self, exported: &String, local: &String) {
-        if let Some(import) = self.get_next_import() {
+    pub fn set_original_name(&mut self, exported: &String, local: &str) {
+        if let Some(import) = self.get_current_loading_import() {
             let target_name: &String;
 
             if let Some(imported) = &import.imported {
@@ -330,7 +291,7 @@ impl TargetResolver {
             The original_name is the highest priority in finding the target.
              */
             if target_name == exported {
-                import.identifier_original_name = Some(local.clone());
+                import.identifier_original_name = Some(local.to_string());
 
                 // Once read, it is skipped, so read again and look for the declaration
                 // MockAstLoader::reset_loaded_import(import);
@@ -342,37 +303,6 @@ impl TargetResolver {
     /**********************/
     /* manage load status */
     /**********************/
-
-    pub fn is_unloaded_import(import: &Import) -> bool {
-        !import.loaded
-            && !import.index_d_ts_loaded
-            && !import.index_ts_loaded
-            && !import.file_d_ts_loaded
-    }
-    pub fn is_loaded_full_path(import: &Import) -> bool {
-        import.loaded
-            && !import.index_d_ts_loaded
-            && !import.index_ts_loaded
-            && !import.file_d_ts_loaded
-    }
-    pub fn is_loaded_index_d_ts(import: &Import) -> bool {
-        import.loaded
-            && import.index_d_ts_loaded
-            && !import.index_ts_loaded
-            && !import.file_d_ts_loaded
-    }
-    pub fn is_loaded_index_ts(import: &Import) -> bool {
-        import.loaded
-            && import.index_d_ts_loaded
-            && import.index_ts_loaded
-            && !import.file_d_ts_loaded
-    }
-    pub fn is_loaded_file_d_ts(import: &Import) -> bool {
-        import.loaded
-            && import.index_d_ts_loaded
-            && import.index_ts_loaded
-            && import.file_d_ts_loaded
-    }
 
     pub fn is_generic_property(&self) -> bool {
         self.target

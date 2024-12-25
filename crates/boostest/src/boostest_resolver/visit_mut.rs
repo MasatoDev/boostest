@@ -223,7 +223,6 @@ impl<'a> VisitMut<'a> for TargetResolver {
     }
 
     fn visit_export_all_declaration(&mut self, decl: &mut ExportAllDeclaration<'a>) {
-        println!("ExportAllDeclaration {:?}", decl);
         let full_path = decl.source.value.clone().into_string();
         self.set_all_flag_temp_import_source(full_path);
     }

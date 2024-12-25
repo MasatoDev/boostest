@@ -88,7 +88,7 @@ export function inferTsAlias(sourceCode: string) {
     )
     .join("\n");
 
-  // console.log("🎉🎉🎉", `${output}\n\n${code}`);
+  console.log("🎉🎉🎉", `${output}\n\n${code}`);
   // console.log("🎉🎉🎉", `${output}\n`);
   return `${output}\n\n${code}`;
 }

@@ -29,6 +29,7 @@ import MixClassFirst2, {
   MixClassSecond2,
 } from "../../types/mix_default_normal/mix_class2";
 import { AccessorClass } from "../../types/pattern/accessor_class";
+import { Hoge } from "../../types/ts_types";
 
 import { boostestComplexChipsType } from "./boostest_output/boostestComplexChipsType";
 import { boostestAnoExportDefaultInterface } from "./boostest_output/boostestAnoExportDefaultInterface";
@@ -54,6 +55,7 @@ import { boostestMixClassFirst2 } from "./boostest_output/boostestMixClassFirst2
 import { boostestMixClassSecond2 } from "./boostest_output/boostestMixClassSecond2";
 import { boostestAccessorClass } from "./boostest_output/boostestAccessorClass";
 import { boostestAnoExportNamedDeclClass } from "./boostest_output/boostestAnoExportNamedDeclClass";
+import { boostestAllExport } from "./boostest_output/boostestAllExport";
 
 describe("Various Export Methods Tests", () => {
   runSnapshotTest(
@@ -155,4 +157,5 @@ describe("Various Export Methods Tests", () => {
   );
 
   runSnapshotTest("AccessorClass", boostestAccessorClass<AccessorClass>());
+  runSnapshotTest("AllExport", boostestAllExport<Hoge>());
 });

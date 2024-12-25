@@ -1,15 +1,20 @@
+import { LiteralTypeAlias } from "@/ts_types";
 import { runSnapshotTest } from "../utils";
-import {
-  BuiltInClass,
-  BuiltInInterface,
-  BuiltInType,
-} from "@/ts_types/built_in_class";
-import { boostestTSAliasBuiltInType } from "./boostest_output/boostestTSAliasBuiltInType";
-
-import { Hoge } from "@/ts_types";
 import { boostestInvest } from "./boostest_output/boostestInvest";
+import { z } from "zod";
+
+const User = z.object({
+  username: z.string(),
+});
+
+// User.parse({ username: "Ludwig" });
+
+// extract the inferred type
+type User = z.infer<typeof User>;
+// { username: string }
 
 // TODO:
-describe("BuiltIn Tests", () => {
-  runSnapshotTest("invest", boostestInvest<Hoge>());
+describe("Invest Tests", () => {
+  // runSnapshotTest("Invest", boostestInvest<LiteralTypeAlias>());
+  runSnapshotTest("Invest zod", boostestInvestZod<User>());
 });

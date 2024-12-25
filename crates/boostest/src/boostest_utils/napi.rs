@@ -1,7 +1,5 @@
 use std::{collections::HashMap, path::PathBuf};
 
-use napi_derive::napi;
-
 #[napi()]
 #[derive(Debug, PartialEq)]
 pub enum TargetType {
