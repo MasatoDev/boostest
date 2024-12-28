@@ -37,7 +37,7 @@ pub fn handle_output_main_task(
 
     // NOTE: if this loop change to multi-thread, the f(file) is need change to Arc<Mutex<File>>
     main_targets.par_iter().for_each(|main_target| {
-        let writed = Arc::new(Mutex::new(Vec::new()));
+        let writed = Arc::new(Mutex::new(HashSet::new()));
 
         let mut output = String::new();
 
@@ -64,6 +64,7 @@ pub fn handle_output_main_task(
         let code = get_code(
             locked_main_target.target.clone(),
             resolved_definitions.clone(),
+            writed.clone(),
         );
 
         if let Some(original_decl_code) = get_original_code(
@@ -75,7 +76,7 @@ pub fn handle_output_main_task(
             output.push_str(&original_decl_code);
         }
         match code {
-            Some((code, _var_name)) => {
+            Some(code) => {
                 output.push_str(&code);
                 output.push('\n');
             }
@@ -123,20 +124,20 @@ pub fn write_ref_properties(
     property_targets: Vec<Arc<Mutex<Target>>>,
     resolved_definitions: Arc<Mutex<ResolvedDefinitions>>,
     output: &mut String,
-    writed: Arc<Mutex<Vec<String>>>,
+    writed: Arc<Mutex<HashSet<String>>>,
 ) -> Result<()> {
     for children_prop in property_targets.iter() {
-        let code = get_code(children_prop.clone(), resolved_definitions.clone());
+        let code = get_code(
+            children_prop.clone(),
+            resolved_definitions.clone(),
+            writed.clone(),
+        );
 
         match code {
-            Some((code, var_name)) => {
-                if writed.lock().unwrap().contains(&var_name) {
-                    continue;
-                }
-
+            Some(code) => {
+                println!("writed");
                 output.push_str(&code);
                 output.push('\n');
-                writed.lock().unwrap().push(var_name);
             }
             None => {
                 // let allocator = oxc::allocator::Allocator::default();
@@ -166,7 +167,8 @@ pub fn write_ref_properties(
 fn get_code(
     target: Arc<Mutex<Target>>,
     resolved_definitions: Arc<Mutex<ResolvedDefinitions>>,
-) -> Option<(String, String)> {
+    writed: Arc<Mutex<HashSet<String>>>,
+) -> Option<String> {
     let locked_target = target.lock().unwrap();
 
     let target_definitions = &resolved_definitions
@@ -176,49 +178,58 @@ fn get_code(
 
     if let Some(target_definitions) = target_definitions {
         if let Some(last_target_def) = target_definitions.last() {
-            let target_source = file_utils::read(&last_target_def.file_path).unwrap_or_default();
-
-            let mut target_source_text =
-                last_target_def.span.source_text(&target_source).to_string();
-
-            // NOTE: if target is TSInterface, bundle all target definitions to merge interfaces
-            if last_target_def.target_type == TargetType::TSInterface {
-                let mut unique_paths = HashSet::new();
-                for target_def in &target_definitions[1..] {
-                    if unique_paths.insert(get_id_with_hash(
-                        target_def.file_path.to_string_lossy().to_string(),
-                        target_def.span,
-                    )) {
-                        target_source_text.push_str(target_def.span.source_text(
-                            &file_utils::read(&target_def.file_path).unwrap_or_default(),
-                        ));
-                    }
-                }
-            }
-
-            //NOTE: if target is ImportAll, bundle all target definitions to merge definitions
-            if locked_target.is_namespace {
-                let prefix = format!("namespace {} {{", locked_target.name);
-
-                let mut unique_paths = HashSet::new();
-
-                for target_def in &target_definitions[1..] {
-                    if unique_paths.insert(&target_def.file_path) {
-                        target_source_text
-                            .push_str(&file_utils::read(&target_def.file_path).unwrap_or_default());
-                    }
-                }
-
-                let code = CleanupVisitor::new().cleanup(&target_source_text);
-                target_source_text = format!("{}\n{}\n}}", prefix, code);
-            }
-
-            let allocator = oxc::allocator::Allocator::default();
-
             if let Some((file_path, span, defined_generics, _)) =
                 bundle_target_defs(target_definitions)
             {
                 let var_name = get_id_with_hash(file_path.clone(), span);
+                let mut locked_writed = writed.lock().unwrap();
+
+                if !locked_writed.insert(var_name.clone()) {
+                    return None;
+                }
+
+                let target_source =
+                    file_utils::read(&last_target_def.file_path).unwrap_or_default();
+
+                let mut target_source_text =
+                    last_target_def.span.source_text(&target_source).to_string();
+
+                // NOTE: if target is TSInterface, bundle all target definitions to merge interfaces
+                if last_target_def.target_type == TargetType::TSInterface {
+                    for target_def in &target_definitions[1..] {
+                        if locked_writed.insert(get_id_with_hash(
+                            target_def.file_path.to_string_lossy().to_string(),
+                            target_def.span,
+                        )) {
+                            target_source_text.push_str(target_def.span.source_text(
+                                &file_utils::read(&target_def.file_path).unwrap_or_default(),
+                            ));
+                        }
+                    }
+                }
+
+                //NOTE: if target is ImportAll, bundle all target definitions to merge definitions
+                if locked_target.is_namespace {
+                    let prefix = format!("namespace {} {{", locked_target.name);
+
+                    for target_def in &target_definitions[1..] {
+                        if locked_writed.insert(get_id_with_hash(
+                            target_def.file_path.to_string_lossy().to_string(),
+                            Span::default(),
+                        )) {
+                            target_source_text.push_str(
+                                &file_utils::read(&target_def.file_path).unwrap_or_default(),
+                            );
+                        }
+                    }
+
+                    let code = CleanupVisitor::new().cleanup(&target_source_text);
+                    target_source_text = format!("{}\n{}\n}}", prefix, code);
+                }
+
+                drop(locked_writed);
+
+                let allocator = oxc::allocator::Allocator::default();
 
                 let mut code_generator = OutputGenerator::new(
                     resolved_definitions.clone(),
@@ -233,14 +244,12 @@ fn get_code(
 
                 code_generator.generate();
 
-                if let Some(code) = code_generator.code {
-                    return Some((code, var_name));
-                }
+                return code_generator.code;
             }
         }
     }
 
-    return None;
+    None
 }
 
 fn get_original_code(

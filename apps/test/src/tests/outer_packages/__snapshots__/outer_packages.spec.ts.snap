@@ -1,3 +1,3 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Outer package Tests Request matches snapshot 1`] = `"{}"`;
+exports[`Outer package Tests Request matches snapshot 1`] = `"{"cache":{},"credentials":{},"destination":{},"headers":{},"integrity":"test string data","keepalive":false,"method":"test string data","mode":{},"redirect":{},"referrer":"test string data","referrerPolicy":{},"signal":{},"url":"test string data","clone":"() => {\\n            return {};\\n        }"}"`;
