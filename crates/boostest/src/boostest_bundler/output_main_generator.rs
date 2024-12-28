@@ -162,7 +162,7 @@ impl<'a> VisitMut<'a> for OutputMainGenerator<'a> {
                 .resolved_definitions
                 .lock()
                 .unwrap()
-                .get_target_def_hash_name_with_key(&key_name);
+                .get_target_def_hash_name_with_key(&key_name, &id_name);
 
             let id_name = self.ast_builder.alloc_identifier_reference(
                 Span::default(),
@@ -172,6 +172,10 @@ impl<'a> VisitMut<'a> for OutputMainGenerator<'a> {
             new_type_name = Some(TSTypeName::IdentifierReference(id_name));
         }
 
+        if let Some(new_type_name) = new_type_name {
+            *it = new_type_name;
+        }
+
         if let TSTypeName::QualifiedName(qualified_name) = it {
             let span = calc_prop_span(qualified_name.right.span, Some(self.target_def_span));
             let key_name = get_id_with_hash(self.target_file_path.clone(), span);
@@ -179,7 +183,7 @@ impl<'a> VisitMut<'a> for OutputMainGenerator<'a> {
                 .resolved_definitions
                 .lock()
                 .unwrap()
-                .get_target_def_hash_name_with_key(&key_name);
+                .get_target_def_hash_name_with_key(&key_name, &qualified_name.left.to_string());
 
             let id_name = self.ast_builder.alloc_identifier_reference(
                 Span::default(),
@@ -187,10 +191,9 @@ impl<'a> VisitMut<'a> for OutputMainGenerator<'a> {
             );
 
             new_type_name = Some(TSTypeName::IdentifierReference(id_name));
-        }
-
-        if let Some(new_type_name) = new_type_name {
-            *it = new_type_name;
+            if let Some(new_type_name) = new_type_name {
+                qualified_name.left = new_type_name;
+            }
         }
 
         walk_ts_type_name(self, it);

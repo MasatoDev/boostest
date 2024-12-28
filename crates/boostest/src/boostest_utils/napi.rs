@@ -7,6 +7,8 @@ pub enum TargetType {
     TSInterface,
     TSTypeAlias,
     Variable,
+    TSModule,
+    ImportAll,
 }
 
 #[napi(object)]

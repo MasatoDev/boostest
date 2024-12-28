@@ -7,9 +7,14 @@ use crate::boostest_utils::napi::{OutputCode, TargetType};
 
 use anyhow::Result;
 use colored::*;
-use oxc::span::Span;
+use oxc::allocator::{Allocator, Vec as AllocVec};
+use oxc::ast::ast::Statement;
+use oxc::ast::VisitMut;
+use oxc::codegen::Codegen;
+use oxc::parser::Parser;
+use oxc::span::{SourceType, Span};
 use rayon::prelude::*;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::path::Path;
 use std::sync::{Arc, Mutex};
 
@@ -170,28 +175,44 @@ fn get_code(
         .get_target_definition(&locked_target.target_reference);
 
     if let Some(target_definitions) = target_definitions {
-        if let Some(first_target_def) = target_definitions.first() {
-            let target_source = file_utils::read(&first_target_def.file_path).unwrap_or_default();
-            let mut target_source_text = first_target_def
-                .span
-                .source_text(&target_source)
-                .to_string();
+        if let Some(last_target_def) = target_definitions.last() {
+            println!("last_target_def: {:?}", last_target_def);
+            let target_source = file_utils::read(&last_target_def.file_path).unwrap_or_default();
 
-            if first_target_def.target_type == TargetType::TSInterface {
+            let mut target_source_text =
+                last_target_def.span.source_text(&target_source).to_string();
+
+            // NOTE: if target is TSInterface, bundle all target definitions to merge interfaces
+            if last_target_def.target_type == TargetType::TSInterface {
                 for target_def in &target_definitions[1..] {
                     target_source_text.push_str(
-                        &target_def.span.source_text(
+                        target_def.span.source_text(
                             &file_utils::read(&target_def.file_path).unwrap_or_default(),
                         ),
                     );
                 }
             }
 
+            //NOTE: if target is ImportAll, bundle all target definitions to merge definitions
+            if locked_target.is_namespace {
+                let prefix = format!("namespace {} {{", locked_target.name);
+
+                let mut unique_paths = HashSet::new();
+
+                for target_def in &target_definitions[1..] {
+                    if unique_paths.insert(&target_def.file_path) {
+                        target_source_text
+                            .push_str(&file_utils::read(&target_def.file_path).unwrap_or_default());
+                    }
+                }
+
+                let code = CleanupVisitor::new().cleanup(&target_source_text);
+                target_source_text = format!("{}\n{}\n}}", prefix, code);
+            }
+
             let allocator = oxc::allocator::Allocator::default();
 
-            // get_hash_name_from_target_defs()
-
-            if let Some((file_path, span, defined_generics)) =
+            if let Some((file_path, span, defined_generics, _)) =
                 bundle_target_defs(target_definitions)
             {
                 let var_name = get_id_with_hash(file_path.clone(), span);
@@ -199,7 +220,7 @@ fn get_code(
                 let mut code_generator = OutputGenerator::new(
                     resolved_definitions.clone(),
                     &allocator,
-                    &first_target_def.specifier,
+                    &last_target_def.specifier,
                     var_name.clone(),
                     span,
                     file_path,
@@ -246,4 +267,37 @@ fn get_original_code(
     }
 
     None
+}
+
+struct CleanupVisitor {}
+
+impl CleanupVisitor {
+    fn new() -> Self {
+        Self {}
+    }
+
+    fn cleanup(&mut self, code: &str) -> String {
+        let source_type = SourceType::ts();
+        let allocator = Allocator::default();
+        let source_text_parser = Parser::new(&allocator, code, source_type);
+        let mut program = source_text_parser.parse().program;
+        self.visit_program(&mut program);
+        program.comments = AllocVec::new_in(&allocator);
+
+        let code = Codegen::new().build(&program).code;
+        code
+    }
+}
+
+impl<'a> VisitMut<'a> for CleanupVisitor {
+    fn visit_statements(&mut self, it: &mut AllocVec<'a, Statement<'a>>) {
+        it.retain(|stmt| {
+            let result: bool = match stmt {
+                Statement::ImportDeclaration(_) => false,
+                Statement::TSImportEqualsDeclaration(_) => false,
+                _ => true,
+            };
+            result
+        });
+    }
 }

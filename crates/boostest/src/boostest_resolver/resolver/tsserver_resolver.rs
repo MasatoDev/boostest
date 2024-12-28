@@ -18,6 +18,7 @@ pub fn resolve_target_ast_with_tsserver(
     depth: u8,
     ts_server_cache: Arc<Mutex<TSServerCache>>,
 ) -> Result<()> {
+    return Ok(());
     let target_file_path = target_resolver
         .target
         .lock()
@@ -54,7 +55,7 @@ pub fn resolve_target_ast_with_tsserver(
         let span = target.target_reference.span;
         drop(target);
 
-        target_resolver.use_tsserver = true;
+        target_resolver.skip_id_check = true;
 
         if let Some(result) = tsserver(
             project_root_path,
@@ -65,7 +66,7 @@ pub fn resolve_target_ast_with_tsserver(
         ) {
             let mut target_source_text = String::new();
 
-            for (target_file_path, result_span, file_name) in result.iter() {
+            for (target_file_path, result_span) in result.iter() {
                 let target_source = file_utils::read(target_file_path).unwrap_or_default();
 
                 let utf8_span = utf16_span_to_utf8_span(*result_span, &target_source);
@@ -79,12 +80,19 @@ pub fn resolve_target_ast_with_tsserver(
                 target_source_text.push_str(source_text_from_span(*result_span, &target_source));
             }
 
+            println!("target source text: {}", target_source_text);
+
             let source_type = SourceType::ts();
             let allocator = oxc::allocator::Allocator::default();
             let parser = Parser::new(&allocator, &target_source_text, source_type);
             let mut program = parser.parse().program;
 
             target_resolver.visit_statements(&mut program.body);
+
+            println!(
+                "\n ✅  all imports {:#?}",
+                target_resolver.get_all_flag_paths()
+            );
 
             if let Some(span) = target_resolver.temp_renamed_var_decl_span {
                 let mut target = target_resolver.target.lock().unwrap();
