@@ -11,6 +11,6 @@ type User = z.infer<typeof User>;
 
 // TODO:
 describe("Invest Tests", () => {
-  // runSnapshotTest("Invest", boostestInvest<LiteralTypeAlias>());
-  runSnapshotTest("Invest zod", boostestInvestZod<User>());
+  runSnapshotTest("Invest", boostestInvest<LiteralTypeAlias>());
+  // runSnapshotTest("Invest zod", boostestInvestZod<User>());
 });

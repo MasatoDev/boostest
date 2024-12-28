@@ -28,6 +28,7 @@ pub fn resolve_target(
     depth: u8,
     ts_server_cache: Arc<Mutex<TSServerCache>>,
 ) -> Result<()> {
+    // println!("🔍 {}", target_file_path.to_str().unwrap_or("unknown file"));
     // prevent infinite loop
     if depth > 50 {
         output_loop_error(

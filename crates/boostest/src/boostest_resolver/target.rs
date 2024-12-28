@@ -510,7 +510,7 @@ pub fn gen_target_supplement(is_generic_property: bool) -> Option<TargetSuppleme
 pub fn bundle_target_defs(
     definitions: &Vec<TargetDefinition>,
 ) -> Option<(String, Span, Vec<String>, TargetType)> {
-    if let Some(definition) = definitions.first() {
+    if let Some(definition) = definitions.last() {
         let file_path = definition.file_path.to_string_lossy().to_string();
         let mut defined_generics = definition.defined_generics.clone();
         let mut new_span = Span::new(0, 0);

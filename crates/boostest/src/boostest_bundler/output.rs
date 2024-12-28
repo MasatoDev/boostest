@@ -176,7 +176,6 @@ fn get_code(
 
     if let Some(target_definitions) = target_definitions {
         if let Some(last_target_def) = target_definitions.last() {
-            println!("last_target_def: {:?}", last_target_def);
             let target_source = file_utils::read(&last_target_def.file_path).unwrap_or_default();
 
             let mut target_source_text =
@@ -184,12 +183,16 @@ fn get_code(
 
             // NOTE: if target is TSInterface, bundle all target definitions to merge interfaces
             if last_target_def.target_type == TargetType::TSInterface {
+                let mut unique_paths = HashSet::new();
                 for target_def in &target_definitions[1..] {
-                    target_source_text.push_str(
-                        target_def.span.source_text(
+                    if unique_paths.insert(get_id_with_hash(
+                        target_def.file_path.to_string_lossy().to_string(),
+                        target_def.span,
+                    )) {
+                        target_source_text.push_str(target_def.span.source_text(
                             &file_utils::read(&target_def.file_path).unwrap_or_default(),
-                        ),
-                    );
+                        ));
+                    }
                 }
             }
 

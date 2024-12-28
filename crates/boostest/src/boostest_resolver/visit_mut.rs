@@ -1,16 +1,17 @@
 use oxc::allocator::Vec as AllocVec;
 
 use oxc::ast::visit::walk_mut::{
-    walk_identifier_name, walk_method_definition, walk_ts_module_declaration_body,
-    walk_ts_type_name, walk_ts_type_parameter_declaration, walk_ts_type_query_expr_name,
-    walk_ts_type_reference,
+    walk_formal_parameters, walk_identifier_name, walk_method_definition,
+    walk_ts_module_declaration_body, walk_ts_type_name, walk_ts_type_parameter_declaration,
+    walk_ts_type_query_expr_name, walk_ts_type_reference,
 };
 
 use oxc::ast::ast::{
     BindingPatternKind, Class, ExportAllDeclaration, ExportDefaultDeclaration,
-    ExportDefaultDeclarationKind, ExportNamedDeclaration, MethodDefinition, TSInterfaceDeclaration,
-    TSModuleDeclaration, TSModuleReference, TSNamespaceExportDeclaration, TSTypeAliasDeclaration,
-    TSTypeName, TSTypeQueryExprName, VariableDeclaration,
+    ExportDefaultDeclarationKind, ExportNamedDeclaration, FormalParameters, IdentifierReference,
+    MethodDefinition, TSInterfaceDeclaration, TSModuleDeclaration, TSModuleReference,
+    TSNamespaceExportDeclaration, TSTypeAliasDeclaration, TSTypeName, TSTypeQueryExprName,
+    VariableDeclaration,
 };
 use oxc::ast::{
     ast::{
@@ -276,6 +277,25 @@ impl<'a> VisitMut<'a> for TargetResolver {
         walk_method_definition(self, method);
     }
 
+    fn visit_formal_parameters(&mut self, formal_parameters: &mut FormalParameters<'a>) {
+        for formal_parameter in formal_parameters.items.iter_mut() {
+            match &mut formal_parameter.pattern.kind {
+                BindingPatternKind::BindingIdentifier(_) => {
+                    if let Some(ts_type) = &mut formal_parameter.pattern.type_annotation {
+                        self.visit_ts_type(&mut ts_type.type_annotation);
+                    }
+                }
+                BindingPatternKind::ObjectPattern(_) => {
+                    if let Some(ts_type) = &mut formal_parameter.pattern.type_annotation {
+                        self.visit_ts_type(&mut ts_type.type_annotation);
+                    }
+                }
+                _ => {}
+            }
+        }
+        walk_formal_parameters(self, formal_parameters);
+    }
+
     fn visit_property_key(&mut self, _it: &mut oxc::ast::ast::PropertyKey<'a>) {
         /* NOTE: skip property key name */
         // class SimpleClass {
@@ -309,6 +329,18 @@ impl<'a> VisitMut<'a> for TargetResolver {
         self.add_prop_with_retry(id_name, target_ref, DeclType::Type);
 
         walk_identifier_name(self, identifier);
+    }
+
+    fn visit_identifier_reference(&mut self, identifier: &mut IdentifierReference<'a>) {
+        let id_name = identifier.name.clone().into_string();
+
+        let target_ref = TargetReference {
+            span: calc_prop_span(identifier.span, self.read_file_span),
+            file_path: self.temp_current_read_file_path.clone(),
+            target_supplement: gen_target_supplement(self.is_generic_property()),
+        };
+
+        self.add_prop_with_retry(id_name, target_ref, DeclType::Type);
     }
 
     fn visit_ts_qualified_name(&mut self, qualified_name: &mut oxc::ast::ast::TSQualifiedName<'a>) {
@@ -352,16 +384,16 @@ impl<'a> VisitMut<'a> for TargetResolver {
         walk_ts_type_query_expr_name(self, it);
     }
 
-    // fn visit_ts_type_reference(&mut self, it: &mut oxc::ast::ast::TSTypeReference<'a>) {
-    //     let target_ref = TargetReference {
-    //         span: calc_prop_span(it.span, self.read_file_span),
-    //         file_path: self.temp_current_read_file_path.clone(),
-    //         target_supplement: gen_target_supplement(self.is_generic_property()),
-    //     };
-    //     self.add_prop_with_retry(it.type_name.to_string(), target_ref);
-    //
-    //     walk_ts_type_reference(self, it);
-    // }
+    fn visit_ts_type_reference(&mut self, it: &mut oxc::ast::ast::TSTypeReference<'a>) {
+        let target_ref = TargetReference {
+            span: calc_prop_span(it.span, self.read_file_span),
+            file_path: self.temp_current_read_file_path.clone(),
+            target_supplement: gen_target_supplement(self.is_generic_property()),
+        };
+        self.add_prop_with_retry(it.type_name.to_string(), target_ref, DeclType::Type);
+
+        walk_ts_type_reference(self, it);
+    }
 
     fn visit_class(&mut self, class: &mut Class<'a>) {
         if let Some(identifier) = &class.id {
