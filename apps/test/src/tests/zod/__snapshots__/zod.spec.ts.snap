@@ -1,3 +1,5 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`Invest Tests Invest zod matches snapshot 1`] = `"{"username":"test string data"}"`;
+exports[`Invest Tests Invest object zod matches snapshot 1`] = `"{"username":"test string data","location":{"latitude":10,"longitude":10},"strings":{}}"`;
+
+exports[`Invest Tests Invest simple zod matches snapshot 1`] = `"{"username":"test string data"}"`;
