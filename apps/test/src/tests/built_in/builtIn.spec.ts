@@ -13,9 +13,9 @@ describe("BuiltIn Tests", () => {
     "type alias BuiltIn",
     boostestTSAliasBuiltInType<BuiltInType>(),
   );
-  // runSnapshotTest(
-  //   "interface BuiltIn",
-  //   boostestInterfaceBuiltInType<BuiltInInterface>(),
-  // );
-  // runSnapshotTest("class BuiltIn", boostestClassBuiltInType<BuiltInClass>());
+  runSnapshotTest(
+    "interface BuiltIn",
+    boostestInterfaceBuiltInType<BuiltInInterface>(),
+  );
+  runSnapshotTest("class BuiltIn", boostestClassBuiltInType<BuiltInClass>());
 });
