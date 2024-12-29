@@ -18,7 +18,6 @@ pub fn resolve_target_ast_with_tsserver(
     depth: u8,
     ts_server_cache: Arc<Mutex<TSServerCache>>,
 ) -> Result<()> {
-    return Ok(());
     let target_file_path = target_resolver
         .target
         .lock()
