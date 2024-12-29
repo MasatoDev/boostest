@@ -1,9 +1,9 @@
 export type BuiltInType = {
   date: Date;
-  set: Set<string>;
-  map: Map<string, number>;
+  // set: Set<string>;
+  // map: Map<string, number>;
   // array: Array<string>;
-  object: Object;
+  // object: Object;
   // string: String;
   // number: Number;
   // boolean: Boolean;

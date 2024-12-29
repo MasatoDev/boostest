@@ -53,6 +53,7 @@ pub struct TargetResolver {
 
     pub defined_generics: Vec<String>,
     pub skip_id_check: bool,
+    pub skip_set_definition: bool,
 
     // Import has infomation needed for reading the next file
     pub imports: Vec<Import>,
@@ -85,6 +86,7 @@ impl TargetResolver {
             typescript_default_lib_file_loaded: false,
             typescript_lib_files_loaded: false,
             skip_id_check: false,
+            skip_set_definition: false,
             temp_import_source_vec: None,
             temp_current_read_file_path: PathBuf::new(),
             temp_renamed_var_decl_span: None,
@@ -95,6 +97,7 @@ impl TargetResolver {
     pub fn resolve(&mut self, setting: Arc<Setting>, ts_server_cache: Arc<Mutex<TSServerCache>>) {
         // NOTE: prevent from circular referencing
         let target_ref = self.target.lock().unwrap().target_reference.clone();
+
         let is_resolved = self
             .resolved_definitions
             .lock()

@@ -1,5 +1,6 @@
 use oxc::allocator::Vec as AllocVec;
 
+use oxc::ast::match_ts_type_name;
 use oxc::ast::visit::walk_mut::{
     walk_formal_parameters, walk_identifier_name, walk_method_definition,
     walk_ts_module_declaration_body, walk_ts_type_name, walk_ts_type_parameter_declaration,
@@ -357,31 +358,32 @@ impl<'a> VisitMut<'a> for TargetResolver {
 
     fn visit_ts_type_query_expr_name(&mut self, it: &mut TSTypeQueryExprName<'a>) {
         match it {
-            TSTypeQueryExprName::IdentifierReference(identifier) => {
-                let id_name = identifier.name.clone().into_string();
+            TSTypeQueryExprName::TSImportType(it) => self.visit_ts_import_type(it),
+            match_ts_type_name!(TSTypeQueryExprName) => match it.to_ts_type_name_mut() {
+                TSTypeName::IdentifierReference(identifier) => {
+                    let id_name = identifier.name.clone().into_string();
 
-                let target_ref = TargetReference {
-                    span: calc_prop_span(identifier.span, self.read_file_span),
-                    file_path: self.temp_current_read_file_path.clone(),
-                    target_supplement: gen_target_supplement(self.is_generic_property()),
-                };
+                    let target_ref = TargetReference {
+                        span: calc_prop_span(identifier.span, self.read_file_span),
+                        file_path: self.temp_current_read_file_path.clone(),
+                        target_supplement: gen_target_supplement(self.is_generic_property()),
+                    };
 
-                self.add_prop_with_retry(id_name, target_ref, DeclType::Value);
-            }
-            TSTypeQueryExprName::QualifiedName(qualified_name) => {
-                let id_name = qualified_name.left.to_string();
+                    self.add_prop_with_retry(id_name, target_ref, DeclType::Value);
+                }
+                TSTypeName::QualifiedName(qualified_name) => {
+                    let id_name = qualified_name.left.to_string();
 
-                let target_ref = TargetReference {
-                    span: calc_prop_span(qualified_name.right.span, self.read_file_span),
-                    file_path: self.temp_current_read_file_path.clone(),
-                    target_supplement: gen_target_supplement(self.is_generic_property()),
-                };
+                    let target_ref = TargetReference {
+                        span: calc_prop_span(qualified_name.right.span, self.read_file_span),
+                        file_path: self.temp_current_read_file_path.clone(),
+                        target_supplement: gen_target_supplement(self.is_generic_property()),
+                    };
 
-                self.add_prop_with_retry(id_name, target_ref, DeclType::Value);
-            }
-            _ => {}
+                    self.add_prop_with_retry(id_name, target_ref, DeclType::Value);
+                }
+            },
         }
-        walk_ts_type_query_expr_name(self, it);
     }
 
     fn visit_ts_type_reference(&mut self, it: &mut oxc::ast::ast::TSTypeReference<'a>) {
@@ -419,21 +421,23 @@ impl<'a> VisitMut<'a> for TargetResolver {
                 }
 
                 if !ignore_ref_name(&identifier.name) {
-                    let target_def = TargetDefinition {
-                        specifier: identifier.name.to_string(),
-                        span: calc_prop_span(class.span, self.read_file_span),
-                        file_path: self.temp_current_read_file_path.clone(),
-                        target_type: TargetType::Class,
-                        defined_generics: self.defined_generics.clone(),
-                    };
+                    if !self.skip_set_definition {
+                        let target_def = TargetDefinition {
+                            specifier: identifier.name.to_string(),
+                            span: calc_prop_span(class.span, self.read_file_span),
+                            file_path: self.temp_current_read_file_path.clone(),
+                            target_type: TargetType::Class,
+                            defined_generics: self.defined_generics.clone(),
+                        };
 
-                    self.resolved_definitions
-                        .lock()
-                        .unwrap()
-                        .set_target_definition(
-                            &self.target.lock().unwrap().target_reference,
-                            target_def,
-                        );
+                        self.resolved_definitions
+                            .lock()
+                            .unwrap()
+                            .set_target_definition(
+                                &self.target.lock().unwrap().target_reference,
+                                target_def,
+                            );
+                    }
 
                     if let Some(id) = &mut class.id {
                         self.visit_binding_identifier(id);
@@ -472,21 +476,23 @@ impl<'a> VisitMut<'a> for TargetResolver {
                     walk_ts_module_declaration_body(self, body);
                 }
 
-                let target_def = TargetDefinition {
-                    specifier: module_decl.id.name().to_string(),
-                    span: calc_prop_span(module_decl.span, self.read_file_span),
-                    file_path: self.temp_current_read_file_path.clone(),
-                    target_type: TargetType::TSModule,
-                    defined_generics: self.defined_generics.clone(),
-                };
+                if !self.skip_set_definition {
+                    let target_def = TargetDefinition {
+                        specifier: module_decl.id.name().to_string(),
+                        span: calc_prop_span(module_decl.span, self.read_file_span),
+                        file_path: self.temp_current_read_file_path.clone(),
+                        target_type: TargetType::TSModule,
+                        defined_generics: self.defined_generics.clone(),
+                    };
 
-                self.resolved_definitions
-                    .lock()
-                    .unwrap()
-                    .set_target_definition(
-                        &self.target.lock().unwrap().target_reference,
-                        target_def,
-                    );
+                    self.resolved_definitions
+                        .lock()
+                        .unwrap()
+                        .set_target_definition(
+                            &self.target.lock().unwrap().target_reference,
+                            target_def,
+                        );
+                }
             }
             self.set_resolved();
         }
@@ -524,21 +530,23 @@ impl<'a> VisitMut<'a> for TargetResolver {
                         return;
                     }
 
-                    let target_def = TargetDefinition {
-                        specifier: id.to_string(),
-                        span: calc_prop_span(var_decl.span, self.read_file_span),
-                        file_path: self.temp_current_read_file_path.clone(),
-                        target_type: TargetType::Variable,
-                        defined_generics: self.defined_generics.clone(),
-                    };
+                    if !self.skip_set_definition {
+                        let target_def = TargetDefinition {
+                            specifier: id.to_string(),
+                            span: calc_prop_span(var_decl.span, self.read_file_span),
+                            file_path: self.temp_current_read_file_path.clone(),
+                            target_type: TargetType::Variable,
+                            defined_generics: self.defined_generics.clone(),
+                        };
 
-                    self.resolved_definitions
-                        .lock()
-                        .unwrap()
-                        .set_target_definition(
-                            &self.target.lock().unwrap().target_reference,
-                            target_def,
-                        );
+                        self.resolved_definitions
+                            .lock()
+                            .unwrap()
+                            .set_target_definition(
+                                &self.target.lock().unwrap().target_reference,
+                                target_def,
+                            );
+                    }
 
                     self.set_resolved();
                 }
@@ -573,21 +581,24 @@ impl<'a> VisitMut<'a> for TargetResolver {
 
             if !ignore_ref_name(&decl.id.name) {
                 self.visit_ts_type(&mut decl.type_annotation);
-                let target_def = TargetDefinition {
-                    specifier: decl.id.name.to_string(),
-                    span: calc_prop_span(decl.span, self.read_file_span),
-                    file_path: self.temp_current_read_file_path.clone(),
-                    target_type: TargetType::TSTypeAlias,
-                    defined_generics: self.defined_generics.clone(),
-                };
 
-                self.resolved_definitions
-                    .lock()
-                    .unwrap()
-                    .set_target_definition(
-                        &self.target.lock().unwrap().target_reference,
-                        target_def,
-                    );
+                if !self.skip_set_definition {
+                    let target_def = TargetDefinition {
+                        specifier: decl.id.name.to_string(),
+                        span: calc_prop_span(decl.span, self.read_file_span),
+                        file_path: self.temp_current_read_file_path.clone(),
+                        target_type: TargetType::TSTypeAlias,
+                        defined_generics: self.defined_generics.clone(),
+                    };
+
+                    self.resolved_definitions
+                        .lock()
+                        .unwrap()
+                        .set_target_definition(
+                            &self.target.lock().unwrap().target_reference,
+                            target_def,
+                        );
+                }
             }
 
             self.set_resolved();
@@ -619,21 +630,24 @@ impl<'a> VisitMut<'a> for TargetResolver {
 
             if !ignore_ref_name(&decl.id.name) {
                 self.visit_ts_interface_body(&mut decl.body);
-                let target_def = TargetDefinition {
-                    specifier: decl.id.name.to_string(),
-                    span: calc_prop_span(decl.span, self.read_file_span),
-                    file_path: self.temp_current_read_file_path.clone(),
-                    target_type: TargetType::TSInterface,
-                    defined_generics: self.defined_generics.clone(),
-                };
 
-                self.resolved_definitions
-                    .lock()
-                    .unwrap()
-                    .set_target_definition(
-                        &self.target.lock().unwrap().target_reference,
-                        target_def,
-                    );
+                if !self.skip_set_definition {
+                    let target_def = TargetDefinition {
+                        specifier: decl.id.name.to_string(),
+                        span: calc_prop_span(decl.span, self.read_file_span),
+                        file_path: self.temp_current_read_file_path.clone(),
+                        target_type: TargetType::TSInterface,
+                        defined_generics: self.defined_generics.clone(),
+                    };
+
+                    self.resolved_definitions
+                        .lock()
+                        .unwrap()
+                        .set_target_definition(
+                            &self.target.lock().unwrap().target_reference,
+                            target_def,
+                        );
+                }
                 self.target.lock().unwrap().is_resolved = true;
             }
             self.set_resolved();

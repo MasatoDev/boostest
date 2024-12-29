@@ -135,7 +135,6 @@ pub fn write_ref_properties(
 
         match code {
             Some(code) => {
-                println!("writed");
                 output.push_str(&code);
                 output.push('\n');
             }

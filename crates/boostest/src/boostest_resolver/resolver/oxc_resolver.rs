@@ -8,7 +8,7 @@ use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 
 use crate::boostest_resolver::resolver::tsserver_resolver::resolve_target_ast_with_tsserver;
-use crate::boostest_resolver::target::TargetDefinition;
+use crate::boostest_resolver::target::{DeclType, TargetDefinition};
 use crate::boostest_resolver::visit_mut::TargetResolver;
 use crate::boostest_utils::module_resolver::resolve_specifier;
 use crate::boostest_utils::napi::TargetType;
@@ -28,7 +28,6 @@ pub fn resolve_target(
     depth: u8,
     ts_server_cache: Arc<Mutex<TSServerCache>>,
 ) -> Result<()> {
-    // println!("🔍 {}", target_file_path.to_str().unwrap_or("unknown file"));
     // prevent infinite loop
     if depth > 50 {
         output_loop_error(
@@ -124,6 +123,8 @@ pub fn resolve_target(
             let path_vec = target_resolver.get_all_flag_paths();
 
             if path_vec.len() > 1 {
+                let mut added = false;
+
                 for path in &path_vec {
                     let target_def = TargetDefinition {
                         specifier: "".to_string(),
@@ -133,32 +134,47 @@ pub fn resolve_target(
                         defined_generics: vec![],
                     };
 
-                    target_resolver
+                    let is_setable = target_resolver
                         .resolved_definitions
                         .lock()
                         .unwrap()
-                        .set_target_definition(
+                        .is_setable_target_definition(
                             &target_resolver.target.lock().unwrap().target_reference,
-                            target_def,
+                            TargetType::ImportAll,
+                            DeclType::ImportAll,
                         );
+                    if is_setable {
+                        added = true;
+                        target_resolver
+                            .resolved_definitions
+                            .lock()
+                            .unwrap()
+                            .set_target_definition(
+                                &target_resolver.target.lock().unwrap().target_reference,
+                                target_def,
+                            );
+                    }
                 }
-                target_resolver.set_resolved();
-                target_resolver.skip_id_check = true;
-                target_resolver.target.lock().unwrap().is_namespace = true;
 
-                path_vec.iter().for_each(|path| {
-                    resolve_target(
-                        false,
-                        target_resolver,
-                        path.clone(),
-                        setting.clone(),
-                        depth + 1,
-                        ts_server_cache.clone(),
-                    )
-                    .unwrap();
-                });
+                if added {
+                    target_resolver.set_resolved();
+                    target_resolver.skip_set_definition = true;
+                    target_resolver.target.lock().unwrap().is_namespace = true;
 
-                return Ok(());
+                    path_vec.iter().for_each(|path| {
+                        resolve_target(
+                            false,
+                            target_resolver,
+                            path.clone(),
+                            setting.clone(),
+                            depth + 1,
+                            ts_server_cache.clone(),
+                        )
+                        .unwrap();
+                    });
+
+                    return Ok(());
+                }
             }
 
             if !target_resolver.typescript_default_lib_file_loaded {

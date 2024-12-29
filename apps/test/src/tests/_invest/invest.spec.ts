@@ -1,6 +1,7 @@
 import { LiteralTypeAlias } from "@/ts_types";
 import { runSnapshotTest } from "../utils";
 import { boostestInvest } from "./boostest_output/boostestInvest";
+import { boostestInvestZod } from "./boostest_output/boostestInvestZod";
 import { z } from "zod";
 
 const User = z.object({
@@ -12,5 +13,5 @@ type User = z.infer<typeof User>;
 // TODO:
 describe("Invest Tests", () => {
   runSnapshotTest("Invest", boostestInvest<LiteralTypeAlias>());
-  // runSnapshotTest("Invest zod", boostestInvestZod<User>());
+  runSnapshotTest("Invest zod", boostestInvestZod<User>());
 });

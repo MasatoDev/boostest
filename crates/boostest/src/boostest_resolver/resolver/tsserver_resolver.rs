@@ -80,19 +80,12 @@ pub fn resolve_target_ast_with_tsserver(
                 target_source_text.push_str(source_text_from_span(*result_span, &target_source));
             }
 
-            println!("target source text: {}", target_source_text);
-
             let source_type = SourceType::ts();
             let allocator = oxc::allocator::Allocator::default();
             let parser = Parser::new(&allocator, &target_source_text, source_type);
             let mut program = parser.parse().program;
 
             target_resolver.visit_statements(&mut program.body);
-
-            println!(
-                "\n ✅  all imports {:#?}",
-                target_resolver.get_all_flag_paths()
-            );
 
             if let Some(span) = target_resolver.temp_renamed_var_decl_span {
                 let mut target = target_resolver.target.lock().unwrap();

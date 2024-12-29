@@ -31,6 +31,7 @@ use crate::boostest_utils::{
 pub enum DeclType {
     Type,
     Value,
+    ImportAll,
 }
 
 #[derive(Debug, Clone)]
@@ -226,12 +227,21 @@ impl ResolvedDefinitions {
                 return false;
             }
 
+            // Not hanlde import all
+            // let all_have_import_all = target_defs
+            //     .iter()
+            //     .all(|def| def.target_type == TargetType::ImportAll);
+            // let not_import_all = target_def_type != TargetType::ImportAll;
+            // if all_have_import_all && not_import_all {
+            //     return false;
+            // }
+
             // Interfaces can be merged with other same name interfaces.
-            let all_have_type_alias = target_defs
+            let all_have_type_interface = target_defs
                 .iter()
                 .all(|def| def.target_type == TargetType::TSInterface);
             let not_interface = target_def_type != TargetType::TSInterface;
-            if all_have_type_alias && not_interface {
+            if all_have_type_interface && not_interface {
                 return false;
             }
 
