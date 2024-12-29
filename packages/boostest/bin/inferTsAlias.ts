@@ -206,9 +206,9 @@ function getTypeStructure(
       }
     }
 
-    return `["classReference", ${className}, [\n  ${constructorArgTypes.join(
+    return `["classReference", ${className}, [ ${constructorArgTypes.join(
       ",\n  ",
-    )}\n]]`;
+    )}]]`;
   } else if (type.isUnion()) {
     return type.types
       .map((t) => getTypeStructure(checker, t, visitedTypes))
@@ -287,7 +287,13 @@ function getTypeStructure(
             `${param.getName()}: any`;
         }
 
-        propStructure = `(${resultOfParams}) => ${checker.typeToString(target.getReturnType())}`;
+        const returnType = target.getReturnType();
+        const expandedReturnType = getTypeStructure(
+          checker,
+          returnType,
+          visitedTypes,
+        );
+        propStructure = `(${resultOfParams}) => ${expandedReturnType}`;
       }
 
       if (!propStructure) {
@@ -411,7 +417,23 @@ function removeDuplicateDeclarations(code: string) {
   return result;
 }
 
-// const code = `
-// `;
-//
-// inferTsAlias(code);
+const code = `
+type main = {
+  set: Date;
+}
+
+declare class VarDate {
+    private constructor();
+    private VarDate_typekey: VarDate;
+}
+
+interface DateConstructor {
+    new (vd: VarDate): Date;
+}
+
+interface Date {
+    getVarDate: () => VarDate;
+}
+`;
+
+console.log(inferTsAlias(code));
