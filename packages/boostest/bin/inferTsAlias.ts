@@ -66,21 +66,6 @@ export function inferTsAlias(sourceCode: string) {
 
   visit(sourceFile);
 
-  function isClassType(type: ts.Type): boolean {
-    const symbol = type.getSymbol();
-    if (!symbol) return false;
-    return symbol.getDeclarations()?.some(ts.isClassDeclaration) ?? false;
-  }
-
-  function isConstructorType(type: ts.Type): boolean {
-    return (
-      (type.getFlags() & ts.TypeFlags.Object) !== 0 &&
-      type.getConstructSignatures().length > 0
-    );
-  }
-
-  visit(sourceFile);
-
   const output = boostestTypes
     .map(
       (t) =>
@@ -89,7 +74,7 @@ export function inferTsAlias(sourceCode: string) {
     .join("\n");
 
   // console.log("🎉🎉🎉", `${output}\n\n${code}`);
-  // console.log("🎉🎉🎉", `${output}\n`);
+  console.log("🎉🎉🎉", `${output}\n`);
   return `${output}\n\n${code}`;
 }
 
@@ -158,12 +143,18 @@ function getTextFromNode(
 function getTypeStructure(
   checker: ts.TypeChecker,
   type: ts.Type,
-  typeOriginalFlag?: typeof TypeOriginalFlag,
+  visitedTypes = new Set<ts.Type>(),
 ): string {
+  // 既に処理済みの型をスキップ
+  if (visitedTypes.has(type)) {
+    return checker.typeToString(type);
+  }
+  visitedTypes.add(type);
+
   if (checker.typeToString(type).startsWith("Promise")) {
     const arg_type = type.aliasTypeArguments?.[0];
     if (arg_type) {
-      return `Promise<${getTypeStructure(checker, arg_type)}>`;
+      return `Promise<${(getTypeStructure(checker, arg_type), visitedTypes)}>`;
     }
   }
 
@@ -179,7 +170,10 @@ function getTypeStructure(
     const className = checker.typeToString(type);
     const classSymbol = type.getSymbol();
     const declarations = classSymbol?.getDeclarations();
-    const classDeclaration = declarations?.find(ts.isClassDeclaration);
+    const classDeclaration = declarations?.find(
+      (declaration) =>
+        ts.isClassDeclaration(declaration) || ts.isClassExpression(declaration),
+    ) as ts.ClassDeclaration | ts.ClassExpression | undefined;
 
     let constructorArgTypes: string[] = [];
 
@@ -198,7 +192,7 @@ function getTypeStructure(
 
           if (!paramStructure) {
             const paramType = checker.getTypeAtLocation(param);
-            paramStructure = getTypeStructure(checker, paramType);
+            paramStructure = getTypeStructure(checker, paramType, visitedTypes);
           }
 
           constructorArgTypes.push(paramStructure);
@@ -210,9 +204,13 @@ function getTypeStructure(
       ",\n  ",
     )}\n]]`;
   } else if (type.isUnion()) {
-    return type.types.map((t) => getTypeStructure(checker, t)).join(" | ");
+    return type.types
+      .map((t) => getTypeStructure(checker, t, visitedTypes))
+      .join(" | ");
   } else if (type.isIntersection()) {
-    return type.types.map((t) => getTypeStructure(checker, t)).join(" & ");
+    return type.types
+      .map((t) => getTypeStructure(checker, t, visitedTypes))
+      .join(" & ");
   }
   // else if (checker.isTupleType(type)) {
   //   return checker.typeToString(type);
@@ -251,7 +249,7 @@ function getTypeStructure(
             ? "string"
             : "symbol";
 
-      const valueType = getTypeStructure(checker, indexInfo.type);
+      const valueType = getTypeStructure(checker, indexInfo.type, visitedTypes);
       return `[key: ${keyType}]: ${valueType}`;
     });
 
@@ -276,19 +274,25 @@ function getTypeStructure(
 
         for (const param of target.parameters) {
           const propType = checker.getTypeOfSymbol(param);
-          propStructure = getTypeStructure(checker, propType);
+          propStructure = getTypeStructure(checker, propType, visitedTypes);
           resultOfParams =
             (!!resultOfParams ? resultOfParams + ", " : "") +
             // `${param.getName()}: ${propStructure}`;
             `${param.getName()}: any`;
         }
+        const returnType = target.getReturnType();
+        const expandedReturnType = getTypeStructure(
+          checker,
+          returnType,
+          visitedTypes,
+        );
 
-        propStructure = `(${resultOfParams}) => ${checker.typeToString(target.getReturnType())}`;
+        propStructure = `(${resultOfParams}) => ${expandedReturnType}`;
       }
 
       if (!propStructure) {
         const propType = checker.getTypeOfSymbol(prop);
-        propStructure = getTypeStructure(checker, propType);
+        propStructure = getTypeStructure(checker, propType, visitedTypes);
       }
 
       result.push(`${prop.name}: ${propStructure}`);
@@ -303,11 +307,19 @@ function getTypeStructure(
           param,
           param.valueDeclaration!,
         );
-        const expandedParamType = getTypeStructure(checker, paramType);
+        const expandedParamType = getTypeStructure(
+          checker,
+          paramType,
+          visitedTypes,
+        );
         return `${param.getName()}: ${expandedParamType}`;
       });
       const returnType = checker.getReturnTypeOfSignature(signature);
-      const expandedReturnType = getTypeStructure(checker, returnType);
+      const expandedReturnType = getTypeStructure(
+        checker,
+        returnType,
+        visitedTypes,
+      );
 
       const decl = signature.getDeclaration();
       if (decl.kind === ts.SyntaxKind.CallSignature) {
@@ -338,7 +350,15 @@ function getTypeStructure(
 function isClassType(type: ts.Type): boolean {
   const symbol = type.getSymbol();
   if (!symbol) return false;
-  return symbol.getDeclarations()?.some(ts.isClassDeclaration) ?? false;
+  return (
+    symbol
+      .getDeclarations()
+      ?.some(
+        (declaration) =>
+          ts.isClassDeclaration(declaration) ||
+          ts.isClassExpression(declaration),
+      ) ?? false
+  );
 }
 
 function isConstructorType(type: ts.Type): boolean {
@@ -400,6 +420,22 @@ function removeDuplicateDeclarations(code: string) {
 }
 
 // const code = `
+// type main = {
+//   set: Date;
+// }
+//
+// declare class VarDate {
+//     private constructor();
+//     private VarDate_typekey: VarDate;
+// }
+//
+// interface DateConstructor {
+//     new (vd: VarDate): Date;
+// }
+//
+// interface Date {
+//     getVarDate: () => VarDate;
+// }
 // `;
 //
-// inferTsAlias(code);
+// console.log(inferTsAlias(code));

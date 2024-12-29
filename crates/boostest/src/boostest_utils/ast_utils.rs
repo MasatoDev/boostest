@@ -4,9 +4,45 @@ use oxc::{
     span::{Atom, Span},
 };
 
+pub fn ignore_name(name: &str) -> bool {
+    let built_in = [
+        "true", "false", "Function", "Array",
+        "Promise",
+        // "Date",
+        // "Set",
+        // "Map",
+        // "Object",
+        // "String",
+        // "Number",
+        // "Boolean",
+        // "Symbol",
+        // "RegExp",
+        // "Error",
+        // "ArrayBuffer",
+        // "DataView",
+        // "Int8Array",
+        // "Uint8Array",
+        // "Uint8ClampedArray",
+        // "Int16Array",
+        // "Uint16Array",
+        // "Int32Array",
+        // "Uint32Array",
+        // "Float32Array",
+        // "Float64Array",
+        // "BigInt64Array",
+        // "BigUint64Array",
+        // "IterableIterator",
+        // "SharedArrayBuffer",
+        // "Atomics",
+        // "WebAssembly",
+    ];
+
+    built_in.contains(&name)
+}
+
 pub fn ignore_ref_name(atom: &Atom) -> bool {
     let name = atom.to_string();
-    name == "Array" || name == "Function" || name == "true" || name == "false" || name == "Promise"
+    ignore_name(&name)
 }
 
 // common functions

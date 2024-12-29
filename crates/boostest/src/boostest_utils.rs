@@ -6,3 +6,4 @@ pub mod module_resolver;
 pub mod napi;
 pub mod setting;
 pub mod tsserver;
+pub mod typescript_lib;

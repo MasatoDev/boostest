@@ -8,6 +8,7 @@ use std::time::Duration;
 use super::resolver::oxc_resolver::resolve_target;
 use super::target::{DeclType, ResolvedDefinitions, Target, TargetReference};
 
+use crate::boostest_utils::ast_utils::{ignore_name, ignore_ref_name};
 use crate::boostest_utils::id_name::get_id_with_hash;
 use crate::boostest_utils::tsserver::TSServerCache;
 use crate::Setting;
@@ -133,6 +134,10 @@ impl TargetResolver {
         target_reference: TargetReference,
         decl_type: DeclType,
     ) {
+        if ignore_name(&id) {
+            return;
+        }
+
         if !self.defined_generics.contains(&id) {
             loop {
                 match self.target.clone().lock() {

@@ -10,7 +10,6 @@ mod boostest_utils;
 use boostest_bundler::output::handle_output_main_task;
 use boostest_manager::{target_detector::TargetDetector, task::handle_main_task};
 use boostest_resolver::main_target_resolver::main_targets_resolve;
-use boostest_utils::file_utils::handle_reset_and_create_files;
 pub use boostest_utils::{
     file_utils,
     napi::OutputCode,
@@ -18,6 +17,9 @@ pub use boostest_utils::{
     napi::ResolvedResult,
     setting::{self, Setting},
     tsserver::TSServerCache,
+};
+use boostest_utils::{
+    file_utils::handle_reset_and_create_files, typescript_lib::get_typescript_lib_code,
 };
 use colored::*;
 use rayon::prelude::*;
@@ -48,6 +50,8 @@ pub fn resolve_target(
             std::process::exit(0);
         }
     };
+
+    let typescript_lib_code = "";
 
     // Preference for command line argument target path if it exists
     if !path.is_empty() {
@@ -101,7 +105,7 @@ pub fn resolve_target(
 
         main_targets_resolve(&main_targets, setting_arc.clone(), tsserver_cache.clone());
 
-        let output = handle_output_main_task(main_targets, path_buf);
+        let output = handle_output_main_task(main_targets, path_buf, &typescript_lib_code);
 
         if let Some(output) = output {
             let mut result = result.lock().unwrap();
