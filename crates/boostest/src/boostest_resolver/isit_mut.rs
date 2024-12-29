@@ -386,17 +386,6 @@ impl<'a> VisitMut<'a> for TargetResolver {
         }
     }
 
-    fn visit_ts_type_reference(&mut self, it: &mut oxc::ast::ast::TSTypeReference<'a>) {
-        let target_ref = TargetReference {
-            span: calc_prop_span(it.span, self.read_file_span),
-            file_path: self.temp_current_read_file_path.clone(),
-            target_supplement: gen_target_supplement(self.is_generic_property()),
-        };
-        self.add_prop_with_retry(it.type_name.to_string(), target_ref, DeclType::Type);
-
-        walk_ts_type_reference(self, it);
-    }
-
     fn visit_class(&mut self, class: &mut Class<'a>) {
         if let Some(identifier) = &class.id {
             if self.skip_id_check || identifier.name == self.get_decl_name_for_resolve() {

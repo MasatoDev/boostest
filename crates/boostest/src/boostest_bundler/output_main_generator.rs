@@ -187,7 +187,7 @@ impl<'a> VisitMut<'a> for OutputMainGenerator<'a> {
 
             let id_name = self.ast_builder.alloc_identifier_reference(
                 Span::default(),
-                &var_name.unwrap_or(qualified_name.to_string()),
+                &var_name.unwrap_or(qualified_name.left.to_string()),
             );
 
             new_type_name = Some(TSTypeName::IdentifierReference(id_name));

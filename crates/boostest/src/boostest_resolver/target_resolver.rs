@@ -8,6 +8,7 @@ use std::time::Duration;
 use super::resolver::oxc_resolver::resolve_target;
 use super::target::{DeclType, ResolvedDefinitions, Target, TargetReference};
 
+use crate::boostest_utils::id_name::get_id_with_hash;
 use crate::boostest_utils::tsserver::TSServerCache;
 use crate::Setting;
 
@@ -122,6 +123,7 @@ impl TargetResolver {
             .target_reference
             .file_path
             .clone();
+
         resolve_target(true, self, file_path, setting, 1, ts_server_cache);
     }
 

@@ -55,6 +55,7 @@ pub struct TargetDefinition {
     pub defined_generics: Vec<String>,
 }
 
+// FIXME: var, type を区別する
 #[derive(Debug, Clone)]
 pub struct TargetReference {
     pub file_path: PathBuf,
@@ -161,6 +162,17 @@ impl Target {
         target_reference: TargetReference,
         decl_type: DeclType,
     ) {
+        // println!("add_property: {}", name);
+        let already_exists = self.ref_properties.iter().any(|prop| {
+            let prop = prop.lock().unwrap();
+            prop.target_reference.span == target_reference.span
+                && prop.target_reference.file_path == target_reference.file_path
+        });
+
+        if already_exists {
+            return;
+        }
+
         let new_target = Target {
             name,
             is_resolved: false,
@@ -185,16 +197,14 @@ impl ResolvedDefinitions {
             target_reference.span,
         );
 
-        if !self.inner.contains_key(&key) {
-            self.inner.insert(key.clone(), None);
+        match self.inner.get(&key) {
+            Some(Some(_)) => true,
+            Some(None) => true, // prevent loop resolve
+            _ => {
+                self.inner.insert(key, None);
+                false
+            }
         }
-
-        let value = self.inner.get(&key);
-        if let Some(Some(_)) = value {
-            return true;
-        }
-
-        false
     }
 
     pub fn is_setable_target_definition(

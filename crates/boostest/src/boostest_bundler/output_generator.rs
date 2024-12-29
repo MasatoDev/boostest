@@ -1,15 +1,17 @@
 use std::sync::{Arc, Mutex};
 
-use oxc::allocator::{self, Allocator};
+use oxc::allocator::{self, Allocator, Vec as AllocVec};
 use oxc::ast::visit::walk_mut::{
-    walk_ts_type, walk_ts_type_alias_declaration, walk_ts_type_name, walk_variable_declarator,
+    walk_statements, walk_ts_type, walk_ts_type_alias_declaration, walk_ts_type_name,
+    walk_variable_declarator,
 };
 use oxc::codegen::Codegen;
 use oxc::parser::Parser;
 use oxc::span::{SourceType, Span, SPAN};
 
 use oxc::ast::ast::{
-    Class, TSInterfaceDeclaration, TSType, TSTypeAliasDeclaration, TSTypeAnnotation, TSTypeName,
+    Class, Statement, TSInterfaceDeclaration, TSType, TSTypeAliasDeclaration, TSTypeAnnotation,
+    TSTypeName,
 };
 use oxc::ast::{AstBuilder, VisitMut};
 
@@ -66,6 +68,7 @@ impl<'a, 'b: 'a> OutputGenerator<'a> {
         let mut program = parser.parse().program;
 
         self.visit_statements(&mut program.body);
+        program.comments = AllocVec::new_in(self.allocator);
 
         self.code = Some(Codegen::new().build(&program).code);
     }
@@ -77,6 +80,18 @@ impl<'a> VisitMut<'a> for OutputGenerator<'a> {
     /*                Handle Targets                 */
     /*************************************************/
     /*************************************************/
+
+    fn visit_statements(&mut self, it: &mut AllocVec<'a, Statement<'a>>) {
+        it.retain(|stmt| {
+            let result: bool = match stmt {
+                Statement::ImportDeclaration(_) => false,
+                Statement::TSImportEqualsDeclaration(_) => false,
+                _ => true,
+            };
+            result
+        });
+        walk_statements(self, it);
+    }
 
     fn visit_variable_declarator(&mut self, it: &mut oxc::ast::ast::VariableDeclarator<'a>) {
         if let Some(id) = it.id.get_identifier() {
@@ -230,7 +245,7 @@ impl<'a> VisitMut<'a> for OutputGenerator<'a> {
 
             let id_name = self.ast_builder.alloc_identifier_reference(
                 Span::default(),
-                &var_name.unwrap_or(qualified_name.to_string()),
+                &var_name.unwrap_or(qualified_name.left.to_string()),
             );
             new_type_name = Some(TSTypeName::IdentifierReference(id_name));
 

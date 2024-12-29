@@ -7,9 +7,9 @@ use std::fs;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 
+use crate::boostest_resolver::isit_mut::TargetResolver;
 use crate::boostest_resolver::resolver::tsserver_resolver::resolve_target_ast_with_tsserver;
 use crate::boostest_resolver::target::{DeclType, TargetDefinition};
-use crate::boostest_resolver::visit_mut::TargetResolver;
 use crate::boostest_utils::module_resolver::resolve_specifier;
 use crate::boostest_utils::napi::TargetType;
 use oxc::ast::VisitMut;
@@ -28,6 +28,7 @@ pub fn resolve_target(
     depth: u8,
     ts_server_cache: Arc<Mutex<TSServerCache>>,
 ) -> Result<()> {
+    // println!("\nname: {}", target_resolver.target.lock().unwrap().name);
     // prevent infinite loop
     if depth > 50 {
         output_loop_error(
@@ -159,6 +160,7 @@ pub fn resolve_target(
                 if added {
                     target_resolver.set_resolved();
                     target_resolver.skip_set_definition = true;
+                    target_resolver.skip_id_check = true;
                     target_resolver.target.lock().unwrap().is_namespace = true;
 
                     path_vec.iter().for_each(|path| {
