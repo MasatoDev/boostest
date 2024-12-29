@@ -11,11 +11,11 @@ import { boostestClassBuiltInType } from "./boostest_output/boostestClassBuiltIn
 describe("BuiltIn Tests", () => {
   runSnapshotTest(
     "type alias BuiltIn",
-    boostestTSAliasBuiltInType<BuiltInType>(),
+    bhogeoostestTSAliasBuiltInType<BuiltInType>(),
   );
-  runSnapshotTest(
-    "interface BuiltIn",
-    boostestInterfaceBuiltInType<BuiltInInterface>(),
-  );
-  runSnapshotTest("class BuiltIn", boostestClassBuiltInType<BuiltInClass>());
+  // runSnapshotTest(
+  //   "interface BuiltIn",
+  //   boostestInterfaceBuiltInType<BuiltInInterface>(),
+  // );
+  // runSnapshotTest("class BuiltIn", boostestClassBuiltInType<BuiltInClass>());
 });

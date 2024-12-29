@@ -6,8 +6,9 @@ use std::thread;
 use std::time::Duration;
 
 use super::resolver::oxc_resolver::resolve_target;
-use super::target::{ResolvedDefinitions, Target, TargetReference};
+use super::target::{DeclType, ResolvedDefinitions, Target, TargetReference};
 
+use crate::boostest_utils::id_name::get_id_with_hash;
 use crate::boostest_utils::tsserver::TSServerCache;
 use crate::Setting;
 
@@ -20,6 +21,8 @@ pub enum ResolveStatus {
 
 #[derive(Debug, Clone)]
 pub struct Import {
+    pub parent_path: Option<PathBuf>,
+
     // export {original_name as local_name(or default)};
     identifier_original_name: Option<String>,
 
@@ -34,6 +37,7 @@ pub struct Import {
     // import {Hoge} from '../../hoge'
     // -> full_path: '../../hoge'
     pub full_path: String,
+    pub canonical_path: Option<PathBuf>,
 
     pub loaded: bool,      // start visit file
     pub is_loading: bool,  // visit file that is loaded with this import
@@ -43,12 +47,14 @@ pub struct Import {
 #[derive(Debug)]
 pub struct TargetResolver {
     pub target: Arc<Mutex<Target>>,
+    pub target_decl_type: DeclType,
     pub status: ResolveStatus,
     pub resolved_definitions: Arc<Mutex<ResolvedDefinitions>>,
     pub read_file_span: Option<Span>,
 
     pub defined_generics: Vec<String>,
-    pub use_tsserver: bool,
+    pub skip_id_check: bool,
+    pub skip_set_definition: bool,
 
     // Import has infomation needed for reading the next file
     pub imports: Vec<Import>,
@@ -69,8 +75,10 @@ impl TargetResolver {
         target: Arc<Mutex<Target>>,
         resolved_definitions: Arc<Mutex<ResolvedDefinitions>>,
     ) -> Self {
+        let target_decl_type = target.lock().unwrap().decl_type.clone();
         Self {
             target,
+            target_decl_type,
             defined_generics: Vec::new(),
             resolved_definitions,
             status: ResolveStatus::Nothing,
@@ -78,7 +86,8 @@ impl TargetResolver {
             typescript_lib_files: Vec::new(),
             typescript_default_lib_file_loaded: false,
             typescript_lib_files_loaded: false,
-            use_tsserver: false,
+            skip_id_check: false,
+            skip_set_definition: false,
             temp_import_source_vec: None,
             temp_current_read_file_path: PathBuf::new(),
             temp_renamed_var_decl_span: None,
@@ -89,6 +98,7 @@ impl TargetResolver {
     pub fn resolve(&mut self, setting: Arc<Setting>, ts_server_cache: Arc<Mutex<TSServerCache>>) {
         // NOTE: prevent from circular referencing
         let target_ref = self.target.lock().unwrap().target_reference.clone();
+
         let is_resolved = self
             .resolved_definitions
             .lock()
@@ -113,15 +123,21 @@ impl TargetResolver {
             .target_reference
             .file_path
             .clone();
+
         resolve_target(true, self, file_path, setting, 1, ts_server_cache);
     }
 
-    pub fn add_prop_with_retry(&mut self, id: String, target_reference: TargetReference) {
+    pub fn add_prop_with_retry(
+        &mut self,
+        id: String,
+        target_reference: TargetReference,
+        decl_type: DeclType,
+    ) {
         if !self.defined_generics.contains(&id) {
             loop {
                 match self.target.clone().lock() {
                     Ok(mut target) => {
-                        target.add_property(id, target_reference);
+                        target.add_property(id, target_reference, decl_type);
                         break;
                     }
                     Err(_) => {
@@ -165,9 +181,14 @@ impl TargetResolver {
         }
 
         let import = Import {
+            parent_path: self
+                .temp_current_read_file_path
+                .parent()
+                .map(|p| p.to_path_buf()),
             local,
             imported,
             full_path,
+            canonical_path: None,
             identifier_original_name: None,
             default_import,
             is_loading: false,
@@ -188,6 +209,10 @@ impl TargetResolver {
             let import = Import {
                 full_path,
                 loaded: false,
+                parent_path: self
+                    .temp_current_read_file_path
+                    .parent()
+                    .map(|p| p.to_path_buf()),
                 ..last.clone()
             };
 
@@ -213,16 +238,16 @@ impl TargetResolver {
     }
 
     // import {Hoge(imported) as Huga(local)} from '...'
-    pub fn get_decl_name_for_resolve(&self) -> String {
-        if let Some(last) = self.imports.last() {
-            if let Some(original_name) = &last.identifier_original_name {
+    pub fn get_decl_name_for_resolve(&mut self) -> String {
+        if let Some(cur_import) = self.get_current_loading_import() {
+            if let Some(original_name) = &cur_import.identifier_original_name {
                 return original_name.to_string();
             }
 
-            if let Some(imported) = &last.imported {
+            if let Some(imported) = &cur_import.imported {
                 return imported.to_string();
             }
-            return last.local.to_string();
+            return cur_import.local.to_string();
         }
 
         self.target.clone().lock().unwrap().name.to_string()
@@ -250,15 +275,34 @@ impl TargetResolver {
         None
     }
 
+    pub fn get_all_flag_paths(&self) -> Vec<PathBuf> {
+        self.imports
+            .iter()
+            .filter(|i| i.default_import)
+            .filter_map(|i| i.canonical_path.clone())
+            .collect()
+    }
+
     // export const Hoge = Huga;
     pub fn set_renamed_decl(&mut self, renamed_decl_name: String) {
-        if let Some(last) = self.imports.last_mut() {
-            last.identifier_original_name = Some(renamed_decl_name.clone());
-            last.need_reload = true;
+        let parent_path = self
+            .temp_current_read_file_path
+            .parent()
+            .map(|p| p.to_path_buf());
+
+        if let Some(cur) = self.get_current_loading_import() {
+            cur.identifier_original_name = Some(renamed_decl_name.clone());
+            cur.need_reload = true;
+            cur.parent_path = parent_path;
         }
     }
 
     pub fn set_default_import_name(&mut self, exported: &str, local: &str) {
+        let parent_path = self
+            .temp_current_read_file_path
+            .parent()
+            .map(|p| p.to_path_buf());
+
         if let Some(import) = self.get_current_loading_import() {
             if import.default_import
                 && import.identifier_original_name.is_none()
@@ -266,13 +310,37 @@ impl TargetResolver {
             {
                 import.identifier_original_name = Some(local.to_string());
                 import.need_reload = true;
+                import.parent_path = parent_path;
                 // Once read, it is skipped, so read again and look for the declaration
                 // MockAstLoader::reset_loaded_import(import);
             }
         }
     }
 
+    // TODO:
+    pub fn set_ts_namespace_export(&mut self, id: &str) {
+        if self.get_decl_name_for_resolve() != id {
+            return;
+        }
+
+        let parent_path = self
+            .temp_current_read_file_path
+            .parent()
+            .map(|p| p.to_path_buf());
+
+        if let Some(import) = self.get_current_loading_import() {
+            import.default_import = true;
+            import.need_reload = true;
+            import.parent_path = parent_path;
+        }
+    }
+
     pub fn set_original_name(&mut self, exported: &String, local: &str) {
+        let parent_path = self
+            .temp_current_read_file_path
+            .parent()
+            .map(|p| p.to_path_buf());
+
         if let Some(import) = self.get_current_loading_import() {
             let target_name: &String;
 
@@ -297,6 +365,7 @@ impl TargetResolver {
                 // MockAstLoader::reset_loaded_import(import);
                 import.need_reload = true;
             }
+            import.parent_path = parent_path;
         }
     }
 

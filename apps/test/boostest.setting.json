@@ -1,5 +1,5 @@
 {
-  "target_pattern": ["src/tests/**/invest.spec.ts"],
+  "target_pattern": ["src/tests/**/*.spec.ts"],
   "name": "boostest",
 
   "tsconfig": "./tsconfig.json",

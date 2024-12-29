@@ -33,9 +33,9 @@ struct Definition {
     fileName: String,
     // textSpan: TextSpan,
     // kind: String,
-    name: String,
+    // name: String,
     // containerName: String,
-    contextSpan: Option<TextSpan>,
+    contextSpan: TextSpan,
     // isLocal: bool,
     // isAmbient: bool,
     // unverified: bool,
@@ -64,7 +64,7 @@ pub fn tsserver(
     span: Span,
     target_name: &str,
     ts_server_cache: Arc<Mutex<TSServerCache>>,
-) -> Option<Vec<(PathBuf, Option<Span>, String)>> {
+) -> Option<Vec<(PathBuf, Span)>> {
     let mut locked_cache = ts_server_cache.lock().unwrap();
 
     let hash_key = get_id_with_hash(file_path.to_string_lossy().to_string(), span);
@@ -131,14 +131,13 @@ pub fn tsserver(
                                 let mut definitions = Vec::new();
 
                                 for definition in response.body.definitions {
-                                    let adjusted_span = definition.contextSpan.and_then(|span| {
-                                        Some(Span::new(span.start, span.start + span.length))
-                                    });
-
-                                    let result: (PathBuf, Option<Span>, String) = (
+                                    let result: (PathBuf, Span) = (
                                         definition.fileName.clone().into(),
-                                        adjusted_span,
-                                        definition.fileName.clone(),
+                                        Span::new(
+                                            definition.contextSpan.start,
+                                            definition.contextSpan.start
+                                                + definition.contextSpan.length,
+                                        ),
                                     );
 
                                     definitions.push(result);
@@ -184,7 +183,7 @@ fn offset_to_position(offset: u32, source_text: &str) -> Option<Position> {
 
 pub struct DefinitionCache {
     pub name: String,
-    pub result: Vec<(PathBuf, Option<Span>, String)>,
+    pub result: Vec<(PathBuf, Span)>,
 }
 
 pub struct TSServerCache {
@@ -266,12 +265,7 @@ impl TSServerCache {
         output
     }
 
-    pub fn set_definition(
-        &mut self,
-        name: &str,
-        hash_key: &str,
-        result: Vec<(PathBuf, Option<Span>, String)>,
-    ) {
+    pub fn set_definition(&mut self, name: &str, hash_key: &str, result: Vec<(PathBuf, Span)>) {
         let definition = DefinitionCache {
             name: name.to_string(),
             result,

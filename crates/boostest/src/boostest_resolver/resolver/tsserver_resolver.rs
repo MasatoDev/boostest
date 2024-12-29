@@ -7,7 +7,7 @@ use std::sync::{Arc, Mutex};
 
 use oxc::ast::VisitMut;
 
-use crate::boostest_resolver::visit_mut::TargetResolver;
+use crate::boostest_resolver::isit_mut::TargetResolver;
 use crate::boostest_utils::buf::{source_text_from_span, utf16_span_to_utf8_span};
 use crate::boostest_utils::file_utils;
 use crate::boostest_utils::tsserver::{tsserver, TSServerCache};
@@ -18,6 +18,7 @@ pub fn resolve_target_ast_with_tsserver(
     depth: u8,
     ts_server_cache: Arc<Mutex<TSServerCache>>,
 ) -> Result<()> {
+    return Ok(());
     let target_file_path = target_resolver
         .target
         .lock()
@@ -54,7 +55,7 @@ pub fn resolve_target_ast_with_tsserver(
         let span = target.target_reference.span;
         drop(target);
 
-        target_resolver.use_tsserver = true;
+        target_resolver.skip_id_check = true;
 
         if let Some(result) = tsserver(
             project_root_path,
@@ -65,7 +66,7 @@ pub fn resolve_target_ast_with_tsserver(
         ) {
             let mut target_source_text = String::new();
 
-            for (target_file_path, result_span, file_name) in result.iter() {
+            for (target_file_path, result_span) in result.iter() {
                 let target_source = file_utils::read(target_file_path).unwrap_or_default();
 
                 let utf8_span = utf16_span_to_utf8_span(*result_span, &target_source);

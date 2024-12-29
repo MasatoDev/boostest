@@ -1,1 +1,1 @@
-export { LiteralTypeAlias } from "../ts_types/literal";
+export type { LiteralTypeAlias } from "../ts_types/literal";
