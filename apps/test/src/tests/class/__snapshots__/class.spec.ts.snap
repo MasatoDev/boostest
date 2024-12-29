@@ -5,7 +5,7 @@ exports[`Class Tests ArgObjClass matches snapshot 1`] = `"{"name":"test string d
 exports[`Class Tests ArgObjClass2 matches snapshot 1`] = `"{"name":"test string data","age":10,"obj_key":{"obj_name":"test string data","obj_val":10},"obj_key2":{"obj_name":"test string data","obj_val":10}}"`;
 
 exports[`Class Tests ConstructorSignature matches snapshot 1`] = `
-"class ref_918c86bdc296277db65e6efd48c98da06b355275e634c30e981be851125588ff {
+"class ref_fde1c265eff56bba551d380c5ad4c0ad3670f2b5509a2ff5fb00a368f9444abc {
     name;
     constructor(name) {
         this.name = name;
@@ -14,7 +14,7 @@ exports[`Class Tests ConstructorSignature matches snapshot 1`] = `
 `;
 
 exports[`Class Tests ConstructorSignatureInterface matches snapshot 1`] = `
-"class ref_918c86bdc296277db65e6efd48c98da06b355275e634c30e981be851125588ff {
+"class ref_fde1c265eff56bba551d380c5ad4c0ad3670f2b5509a2ff5fb00a368f9444abc {
     name;
     constructor(name) {
         this.name = name;
@@ -23,7 +23,7 @@ exports[`Class Tests ConstructorSignatureInterface matches snapshot 1`] = `
 `;
 
 exports[`Class Tests InnerConstructorSignature matches snapshot 1`] = `
-"class ref_918c86bdc296277db65e6efd48c98da06b355275e634c30e981be851125588ff {
+"class ref_fde1c265eff56bba551d380c5ad4c0ad3670f2b5509a2ff5fb00a368f9444abc {
     name;
     constructor(name) {
         this.name = name;

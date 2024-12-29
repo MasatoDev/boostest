@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate napi_derive;
+
 mod boostest_bundler;
 mod boostest_generator;
 mod boostest_manager;

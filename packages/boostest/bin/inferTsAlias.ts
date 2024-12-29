@@ -4,6 +4,8 @@ const TypeOriginalFlag = {
   constructorSignature: "constructorSignature",
 } as const;
 
+const typeCache = new Map<ts.Type, string>();
+
 /*******************************************/
 /*******************************************/
 /***********  inferTsAlias  ****************/
@@ -66,21 +68,6 @@ export function inferTsAlias(sourceCode: string) {
 
   visit(sourceFile);
 
-  function isClassType(type: ts.Type): boolean {
-    const symbol = type.getSymbol();
-    if (!symbol) return false;
-    return symbol.getDeclarations()?.some(ts.isClassDeclaration) ?? false;
-  }
-
-  function isConstructorType(type: ts.Type): boolean {
-    return (
-      (type.getFlags() & ts.TypeFlags.Object) !== 0 &&
-      type.getConstructSignatures().length > 0
-    );
-  }
-
-  visit(sourceFile);
-
   const output = boostestTypes
     .map(
       (t) =>
@@ -92,32 +79,6 @@ export function inferTsAlias(sourceCode: string) {
   // console.log("🎉🎉🎉", `${output}\n`);
   return `${output}\n\n${code}`;
 }
-
-// const code = `
-// type main = ref_8fa900714581ef4b0ef680d700516c6a590097bd4bc2adbb44922c3a99774834;
-// type ref_8fa900714581ef4b0ef680d700516c6a590097bd4bc2adbb44922c3a99774834 = {
-//     map: ref_624f9d3e9fa6da81cbd5a726917a0357d0350dde4dfe0e348eb3ee3324cfd927<string>;
-// };
-//
-// interface ref_624f9d3e9fa6da81cbd5a726917a0357d0350dde4dfe0e348eb3ee3324cfd927<T> {
-//     [Symbol.iterator](): IterableIterator<T>;
-//     entries(): IterableIterator<[
-//         T,
-//         T
-//     ]>;
-//     /**
-//     * Despite its name, returns an iterable of the values in the set.
-//     */
-//     keys(): IterableIterator<T>;
-//     /**
-//     * Returns an iterable of values in the set.
-//     */
-//     values(): IterableIterator<T>;
-// }
-//
-// `;
-//
-// inferTsAlias(code);
 
 /**********************************************************/
 /**********************************************************/
@@ -135,6 +96,7 @@ function getTextFromNode(
   checker: ts.TypeChecker,
   node: ts.Node,
   is_root: boolean = false,
+  visitedTypes = new Set<ts.Type>(),
 ): string | undefined {
   if (ts.isPropertySignature(node)) {
     if (node.type) {
@@ -156,7 +118,7 @@ function getTextFromNode(
 
       if (!arg) return;
       const type = checker.getTypeFromTypeNode(arg);
-      return `Promise<${getTypeStructure(checker, type)}>`;
+      return `Promise<${getTypeStructure(checker, type, visitedTypes)}>`;
     }
   }
 
@@ -181,15 +143,34 @@ function getTextFromNode(
 /**********************************************************/
 /**********************************************************/
 /**********************************************************/
+
 function getTypeStructure(
   checker: ts.TypeChecker,
   type: ts.Type,
-  typeOriginalFlag?: typeof TypeOriginalFlag,
+  visitedTypes = new Set<ts.Type>(),
+) {
+  if (typeCache.has(type)) {
+    return typeCache.get(type);
+  }
+  const result = getTypeStructureInner(checker, type, visitedTypes);
+  typeCache.set(type, result);
+  return result;
+}
+
+function getTypeStructureInner(
+  checker: ts.TypeChecker,
+  type: ts.Type,
+  visitedTypes = new Set<ts.Type>(),
 ): string {
+  if (visitedTypes.has(type)) {
+    return checker.typeToString(type);
+  }
+  visitedTypes.add(type);
+
   if (checker.typeToString(type).startsWith("Promise")) {
     const arg_type = type.aliasTypeArguments?.[0];
     if (arg_type) {
-      return `Promise<${getTypeStructure(checker, arg_type)}>`;
+      return `Promise<${getTypeStructure(checker, arg_type, visitedTypes)}>`;
     }
   }
 
@@ -218,27 +199,31 @@ function getTypeStructure(
           let paramStructure;
 
           if (param) {
-            const result = getTextFromNode(checker, param);
+            const result = getTextFromNode(checker, param, false, visitedTypes);
             result && (paramStructure = result);
           }
 
           if (!paramStructure) {
             const paramType = checker.getTypeAtLocation(param);
-            paramStructure = getTypeStructure(checker, paramType);
+            paramStructure = getTypeStructure(checker, paramType, visitedTypes);
           }
 
-          constructorArgTypes.push(paramStructure);
+          constructorArgTypes.push(paramStructure!);
         });
       }
     }
 
-    return `["classReference", ${className}, [\n  ${constructorArgTypes.join(
+    return `["classReference", ${className}, [ ${constructorArgTypes.join(
       ",\n  ",
-    )}\n]]`;
+    )}]]`;
   } else if (type.isUnion()) {
-    return type.types.map((t) => getTypeStructure(checker, t)).join(" | ");
+    return type.types
+      .map((t) => getTypeStructure(checker, t, visitedTypes))
+      .join(" | ");
   } else if (type.isIntersection()) {
-    return type.types.map((t) => getTypeStructure(checker, t)).join(" & ");
+    return type.types
+      .map((t) => getTypeStructure(checker, t, visitedTypes))
+      .join(" & ");
   }
   // else if (checker.isTupleType(type)) {
   //   return checker.typeToString(type);
@@ -277,7 +262,7 @@ function getTypeStructure(
             ? "string"
             : "symbol";
 
-      const valueType = getTypeStructure(checker, indexInfo.type);
+      const valueType = getTypeStructure(checker, indexInfo.type, visitedTypes);
       return `[key: ${keyType}]: ${valueType}`;
     });
 
@@ -302,19 +287,25 @@ function getTypeStructure(
 
         for (const param of target.parameters) {
           const propType = checker.getTypeOfSymbol(param);
-          propStructure = getTypeStructure(checker, propType);
+          propStructure = getTypeStructure(checker, propType, visitedTypes);
           resultOfParams =
             (!!resultOfParams ? resultOfParams + ", " : "") +
             // `${param.getName()}: ${propStructure}`;
             `${param.getName()}: any`;
         }
 
-        propStructure = `(${resultOfParams}) => ${checker.typeToString(target.getReturnType())}`;
+        const returnType = target.getReturnType();
+        const expandedReturnType = getTypeStructure(
+          checker,
+          returnType,
+          visitedTypes,
+        );
+        propStructure = `(${resultOfParams}) => ${expandedReturnType}`;
       }
 
       if (!propStructure) {
         const propType = checker.getTypeOfSymbol(prop);
-        propStructure = getTypeStructure(checker, propType);
+        propStructure = getTypeStructure(checker, propType, visitedTypes);
       }
 
       result.push(`${prop.name}: ${propStructure}`);
@@ -329,11 +320,19 @@ function getTypeStructure(
           param,
           param.valueDeclaration!,
         );
-        const expandedParamType = getTypeStructure(checker, paramType);
+        const expandedParamType = getTypeStructure(
+          checker,
+          paramType,
+          visitedTypes,
+        );
         return `${param.getName()}: ${expandedParamType}`;
       });
       const returnType = checker.getReturnTypeOfSignature(signature);
-      const expandedReturnType = getTypeStructure(checker, returnType);
+      const expandedReturnType = getTypeStructure(
+        checker,
+        returnType,
+        visitedTypes,
+      );
 
       const decl = signature.getDeclaration();
       if (decl.kind === ts.SyntaxKind.CallSignature) {
@@ -424,3 +423,30 @@ function removeDuplicateDeclarations(code: string) {
 
   return result;
 }
+
+// const code = `
+// type main =
+//   ref_5450c7e54ff602814aefb578141612331188c886e2c092ce0b16692c10a90d0e;
+// type ref_5450c7e54ff602814aefb578141612331188c886e2c092ce0b16692c10a90d0e = {
+//   regexp: ref_df316930e33dd8c70ce446a1269ebd0fc8c83648e97cba491329daddc19aef5e;
+// };
+// interface ref_df316930e33dd8c70ce446a1269ebd0fc8c83648e97cba491329daddc19aef5e {
+//   exec(
+//     string: string,
+//   ): ref_23fa0c841a57bf38f7d312b179d4bf4f1ae9a2038b2283150dc322460f3c1535 | null;
+//   test(string: string): boolean;
+//   readonly source: string;
+//   readonly global: boolean;
+//   readonly ignoreCase: boolean;
+//   readonly multiline: boolean;
+//   lastIndex: number;
+//   compile(pattern: string, flags?: string): this;
+// }
+// interface ref_23fa0c841a57bf38f7d312b179d4bf4f1ae9a2038b2283150dc322460f3c1535 {
+//   index: number;
+//   input: string;
+//   0: string;
+// }
+// `;
+//
+// console.log(inferTsAlias(code));

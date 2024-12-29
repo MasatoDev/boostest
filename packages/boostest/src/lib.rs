@@ -1,8 +1,10 @@
-use boostest::{generate, resolve_target, OutputCode, OutputOption, ResolvedResult};
-use std::{collections::HashMap, path::Path};
-
 #[macro_use]
 extern crate napi_derive;
+
+use napi::*;
+
+use boostest::{generate, resolve_target, OutputCode, OutputOption, ResolvedResult};
+use std::{collections::HashMap, path::Path};
 
 #[napi]
 pub fn resolve(

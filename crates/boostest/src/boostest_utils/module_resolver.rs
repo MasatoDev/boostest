@@ -3,32 +3,39 @@ use oxc_resolver::{Resolution, ResolveOptions, Resolver, TsconfigOptions, Tsconf
 use std::path::{Path, PathBuf};
 
 pub fn resolve_specifier(
-    path: &Path,
+    path: &Option<PathBuf>,
     specifier: &str,
     ts_config_path: &Option<PathBuf>,
 ) -> Result<Resolution> {
-    let tsconfig = match ts_config_path {
-        Some(ts_config_path) => Some(TsconfigOptions {
-            config_file: PathBuf::from(ts_config_path),
-            references: TsconfigReferences::Auto,
-        }),
+    if let Some(path) = path {
+        let tsconfig = ts_config_path
+            .as_ref()
+            .map(|ts_config_path| TsconfigOptions {
+                config_file: PathBuf::from(ts_config_path),
+                references: TsconfigReferences::Auto,
+            });
 
-        None => None,
-    };
+        let next_file_stem = path.file_stem().ok_or(anyhow!("next file is not found"))?;
+        let next_file_name = next_file_stem.to_string_lossy();
+        let fallback_file_name = match next_file_name.ends_with(".d") {
+            true => format!("{}{}", next_file_name, ".ts"),
+            false => format!("{}{}", next_file_name, ".d.ts"),
+        };
 
-    let options = ResolveOptions {
-        extensions: vec![".d.ts".into(), ".ts".into(), ".tsx".into()],
-        main_files: vec!["index.d".into()],
-        tsconfig: tsconfig,
-        ..ResolveOptions::default()
-    };
+        let options = ResolveOptions {
+            extensions: vec![".d.ts".into(), ".ts".into(), ".tsx".into(), ".js".into()],
+            main_files: vec!["index".into(), fallback_file_name],
+            condition_names: vec!["types".into()],
 
-    match Resolver::new(options).resolve(path, &specifier) {
-        Err(error) => {
-            return Err(anyhow!("ファイル読み込みでエラー: {:?}", error));
+            tsconfig,
+            ..ResolveOptions::default()
+        };
+
+        match Resolver::new(options).resolve(path, specifier) {
+            Err(error) => Err(anyhow!("module resolution error: {:?}", error)),
+            Ok(resolution) => Ok(resolution),
         }
-        Ok(resolution) => {
-            return Ok(resolution);
-        }
+    } else {
+        Err(anyhow!("module resolution error"))
     }
 }

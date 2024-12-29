@@ -11,7 +11,7 @@ exports[`not ref types(direct) Tests Direct bigint matches snapshot 1`] = `""900
 exports[`not ref types(direct) Tests Direct boolean matches snapshot 1`] = `"false"`;
 
 exports[`not ref types(direct) Tests Direct class matches snapshot 1`] = `
-"class ref_7d1e1a1571ff97c69aae931fab051730ed59a740c7d92243ad0feb9cde416f42 {
+"class ref_876fd03c9f43781a5f603af02cb0fcd8b9abb9384aa60b4674d20fe6b0e6c465 {
     name;
     ver;
     constructor(name, ver) {
@@ -24,7 +24,7 @@ exports[`not ref types(direct) Tests Direct class matches snapshot 1`] = `
 exports[`not ref types(direct) Tests Direct conditional matches snapshot 1`] = `"false"`;
 
 exports[`not ref types(direct) Tests Direct constructor matches snapshot 1`] = `
-"class ref_7d1e1a1571ff97c69aae931fab051730ed59a740c7d92243ad0feb9cde416f42 {
+"class ref_876fd03c9f43781a5f603af02cb0fcd8b9abb9384aa60b4674d20fe6b0e6c465 {
     name;
     ver;
     constructor(name, ver) {

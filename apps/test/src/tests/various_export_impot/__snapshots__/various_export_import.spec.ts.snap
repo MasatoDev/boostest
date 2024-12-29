@@ -2,6 +2,8 @@
 
 exports[`Various Export Methods Tests AccessorClass matches snapshot 1`] = `"{"name":"test string data","age":10,"readonlyAge":10}"`;
 
+exports[`Various Export Methods Tests AllExport matches snapshot 1`] = `"{"name":"test string data","ver":10}"`;
+
 exports[`Various Export Methods Tests AnoExportDefaultClass matches snapshot 1`] = `"{"name":"test string data","chips":{"name":"test string data","age":10,"sex":1,"short_name":"john","favorite":{"name":"Calbee Lightly Salted","price":120},"mostFav":{"name":"Pringles Sour Cream & Onion 😀","price":200},"func":"() => { }","undefinedKey":"undefined","anyKey":"any","nullKey":null,"optionalKey":"test string data","unknownKey":"undefined","thisKey":{},"conditionalKey":{"name":"Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔","price":250},"objectKey":{},"voidKey":null,"indexedKey":"test string data","intersectionKey":{"name":"Lay's Classic","price":130,"taste":"test string data"},"arrayKey":[]}}"`;
 
 exports[`Various Export Methods Tests AnoExportDefaultInterface matches snapshot 1`] = `"{"name":"overridden","chips":{"name":"test string data","age":10,"sex":1,"short_name":"john","favorite":{"name":"Calbee Lightly Salted","price":120},"mostFav":{"name":"Pringles Sour Cream & Onion 😀","price":200},"func":"() => { }","undefinedKey":"undefined","anyKey":"any","nullKey":null,"optionalKey":"test string data","unknownKey":"undefined","thisKey":{},"conditionalKey":{"name":"Kettle Brand Sea Salt & Vinegar 日本語が入るとどう？🤔","price":250},"objectKey":{},"voidKey":null,"indexedKey":"test string data","intersectionKey":{"name":"Lay's Classic","price":130,"taste":"test string data"},"arrayKey":[]}}"`;

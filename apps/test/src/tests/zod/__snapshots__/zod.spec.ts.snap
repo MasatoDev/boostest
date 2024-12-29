@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Invest Tests Invest zod matches snapshot 1`] = `"{"username":"test string data"}"`;
