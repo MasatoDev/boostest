@@ -158,12 +158,12 @@ function getTextFromNode(
 function getTypeStructure(
   checker: ts.TypeChecker,
   type: ts.Type,
-  typeOriginalFlag?: typeof TypeOriginalFlag,
+  visitedTypes = new Set<ts.Type>(),
 ): string {
   if (checker.typeToString(type).startsWith("Promise")) {
     const arg_type = type.aliasTypeArguments?.[0];
     if (arg_type) {
-      return `Promise<${getTypeStructure(checker, arg_type)}>`;
+      return `Promise<${getTypeStructure(checker, arg_type, visitedTypes)}>`;
     }
   }
 
@@ -198,7 +198,7 @@ function getTypeStructure(
 
           if (!paramStructure) {
             const paramType = checker.getTypeAtLocation(param);
-            paramStructure = getTypeStructure(checker, paramType);
+            paramStructure = getTypeStructure(checker, paramType, visitedTypes);
           }
 
           constructorArgTypes.push(paramStructure);
@@ -210,9 +210,13 @@ function getTypeStructure(
       ",\n  ",
     )}\n]]`;
   } else if (type.isUnion()) {
-    return type.types.map((t) => getTypeStructure(checker, t)).join(" | ");
+    return type.types
+      .map((t) => getTypeStructure(checker, t, visitedTypes))
+      .join(" | ");
   } else if (type.isIntersection()) {
-    return type.types.map((t) => getTypeStructure(checker, t)).join(" & ");
+    return type.types
+      .map((t) => getTypeStructure(checker, t, visitedTypes))
+      .join(" & ");
   }
   // else if (checker.isTupleType(type)) {
   //   return checker.typeToString(type);
@@ -251,7 +255,7 @@ function getTypeStructure(
             ? "string"
             : "symbol";
 
-      const valueType = getTypeStructure(checker, indexInfo.type);
+      const valueType = getTypeStructure(checker, indexInfo.type, visitedTypes);
       return `[key: ${keyType}]: ${valueType}`;
     });
 
@@ -276,7 +280,7 @@ function getTypeStructure(
 
         for (const param of target.parameters) {
           const propType = checker.getTypeOfSymbol(param);
-          propStructure = getTypeStructure(checker, propType);
+          propStructure = getTypeStructure(checker, propType, visitedTypes);
           resultOfParams =
             (!!resultOfParams ? resultOfParams + ", " : "") +
             // `${param.getName()}: ${propStructure}`;
@@ -288,7 +292,7 @@ function getTypeStructure(
 
       if (!propStructure) {
         const propType = checker.getTypeOfSymbol(prop);
-        propStructure = getTypeStructure(checker, propType);
+        propStructure = getTypeStructure(checker, propType, visitedTypes);
       }
 
       result.push(`${prop.name}: ${propStructure}`);
@@ -303,11 +307,19 @@ function getTypeStructure(
           param,
           param.valueDeclaration!,
         );
-        const expandedParamType = getTypeStructure(checker, paramType);
+        const expandedParamType = getTypeStructure(
+          checker,
+          paramType,
+          visitedTypes,
+        );
         return `${param.getName()}: ${expandedParamType}`;
       });
       const returnType = checker.getReturnTypeOfSignature(signature);
-      const expandedReturnType = getTypeStructure(checker, returnType);
+      const expandedReturnType = getTypeStructure(
+        checker,
+        returnType,
+        visitedTypes,
+      );
 
       const decl = signature.getDeclaration();
       if (decl.kind === ts.SyntaxKind.CallSignature) {
