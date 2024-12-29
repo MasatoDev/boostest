@@ -4,6 +4,8 @@ const TypeOriginalFlag = {
   constructorSignature: "constructorSignature",
 } as const;
 
+const typeCache = new Map<ts.Type, string>();
+
 /*******************************************/
 /*******************************************/
 /***********  inferTsAlias  ****************/
@@ -66,21 +68,6 @@ export function inferTsAlias(sourceCode: string) {
 
   visit(sourceFile);
 
-  function isClassType(type: ts.Type): boolean {
-    const symbol = type.getSymbol();
-    if (!symbol) return false;
-    return symbol.getDeclarations()?.some(ts.isClassDeclaration) ?? false;
-  }
-
-  function isConstructorType(type: ts.Type): boolean {
-    return (
-      (type.getFlags() & ts.TypeFlags.Object) !== 0 &&
-      type.getConstructSignatures().length > 0
-    );
-  }
-
-  visit(sourceFile);
-
   const output = boostestTypes
     .map(
       (t) =>
@@ -109,6 +96,7 @@ function getTextFromNode(
   checker: ts.TypeChecker,
   node: ts.Node,
   is_root: boolean = false,
+  visitedTypes = new Set<ts.Type>(),
 ): string | undefined {
   if (ts.isPropertySignature(node)) {
     if (node.type) {
@@ -130,7 +118,7 @@ function getTextFromNode(
 
       if (!arg) return;
       const type = checker.getTypeFromTypeNode(arg);
-      return `Promise<${getTypeStructure(checker, type)}>`;
+      return `Promise<${getTypeStructure(checker, type, visitedTypes)}>`;
     }
   }
 
@@ -155,11 +143,30 @@ function getTextFromNode(
 /**********************************************************/
 /**********************************************************/
 /**********************************************************/
+
 function getTypeStructure(
   checker: ts.TypeChecker,
   type: ts.Type,
   visitedTypes = new Set<ts.Type>(),
+) {
+  if (typeCache.has(type)) {
+    return typeCache.get(type);
+  }
+  const result = getTypeStructureInner(checker, type, visitedTypes);
+  typeCache.set(type, result);
+  return result;
+}
+
+function getTypeStructureInner(
+  checker: ts.TypeChecker,
+  type: ts.Type,
+  visitedTypes = new Set<ts.Type>(),
 ): string {
+  if (visitedTypes.has(type)) {
+    return checker.typeToString(type);
+  }
+  visitedTypes.add(type);
+
   if (checker.typeToString(type).startsWith("Promise")) {
     const arg_type = type.aliasTypeArguments?.[0];
     if (arg_type) {
@@ -192,7 +199,7 @@ function getTypeStructure(
           let paramStructure;
 
           if (param) {
-            const result = getTextFromNode(checker, param);
+            const result = getTextFromNode(checker, param, false, visitedTypes);
             result && (paramStructure = result);
           }
 
@@ -201,7 +208,7 @@ function getTypeStructure(
             paramStructure = getTypeStructure(checker, paramType, visitedTypes);
           }
 
-          constructorArgTypes.push(paramStructure);
+          constructorArgTypes.push(paramStructure!);
         });
       }
     }
@@ -418,21 +425,27 @@ function removeDuplicateDeclarations(code: string) {
 }
 
 const code = `
-type main = {
-  set: Date;
+type main =
+  ref_5450c7e54ff602814aefb578141612331188c886e2c092ce0b16692c10a90d0e;
+type ref_5450c7e54ff602814aefb578141612331188c886e2c092ce0b16692c10a90d0e = {
+  regexp: ref_df316930e33dd8c70ce446a1269ebd0fc8c83648e97cba491329daddc19aef5e;
+};
+interface ref_df316930e33dd8c70ce446a1269ebd0fc8c83648e97cba491329daddc19aef5e {
+  exec(
+    string: string,
+  ): ref_23fa0c841a57bf38f7d312b179d4bf4f1ae9a2038b2283150dc322460f3c1535 | null;
+  test(string: string): boolean;
+  readonly source: string;
+  readonly global: boolean;
+  readonly ignoreCase: boolean;
+  readonly multiline: boolean;
+  lastIndex: number;
+  compile(pattern: string, flags?: string): this;
 }
-
-declare class VarDate {
-    private constructor();
-    private VarDate_typekey: VarDate;
-}
-
-interface DateConstructor {
-    new (vd: VarDate): Date;
-}
-
-interface Date {
-    getVarDate: () => VarDate;
+interface ref_23fa0c841a57bf38f7d312b179d4bf4f1ae9a2038b2283150dc322460f3c1535 {
+  index: number;
+  input: string;
+  0: string;
 }
 `;
 

@@ -1,5 +1,5 @@
 export type BuiltInType = {
-  date: Date;
+  // date: Date;
   // set: Set<string>;
   // map: Map<string, number>;
   // array: Array<string>;
@@ -9,7 +9,7 @@ export type BuiltInType = {
   // boolean: Boolean;
   // symbol: Symbol;
   // function: Function;
-  // regexp: RegExp;
+  regexp: RegExp;
   // error: Error;
   // promise: Promise<string>;
   // arrayBuffer: ArrayBuffer;
