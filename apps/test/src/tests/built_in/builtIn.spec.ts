@@ -11,7 +11,7 @@ import { boostestClassBuiltInType } from "./boostest_output/boostestClassBuiltIn
 describe("BuiltIn Tests", () => {
   runSnapshotTest(
     "type alias BuiltIn",
-    bhogeoostestTSAliasBuiltInType<BuiltInType>(),
+    boostestTSAliasBuiltInType<BuiltInType>(),
   );
   // runSnapshotTest(
   //   "interface BuiltIn",
