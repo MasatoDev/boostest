@@ -1,4 +1,7 @@
-<img width="400" alt="スクリーンショット 2024-07-23 19 22 04" src="https://github.com/user-attachments/assets/235342dc-fb7e-4b51-8ec7-5a3a21585ec7" />
+<img width="1414" alt="スクリーンショット 2024-12-30 14 02 09" src="https://github.com/user-attachments/assets/00b61cc0-a869-413c-8952-590de2a80af6" />
+
+
+
 <br />
 https://www.npmjs.com/package/@boostest/cli
 
