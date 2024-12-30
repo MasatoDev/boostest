@@ -1,5 +1,7 @@
 <img width="1414" alt="スクリーンショット 2024-12-30 14 02 09" src="https://github.com/user-attachments/assets/00b61cc0-a869-413c-8952-590de2a80af6" />
 
+
+
 <br />
 https://www.npmjs.com/package/@boostest/cli
 
@@ -64,11 +66,12 @@ type User = {
   // ...more complex types
 };
 interface Job {
-  name: string;
+  name: string
   // ...more complex types
 }
 class Test {
-  constructor(public name: string) {}
+  constructor(public name: string) {
+  }
 }
 
 const user = boostestUser<User>(); // Cannot find name 'boostestUser'
@@ -117,6 +120,7 @@ const user = boostestUser<User>({ age: 30 }); // overwrites the default value ag
 
 console.log("user", user);
 // user { name: "init string value", age: 30 }
+
 ```
 
 <br />
@@ -153,7 +157,7 @@ const testData = hogeTest<TypeName>();
 
 ### output
 
-If `single` is set to `true`, the test data will be output to a single file.
+If `single` is set to `true`, the test data will be output to a single directory.
 
 ```bash
 project root
@@ -212,35 +216,36 @@ any -> "any value"
 
 ## Types
 
-| type              | support | example                                         | default result val                          |
-| ----------------- | ------- | ----------------------------------------------- | ------------------------------------------- |
-| string            | ○       | `string`                                        | `"test string data"`                        |
-| number            | ○       | `number`                                        | `10`                                        |
-| bigint            | ○       | `100n`                                          | `9007199254740991`                          |
-| boolean           | ○       | `boolean`                                       | `true`                                      |
-| undefined         | ○       | `undefined`                                     | `undefined`                                 |
-| null              | ○       | `null`                                          | `null`                                      |
-| any               | ○       | `any`                                           | `"any"`                                     |
-| unknown           | ○       | `unknown`                                       | `undefined`                                 |
-| never             | ○       | `never`                                         | `null`                                      |
-| object            | ○       | `object`                                        | `{}`                                        |
-| void              | ○       | `void`                                          | `null`                                      |
-| function          | ○       | `()=>void`                                      | `()=>{}`                                    |
-| array             | ○       | `string[]`                                      | `[]`                                        |
-| union             | ○       | `string \| number`                              | `"test string data"`                        |
-| conditional       | ○       | `string extends number ? true : false;`         | `false` (Condition Result)                  |
-| symbol            | ○       | `symbol`                                        | `Symbol()`                                  |
-| tuple type        | ○       | `[string, number]`                              | `["test string data", 10]`                  |
-| named tuple type  | ○       | `[name: string, age: number]`                   | `["test string data", 10]`                  |
-| intersection type | ○       | `{name: string} & {age: number}`                | `{ name: "init string value", age: 10000 }` |
-| keyof             | ○       | `keyof { name: string }`                        | `name`                                      |
-| typeof            | ○       | `typeof Hoge // const Hoge = { name: "hoge" };` | `user { name: "init string value" }`        |
-| infer             | ○       | -                                               | -                                           |
-| mapped type       | ○       | -                                               | -                                           |
-| namespace         | ○       | -                                               | -                                           |
-| constructor type  | ○       | -                                               | -                                           |
-| index accessor    | ○       | -                                               | -                                           |
-| template          | ○       | -                                               | -                                           |
+| type              | support | example                                 | default result val               |
+| ----------------- | ------- | --------------------------------------- | -------------------------------- |
+| string            | ○       | `string`                                | `"test string data"`             |
+| number            | ○       | `number`                                | `10`                             |
+| bigint            | ○       | `100n`                                  | `9007199254740991`               |
+| boolean           | ○       | `boolean`                               | `true`                           |
+| undefined         | ○       | `undefined`                             | `undefined`                      |
+| null              | ○       | `null`                                  | `null`                           |
+| any               | ○       | `any`                                   | `"any"`                          |
+| unknown           | ○       | `unknown`                               | `undefined`                      |
+| never             | ○       | `never`                                 | `null`                           |
+| object            | ○       | `object`                                | `{}`                             |
+| void              | ○       | `void`                                  | `null`                           |
+| function          | ○       | `()=>void`                              | `()=>{}`                         |
+| array             | ○       | `string[]`                              | `[]`                             |
+| union             | ○       | `string \| number`                      | `"test string data"`             |
+| conditional       | ○       | `string extends number ? true : false;` | `false` (Condition Result)       |
+| symbol            | ○       | `symbol`                                | `Symbol()`                       |
+| tuple type        | ○       | `[string, number]`                      | `["test string data", 10]`       |
+| named tuple type  | ○       | `[name: string, age: number]`           | `["test string data", 10]`       |
+| intersection type | ○       | `{name: string} & {age: number}`        | `{ name: "init string value", age: 10000 }`      |
+| keyof             | ○       | `keyof { name: string }`                | `name`                           |
+| typeof            | ○       | `typeof Hoge // const Hoge = { name: "hoge" };` | `user { name: "init string value" }` |
+| infer             | ○       |  -                                      | -                                |
+| mapped type       | ○       |  -                                      | -                                |
+| namespace         | ○       |  -                                      | -                                |
+| constructor type  | ○       |  -                                      | -                                |
+| index accessor    | ○       |  -                                      | -                                |
+| template          | ○       |  -                                      | -                                |
+
 
 ## Utilities type
 
@@ -261,6 +266,7 @@ any -> "any value"
 | `ReturnType<T>`            | ○       |
 | `InstanceType<T>`          | ○       |
 | `Promise<T>`               | ○       |
+
 
 ## Import/Export
 
