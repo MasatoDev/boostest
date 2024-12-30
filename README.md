@@ -157,7 +157,7 @@ const testData = hogeTest<TypeName>();
 
 ### output
 
-If `single` is set to `true`, the test data will be output to a single file.
+If `single` is set to `true`, the test data will be output to a single directory.
 
 ```bash
 project root
