@@ -22,20 +22,3 @@ for dir in "${directories[@]}"; do
     echo "Directory $dir does not exist, skipping..."
   fi
 done
-
-./darwin-arm64:
-README.md boostest.darwin-arm64.node package.json
-
-./darwin-x64:
-README.md boostest.darwin-x64.node package.json
-
-./linux-x64-gnu:
-README.md boostest.linux-x64-gnu.node package.json
-
-./win32-x64-msvc:
-README.md boostest.win32-x64-msvc.node package.json
-
-boostest.darwin-arm64.node
-boostest.darwin-x64.node
-boostest.linux-x64-gnu.node
-boostest.win32-x64-msvc.node
