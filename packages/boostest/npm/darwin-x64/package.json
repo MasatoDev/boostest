@@ -1,6 +1,6 @@
 {
   "name": "@boostest/boostest-darwin-x64",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
     "access": "public"
@@ -20,4 +20,3 @@
     "node": ">= 10"
   }
 }
-
