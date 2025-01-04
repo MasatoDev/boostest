@@ -286,6 +286,17 @@ impl<'a> VisitMut<'a> for CleanupVisitor {
                         false
                     }
                 }
+                Statement::TSModuleDeclaration(decl) => {
+                    self.remain_targets.contains(&decl.id.to_string())
+                }
+                Statement::FunctionDeclaration(decl) => {
+                    if let Some(id) = &decl.id {
+                        self.remain_targets.contains(&id.name.to_string())
+                    } else {
+                        true
+                    }
+                }
+
                 // Statement::VariableDeclaration(decl) => {
                 //     decl.declarations.retain(|decl| {
                 //         if let Some(id) = &decl.id.get_identifier() {

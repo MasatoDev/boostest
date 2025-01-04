@@ -301,12 +301,19 @@ impl ResolvedDefinitions {
         original_name: &str,
     ) -> Option<String> {
         if let Some(Some(definitions)) = self.inner.get(key) {
-            if let Some((file_path, span, _, target_type)) = bundle_target_defs(definitions) {
-                if target_type == TargetType::ImportAll {
+            if let Some(definition) = definitions.last() {
+                let TargetDefinition {
+                    file_path,
+                    span,
+                    target_type,
+                    ..
+                } = definition;
+
+                if *target_type == TargetType::ImportAll {
                     return Some(original_name.to_string());
                 }
 
-                let name = get_id_with_hash(file_path, span);
+                let name = get_id_with_hash(file_path.to_string_lossy().to_string(), span.clone());
                 return Some(name);
             }
             return None;
@@ -526,27 +533,4 @@ pub fn gen_target_supplement(is_generic_property: bool) -> Option<TargetSuppleme
     Some(TargetSupplement {
         is_generic_property,
     })
-}
-
-pub fn bundle_target_defs(
-    definitions: &Vec<TargetDefinition>,
-) -> Option<(String, Span, Vec<String>, TargetType)> {
-    if let Some(definition) = definitions.last() {
-        let file_path = definition.file_path.to_string_lossy().to_string();
-        let mut defined_generics = definition.defined_generics.clone();
-        let mut new_span = Span::new(0, 0);
-
-        for def in definitions.iter() {
-            new_span = Span::new(new_span.start + def.span.start, new_span.end + def.span.end);
-            defined_generics.extend(def.defined_generics.clone());
-        }
-
-        return Some((
-            file_path,
-            new_span,
-            defined_generics,
-            definition.target_type,
-        ));
-    }
-    return None;
 }

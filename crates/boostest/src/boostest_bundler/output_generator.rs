@@ -2,8 +2,8 @@ use std::sync::{Arc, Mutex};
 
 use oxc::allocator::{self, Allocator, Vec as AllocVec};
 use oxc::ast::visit::walk_mut::{
-    walk_function, walk_statements, walk_ts_type, walk_ts_type_alias_declaration,
-    walk_ts_type_name, walk_variable_declarator,
+    walk_function, walk_statements, walk_ts_module_declaration, walk_ts_type,
+    walk_ts_type_alias_declaration, walk_ts_type_name, walk_variable_declarator,
 };
 use oxc::codegen::Codegen;
 use oxc::parser::Parser;
@@ -110,9 +110,19 @@ impl<'a> VisitMut<'a> for OutputGenerator<'a> {
                     self.ast_builder
                         .binding_identifier(Span::default(), new_name),
                 );
-                walk_function(self, it, flags);
             }
         }
+
+        walk_function(self, it, flags);
+    }
+
+    fn visit_ts_module_declaration(&mut self, it: &mut oxc::ast::ast::TSModuleDeclaration<'a>) {
+        if it.id.to_string() == self.specifier {
+            it.id = self
+                .ast_builder
+                .ts_module_declaration_name_binding_identifier(SPAN, self.var_name.clone());
+        }
+        walk_ts_module_declaration(self, it);
     }
 
     fn visit_variable_declarator(&mut self, it: &mut oxc::ast::ast::VariableDeclarator<'a>) {
@@ -125,10 +135,9 @@ impl<'a> VisitMut<'a> for OutputGenerator<'a> {
                 let none: Option<allocator::Box<TSTypeAnnotation<'a>>> = None;
 
                 it.id = self.ast_builder.binding_pattern(binding_id, none, false);
-
-                walk_variable_declarator(self, it);
             }
         }
+        walk_variable_declarator(self, it);
     }
 
     fn visit_class(&mut self, class: &mut Class<'a>) {
@@ -144,28 +153,26 @@ impl<'a> VisitMut<'a> for OutputGenerator<'a> {
                     self.ast_builder
                         .binding_identifier(Span::default(), self.var_name.clone()),
                 );
-
-                if let Some(id) = &mut class.id {
-                    self.visit_binding_identifier(id);
-                }
-
-                if let Some(type_parameters) = &mut class.type_parameters {
-                    self.visit_ts_type_parameter_declaration(type_parameters);
-                }
-
-                class.super_class = None;
-                // if let Some(super_class) = &mut class.super_class {
-                //     self.visit_expression(super_class);
-                // }
-                // if let Some(super_type_parameters) = &mut class.super_type_parameters {
-                //     self.visit_ts_type_parameter_instantiation(super_type_parameters);
-                // }
-                if let Some(implements) = &mut class.implements {
-                    self.visit_ts_class_implementses(implements);
-                }
-                self.visit_class_body(&mut class.body);
             }
         }
+        if let Some(id) = &mut class.id {
+            self.visit_binding_identifier(id);
+        }
+        if let Some(type_parameters) = &mut class.type_parameters {
+            self.visit_ts_type_parameter_declaration(type_parameters);
+        }
+
+        class.super_class = None;
+        // if let Some(super_class) = &mut class.super_class {
+        //     self.visit_expression(super_class);
+        // }
+        // if let Some(super_type_parameters) = &mut class.super_type_parameters {
+        //     self.visit_ts_type_parameter_instantiation(super_type_parameters);
+        // }
+        if let Some(implements) = &mut class.implements {
+            self.visit_ts_class_implementses(implements);
+        }
+        self.visit_class_body(&mut class.body);
     }
 
     // handle mock target is type alias
@@ -180,13 +187,11 @@ impl<'a> VisitMut<'a> for OutputGenerator<'a> {
             decl.id = self
                 .ast_builder
                 .binding_identifier(Span::default(), self.var_name.clone());
-
-            if let Some(type_parameters) = &mut decl.type_parameters {
-                self.visit_ts_type_parameter_declaration(type_parameters);
-            }
-
-            walk_ts_type_alias_declaration(self, decl);
         }
+        if let Some(type_parameters) = &mut decl.type_parameters {
+            self.visit_ts_type_parameter_declaration(type_parameters);
+        }
+        walk_ts_type_alias_declaration(self, decl);
     }
 
     fn visit_ts_interface_declaration(&mut self, decl: &mut TSInterfaceDeclaration<'a>) {
@@ -200,16 +205,15 @@ impl<'a> VisitMut<'a> for OutputGenerator<'a> {
             decl.id = self
                 .ast_builder
                 .binding_identifier(Span::default(), self.var_name.clone());
-
-            decl.extends = None;
-            // if let Some(extends) = &mut decl.extends {
-            //     self.visit_ts_interface_heritages(extends);
-            // }
-            if let Some(type_parameters) = &mut decl.type_parameters {
-                self.visit_ts_type_parameter_declaration(type_parameters);
-            }
-            self.visit_ts_interface_body(&mut decl.body);
         }
+        decl.extends = None;
+        // if let Some(extends) = &mut decl.extends {
+        //     self.visit_ts_interface_heritages(extends);
+        // }
+        if let Some(type_parameters) = &mut decl.type_parameters {
+            self.visit_ts_type_parameter_declaration(type_parameters);
+        }
+        self.visit_ts_interface_body(&mut decl.body);
 
         // if let Some(extends) = &mut decl.extends {
         //     for extend in extends.iter_mut() {
