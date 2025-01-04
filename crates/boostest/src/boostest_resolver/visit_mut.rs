@@ -7,10 +7,10 @@ use oxc::ast::{match_declaration, match_module_declaration, match_ts_type_name};
 
 use oxc::ast::ast::{
     BindingPatternKind, Class, ExportAllDeclaration, ExportDefaultDeclaration,
-    ExportDefaultDeclarationKind, ExportNamedDeclaration, FormalParameters, IdentifierReference,
-    MethodDefinition, TSInterfaceDeclaration, TSModuleDeclaration, TSModuleReference,
-    TSNamespaceExportDeclaration, TSTypeAliasDeclaration, TSTypeName, TSTypeQueryExprName,
-    VariableDeclaration,
+    ExportDefaultDeclarationKind, ExportNamedDeclaration, FormalParameters, Function,
+    IdentifierReference, MethodDefinition, TSInterfaceDeclaration, TSModuleDeclaration,
+    TSModuleReference, TSNamespaceExportDeclaration, TSTypeAliasDeclaration, TSTypeName,
+    TSTypeQueryExprName, VariableDeclaration,
 };
 use oxc::ast::{
     ast::{
@@ -19,6 +19,7 @@ use oxc::ast::{
     },
     VisitMut,
 };
+use oxc::semantic::ScopeFlags;
 
 use super::target::{gen_target_supplement, DeclType, TargetDefinition, TargetReference};
 pub use super::target_resolver::TargetResolver;
@@ -96,8 +97,8 @@ impl<'a> VisitMut<'a> for TargetResolver {
         match it {
             Declaration::VariableDeclaration(it) => self.visit_variable_declaration(it),
             Declaration::FunctionDeclaration(it) => {
-                // let flags = ScopeFlags::Function;
-                // self.visit_function(it, flags)
+                let flags = ScopeFlags::Function;
+                self.visit_function(it, flags)
             }
             Declaration::ClassDeclaration(it) => self.visit_class(it),
             Declaration::TSTypeAliasDeclaration(it) => self.visit_ts_type_alias_declaration(it),
@@ -280,16 +281,63 @@ impl<'a> VisitMut<'a> for TargetResolver {
     /*************************************************/
     /*************************************************/
 
-    fn visit_function(
-        &mut self,
-        it: &mut oxc::ast::ast::Function<'a>,
-        flags: oxc::semantic::ScopeFlags,
-    ) {
-        walk_function(self, it, flags);
-    }
-
     fn visit_ts_enum_declaration(&mut self, it: &mut oxc::ast::ast::TSEnumDeclaration<'a>) {
         walk_ts_enum_declaration(self, it);
+    }
+
+    fn visit_function(&mut self, it: &mut Function<'a>, flags: ScopeFlags) {
+        // skip function is included by class
+        if flags.is_constructor() || flags.is_set_or_get_accessor() {
+            walk_function(self, it, flags);
+            return;
+        }
+
+        // chack declaration
+        let target_name = self.get_decl_name_for_resolve();
+        if let Some(identifier) = &it.id.clone() {
+            if self.skip_id_check || identifier.name == *target_name {
+                let is_setable = self
+                    .resolved_definitions
+                    .lock()
+                    .unwrap()
+                    .is_setable_target_definition(
+                        &self.target.lock().unwrap().target_reference,
+                        TargetType::Function,
+                        self.target_decl_type.clone(),
+                    );
+                if !is_setable {
+                    return;
+                }
+
+                if let Some(type_parameters) = &mut it.type_parameters {
+                    self.visit_ts_type_parameter_declaration(type_parameters);
+                }
+
+                if !ignore_ref_name(&identifier.name) {
+                    walk_function(self, it, flags);
+
+                    if !self.skip_set_definition {
+                        let target_def = TargetDefinition {
+                            specifier: identifier.name.to_string(),
+                            span: calc_prop_span(it.span, self.read_file_span),
+                            file_path: self.temp_current_read_file_path.clone(),
+                            target_type: TargetType::Function,
+                            defined_generics: self.defined_generics.clone(),
+                        };
+
+                        self.resolved_definitions
+                            .lock()
+                            .unwrap()
+                            .set_target_definition(
+                                &self.target.lock().unwrap().target_reference,
+                                target_def,
+                            );
+                    }
+                }
+
+                self.set_resolved();
+            }
+        }
     }
 
     fn visit_class(&mut self, class: &mut Class<'a>) {

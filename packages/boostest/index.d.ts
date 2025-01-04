@@ -8,8 +8,9 @@ export const enum TargetType {
   TSInterface = 1,
   TSTypeAlias = 2,
   Variable = 3,
-  TSModule = 4,
-  ImportAll = 5
+  Function = 4,
+  TSModule = 5,
+  ImportAll = 6
 }
 export interface OutputCode {
   code: string
