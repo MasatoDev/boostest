@@ -73,9 +73,11 @@ pub fn resolve_target(
                     &next_import.full_path,
                     &setting.tsconfig,
                 );
+
                 if let Ok(resolution) = resolution_result {
                     // println!("\n✅resolution: {:?}", resolution);
                     let resolution_path = resolution.full_path();
+
                     read_file_path = resolution_path.clone();
                     next_import.canonical_path = Some(resolution_path);
 

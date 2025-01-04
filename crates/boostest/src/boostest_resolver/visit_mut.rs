@@ -268,7 +268,8 @@ impl<'a> VisitMut<'a> for TargetResolver {
 
     fn visit_function(&mut self, it: &mut Function<'a>, flags: ScopeFlags) {
         // skip function is included by class
-        if flags.is_constructor() || flags.is_set_or_get_accessor() {
+        // TODO: check function
+        if flags.is_constructor() || flags.is_set_or_get_accessor() || flags.is_function() {
             walk_function(self, it, flags);
             return;
         }

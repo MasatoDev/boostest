@@ -217,7 +217,7 @@ impl ResolvedDefinitions {
             TargetType::TSInterface => decl_type == DeclType::Type,
             TargetType::TSTypeAlias => decl_type == DeclType::Type,
             TargetType::Variable => decl_type == DeclType::Value,
-            TargetType::TSModule => decl_type == DeclType::Value,
+            TargetType::TSModule => true,
             TargetType::Function => true,
             TargetType::Class => true,
             TargetType::ImportAll => true,
