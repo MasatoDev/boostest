@@ -1,7 +1,7 @@
 use oxc::ast::visit::walk_mut::{
     walk_formal_parameters, walk_function, walk_identifier_name, walk_method_definition,
     walk_ts_enum_declaration, walk_ts_infer_type, walk_ts_module_declaration_body,
-    walk_ts_type_parameter_declaration,
+    walk_ts_type_parameter_declaration, walk_variable_declaration, walk_variable_declarator,
 };
 use oxc::ast::{match_declaration, match_module_declaration, match_ts_type_name};
 
@@ -247,26 +247,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
         }
 
         if let Some(export_named_decl) = declaration {
-            match export_named_decl {
-                Declaration::ClassDeclaration(class) => {
-                    self.visit_class(class);
-                }
-                Declaration::TSTypeAliasDeclaration(decl) => {
-                    self.visit_ts_type_alias_declaration(decl);
-                }
-                Declaration::TSInterfaceDeclaration(decl) => {
-                    self.visit_ts_interface_declaration(decl)
-                }
-                Declaration::VariableDeclaration(var_decl) => {
-                    self.visit_variable_declaration(var_decl);
-                }
-                Declaration::TSModuleDeclaration(module_decl) => {
-                    self.visit_ts_module_declaration(module_decl);
-                }
-                _ => {
-                    // println!("Another Statement {:?}", export_named_decl);
-                }
-            }
+            self.visit_declaration(export_named_decl);
         }
     }
 
@@ -294,6 +275,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
 
         // chack declaration
         let target_name = self.get_decl_name_for_resolve();
+
         if let Some(identifier) = &it.id.clone() {
             if self.skip_id_check || identifier.name == *target_name {
                 let is_setable = self
@@ -469,6 +451,8 @@ impl<'a> VisitMut<'a> for TargetResolver {
                     if !is_setable {
                         return;
                     }
+
+                    walk_variable_declarator(self, decl);
 
                     if !self.skip_set_definition {
                         let target_def = TargetDefinition {
