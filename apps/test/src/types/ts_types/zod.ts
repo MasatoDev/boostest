@@ -16,25 +16,20 @@ export const userScheme = z.object({
   strings: z.array(z.object({ value: z.string() })),
 });
 
-export const UserResponseSchema = extendApi(
-  z.array(
-    z.object({
-      id: extendApi(z.number().min(1), {
-        description: "ID",
-        example: 123,
-        format: "int64",
-      }),
-      name: extendApi(z.string().max(64).nullable(), {
-        description: "Name",
-        example: "HeyShohei",
-      }),
-      URL: extendApi(z.string().nullable(), {
-        description: "image Url",
-        example: "https://example.com/images/main.jpg",
-      }),
+export const UserResponseSchema = z.array(
+  z.object({
+    id: extendApi(z.number().min(1), {
+      description: "ID",
+      example: 123,
+      format: "int64",
     }),
-  ),
-  {
-    description: "UserResponse",
-  },
+    name: extendApi(z.string().max(64).nullable(), {
+      description: "Name",
+      example: "HeyShohei",
+    }),
+    URL: extendApi(z.string().nullable(), {
+      description: "image Url",
+      example: "https://example.com/images/main.jpg",
+    }),
+  }),
 );

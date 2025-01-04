@@ -23,9 +23,17 @@ pub fn resolve_specifier(
         };
 
         let options = ResolveOptions {
-            extensions: vec![".d.ts".into(), ".ts".into(), ".tsx".into(), ".js".into()],
+            extensions: vec![
+                ".d.ts".into(),
+                ".ts".into(),
+                ".tsx".into(),
+                ".js".into(),
+                ".jsx".into(),
+            ],
+            main_fields: vec!["types".into()],
             main_files: vec!["index".into(), fallback_file_name],
             condition_names: vec!["types".into()],
+            builtin_modules: true,
 
             tsconfig,
             ..ResolveOptions::default()

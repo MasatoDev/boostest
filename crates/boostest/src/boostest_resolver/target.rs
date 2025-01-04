@@ -218,6 +218,7 @@ impl ResolvedDefinitions {
             TargetType::TSTypeAlias => decl_type == DeclType::Type,
             TargetType::Variable => decl_type == DeclType::Value,
             TargetType::TSModule => decl_type == DeclType::Value,
+            TargetType::Function => decl_type == DeclType::Value,
             TargetType::Class => true,
             TargetType::ImportAll => true,
         };

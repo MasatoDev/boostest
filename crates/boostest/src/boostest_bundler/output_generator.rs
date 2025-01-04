@@ -2,8 +2,8 @@ use std::sync::{Arc, Mutex};
 
 use oxc::allocator::{self, Allocator, Vec as AllocVec};
 use oxc::ast::visit::walk_mut::{
-    walk_statements, walk_ts_type, walk_ts_type_alias_declaration, walk_ts_type_name,
-    walk_variable_declarator,
+    walk_function, walk_statements, walk_ts_type, walk_ts_type_alias_declaration,
+    walk_ts_type_name, walk_variable_declarator,
 };
 use oxc::codegen::Codegen;
 use oxc::parser::Parser;
@@ -108,6 +108,23 @@ impl<'a> VisitMut<'a> for OutputGenerator<'a> {
             }
         }
     }
+
+    // fn visit_function(
+    //     &mut self,
+    //     it: &mut oxc::ast::ast::Function<'a>,
+    //     flags: oxc::semantic::ScopeFlags,
+    // ) {
+    //     if let Some(id) = &it.id {
+    //         if id.name == self.specifier {
+    //             let new_name = self.var_name.clone();
+    //             it.id = Some(
+    //                 self.ast_builder
+    //                     .binding_identifier(Span::default(), new_name),
+    //             );
+    //             walk_function(self, it, flags);
+    //         }
+    //     }
+    // }
 
     fn visit_class(&mut self, class: &mut Class<'a>) {
         if let Some(identifier) = &class.id {

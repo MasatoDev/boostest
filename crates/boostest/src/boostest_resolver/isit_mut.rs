@@ -2,17 +2,17 @@ use oxc::allocator::Vec as AllocVec;
 
 use oxc::ast::match_ts_type_name;
 use oxc::ast::visit::walk_mut::{
-    walk_formal_parameters, walk_identifier_name, walk_method_definition,
-    walk_ts_module_declaration_body, walk_ts_type_name, walk_ts_type_parameter_declaration,
-    walk_ts_type_query_expr_name, walk_ts_type_reference,
+    walk_formal_parameters, walk_function, walk_identifier_name, walk_method_definition,
+    walk_ts_infer_type, walk_ts_module_declaration_body, walk_ts_type_name,
+    walk_ts_type_parameter_declaration, walk_ts_type_query_expr_name, walk_ts_type_reference,
 };
 
 use oxc::ast::ast::{
     BindingPatternKind, Class, ExportAllDeclaration, ExportDefaultDeclaration,
-    ExportDefaultDeclarationKind, ExportNamedDeclaration, FormalParameters, IdentifierReference,
-    MethodDefinition, TSInterfaceDeclaration, TSModuleDeclaration, TSModuleReference,
-    TSNamespaceExportDeclaration, TSTypeAliasDeclaration, TSTypeName, TSTypeQueryExprName,
-    VariableDeclaration,
+    ExportDefaultDeclarationKind, ExportNamedDeclaration, FormalParameters, Function,
+    IdentifierReference, MethodDefinition, TSInterfaceDeclaration, TSModuleDeclaration,
+    TSModuleReference, TSNamespaceExportDeclaration, TSTypeAliasDeclaration, TSTypeName,
+    TSTypeQueryExprName, VariableDeclaration,
 };
 use oxc::ast::{
     ast::{
@@ -21,12 +21,13 @@ use oxc::ast::{
     },
     VisitMut,
 };
+use oxc::semantic::ScopeFlags;
 use oxc::span::Span;
 
 use super::target::{gen_target_supplement, DeclType, TargetDefinition, TargetReference};
 pub use super::target_resolver::TargetResolver;
 
-use crate::boostest_utils::ast_utils::{calc_prop_span, ignore_ref_name};
+use crate::boostest_utils::ast_utils::{calc_prop_span, ignore_name, ignore_ref_name};
 use crate::boostest_utils::napi::TargetType;
 
 impl<'a> VisitMut<'a> for TargetResolver {
@@ -62,6 +63,9 @@ impl<'a> VisitMut<'a> for TargetResolver {
                 /***************/
                 /* Declaration */
                 /***************/
+                Statement::FunctionDeclaration(func) => {
+                    // self.visit_function(func, ScopeFlags::Function);
+                }
                 Statement::ClassDeclaration(class) => self.visit_class(class),
                 Statement::TSTypeAliasDeclaration(decl) => {
                     self.visit_ts_type_alias_declaration(decl);
@@ -237,6 +241,9 @@ impl<'a> VisitMut<'a> for TargetResolver {
                 Declaration::TSModuleDeclaration(module_decl) => {
                     self.visit_ts_module_declaration(module_decl);
                 }
+                Declaration::FunctionDeclaration(func) => {
+                    // self.visit_function(func, ScopeFlags::Function);
+                }
                 _ => {
                     // println!("Another Statement {:?}", export_named_decl);
                 }
@@ -246,6 +253,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
 
     fn visit_export_all_declaration(&mut self, decl: &mut ExportAllDeclaration<'a>) {
         let full_path = decl.source.value.clone().into_string();
+        // println!("ExportAllDeclaration {:?}", full_path);
         self.set_all_flag_temp_import_source(full_path);
     }
 
@@ -309,6 +317,14 @@ impl<'a> VisitMut<'a> for TargetResolver {
         // }
     }
 
+    // skip add props infer type
+    fn visit_ts_infer_type(&mut self, it: &mut oxc::ast::ast::TSInferType<'a>) {
+        self.defined_generics
+            .push(it.type_parameter.name.to_string());
+        walk_ts_infer_type(self, it);
+    }
+
+    // skip add props generic type
     fn visit_ts_type_parameter_declaration(
         &mut self,
         it: &mut oxc::ast::ast::TSTypeParameterDeclaration<'a>,
@@ -487,6 +503,24 @@ impl<'a> VisitMut<'a> for TargetResolver {
         }
     }
 
+    // pub fn walk_declaration<'a, V: VisitMut<'a>>(visitor: &mut V, it: &mut Declaration<'a>) {
+    //     match it {
+    //         Declaration::VariableDeclaration(it) => visitor.visit_variable_declaration(it),
+    //         Declaration::FunctionDeclaration(it) => {
+    //             let flags = ScopeFlags::Function;
+    //             visitor.visit_function(it, flags)
+    //         }
+    //         Declaration::ClassDeclaration(it) => visitor.visit_class(it),
+    //         Declaration::TSTypeAliasDeclaration(it) => visitor.visit_ts_type_alias_declaration(it),
+    //         Declaration::TSInterfaceDeclaration(it) => visitor.visit_ts_interface_declaration(it),
+    //         Declaration::TSEnumDeclaration(it) => visitor.visit_ts_enum_declaration(it),
+    //         Declaration::TSModuleDeclaration(it) => visitor.visit_ts_module_declaration(it),
+    //         Declaration::TSImportEqualsDeclaration(it) => {
+    //             visitor.visit_ts_import_equals_declaration(it)
+    //         }
+    //     }
+    // }
+
     fn visit_variable_declaration(&mut self, var_decl: &mut VariableDeclaration<'a>) {
         var_decl.declarations.iter_mut().for_each(|decl| {
             if let BindingPatternKind::BindingIdentifier(id) = &decl.id.kind {
@@ -541,6 +575,57 @@ impl<'a> VisitMut<'a> for TargetResolver {
                 }
             }
         });
+    }
+
+    fn visit_function(&mut self, it: &mut Function<'a>, flags: ScopeFlags) {
+        let target_name = self.get_decl_name_for_resolve();
+        let func_name = it
+            .name()
+            .map(|ok_name| ok_name.to_string())
+            .unwrap_or_else(|| String::default());
+
+        if self.skip_id_check || func_name == *target_name {
+            let is_setable = self
+                .resolved_definitions
+                .lock()
+                .unwrap()
+                .is_setable_target_definition(
+                    &self.target.lock().unwrap().target_reference,
+                    TargetType::Function,
+                    self.target_decl_type.clone(),
+                );
+            if !is_setable {
+                return;
+            }
+
+            if let Some(type_parameters) = &mut it.type_parameters {
+                self.visit_ts_type_parameter_declaration(type_parameters);
+            }
+
+            if !ignore_name(&func_name) {
+                walk_function(self, it, flags);
+
+                if !self.skip_set_definition {
+                    let target_def = TargetDefinition {
+                        specifier: func_name,
+                        span: calc_prop_span(it.span, self.read_file_span),
+                        file_path: self.temp_current_read_file_path.clone(),
+                        target_type: TargetType::Function,
+                        defined_generics: self.defined_generics.clone(),
+                    };
+
+                    self.resolved_definitions
+                        .lock()
+                        .unwrap()
+                        .set_target_definition(
+                            &self.target.lock().unwrap().target_reference,
+                            target_def,
+                        );
+                }
+            }
+
+            self.set_resolved();
+        }
     }
 
     // handle mock target is type alias
