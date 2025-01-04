@@ -70,17 +70,13 @@ pub fn handle_output_main_task(
         if let Some(original_decl_code) = get_original_code(
             &original_target_ref.file_path,
             original_target_ref.span,
-            target_type,
             resolved_definitions.clone(),
         ) {
             output.push_str(&original_decl_code);
         }
-        match code {
-            Some(code) => {
-                output.push_str(&code);
-                output.push('\n');
-            }
-            None => {}
+        if let Some(code) = code {
+            output.push_str(&code);
+            output.push('\n');
         }
 
         write_ref_properties(
@@ -254,7 +250,6 @@ fn get_code(
 fn get_original_code(
     file_path: &Path,
     span: Span,
-    target_type: TargetType,
     resolved_definitions: Arc<Mutex<ResolvedDefinitions>>,
 ) -> Option<String> {
     let target_source = file_utils::read(file_path).unwrap_or_default();
@@ -265,7 +260,6 @@ fn get_original_code(
     let mut code_generator = OutputMainGenerator::new(
         &allocator,
         resolved_definitions.clone(),
-        target_type,
         span,
         file_path.to_string_lossy().to_string(),
         target_source_text,
@@ -312,4 +306,3 @@ impl<'a> VisitMut<'a> for CleanupVisitor {
         });
     }
 }
-
