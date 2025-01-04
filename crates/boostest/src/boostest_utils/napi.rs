@@ -7,6 +7,7 @@ pub enum TargetType {
     TSInterface,
     TSTypeAlias,
     Variable,
+    Function,
     TSModule,
     ImportAll,
 }

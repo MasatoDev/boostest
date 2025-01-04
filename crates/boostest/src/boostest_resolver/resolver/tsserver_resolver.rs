@@ -7,7 +7,7 @@ use std::sync::{Arc, Mutex};
 
 use oxc::ast::VisitMut;
 
-use crate::boostest_resolver::isit_mut::TargetResolver;
+use crate::boostest_resolver::visit_mut::TargetResolver;
 use crate::boostest_utils::buf::{source_text_from_span, utf16_span_to_utf8_span};
 use crate::boostest_utils::file_utils;
 use crate::boostest_utils::tsserver::{tsserver, TSServerCache};

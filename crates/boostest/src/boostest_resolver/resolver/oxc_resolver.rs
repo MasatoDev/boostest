@@ -7,9 +7,9 @@ use std::fs;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 
-use crate::boostest_resolver::isit_mut::TargetResolver;
 use crate::boostest_resolver::resolver::tsserver_resolver::resolve_target_ast_with_tsserver;
 use crate::boostest_resolver::target::{DeclType, TargetDefinition};
+use crate::boostest_resolver::visit_mut::TargetResolver;
 use crate::boostest_utils::module_resolver::resolve_specifier;
 use crate::boostest_utils::napi::TargetType;
 use oxc::ast::VisitMut;
