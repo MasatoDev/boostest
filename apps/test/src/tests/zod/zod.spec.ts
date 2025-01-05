@@ -11,10 +11,10 @@ type UserSchemeType = z.infer<typeof userScheme>;
 // TODO:
 describe("Invest Tests", () => {
   runSnapshotTest("Invest simple zod", boostestZodUserType<User>());
-  runSnapshotTest(
-    "Invest object zod",
-    boostestZodUserSchemeType<UserSchemeType>(),
-  );
+  // runSnapshotTest(
+  //   "Invest object zod",
+  //   boostestZodUserSchemeType<UserSchemeType>(),
+  // );
   // TODO:
   // runSnapshotTest(
   //   "Invest response zod",

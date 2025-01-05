@@ -124,7 +124,7 @@ pub fn resolve_target(
         None => {
             let path_vec = target_resolver.get_all_flag_paths();
 
-            if path_vec.len() > 1 {
+            if path_vec.len() != 0 {
                 let mut added = false;
 
                 for path in &path_vec {

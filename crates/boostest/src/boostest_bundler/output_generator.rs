@@ -2,8 +2,9 @@ use std::sync::{Arc, Mutex};
 
 use oxc::allocator::{self, Allocator, Vec as AllocVec};
 use oxc::ast::visit::walk_mut::{
-    walk_function, walk_statements, walk_ts_module_declaration, walk_ts_type,
-    walk_ts_type_alias_declaration, walk_ts_type_name, walk_variable_declarator,
+    walk_class, walk_function, walk_statements, walk_ts_interface_declaration,
+    walk_ts_module_declaration, walk_ts_type, walk_ts_type_alias_declaration, walk_ts_type_name,
+    walk_variable_declarator,
 };
 use oxc::codegen::Codegen;
 use oxc::parser::Parser;
@@ -98,11 +99,6 @@ impl<'a> VisitMut<'a> for OutputGenerator<'a> {
         it: &mut oxc::ast::ast::Function<'a>,
         flags: oxc::semantic::ScopeFlags,
     ) {
-        if flags.is_constructor() || flags.is_set_or_get_accessor() {
-            walk_function(self, it, flags);
-            return;
-        }
-
         if let Some(id) = &it.id {
             if id.name == self.specifier {
                 let new_name = self.var_name.clone();
@@ -142,91 +138,36 @@ impl<'a> VisitMut<'a> for OutputGenerator<'a> {
 
     fn visit_class(&mut self, class: &mut Class<'a>) {
         if let Some(identifier) = &class.id {
-            if identifier.name.to_string() == self.specifier {
-                // let new_name = if self.is_main_target {
-                //     self.func_name.to_string()
-                // } else {
-                //     self.var_name.clone()
-                // };
-
+            if identifier.name == self.specifier {
                 class.id = Some(
                     self.ast_builder
                         .binding_identifier(Span::default(), self.var_name.clone()),
                 );
             }
         }
-        if let Some(id) = &mut class.id {
-            self.visit_binding_identifier(id);
-        }
-        if let Some(type_parameters) = &mut class.type_parameters {
-            self.visit_ts_type_parameter_declaration(type_parameters);
-        }
-
         class.super_class = None;
-        // if let Some(super_class) = &mut class.super_class {
-        //     self.visit_expression(super_class);
-        // }
-        // if let Some(super_type_parameters) = &mut class.super_type_parameters {
-        //     self.visit_ts_type_parameter_instantiation(super_type_parameters);
-        // }
-        if let Some(implements) = &mut class.implements {
-            self.visit_ts_class_implementses(implements);
-        }
-        self.visit_class_body(&mut class.body);
+        walk_class(self, class);
     }
 
     // handle mock target is type alias
     fn visit_ts_type_alias_declaration(&mut self, decl: &mut TSTypeAliasDeclaration<'a>) {
-        if decl.id.name.to_string() == self.specifier {
-            // let new_name = if self.is_main_target {
-            //     self.func_name.to_string()
-            // } else {
-            //     self.var_name.clone()
-            // };
-
+        if decl.id.name == self.specifier {
             decl.id = self
                 .ast_builder
                 .binding_identifier(Span::default(), self.var_name.clone());
         }
-        if let Some(type_parameters) = &mut decl.type_parameters {
-            self.visit_ts_type_parameter_declaration(type_parameters);
-        }
+
         walk_ts_type_alias_declaration(self, decl);
     }
 
     fn visit_ts_interface_declaration(&mut self, decl: &mut TSInterfaceDeclaration<'a>) {
         if decl.id.name.to_string() == self.specifier {
-            // let new_name = if self.is_main_target {
-            //     self.func_name.to_string()
-            // } else {
-            //     self.var_name.clone()
-            // };
-
             decl.id = self
                 .ast_builder
                 .binding_identifier(Span::default(), self.var_name.clone());
         }
         decl.extends = None;
-        // if let Some(extends) = &mut decl.extends {
-        //     self.visit_ts_interface_heritages(extends);
-        // }
-        if let Some(type_parameters) = &mut decl.type_parameters {
-            self.visit_ts_type_parameter_declaration(type_parameters);
-        }
-        self.visit_ts_interface_body(&mut decl.body);
-
-        // if let Some(extends) = &mut decl.extends {
-        //     for extend in extends.iter_mut() {
-        //         if let Expression::Identifier(id) = &mut extend.expression {
-        //             let id_name = id.name.clone().into_string();
-        //
-        //             let span = calc_prop_span(id.span, Some(self.target_def_span));
-        //             let var_name = get_id_with_hash(self.target_file_path.clone(), span);
-        //
-        //             id.name = self.ast_builder.atom(&var_name);
-        //         }
-        //     }
-        // }
+        walk_ts_interface_declaration(self, decl);
     }
 
     fn visit_ts_type(&mut self, it: &mut TSType<'a>) {

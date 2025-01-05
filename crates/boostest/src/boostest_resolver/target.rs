@@ -1,6 +1,6 @@
 use oxc::{
     ast::{
-        ast::{TSType, TSTypeName, TSTypeQueryExprName},
+        ast::{IdentifierReference, TSQualifiedName, TSType, TSTypeName, TSTypeQueryExprName},
         match_ts_type_name,
         visit::{
             walk::{walk_ts_type_name, walk_ts_type_parameter_instantiation},
@@ -314,6 +314,7 @@ impl ResolvedDefinitions {
                 }
 
                 let name = get_id_with_hash(file_path.to_string_lossy().to_string(), span.clone());
+
                 return Some(name);
             }
             return None;
@@ -393,6 +394,24 @@ impl<'a> Visit<'a> for MainTarget {
         }
 
         walk_ts_type_name(self, it);
+    }
+
+    fn visit_identifier_reference(&mut self, identifier: &IdentifierReference<'a>) {
+        let id = identifier.name.clone();
+        if ignore_ref_name(&id) {
+            return;
+        }
+
+        self.add_prop_with_retry(id.to_string(), identifier.span, DeclType::Type);
+    }
+
+    fn visit_ts_qualified_name(&mut self, qualified_name: &TSQualifiedName<'a>) {
+        let id = &qualified_name.left.to_string();
+        if ignore_name(id) {
+            return;
+        }
+
+        self.add_prop_with_retry(id.to_string(), qualified_name.right.span, DeclType::Type);
     }
 
     fn visit_ts_type_query_expr_name(&mut self, it: &TSTypeQueryExprName<'a>) {

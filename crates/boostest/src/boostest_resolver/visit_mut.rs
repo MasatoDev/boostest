@@ -1,7 +1,8 @@
 use oxc::ast::visit::walk_mut::{
     walk_formal_parameters, walk_function, walk_identifier_name, walk_method_definition,
-    walk_ts_enum_declaration, walk_ts_infer_type, walk_ts_module_declaration_body,
-    walk_ts_type_parameter_declaration, walk_variable_declaration, walk_variable_declarator,
+    walk_ts_enum_declaration, walk_ts_infer_type, walk_ts_module_declaration,
+    walk_ts_module_declaration_body, walk_ts_type_parameter_declaration, walk_variable_declaration,
+    walk_variable_declarator,
 };
 use oxc::ast::{match_declaration, match_module_declaration, match_ts_type_name};
 
@@ -270,7 +271,10 @@ impl<'a> VisitMut<'a> for TargetResolver {
         // skip function is included by class
         // TODO: check function
         // if flags.is_constructor() || flags.is_set_or_get_accessor() || flags.is_function() {
-        if flags.is_constructor() || flags.is_set_or_get_accessor() {
+        if flags.is_constructor()
+            || flags.is_set_or_get_accessor()
+            || (flags.is_function() && it.id.is_none())
+        {
             walk_function(self, it, flags);
             return;
         }
@@ -415,9 +419,8 @@ impl<'a> VisitMut<'a> for TargetResolver {
                 }
                 self.skip_id_check = true;
                 self.skip_set_definition = true;
-                if let Some(body) = &mut module_decl.body {
-                    walk_ts_module_declaration_body(self, body);
-                }
+
+                walk_ts_module_declaration(self, module_decl);
             }
             self.set_resolved();
         }

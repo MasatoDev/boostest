@@ -121,30 +121,31 @@ pub fn write_ref_properties(
     writed: Arc<Mutex<HashSet<String>>>,
 ) -> Result<()> {
     for children_prop in property_targets.iter() {
+        let locked_prop = children_prop.lock().unwrap();
+        if locked_prop.is_namespace && !writed.lock().unwrap().insert(locked_prop.name.clone()) {
+            continue;
+        }
+        drop(locked_prop);
+
         let code = get_code(
             children_prop.clone(),
             resolved_definitions.clone(),
             writed.clone(),
         );
 
+        let locked_prop = children_prop.lock().unwrap();
+        if locked_prop.is_namespace {
+            let prefix = format!("namespace {} {{", locked_prop.name);
+            output.push_str(prefix.as_str());
+        }
+        drop(locked_prop);
+
         match code {
             Some(code) => {
                 output.push_str(&code);
                 output.push('\n');
             }
-            None => {
-                // let allocator = oxc::allocator::Allocator::default();
-                // let source_type = SourceType::ts();
-                // let fallback_code = FallbackFuncBuilder::new(
-                //     &allocator,
-                //     locked_prop.target.lock().unwrap().func_name.clone(),
-                //     locked_prop.parent_key_name.clone(),
-                // )
-                // .generate_code(source_type);
-                //
-                // f.write_all(fallback_code.as_bytes())?;
-                // f.write_all(b"\n")?;
-            }
+            None => {}
         }
 
         write_ref_properties(
@@ -153,7 +154,12 @@ pub fn write_ref_properties(
             output,
             writed.clone(),
         )?;
+
+        if children_prop.lock().unwrap().is_namespace {
+            output.push_str("}\n");
+        }
     }
+
     Ok(())
 }
 
@@ -172,15 +178,42 @@ fn get_code(
 
     if let Some(target_definitions) = target_definitions {
         if let Some(last_target_def) = target_definitions.last() {
+            let mut locked_writed = writed.lock().unwrap();
+            let mut generated_code = String::new();
+
+            //NOTE: if target is ImportAll, bundle all target definitions to merge definitions
+            if locked_target.is_namespace && last_target_def.target_type == TargetType::ImportAll {
+                for target_def in target_definitions.iter() {
+                    let target_hash = locked_target.name.clone()
+                        + &get_id_with_hash(
+                            target_def.file_path.to_string_lossy().to_string(),
+                            Span::default(),
+                        );
+
+                    if locked_writed.insert(target_hash) {
+                        let code = generate_code_from_definition(
+                            &allocator,
+                            target_def,
+                            resolved_definitions.clone(),
+                            true,
+                            None,
+                        );
+
+                        if let Some(code) = code {
+                            generated_code.push_str(&code);
+                        }
+                    }
+                }
+
+                return Some(generated_code);
+            }
+
             let file_path = last_target_def.file_path.to_string_lossy().to_string();
             let var_name = get_id_with_hash(file_path.clone(), last_target_def.span);
 
-            let mut locked_writed = writed.lock().unwrap();
             if !locked_writed.insert(var_name.clone()) {
                 return None;
             }
-
-            let mut generated_code = String::new();
 
             let main_code = generate_code_from_definition(
                 &allocator,
@@ -208,29 +241,6 @@ fn get_code(
                             &allocator,
                             target_def,
                             resolved_definitions.clone(),
-                            true,
-                            None,
-                        );
-                        if let Some(code) = code {
-                            generated_code.push_str(&code);
-                        }
-                    }
-                }
-            }
-
-            //NOTE: if target is ImportAll, bundle all target definitions to merge definitions
-            if locked_target.is_namespace {
-                let prefix = format!("namespace {} {{", locked_target.name);
-
-                for target_def in &target_definitions[1..] {
-                    if locked_writed.insert(get_id_with_hash(
-                        target_def.file_path.to_string_lossy().to_string(),
-                        Span::default(),
-                    )) {
-                        let code = generate_code_from_definition(
-                            &allocator,
-                            target_def,
-                            resolved_definitions.clone(),
                             false,
                             None,
                         );
@@ -239,8 +249,8 @@ fn get_code(
                         }
                     }
                 }
-                generated_code = format!("{}\n{}\n}}", prefix, generated_code);
             }
+
             drop(locked_writed);
             return Some(generated_code);
         }
