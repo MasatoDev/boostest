@@ -670,7 +670,7 @@ impl<'a> VisitMut<'a> for TargetResolver {
             target_supplement: gen_target_supplement(self.is_generic_property()),
         };
 
-        self.add_prop_with_retry(id_name, target_ref, DeclType::Type);
+        self.add_prop_with_retry(id_name, target_ref, DeclType::Value);
     }
 
     fn visit_ts_type_query_expr_name(&mut self, it: &mut TSTypeQueryExprName<'a>) {

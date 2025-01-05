@@ -6,10 +6,6 @@ use crate::boostest_utils::napi::{OutputCode, TargetType};
 use anyhow::Result;
 use colored::*;
 use oxc::allocator::{Allocator, Vec as AllocVec};
-use oxc::ast::ast::Statement;
-use oxc::ast::VisitMut;
-use oxc::codegen::Codegen;
-use oxc::parser::Parser;
 use oxc::span::{SourceType, Span};
 use rayon::prelude::*;
 use std::collections::{HashMap, HashSet};
@@ -121,12 +117,6 @@ pub fn write_ref_properties(
     writed: Arc<Mutex<HashSet<String>>>,
 ) -> Result<()> {
     for children_prop in property_targets.iter() {
-        let locked_prop = children_prop.lock().unwrap();
-        if locked_prop.is_namespace && !writed.lock().unwrap().insert(locked_prop.name.clone()) {
-            continue;
-        }
-        drop(locked_prop);
-
         let code = get_code(
             children_prop.clone(),
             resolved_definitions.clone(),
@@ -148,16 +138,15 @@ pub fn write_ref_properties(
             None => {}
         }
 
+        if children_prop.lock().unwrap().is_namespace {
+            output.push_str("}\n");
+        }
         write_ref_properties(
             children_prop.lock().unwrap().ref_properties.clone(),
             resolved_definitions.clone(),
             output,
             writed.clone(),
         )?;
-
-        if children_prop.lock().unwrap().is_namespace {
-            output.push_str("}\n");
-        }
     }
 
     Ok(())
@@ -180,6 +169,9 @@ fn get_code(
         if let Some(last_target_def) = target_definitions.last() {
             let mut locked_writed = writed.lock().unwrap();
             let mut generated_code = String::new();
+
+            let file_path = last_target_def.file_path.to_string_lossy().to_string();
+            let var_name = get_id_with_hash(file_path.clone(), last_target_def.span);
 
             //NOTE: if target is ImportAll, bundle all target definitions to merge definitions
             if locked_target.is_namespace && last_target_def.target_type == TargetType::ImportAll {
@@ -207,9 +199,6 @@ fn get_code(
 
                 return Some(generated_code);
             }
-
-            let file_path = last_target_def.file_path.to_string_lossy().to_string();
-            let var_name = get_id_with_hash(file_path.clone(), last_target_def.span);
 
             if !locked_writed.insert(var_name.clone()) {
                 return None;
