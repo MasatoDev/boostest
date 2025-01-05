@@ -21,7 +21,7 @@ use std::{
 use oxc::ast::ast::TSTypeParameterInstantiation;
 
 use crate::boostest_utils::{
-    ast_utils::{self, ignore_ref_name},
+    ast_utils::{self, ignore_name, ignore_ref_name},
     id_name::get_id_with_hash,
     napi::TargetType,
 };
@@ -384,8 +384,8 @@ impl<'a> Visit<'a> for MainTarget {
         }
 
         if let TSTypeName::QualifiedName(qualified_name) = it {
-            let id = &qualified_name.right.name;
-            if ignore_ref_name(id) {
+            let id = &qualified_name.left.to_string();
+            if ignore_name(id) {
                 return;
             }
 
@@ -411,8 +411,8 @@ impl<'a> Visit<'a> for MainTarget {
                 }
 
                 if let TSTypeName::QualifiedName(qualified_name) = ts_type_name {
-                    let id = &qualified_name.right.name;
-                    if ignore_ref_name(id) {
+                    let id = &qualified_name.left.to_string();
+                    if ignore_name(id) {
                         return;
                     }
 

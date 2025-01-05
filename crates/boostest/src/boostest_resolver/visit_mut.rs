@@ -396,10 +396,6 @@ impl<'a> VisitMut<'a> for TargetResolver {
                     return;
                 }
 
-                if let Some(body) = &mut module_decl.body {
-                    walk_ts_module_declaration_body(self, body);
-                }
-
                 if !self.skip_set_definition {
                     let target_def = TargetDefinition {
                         specifier: module_decl.id.name().to_string(),
@@ -416,6 +412,11 @@ impl<'a> VisitMut<'a> for TargetResolver {
                             &self.target.lock().unwrap().target_reference,
                             target_def,
                         );
+                }
+                self.skip_id_check = true;
+                self.skip_set_definition = true;
+                if let Some(body) = &mut module_decl.body {
+                    walk_ts_module_declaration_body(self, body);
                 }
             }
             self.set_resolved();

@@ -5,9 +5,9 @@ import { boostestNamespace } from "./boostest_output/boostestNamespace";
 
 // TODO:
 describe("Invest Tests", () => {
-  // runSnapshotTest("Invest", boostestInvest<LiteralTypeAlias>());
-  runSnapshotTest(
-    "Namespace",
-    boostestNamespace<RefTypeNamespace.RefTypeAlias>(),
-  );
+  runSnapshotTest("Invest", boostestInvest<LiteralTypeAlias>());
+  // runSnapshotTest(
+  //   "Namespace",
+  //   boostestNamespace<RefTypeNamespace.RefTypeAlias>(),
+  // );
 });

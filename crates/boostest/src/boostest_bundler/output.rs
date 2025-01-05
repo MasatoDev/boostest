@@ -187,7 +187,7 @@ fn get_code(
                 last_target_def,
                 resolved_definitions.clone(),
                 false,
-                Some(var_name),
+                Some(var_name.clone()),
             );
 
             if let Some(main_code) = main_code {

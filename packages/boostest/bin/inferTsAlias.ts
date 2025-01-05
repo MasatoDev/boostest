@@ -13,7 +13,7 @@ const typeCache = new Map<ts.Type, string>();
 /*******************************************/
 export function inferTsAlias(sourceCode: string) {
   const code = removeDuplicateDeclarations(sourceCode);
-  console.log("📝📝📝📝📝📝📝\n", code);
+  // console.log("📝📝📝📝📝📝📝\n", code);
 
   const fileName = "example.ts";
 

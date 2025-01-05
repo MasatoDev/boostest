@@ -28,7 +28,6 @@ pub fn resolve_target(
     depth: u8,
     ts_server_cache: Arc<Mutex<TSServerCache>>,
 ) -> Result<()> {
-    // println!("\nname: {}", target_resolver.target.lock().unwrap().name);
     // prevent infinite loop
     if depth > 50 {
         output_loop_error(
