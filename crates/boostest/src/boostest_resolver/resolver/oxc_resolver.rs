@@ -28,7 +28,6 @@ pub fn resolve_target(
     depth: u8,
     ts_server_cache: Arc<Mutex<TSServerCache>>,
 ) -> Result<()> {
-    // println!("\nname: {}", target_resolver.target.lock().unwrap().name);
     // prevent infinite loop
     if depth > 50 {
         output_loop_error(
@@ -73,9 +72,11 @@ pub fn resolve_target(
                     &next_import.full_path,
                     &setting.tsconfig,
                 );
+
                 if let Ok(resolution) = resolution_result {
                     // println!("\n✅resolution: {:?}", resolution);
                     let resolution_path = resolution.full_path();
+
                     read_file_path = resolution_path.clone();
                     next_import.canonical_path = Some(resolution_path);
 
@@ -123,7 +124,7 @@ pub fn resolve_target(
         None => {
             let path_vec = target_resolver.get_all_flag_paths();
 
-            if path_vec.len() > 1 {
+            if path_vec.len() != 0 {
                 let mut added = false;
 
                 for path in &path_vec {
@@ -192,9 +193,7 @@ pub fn resolve_target(
                     )?;
                 }
                 return Ok(());
-            }
-
-            if !target_resolver.typescript_lib_files_loaded {
+            } else if !target_resolver.typescript_lib_files_loaded {
                 target_resolver.typescript_lib_files_loaded = true;
 
                 if target_resolver.typescript_lib_files.is_empty() {
@@ -228,18 +227,17 @@ pub fn resolve_target(
                     )?;
                 }
 
-                Ok(())
-            } else {
-                if let Some(project_root_path) = &setting.project_root_path {
-                    resolve_target_ast_with_tsserver(
-                        target_resolver,
-                        &Some(project_root_path.clone()),
-                        depth + 1,
-                        ts_server_cache.clone(),
-                    )?;
-                }
-                Ok(())
+                return Ok(());
+            } else if let Some(project_root_path) = &setting.project_root_path {
+                resolve_target_ast_with_tsserver(
+                    target_resolver,
+                    &Some(project_root_path.clone()),
+                    depth + 1,
+                    ts_server_cache.clone(),
+                )?;
             }
+            Ok(())
+            // }
         }
     }
 }

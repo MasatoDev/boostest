@@ -6,40 +6,99 @@ use oxc::{
 
 pub fn ignore_name(name: &str) -> bool {
     let built_in = [
-        "true", "false", "Function", "Array",
+        //////////////
+        // Built-in (handle in inferType function)
+        //////////////
+        "Date",
+        "Set",
+        "Map",
+        "Object",
+        "String",
+        "Number",
+        "Boolean",
+        "RegExp",
+        "Error",
+        "ArrayBuffer",
+        "Int8Array",
+        "Uint8Array",
+        "Uint8ClampedArray",
+        "Int16Array",
+        "Uint16Array",
+        "Int32Array",
+        "Uint32Array",
+        "Float32Array",
+        "Float64Array",
+        "BigInt64Array",
+        "BigUint64Array",
+        "Array",
+        "Symbol",
+        "Function",
         "Promise",
-        // "Date",
-        // "Set",
-        // "Map",
-        // "Object",
-        // "String",
-        // "Number",
-        // "Boolean",
-        // "Symbol",
-        // "RegExp",
-        // "Error",
-        // "ArrayBuffer",
-        // "DataView",
-        // "Int8Array",
-        // "Uint8Array",
-        // "Uint8ClampedArray",
-        // "Int16Array",
-        // "Uint16Array",
-        // "Int32Array",
-        // "Uint32Array",
-        // "Float32Array",
-        // "Float64Array",
-        // "BigInt64Array",
-        // "BigUint64Array",
-        // "IterableIterator",
-        // "SharedArrayBuffer",
-        // "Atomics",
-        // "WebAssembly",
+        "IterableIterator",
+        "DataView",
+        "Atomics",
+        "WebAssembly",
+        //////////////
+        // Basic Primitive Types
+        //////////////
+        "true",
+        "false",
+        "string",
+        "number",
+        "boolean",
+        "bigint",
+        "symbol",
+        "undefined",
+        "null",
+        "any",
+        "unknown",
+        "void",
+        "never",
+        "object", // General object type
+        //////////////
+        // Utility Types
+        //////////////
+        // "Partial",               // Makes all properties optional
+        // "Required",              // Makes all properties required
+        // "Readonly",              // Makes all properties read-only
+        // "Pick",                  // Picks a subset of properties
+        // "Omit",                  // Omits specific properties
+        // "Exclude",               // Excludes a set of types from another type
+        // "Extract",               // Extracts common types between two sets
+        // "NonNullable",           // Removes `null` and `undefined` from a type
+        // "Parameters",            // Extracts parameter types from a function
+        // "ConstructorParameters", // Extracts parameter types from a constructor
+        // "ReturnType",            // Extracts the return type of a function
+        // "InstanceType",          // Extracts the instance type from a class
+        // "ThisParameterType",     // Extracts the type of `this` in a function
+        // "OmitThisParameter",     // Removes `this` parameter from a function
+        // "ThisType",              // Sets the type for `this` context
+        // "ReadonlyArray",         // Immutable array type
+        // "Record",                // Key-value pair mapping type
+        // "Uppercase",             // Converts strings to uppercase
+        // "Lowercase",             // Converts strings to lowercase
+        // "Capitalize",            // Capitalizes the first letter of a string
+        // "Uncapitalize",          // Lowercases the first letter of a string
+        //////////////
+        // TODO:
+        //////////////
+        "Iterable",  // Represents an iterable object
+        "Iterator",  // Represents an iterator object
+        "Generator", // Represents a generator object
+        "SharedArrayBuffer",
+        //////////////
+        // OTHER
+        //////////////
+        // "Tuple",         // Fixed-length array type (e.g., [string, number])
+        // "Union",        // Combines multiple types with '|'
+        // "Intersection", // Combines multiple types with '&'
+        // "TemplateLiteral", // Constructs string types with template literals
     ];
 
     built_in.contains(&name)
 }
 
+// TODO: recheck where this function is used
 pub fn ignore_ref_name(atom: &Atom) -> bool {
     let name = atom.to_string();
     ignore_name(&name)
