@@ -1,7 +1,7 @@
 import { UserResponseSchema, userScheme, User } from "@/ts_types";
 import { runSnapshotTest } from "../utils";
 import { z } from "zod";
-import { boostestZodUserSchemeType } from "./boostest_output/boostestZodUserSchemeType";
+// import { boostestZodUserSchemeType } from "./boostest_output/boostestZodUserSchemeType";
 import { boostestZodUserType } from "./boostest_output/boostestZodUserType";
 // import { boostestZodUserResponseSchemeType } from "./boostest_output/boostestZodUserResponseSchemeType";
 

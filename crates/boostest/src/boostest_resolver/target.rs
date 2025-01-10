@@ -162,7 +162,10 @@ impl Target {
         target_reference: TargetReference,
         decl_type: DeclType,
     ) {
-        // println!("add_property: {}", name);
+        if ignore_name(&name) {
+            return;
+        }
+
         let already_exists = self.ref_properties.iter().any(|prop| {
             let prop = prop.lock().unwrap();
             prop.target_reference.span == target_reference.span
@@ -220,6 +223,7 @@ impl ResolvedDefinitions {
             TargetType::TSModule => true,
             TargetType::Function => true,
             TargetType::Class => true,
+            TargetType::TSEnum => true,
             TargetType::ImportAll => true,
         };
 

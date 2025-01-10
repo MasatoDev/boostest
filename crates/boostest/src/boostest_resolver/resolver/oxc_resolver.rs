@@ -193,9 +193,7 @@ pub fn resolve_target(
                     )?;
                 }
                 return Ok(());
-            }
-
-            if !target_resolver.typescript_lib_files_loaded {
+            } else if !target_resolver.typescript_lib_files_loaded {
                 target_resolver.typescript_lib_files_loaded = true;
 
                 if target_resolver.typescript_lib_files.is_empty() {
@@ -229,18 +227,17 @@ pub fn resolve_target(
                     )?;
                 }
 
-                Ok(())
-            } else {
-                if let Some(project_root_path) = &setting.project_root_path {
-                    resolve_target_ast_with_tsserver(
-                        target_resolver,
-                        &Some(project_root_path.clone()),
-                        depth + 1,
-                        ts_server_cache.clone(),
-                    )?;
-                }
-                Ok(())
+                return Ok(());
+            } else if let Some(project_root_path) = &setting.project_root_path {
+                resolve_target_ast_with_tsserver(
+                    target_resolver,
+                    &Some(project_root_path.clone()),
+                    depth + 1,
+                    ts_server_cache.clone(),
+                )?;
             }
+            Ok(())
+            // }
         }
     }
 }

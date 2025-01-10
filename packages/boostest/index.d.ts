@@ -10,7 +10,8 @@ export const enum TargetType {
   Variable = 3,
   Function = 4,
   TSModule = 5,
-  ImportAll = 6
+  TSEnum = 6,
+  ImportAll = 7
 }
 export interface OutputCode {
   code: string

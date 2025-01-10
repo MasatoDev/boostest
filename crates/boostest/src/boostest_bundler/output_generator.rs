@@ -2,19 +2,20 @@ use std::sync::{Arc, Mutex};
 
 use oxc::allocator::{self, Allocator, Vec as AllocVec};
 use oxc::ast::visit::walk_mut::{
-    walk_class, walk_function, walk_statements, walk_ts_interface_declaration,
-    walk_ts_module_declaration, walk_ts_type, walk_ts_type_alias_declaration, walk_ts_type_name,
-    walk_variable_declarator,
+    walk_class, walk_function, walk_statements, walk_ts_enum_declaration,
+    walk_ts_interface_declaration, walk_ts_module_declaration, walk_ts_type,
+    walk_ts_type_alias_declaration, walk_ts_type_name, walk_variable_declarator,
 };
 use oxc::codegen::Codegen;
 use oxc::parser::Parser;
 use oxc::span::{SourceType, Span, SPAN};
 
 use oxc::ast::ast::{
-    Class, IdentifierName, IdentifierReference, Statement, TSInterfaceDeclaration, TSType,
-    TSTypeAliasDeclaration, TSTypeAnnotation, TSTypeName, TSTypeQueryExprName,
+    BindingPatternKind, Class, IdentifierName, IdentifierReference, PropertyKey, Statement,
+    TSInterfaceDeclaration, TSType, TSTypeAliasDeclaration, TSTypeAnnotation, TSTypeName,
+    TSTypeQueryExprName,
 };
-use oxc::ast::{match_ts_type_name, AstBuilder, VisitMut};
+use oxc::ast::{match_expression, match_ts_type_name, AstBuilder, VisitMut};
 
 use crate::boostest_generator::extends_ast_builder::AstBuilderExt;
 use crate::boostest_resolver::target::ResolvedDefinitions;
@@ -112,6 +113,19 @@ impl<'a> VisitMut<'a> for OutputGenerator<'a> {
         walk_function(self, it, flags);
     }
 
+    fn visit_ts_enum_member_name(&mut self, _it: &mut oxc::ast::ast::TSEnumMemberName<'a>) {
+        // skip enum member name
+    }
+
+    fn visit_ts_enum_declaration(&mut self, it: &mut oxc::ast::ast::TSEnumDeclaration<'a>) {
+        if it.id.name == self.specifier {
+            it.id = self
+                .ast_builder
+                .binding_identifier(Span::default(), self.var_name.clone());
+        }
+        walk_ts_enum_declaration(self, it);
+    }
+
     fn visit_ts_module_declaration(&mut self, it: &mut oxc::ast::ast::TSModuleDeclaration<'a>) {
         if it.id.to_string() == self.specifier {
             it.id = self
@@ -124,13 +138,13 @@ impl<'a> VisitMut<'a> for OutputGenerator<'a> {
     fn visit_variable_declarator(&mut self, it: &mut oxc::ast::ast::VariableDeclarator<'a>) {
         if let Some(id) = it.id.get_identifier() {
             if id == self.specifier {
-                let binding_id = self.ast_builder.binding_pattern_kind_binding_identifier(
-                    Span::default(),
-                    self.var_name.clone(),
-                );
-                let none: Option<allocator::Box<TSTypeAnnotation<'a>>> = None;
-
-                it.id = self.ast_builder.binding_pattern(binding_id, none, false);
+                match &mut it.id.kind {
+                    BindingPatternKind::BindingIdentifier(binding_id) => {
+                        let new_atom = self.ast_builder.atom(&self.var_name);
+                        binding_id.name = new_atom;
+                    }
+                    _ => {}
+                }
             }
         }
         walk_variable_declarator(self, it);
@@ -145,7 +159,7 @@ impl<'a> VisitMut<'a> for OutputGenerator<'a> {
                 );
             }
         }
-        class.super_class = None;
+        // class.super_class = None;
         walk_class(self, class);
     }
 
@@ -166,7 +180,7 @@ impl<'a> VisitMut<'a> for OutputGenerator<'a> {
                 .ast_builder
                 .binding_identifier(Span::default(), self.var_name.clone());
         }
-        decl.extends = None;
+        // decl.extends = None;
         walk_ts_interface_declaration(self, decl);
     }
 
@@ -208,16 +222,23 @@ impl<'a> VisitMut<'a> for OutputGenerator<'a> {
     /*************************************************/
     /*************************************************/
 
-    fn visit_property_key(&mut self, _it: &mut oxc::ast::ast::PropertyKey<'a>) {
-        /* NOTE: skip property key name */
-        // class SimpleClass {
-        //   name: string; // Skip ‘name’ through visit_identifier_name.
-        //   ver: number; // Skip ‘name’ through visit_identifier_name.
-        //   constructor(name: string, ver: number) {
-        //     this.name = name;
-        //     this.ver = ver;
-        //   }
-        // }
+    fn visit_property_key(&mut self, it: &mut oxc::ast::ast::PropertyKey<'a>) {
+        match it {
+            // PropertyKey::StaticIdentifier(it) => self.visit_identifier_name(it),
+            // PropertyKey::PrivateIdentifier(it) => self.visit_private_identifier(it),
+            match_expression!(PropertyKey) => self.visit_expression(it.to_expression_mut()),
+            _ => {
+                /* NOTE: skip property key name */
+                // class SimpleClass {
+                //   name: string; // Skip ‘name’ through visit_identifier_name.
+                //   ver: number; // Skip ‘name’ through visit_identifier_name.
+                //   constructor(name: string, ver: number) {
+                //     this.name = name;
+                //     this.ver = ver;
+                //   }
+                // }
+            }
+        }
     }
 
     fn visit_identifier_name(&mut self, identifier: &mut IdentifierName<'a>) {
@@ -287,6 +308,7 @@ impl<'a> VisitMut<'a> for OutputGenerator<'a> {
 
         if let TSTypeName::IdentifierReference(identifier) = it {
             let id_name = identifier.name.clone();
+
             if ignore_ref_name(&id_name) {
                 return;
             }

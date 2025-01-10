@@ -18,7 +18,7 @@ pub fn get_typescript_lib_code(default_lib_file_path: &Path) -> String {
                 if path.is_file() {
                     if let Some(file_name) = path.file_name() {
                         let file_name_str = file_name.to_string_lossy();
-                        if file_name_str.starts_with("lib.es5.d.ts") {
+                        if file_name_str.starts_with("lib.es") {
                             typescript_lib_files.push(path);
                         }
                     }

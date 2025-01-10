@@ -8,6 +8,7 @@ use std::sync::{Arc, Mutex};
 use oxc::ast::VisitMut;
 
 use crate::boostest_resolver::visit_mut::TargetResolver;
+use crate::boostest_utils::ast_utils::ignore_name;
 use crate::boostest_utils::buf::{source_text_from_span, utf16_span_to_utf8_span};
 use crate::boostest_utils::file_utils;
 use crate::boostest_utils::tsserver::{tsserver, TSServerCache};
@@ -18,6 +19,11 @@ pub fn resolve_target_ast_with_tsserver(
     depth: u8,
     ts_server_cache: Arc<Mutex<TSServerCache>>,
 ) -> Result<()> {
+    let name = target_resolver.target.lock().unwrap().name.clone();
+    if ignore_name(&name) {
+        return Ok(());
+    }
+
     let target_file_path = target_resolver
         .target
         .lock()

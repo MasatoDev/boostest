@@ -18,6 +18,7 @@ use super::output_main_generator::OutputMainGenerator;
 pub fn handle_output_main_task(
     main_targets: Vec<Arc<Mutex<MainTarget>>>,
     path: &Path,
+    typescript_lib_code: &str,
 ) -> Option<HashMap<String, OutputCode>> {
     if main_targets.is_empty() {
         return None;
@@ -85,7 +86,7 @@ pub fn handle_output_main_task(
             writed.clone(),
         );
 
-        // println!("\n🎉🎉🎉🎉BEFORE: {}", output);
+        // output.push_str(typescript_lib_code);
 
         hash_map.lock().unwrap().insert(
             func_name,

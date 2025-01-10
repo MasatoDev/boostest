@@ -3,7 +3,8 @@ use std::sync::Arc;
 
 use oxc::allocator::{Allocator, Vec as AllocVec};
 use oxc::ast::visit::walk_mut::{
-    walk_identifier_name, walk_identifier_reference, walk_ts_type_name,
+    walk_identifier_name, walk_identifier_reference, walk_method_definition, walk_statements,
+    walk_ts_type_name,
 };
 use oxc::codegen::Codegen;
 use oxc::parser::Parser;
@@ -100,7 +101,6 @@ impl<'a, 'b: 'a> CodeGenerator<'a> {
 
         if let Some(code) = self.code.clone() {
             let mut clean_up_detector = CleanupDetectVisitor::new();
-
             let binded_code = self.clean_recursively(&mut clean_up_detector, code);
             self.code = Some(binded_code);
         }
@@ -229,9 +229,9 @@ impl CleanupDetectVisitor {
     }
 
     fn add_target(&mut self, target: String) {
-        if target.starts_with("ref_") {
-            self.remain_targets.insert(target);
-        }
+        // if target.starts_with("ref_") {
+        self.remain_targets.insert(target);
+        // }
     }
 }
 
@@ -254,7 +254,7 @@ impl<'a> VisitMut<'a> for CleanupDetectVisitor {
     }
 
     fn visit_identifier_name(&mut self, it: &mut oxc::ast::ast::IdentifierName<'a>) {
-        self.add_target(it.to_string());
+        // self.add_target(it.to_string());
         walk_identifier_name(self, it);
     }
 }
@@ -273,6 +273,28 @@ impl<'a> VisitMut<'a> for CleanupVisitor {
     fn visit_statements(&mut self, it: &mut AllocVec<'a, Statement<'a>>) {
         it.retain(|stmt| {
             let result: bool = match stmt {
+                // Statement::ExportNamedDeclaration(decl) => {
+                //     if let Some(export_named_decl) = &decl.declaration {
+                //         match export_named_decl {
+                //             Declaration::ClassDeclaration(class) => {
+                //                 if let Some(id) = &class.id {
+                //                     self.remain_targets.contains(&id.name.to_string())
+                //                 } else {
+                //                     false
+                //                 }
+                //             }
+                //             Declaration::TSTypeAliasDeclaration(decl) => {
+                //                 self.remain_targets.contains(&decl.id.name.to_string())
+                //             }
+                //             Declaration::TSInterfaceDeclaration(decl) => {
+                //                 self.remain_targets.contains(&decl.id.name.to_string())
+                //             }
+                //             _ => false,
+                //         }
+                //     } else {
+                //         false
+                //     }
+                // }
                 Statement::TSTypeAliasDeclaration(decl) => {
                     self.remain_targets.contains(&decl.id.name.to_string())
                 }
@@ -285,6 +307,9 @@ impl<'a> VisitMut<'a> for CleanupVisitor {
                     } else {
                         false
                     }
+                }
+                Statement::TSEnumDeclaration(decl) => {
+                    self.remain_targets.contains(&decl.id.name.to_string())
                 }
                 Statement::TSModuleDeclaration(decl) => {
                     self.remain_targets.contains(&decl.id.to_string())
@@ -311,5 +336,13 @@ impl<'a> VisitMut<'a> for CleanupVisitor {
             };
             result
         });
+        // walk_statements(self, it);
     }
+
+    // fn visit_method_definition(&mut self, it: &mut oxc::ast::ast::MethodDefinition<'a>) {
+    //     if it.kind == oxc::ast::ast::MethodDefinitionKind::Constructor {
+    //         it.accessibility = None;
+    //     }
+    //     walk_method_definition(self, it);
+    // }
 }
