@@ -1,11 +1,7 @@
-<img width="1414" alt="スクリーンショット 2024-12-30 14 02 09" src="https://github.com/user-attachments/assets/00b61cc0-a869-413c-8952-590de2a80af6" />
+# boostest
 
-
-
-<br />
 https://www.npmjs.com/package/@boostest/cli
 
-<br />
 <br />
 
 # TL;DR
