@@ -110,6 +110,8 @@ impl TargetResolver {
 
         let target_name = self.target.lock().unwrap().name.clone();
 
+        // println!("Resolving: {}", target_name);
+
         // NOTE: if main target isn't reference, main target doesn't have target
         if target_name.is_empty() {
             return;
@@ -283,19 +285,19 @@ impl TargetResolver {
             .collect()
     }
 
-    // export const Hoge = Huga;
-    pub fn set_renamed_decl(&mut self, renamed_decl_name: String) {
-        let parent_path = self
-            .temp_current_read_file_path
-            .parent()
-            .map(|p| p.to_path_buf());
-
-        if let Some(cur) = self.get_current_loading_import() {
-            cur.identifier_original_name = Some(renamed_decl_name.clone());
-            cur.need_reload = true;
-            cur.parent_path = parent_path;
-        }
-    }
+    // // export const Hoge = Huga;
+    // pub fn set_renamed_decl(&mut self, renamed_decl_name: String) {
+    //     let parent_path = self
+    //         .temp_current_read_file_path
+    //         .parent()
+    //         .map(|p| p.to_path_buf());
+    //
+    //     if let Some(cur) = self.get_current_loading_import() {
+    //         cur.identifier_original_name = Some(renamed_decl_name.clone());
+    //         cur.need_reload = true;
+    //         cur.parent_path = parent_path;
+    //     }
+    // }
 
     pub fn set_default_import_name(&mut self, exported: &str, local: &str) {
         let parent_path = self

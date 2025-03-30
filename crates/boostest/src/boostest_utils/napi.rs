@@ -9,6 +9,7 @@ pub enum TargetType {
     Variable,
     Function,
     TSModule,
+    TSEnum,
     ImportAll,
 }
 

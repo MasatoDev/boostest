@@ -76,7 +76,9 @@ impl TargetDetector {
             },
         );
 
-        main_target.visit_call_expression(expr);
+        if let Some(type_parameters) = &expr.type_parameters {
+            main_target.visit_ts_type_parameter_instantiation(type_parameters);
+        }
 
         self.main_targets.push(Arc::new(Mutex::new(main_target)));
     }

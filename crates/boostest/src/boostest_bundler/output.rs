@@ -1,6 +1,4 @@
-use crate::boostest_resolver::target::{
-    bundle_target_defs, MainTarget, ResolvedDefinitions, Target,
-};
+use crate::boostest_resolver::target::{MainTarget, ResolvedDefinitions, Target, TargetDefinition};
 use crate::boostest_utils::file_utils;
 use crate::boostest_utils::id_name::get_id_with_hash;
 use crate::boostest_utils::napi::{OutputCode, TargetType};
@@ -8,10 +6,6 @@ use crate::boostest_utils::napi::{OutputCode, TargetType};
 use anyhow::Result;
 use colored::*;
 use oxc::allocator::{Allocator, Vec as AllocVec};
-use oxc::ast::ast::Statement;
-use oxc::ast::VisitMut;
-use oxc::codegen::Codegen;
-use oxc::parser::Parser;
 use oxc::span::{SourceType, Span};
 use rayon::prelude::*;
 use std::collections::{HashMap, HashSet};
@@ -24,6 +18,7 @@ use super::output_main_generator::OutputMainGenerator;
 pub fn handle_output_main_task(
     main_targets: Vec<Arc<Mutex<MainTarget>>>,
     path: &Path,
+    typescript_lib_code: &str,
 ) -> Option<HashMap<String, OutputCode>> {
     if main_targets.is_empty() {
         return None;
@@ -91,7 +86,7 @@ pub fn handle_output_main_task(
             writed.clone(),
         );
 
-        // println!("\n🎉🎉🎉🎉BEFORE: {}", output);
+        // output.push_str(typescript_lib_code);
 
         hash_map.lock().unwrap().insert(
             func_name,
@@ -129,26 +124,24 @@ pub fn write_ref_properties(
             writed.clone(),
         );
 
+        let locked_prop = children_prop.lock().unwrap();
+        if locked_prop.is_namespace {
+            let prefix = format!("namespace {} {{", locked_prop.name);
+            output.push_str(prefix.as_str());
+        }
+        drop(locked_prop);
+
         match code {
             Some(code) => {
                 output.push_str(&code);
                 output.push('\n');
             }
-            None => {
-                // let allocator = oxc::allocator::Allocator::default();
-                // let source_type = SourceType::ts();
-                // let fallback_code = FallbackFuncBuilder::new(
-                //     &allocator,
-                //     locked_prop.target.lock().unwrap().func_name.clone(),
-                //     locked_prop.parent_key_name.clone(),
-                // )
-                // .generate_code(source_type);
-                //
-                // f.write_all(fallback_code.as_bytes())?;
-                // f.write_all(b"\n")?;
-            }
+            None => {}
         }
 
+        if children_prop.lock().unwrap().is_namespace {
+            output.push_str("}\n");
+        }
         write_ref_properties(
             children_prop.lock().unwrap().ref_properties.clone(),
             resolved_definitions.clone(),
@@ -156,6 +149,7 @@ pub fn write_ref_properties(
             writed.clone(),
         )?;
     }
+
     Ok(())
 }
 
@@ -165,6 +159,7 @@ fn get_code(
     writed: Arc<Mutex<HashSet<String>>>,
 ) -> Option<String> {
     let locked_target = target.lock().unwrap();
+    let allocator = oxc::allocator::Allocator::default();
 
     let target_definitions = &resolved_definitions
         .lock()
@@ -173,74 +168,81 @@ fn get_code(
 
     if let Some(target_definitions) = target_definitions {
         if let Some(last_target_def) = target_definitions.last() {
-            if let Some((file_path, span, defined_generics, _)) =
-                bundle_target_defs(target_definitions)
-            {
-                let var_name = get_id_with_hash(file_path.clone(), span);
-                let mut locked_writed = writed.lock().unwrap();
+            let mut locked_writed = writed.lock().unwrap();
+            let mut generated_code = String::new();
 
-                if !locked_writed.insert(var_name.clone()) {
-                    return None;
-                }
+            let file_path = last_target_def.file_path.to_string_lossy().to_string();
+            let var_name = get_id_with_hash(file_path.clone(), last_target_def.span);
 
-                let target_source =
-                    file_utils::read(&last_target_def.file_path).unwrap_or_default();
-
-                let mut target_source_text =
-                    last_target_def.span.source_text(&target_source).to_string();
-
-                // NOTE: if target is TSInterface, bundle all target definitions to merge interfaces
-                if last_target_def.target_type == TargetType::TSInterface {
-                    for target_def in &target_definitions[1..] {
-                        if locked_writed.insert(get_id_with_hash(
-                            target_def.file_path.to_string_lossy().to_string(),
-                            target_def.span,
-                        )) {
-                            target_source_text.push_str(target_def.span.source_text(
-                                &file_utils::read(&target_def.file_path).unwrap_or_default(),
-                            ));
-                        }
-                    }
-                }
-
-                //NOTE: if target is ImportAll, bundle all target definitions to merge definitions
-                if locked_target.is_namespace {
-                    let prefix = format!("namespace {} {{", locked_target.name);
-
-                    for target_def in &target_definitions[1..] {
-                        if locked_writed.insert(get_id_with_hash(
+            //NOTE: if target is ImportAll, bundle all target definitions to merge definitions
+            if locked_target.is_namespace && last_target_def.target_type == TargetType::ImportAll {
+                for target_def in target_definitions.iter() {
+                    let target_hash = locked_target.name.clone()
+                        + &get_id_with_hash(
                             target_def.file_path.to_string_lossy().to_string(),
                             Span::default(),
-                        )) {
-                            target_source_text.push_str(
-                                &file_utils::read(&target_def.file_path).unwrap_or_default(),
-                            );
+                        );
+
+                    if locked_writed.insert(target_hash) {
+                        let code = generate_code_from_definition(
+                            &allocator,
+                            target_def,
+                            resolved_definitions.clone(),
+                            true,
+                            None,
+                        );
+
+                        if let Some(code) = code {
+                            generated_code.push_str(&code);
                         }
                     }
-
-                    let code = CleanupVisitor::new().cleanup(&target_source_text);
-                    target_source_text = format!("{}\n{}\n}}", prefix, code);
                 }
 
-                drop(locked_writed);
-
-                let allocator = oxc::allocator::Allocator::default();
-
-                let mut code_generator = OutputGenerator::new(
-                    resolved_definitions.clone(),
-                    &allocator,
-                    &last_target_def.specifier,
-                    var_name.clone(),
-                    span,
-                    file_path,
-                    defined_generics,
-                    &target_source_text,
-                );
-
-                code_generator.generate();
-
-                return code_generator.code;
+                return Some(generated_code);
             }
+
+            if !locked_writed.insert(var_name.clone()) {
+                return None;
+            }
+
+            let main_code = generate_code_from_definition(
+                &allocator,
+                last_target_def,
+                resolved_definitions.clone(),
+                false,
+                Some(var_name.clone()),
+            );
+
+            if let Some(main_code) = main_code {
+                generated_code.push_str(&main_code);
+            } else {
+                return None;
+            }
+
+            // NOTE: if target is TSInterface, bundle all target definitions to merge interfaces
+            if last_target_def.target_type == TargetType::TSInterface {
+                for target_def in &target_definitions[1..] {
+                    if locked_writed.insert(get_id_with_hash(
+                        target_def.file_path.to_string_lossy().to_string(),
+                        target_def.span,
+                    )) && target_def.target_type == TargetType::TSInterface
+                    {
+                        let code = generate_code_from_definition(
+                            &allocator,
+                            target_def,
+                            resolved_definitions.clone(),
+                            false,
+                            None,
+                        );
+                        if let Some(code) = code {
+                            generated_code.push_str(&code);
+                        }
+                    }
+                }
+            }
+
+            drop(locked_writed);
+            return Some(generated_code);
         }
     }
 
@@ -254,7 +256,6 @@ fn get_original_code(
 ) -> Option<String> {
     let target_source = file_utils::read(file_path).unwrap_or_default();
     let target_source_text = span.source_text(&target_source);
-
     let allocator = oxc::allocator::Allocator::default();
 
     let mut code_generator = OutputMainGenerator::new(
@@ -274,35 +275,30 @@ fn get_original_code(
     None
 }
 
-struct CleanupVisitor {}
+fn generate_code_from_definition(
+    allocator: &Allocator,
+    target_def: &TargetDefinition,
+    resolved_definitions: Arc<Mutex<ResolvedDefinitions>>,
+    is_full: bool,
+    var_name: Option<String>,
+) -> Option<String> {
+    let target_file_full_text = file_utils::read(&target_def.file_path).unwrap_or_default();
+    let target_code = if is_full {
+        &target_file_full_text
+    } else {
+        target_def.span.source_text(&target_file_full_text)
+    };
 
-impl CleanupVisitor {
-    fn new() -> Self {
-        Self {}
-    }
-
-    fn cleanup(&mut self, code: &str) -> String {
-        let source_type = SourceType::ts();
-        let allocator = Allocator::default();
-        let source_text_parser = Parser::new(&allocator, code, source_type);
-        let mut program = source_text_parser.parse().program;
-        self.visit_program(&mut program);
-        program.comments = AllocVec::new_in(&allocator);
-
-        let code = Codegen::new().build(&program).code;
-        code
-    }
-}
-
-impl<'a> VisitMut<'a> for CleanupVisitor {
-    fn visit_statements(&mut self, it: &mut AllocVec<'a, Statement<'a>>) {
-        it.retain(|stmt| {
-            let result: bool = match stmt {
-                Statement::ImportDeclaration(_) => false,
-                Statement::TSImportEqualsDeclaration(_) => false,
-                _ => true,
-            };
-            result
-        });
-    }
+    let mut code_generator = OutputGenerator::new(
+        resolved_definitions.clone(),
+        allocator,
+        &target_def.specifier,
+        var_name.unwrap_or(target_def.specifier.clone()),
+        target_def.span,
+        target_def.file_path.to_string_lossy().to_string(),
+        target_def.defined_generics.clone(),
+        target_code,
+    );
+    code_generator.generate();
+    code_generator.code
 }

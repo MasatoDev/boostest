@@ -47,7 +47,7 @@ async function stringifySafely(obj) {
 
   const seen = new WeakSet();
 
-  function replacer(key, value) {
+  function replacer(key: any, value: any) {
     // 循環参照のチェック
     if (typeof value === "object" && value !== null) {
       if (seen.has(value)) {

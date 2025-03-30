@@ -4,9 +4,9 @@ import {
   BuiltInInterface,
   BuiltInType,
 } from "@/ts_types/built_in_class";
-import { boostestTSAliasBuiltInType } from "./boostest_output/boostestTSAliasBuiltInType";
 import { boostestInterfaceBuiltInType } from "./boostest_output/boostestInterfaceBuiltInType";
 import { boostestClassBuiltInType } from "./boostest_output/boostestClassBuiltInType";
+import { boostestTSAliasBuiltInType } from "./boostest_output/boostestTSAliasBuiltInType";
 
 describe("BuiltIn Tests", () => {
   runSnapshotTest(

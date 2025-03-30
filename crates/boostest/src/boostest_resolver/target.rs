@@ -1,6 +1,6 @@
 use oxc::{
     ast::{
-        ast::{TSType, TSTypeName, TSTypeQueryExprName},
+        ast::{IdentifierReference, TSQualifiedName, TSType, TSTypeName, TSTypeQueryExprName},
         match_ts_type_name,
         visit::{
             walk::{walk_ts_type_name, walk_ts_type_parameter_instantiation},
@@ -21,7 +21,7 @@ use std::{
 use oxc::ast::ast::TSTypeParameterInstantiation;
 
 use crate::boostest_utils::{
-    ast_utils::{self, ignore_ref_name},
+    ast_utils::{self, ignore_name, ignore_ref_name},
     id_name::get_id_with_hash,
     napi::TargetType,
 };
@@ -162,7 +162,10 @@ impl Target {
         target_reference: TargetReference,
         decl_type: DeclType,
     ) {
-        // println!("add_property: {}", name);
+        if ignore_name(&name) {
+            return;
+        }
+
         let already_exists = self.ref_properties.iter().any(|prop| {
             let prop = prop.lock().unwrap();
             prop.target_reference.span == target_reference.span
@@ -217,9 +220,10 @@ impl ResolvedDefinitions {
             TargetType::TSInterface => decl_type == DeclType::Type,
             TargetType::TSTypeAlias => decl_type == DeclType::Type,
             TargetType::Variable => decl_type == DeclType::Value,
-            TargetType::TSModule => decl_type == DeclType::Value,
+            TargetType::TSModule => true,
             TargetType::Function => true,
             TargetType::Class => true,
+            TargetType::TSEnum => true,
             TargetType::ImportAll => true,
         };
 
@@ -301,12 +305,20 @@ impl ResolvedDefinitions {
         original_name: &str,
     ) -> Option<String> {
         if let Some(Some(definitions)) = self.inner.get(key) {
-            if let Some((file_path, span, _, target_type)) = bundle_target_defs(definitions) {
-                if target_type == TargetType::ImportAll {
+            if let Some(definition) = definitions.last() {
+                let TargetDefinition {
+                    file_path,
+                    span,
+                    target_type,
+                    ..
+                } = definition;
+
+                if *target_type == TargetType::ImportAll {
                     return Some(original_name.to_string());
                 }
 
-                let name = get_id_with_hash(file_path, span);
+                let name = get_id_with_hash(file_path.to_string_lossy().to_string(), span.clone());
+
                 return Some(name);
             }
             return None;
@@ -377,8 +389,8 @@ impl<'a> Visit<'a> for MainTarget {
         }
 
         if let TSTypeName::QualifiedName(qualified_name) = it {
-            let id = &qualified_name.right.name;
-            if ignore_ref_name(id) {
+            let id = &qualified_name.left.to_string();
+            if ignore_name(id) {
                 return;
             }
 
@@ -386,6 +398,24 @@ impl<'a> Visit<'a> for MainTarget {
         }
 
         walk_ts_type_name(self, it);
+    }
+
+    fn visit_identifier_reference(&mut self, identifier: &IdentifierReference<'a>) {
+        let id = identifier.name.clone();
+        if ignore_ref_name(&id) {
+            return;
+        }
+
+        self.add_prop_with_retry(id.to_string(), identifier.span, DeclType::Type);
+    }
+
+    fn visit_ts_qualified_name(&mut self, qualified_name: &TSQualifiedName<'a>) {
+        let id = &qualified_name.left.to_string();
+        if ignore_name(id) {
+            return;
+        }
+
+        self.add_prop_with_retry(id.to_string(), qualified_name.right.span, DeclType::Type);
     }
 
     fn visit_ts_type_query_expr_name(&mut self, it: &TSTypeQueryExprName<'a>) {
@@ -404,8 +434,8 @@ impl<'a> Visit<'a> for MainTarget {
                 }
 
                 if let TSTypeName::QualifiedName(qualified_name) = ts_type_name {
-                    let id = &qualified_name.right.name;
-                    if ignore_ref_name(id) {
+                    let id = &qualified_name.left.to_string();
+                    if ignore_name(id) {
                         return;
                     }
 
@@ -526,27 +556,4 @@ pub fn gen_target_supplement(is_generic_property: bool) -> Option<TargetSuppleme
     Some(TargetSupplement {
         is_generic_property,
     })
-}
-
-pub fn bundle_target_defs(
-    definitions: &Vec<TargetDefinition>,
-) -> Option<(String, Span, Vec<String>, TargetType)> {
-    if let Some(definition) = definitions.last() {
-        let file_path = definition.file_path.to_string_lossy().to_string();
-        let mut defined_generics = definition.defined_generics.clone();
-        let mut new_span = Span::new(0, 0);
-
-        for def in definitions.iter() {
-            new_span = Span::new(new_span.start + def.span.start, new_span.end + def.span.end);
-            defined_generics.extend(def.defined_generics.clone());
-        }
-
-        return Some((
-            file_path,
-            new_span,
-            defined_generics,
-            definition.target_type,
-        ));
-    }
-    return None;
 }

@@ -1,10 +1,10 @@
 import ts, { Node } from "typescript";
 
-const TypeOriginalFlag = {
-  constructorSignature: "constructorSignature",
-} as const;
-
 const typeCache = new Map<ts.Type, string>();
+const nodeCache = new Map<ts.Node, string | undefined>();
+
+// __@ts-alias@1, __@toPrimitive@2, __@ts-alias@3
+const SymbolRegex = /__@[^@]+@\d+/g; // gフラグで全体検索
 
 /*******************************************/
 /*******************************************/
@@ -12,26 +12,26 @@ const typeCache = new Map<ts.Type, string>();
 /*******************************************/
 /*******************************************/
 export function inferTsAlias(sourceCode: string) {
+  // console.log("📝📝📝📝📝📝📝\n", sourceCode);
   const code = removeDuplicateDeclarations(sourceCode);
-  // console.log("📝📝📝📝📝📝📝\n", code);
 
   const fileName = "example.ts";
-
   const sourceFile = ts.createSourceFile(
     fileName,
     code,
     ts.ScriptTarget.Latest,
     true,
   );
-
   const host = ts.createCompilerHost({});
   host.getSourceFile = (fileName) =>
     fileName === "example.ts" ? sourceFile : undefined;
+
   const program = ts.createProgram(
     [fileName],
     {
       target: ts.ScriptTarget.ESNext,
       module: ts.ModuleKind.CommonJS,
+      preserveSymlinks: true,
     },
     host,
   );
@@ -55,7 +55,6 @@ export function inferTsAlias(sourceCode: string) {
       if (!structure) {
         structure = getTypeStructure(checker, type);
       }
-
       boostestTypes.push({
         type: "typeAlias",
         name: aliasName,
@@ -69,15 +68,13 @@ export function inferTsAlias(sourceCode: string) {
   visit(sourceFile);
 
   const output = boostestTypes
-    .map(
-      (t) =>
-        `type ${t.name}_output_target = ${t.structure}; // Extracted from ${t.type}`,
-    )
+    .map((t) => `type ${t.name}_output_target = ${t.structure};`)
     .join("\n");
 
   // console.log("🎉🎉🎉", `${output}\n\n${code}`);
   // console.log("🎉🎉🎉", `${output}\n`);
   return `${output}\n\n${code}`;
+  // return `${output}`;
 }
 
 /**********************************************************/
@@ -92,7 +89,24 @@ export function inferTsAlias(sourceCode: string) {
 /**********************************************************/
 /**********************************************************/
 /**********************************************************/
+
 function getTextFromNode(
+  checker: ts.TypeChecker,
+  node: ts.Node,
+  is_root: boolean = false,
+  visitedTypes = new Set<ts.Type>(),
+) {
+  const cacheKey = node;
+
+  if (nodeCache.has(cacheKey)) {
+    return nodeCache.get(cacheKey);
+  }
+  const result = getTextFromNodeInner(checker, node, is_root, visitedTypes);
+  nodeCache.set(cacheKey, result);
+  return result;
+}
+
+function getTextFromNodeInner(
   checker: ts.TypeChecker,
   node: ts.Node,
   is_root: boolean = false,
@@ -149,11 +163,18 @@ function getTypeStructure(
   type: ts.Type,
   visitedTypes = new Set<ts.Type>(),
 ) {
-  if (typeCache.has(type)) {
-    return typeCache.get(type);
+  // const cacheKey = `${type.symbol?.escapedName}_${type.flags}`;
+  const cacheKey = type;
+  if (typeCache.has(cacheKey)) {
+    return typeCache.get(cacheKey);
   }
-  const result = getTypeStructureInner(checker, type, visitedTypes);
-  typeCache.set(type, result);
+
+  let result = handleBuildIn(checker, type);
+  if (!result) {
+    result = getTypeStructureInner(checker, type, visitedTypes);
+  }
+  typeCache.set(cacheKey, result);
+
   return result;
 }
 
@@ -230,31 +251,12 @@ function getTypeStructureInner(
   // }
   else if (isObjectType(type)) {
     const result = [];
-
-    // constructor signature
-    // const constructSignatures = type
-    //   .getConstructSignatures()
-    //   .map((signature) => {
-    //     const parameters = signature.getParameters().map((param) => {
-    //       const paramType = checker.getTypeOfSymbolAtLocation(
-    //         param,
-    //         param.valueDeclaration!,
-    //       );
-    //       const expandedParamType = getTypeStructure(checker, paramType);
-    //       return `${param.getName()}: ${expandedParamType}`;
-    //     });
-    //     const returnType = checker.getReturnTypeOfSignature(signature);
-    //     const expandedReturnType = getTypeStructure(checker, returnType);
-    //     return `new (${parameters.join(", ")}): ${expandedReturnType}`;
-    //   });
-    //
-    // result.push(...constructSignatures);
-
     // string index type / number index type
     const indexInfos = checker.getIndexInfosOfType(type);
 
     const indexSignatures = indexInfos.map((indexInfo) => {
       const keyFlag = indexInfo.keyType.flags;
+
       const keyType =
         keyFlag & ts.TypeFlags.Number
           ? "number"
@@ -275,6 +277,13 @@ function getTypeStructureInner(
     //   hoge: K;
     // }
     for (const prop of type.getProperties()) {
+      let propName = prop.name;
+
+      if (propName.match(SymbolRegex)) {
+        const cleanedText = propName.replace(/__|@/g, "");
+        propName = cleanedText;
+      }
+
       let propStructure;
 
       const propType = checker.getTypeOfSymbol(prop);
@@ -308,7 +317,7 @@ function getTypeStructureInner(
         propStructure = getTypeStructure(checker, propType, visitedTypes);
       }
 
-      result.push(`${prop.name}: ${propStructure}`);
+      result.push(`${propName}: ${propStructure}`);
     }
 
     // call signature
@@ -425,28 +434,75 @@ function removeDuplicateDeclarations(code: string) {
 }
 
 // const code = `
-// type main =
-//   ref_5450c7e54ff602814aefb578141612331188c886e2c092ce0b16692c10a90d0e;
-// type ref_5450c7e54ff602814aefb578141612331188c886e2c092ce0b16692c10a90d0e = {
-//   regexp: ref_df316930e33dd8c70ce446a1269ebd0fc8c83648e97cba491329daddc19aef5e;
-// };
-// interface ref_df316930e33dd8c70ce446a1269ebd0fc8c83648e97cba491329daddc19aef5e {
-//   exec(
-//     string: string,
-//   ): ref_23fa0c841a57bf38f7d312b179d4bf4f1ae9a2038b2283150dc322460f3c1535 | null;
-//   test(string: string): boolean;
-//   readonly source: string;
-//   readonly global: boolean;
-//   readonly ignoreCase: boolean;
-//   readonly multiline: boolean;
-//   lastIndex: number;
-//   compile(pattern: string, flags?: string): this;
-// }
-// interface ref_23fa0c841a57bf38f7d312b179d4bf4f1ae9a2038b2283150dc322460f3c1535 {
-//   index: number;
-//   input: string;
-//   0: string;
+// type main = Date;
+// interface Date {
+//   [Symbol.toPrimitive](hint: "default"): string;
+//   [Symbol.toPrimitive](hint: "string"): string;
+//   [Symbol.toPrimitive](hint: "number"): number;
+//   toISOString(): string;
 // }
 // `;
-//
+// //
 // console.log(inferTsAlias(code));
+// //
+
+function getBaseType(typeName: string): string {
+  // 正規表現でジェネリクス部分を取り除く
+  const match = typeName.match(/^([^\<]+)/); // "<"より前の部分を抽出
+  return match ? match[1] : typeName; // マッチがなければそのまま返す
+}
+
+function handleBuildIn(checker: ts.TypeChecker, type: ts.Type) {
+  const escapedName = type?.symbol?.escapedName;
+  const originalTypeName = checker.typeToString(type);
+  const typeName = escapedName ?? getBaseType(originalTypeName);
+
+  switch (typeName) {
+    case "Date":
+    case "Set":
+    case "Map":
+    case "Error":
+    case "Int8Array":
+    case "Uint8Array":
+    case "Uint8ClampedArray":
+    case "Int16Array":
+    case "Uint16Array":
+    case "Int32Array":
+    case "Uint32Array":
+    case "Float32Array":
+    case "Float64Array":
+    case "BigInt64Array":
+    case "BigUint64Array":
+      return `["classReference", ${typeName}, []]`;
+
+    case "RegExp":
+      return `["classReference", ${typeName}, [""]]`;
+
+    case "ArrayBuffer":
+      return `["classReference", ArrayBuffer, [0]]`;
+
+    case "String":
+      return "string";
+    case "Number":
+      return "number";
+    case "Boolean":
+      return "boolean";
+
+    case "Array":
+    case "Symbol":
+    case "Function":
+    case "Object":
+      return originalTypeName;
+
+    // TODO:
+    // case "DataView":
+    //   return `["classReference", DataView, [["classReference", "ArrayBuffer", [0]]]`;
+    // case "Atomics":
+    //   return "Atomics";
+    // case "WebAssembly":
+    //   return "WebAssembly";
+
+    default:
+      return undefined;
+  }
+}
